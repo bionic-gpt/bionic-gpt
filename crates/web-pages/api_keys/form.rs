@@ -1,10 +1,10 @@
 #![allow(non_snake_case)]
 use daisy_rsx::{select::SelectOption, *};
-use db::Prompt;
+use db::queries::models::ModelConfig;
 use dioxus::prelude::*;
 
 #[component]
-pub fn ModelForm(team_id: String, prompts: Vec<Prompt>) -> Element {
+pub fn ModelForm(team_id: String, prompts: Vec<ModelConfig>) -> Element {
     rsx!(
         form {
             action: crate::routes::api_keys::New{ team_id: team_id.clone() }.to_string(),
@@ -35,7 +35,7 @@ pub fn ModelForm(team_id: String, prompts: Vec<Prompt>) -> Element {
                             help_text: "All access via this API key will use the above model",
                             Select {
                                 class: "w-full",
-                                name: "prompt_id",
+                                name: "model_id",
                                 {prompts.iter().map(|prompt| rsx!(
                                     SelectOption {
                                         value: "{prompt.id}",

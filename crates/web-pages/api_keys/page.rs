@@ -7,14 +7,15 @@ use crate::{
 };
 use assets::files::*;
 use daisy_rsx::*;
-use db::{authz::Rbac, ApiKey, Prompt};
+use db::queries::models::ModelConfig;
+use db::{authz::Rbac, ApiKey};
 use dioxus::prelude::*;
 
 #[derive(Clone)]
 pub struct GeneratedKey {
     pub name: String,
     pub value: String,
-    pub prompt_name: Option<String>,
+    pub model_name: Option<String>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -22,7 +23,7 @@ pub fn page(
     rbac: Rbac,
     team_id: String,
     api_keys: Vec<ApiKey>,
-    models: Vec<Prompt>,
+    models: Vec<ModelConfig>,
     token_usage_data: Vec<db::queries::token_usage_metrics::DailyTokenUsage>,
     api_request_data: Vec<db::queries::token_usage_metrics::DailyApiRequests>,
     generated_key: Option<GeneratedKey>,
@@ -58,7 +59,7 @@ pub fn page(
                         alert_color: AlertColor::Success,
                         class: "mb-6 flex flex-col gap-2",
                         div { class: "font-semibold", "API Key Created" }
-                        if let Some(name) = created.prompt_name.clone() {
+                        if let Some(name) = created.model_name.clone() {
                             div { class: "text-sm opacity-90", "Copy and store this key for {name}. This is the only time it will be shown." }
                         } else {
                             div { class: "text-sm opacity-90", "Copy and store this key. This is the only time it will be shown." }
@@ -150,7 +151,7 @@ fn ApiKeysTable(api_keys: Vec<ApiKey>, team_id: String) -> Element {
                                     span { class: "font-mono text-sm", "{mask_hash(&key.api_key)}" }
                                 }
                                 td {
-                                    if let Some(name) = key.prompt_name.clone() {
+                                    if let Some(name) = key.model_name.clone() {
                                         "{name}"
                                     } else {
                                         "-"

@@ -17,11 +17,16 @@ All of the pages are generated server side with a little bit of Typescript on th
 ## Database Migrations
 
 - When adding a new enum value (e.g., `ALTER TYPE ... ADD VALUE`), do not use the new value in the same migration transaction. Split into a follow-up migration before inserting rows that reference the new enum value.
+- Create migrations with `dbmate --migrations-dir crates/db/migrations new <migration-name>` so timestamps are generated consistently.
+- Before running database-dependent Rust checks, apply the migrations to the configured database with `dbmate --migrations-dir crates/db/migrations up`.
+- `crates/db/build.rs` runs Cornucopia against `DATABASE_URL`; `crates/db` therefore requires a reachable database containing the latest migrations during `cargo check`, `cargo build`, and relevant tests.
+- If no database is reachable, report that database-dependent validation could not run. Do not hand-edit generated Cornucopia output to work around this.
+- For migration changes, verify both migration application and Cornucopia generation with `cargo check -p db`.
 
-## Folder: db
+## Folder: crates/db
 
 - All of the `dbmate` migrations are stored in the `migrations` folder.
-- To create a new migration run `dbmate new migration-name` where migration name somehow represents the work you are doing. Always use `dbmate new` so timestamps are correct.
+- To create a new migration run `dbmate --migrations-dir crates/db/migrations new migration-name` where the migration name represents the work being done.
 - All of the `.sql` files are in a folder called `queries`.
 - The `sql` files are named after the main tables use. i.e. `users.sql` for the `users` table.
 - All the database CRUD operation are in these files.
@@ -35,6 +40,18 @@ All of the pages are generated server side with a little bit of Typescript on th
 - **Parameters**: Cornucopia auto-detects parameters from `:param_name` syntax - don't declare them manually
 - **Intervals**: Use `(:days || ' days')::INTERVAL` for dynamic intervals, not `INTERVAL ':days days'`
 - **Optional Fields**: Add `field_name?` in struct definitions for nullable columns
+- Keep application CRUD SQL in `crates/db/queries` and call the generated query functions from Rust. Do not duplicate the same CRUD SQL in runtime modules.
+- Never edit generated Cornucopia code under `OUT_DIR`; it is recreated during builds.
+- Use explicit casts for nullable query parameters when PostgreSQL cannot infer their types, then verify the generated parameter type.
+- Queries using `ON CONFLICT DO NOTHING` may return no row; model their result as optional rather than requiring `.one()`.
+
+### Database Types and Authorization
+
+- Cornucopia maps `TIMESTAMPTZ` query fields to `chrono::DateTime<FixedOffset>` in this project. Do not initialize them with `time::OffsetDateTime`; convert explicitly at API boundaries.
+- Set the authenticated database context inside the transaction before executing queries that use `current_app_user()` or row-level authorization.
+- User-facing queries must scope by the authenticated user and accessible team. Never accept `user_id`, `team_id`, or ownership fields from model/tool arguments.
+- Conversation-derived context must verify both current ownership and team membership.
+- Keep privileged due-task queries separate from user-facing CRUD queries when implementing background schedulers.
 
 ## Folder: static-website
 
@@ -101,10 +118,13 @@ Bionic runs in a `devcontainer` and uses [k3d](https://k3d.io/stable/) to run su
 
 - Use `just test` or `cargo test --workspace --exclude integration-testing --exclude rag-engine`
 - This will exclude the integration-testing which requires an environment with selenium.
+- For migration-backed features, also test migration application against a clean database, generated query compilation, authorization isolation, and database constraints such as uniqueness and idempotency.
+- Do not describe a feature as fully tested when only parser or unit tests passed; call out missing database/integration coverage.
 
 ## Build Check
 
 - Always run `cargo build` after making changes.
+- For database-backed changes, use this order: apply migrations, run `cargo check -p db`, run focused tests, run Clippy, run `cargo build`, then run the standard workspace tests.
 
 ## Running the integration tests
 

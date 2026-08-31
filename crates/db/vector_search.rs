@@ -1,4 +1,3 @@
-use crate::queries::prompts;
 use crate::TokioPostgresError;
 use crate::Transaction;
 
@@ -8,21 +7,12 @@ pub struct RelatedContext {
 }
 
 // Query the vector database using a similarity search.
-// The prompt decides how we use the datasets
 pub async fn get_related_context(
     transaction: &Transaction<'_>,
-    prompt_id: i32,
+    dataset_ids: &[i32],
     limit: i32,
     embeddings: Vec<f32>,
 ) -> Result<Vec<RelatedContext>, TokioPostgresError> {
-    // Which datasets does the prompt use
-    let datasets = prompts::prompt_datasets()
-        .bind(transaction, &prompt_id)
-        .all()
-        .await?;
-    // We just need the id's
-    let datasets: Vec<i32> = datasets.iter().map(|dataset| dataset.dataset_id).collect();
-
     // Format the embeddings in PGVector format
     let embedding_data = pgvector::Vector::from(embeddings.clone());
 
@@ -43,7 +33,7 @@ pub async fn get_related_context(
                         embeddings <-> $2 
                     LIMIT $3;
                     ",
-            &[&datasets, &embedding_data, &(limit as i64)],
+            &[&dataset_ids, &embedding_data, &(limit as i64)],
         )
         .await?;
 

@@ -18,6 +18,30 @@ pub mod history {
     }
 }
 
+pub mod scheduled_tasks {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/scheduled-tasks")]
+    pub struct Index {
+        pub team_id: String,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/scheduled-tasks/update")]
+    pub struct Update {
+        pub team_id: String,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/scheduled-tasks/delete/{id}")]
+    pub struct Delete {
+        pub team_id: String,
+        pub id: i64,
+    }
+}
+
 pub mod rate_limits {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;

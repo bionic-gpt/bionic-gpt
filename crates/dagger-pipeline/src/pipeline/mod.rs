@@ -15,6 +15,7 @@ pub(crate) const RAG_ENGINE_EXE_NAME: &str = "rag-engine";
 pub(crate) const AIRBYTE_EXE_NAME: &str = "airbyte-connector";
 pub(crate) const POSTGRES_MCP_EXE_NAME: &str = "postgres-mcp";
 pub(crate) const CLI_GATEWAY_EXE_NAME: &str = "cli-gateway";
+pub(crate) const CRON_EXE_NAME: &str = "cron";
 pub(crate) const TARGET_TRIPLE: &str = "x86_64-unknown-linux-musl";
 
 pub(crate) const APP_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt";
@@ -23,6 +24,7 @@ pub(crate) const RAG_ENGINE_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-rag
 pub(crate) const AIRBYTE_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-airbyte-connector";
 pub(crate) const POSTGRES_MCP_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-postgres-mcp";
 pub(crate) const CLI_GATEWAY_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-cli-gateway";
+pub(crate) const CRON_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-cron";
 pub(crate) const EVAL_MOCKS_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-eval-mocks";
 
 pub(crate) const SUMMARY_PATH: &str = "/build/SUMMARY.md";

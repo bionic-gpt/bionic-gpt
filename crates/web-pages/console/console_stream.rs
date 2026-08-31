@@ -295,7 +295,7 @@ mod tests {
                 role,
                 tool_call_id: None,
                 tool_calls: None,
-                prompt_id: 1,
+                model_id: 1,
                 model_name: "test-model".to_string(),
                 attachments: None,
                 status: ChatStatus::Success,

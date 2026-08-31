@@ -12,7 +12,7 @@ use super::CONSOLE_CONTENT_WIDTH;
 #[component]
 pub fn Form(
     team_id: String,
-    prompt_id: i32,
+    model_id: i32,
     conversation_id: Option<i64>,
     lock_console: bool,
     disclaimer: String,
@@ -45,8 +45,8 @@ pub fn Form(
                     }
                     input {
                         "type": "hidden",
-                        name: "prompt_id",
-                        value: "{prompt_id}"
+                        name: "model_id",
+                        value: "{model_id}"
                     }
 
                     div {

@@ -6,14 +6,14 @@ use crate::SectionIntroduction;
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::queries::models::ModelWithPrompt;
+use db::queries::models::ModelConfig;
 use dioxus::prelude::*;
 
 pub fn page(
     team_id: String,
     rbac: Rbac,
     setup_required: bool,
-    models_with_capabilities: Vec<(ModelWithPrompt, bool, bool, bool, bool)>,
+    models_with_capabilities: Vec<(ModelConfig, bool, bool, bool, bool)>,
 ) -> String {
     let page = rsx! {
         AdminLayout {

@@ -15,8 +15,11 @@ tiktoken-rs = "0.9.1"
 tracing.workspace = true
 axum.workspace = true
 chrono.workspace = true
+chrono-tz = "0.10"
+cron = "0.15"
 db = { path = "../db" }
 tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }
+tokio-postgres = { workspace = true, features = ["with-chrono-0_4"] }
 async-trait.workspace = true
 oas3.workspace = true
 oauth2.workspace = true

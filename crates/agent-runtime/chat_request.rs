@@ -49,10 +49,13 @@ pub(crate) async fn create_request(
         .one()
         .await?;
 
-    let prompt = queries::prompts::prompt()
-        .bind(&transaction, &chat.prompt_id, &conversation.team_id)
-        .one()
-        .await?;
+    let prompt = queries::models::all_models()
+        .bind(&transaction)
+        .all()
+        .await?
+        .into_iter()
+        .find(|model| model.id == chat.model_id)
+        .ok_or_else(|| CustomError::FaultySetup("Model configuration not found".into()))?;
 
     let chat_history = queries::chats::chat_history()
         .bind(
@@ -70,10 +73,10 @@ pub(crate) async fn create_request(
         .any(|c| c.capability == db::ModelCapability::tool_use);
 
     let integration_context = if supports_tool_use {
-        match tool_runtime::builtin_tools::monty::available_function_catalogue_prompt_section(
+        match tool_runtime::builtin_tools::monty::available_function_catalogue_prompt_section_for_conversation(
             pool,
             &current_user.sub,
-            conversation.team_id,
+            conversation.id,
         )
         .await
         {
@@ -142,7 +145,7 @@ pub(crate) async fn create_request(
                     .bind(
                         &transaction,
                         &conversation.id,
-                        &chat.prompt_id,
+                        &chat.model_id,
                         &None::<String>,
                         &None::<String>,
                         &"Your question violated our guidelines",

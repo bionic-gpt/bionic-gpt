@@ -271,7 +271,7 @@ pub(super) async fn validate_api_key(pool: &Pool, api_key_value: &str) -> Result
         .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?
         .ok_or_else(|| CustomError::Authentication("Invalid API Key".to_string()))?;
 
-    if api_key_record.prompt_id.is_some() {
+    if api_key_record.model_id.is_some() {
         return Err(CustomError::Authentication(
             "API key is not enabled for MCP".to_string(),
         ));

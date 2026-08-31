@@ -86,3 +86,15 @@ services:
       - "3000:7703"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  # Executes persisted scheduled tasks using the normal agent runtime.
+  cron:
+    image: ghcr.io/bionic-gpt/bionicgpt-cron:1.12.20
+    platform: linux/amd64
+    environment:
+      APP_DATABASE_URL: postgresql://application_user:testpassword@postgres:5432/bionic-gpt?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully

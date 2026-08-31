@@ -19,7 +19,7 @@ pub async fn conversation(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let (rbac, team_id_num) =
+    let (rbac, _team_id_num) =
         authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let chats = queries::chats::chats()
@@ -43,25 +43,25 @@ pub async fn conversation(
     let (chat_history, pending_chat_state) =
         super::utils::process_chats(&transaction, chats).await?;
 
-    let prompts = queries::prompts::prompts()
-        .bind(&transaction, &team_id_num)
+    let prompts = queries::models::llm_models()
+        .bind(&transaction)
         .all()
         .await?;
 
     if prompts.is_empty() {
         return Err(CustomError::FaultySetup(
-            "No model prompts configured".to_string(),
+            "No LLM models configured".to_string(),
         ));
     }
 
-    let prompt_id = if let Some(default_prompt) = user_config.default_prompt {
-        default_prompt
+    let model_id = if let Some(default_model) = user_config.default_model {
+        default_model
     } else {
         prompts.first().unwrap().id
     };
 
-    let prompt = queries::prompts::prompt()
-        .bind(&transaction, &prompt_id, &team_id_num)
+    let prompt = queries::models::model_config()
+        .bind(&transaction, &model_id)
         .one()
         .await;
 
@@ -69,14 +69,14 @@ pub async fn conversation(
         prompt
     } else {
         let id = prompts.first().unwrap().id;
-        queries::prompts::prompt()
-            .bind(&transaction, &id, &team_id_num)
+        queries::models::model_config()
+            .bind(&transaction, &id)
             .one()
             .await?
     };
 
     let capabilities = queries::capabilities::get_model_capabilities()
-        .bind(&transaction, &prompt.model_id)
+        .bind(&transaction, &prompt.id)
         .all()
         .await?;
     let html = console::conversation::page(

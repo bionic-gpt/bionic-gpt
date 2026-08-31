@@ -1,13 +1,13 @@
 #![allow(non_snake_case)]
 use crate::components::card_item::{CardItem, CountLabel};
 use daisy_rsx::*;
-use db::queries::models::ModelWithPrompt;
+use db::queries::models::ModelConfig;
 use dioxus::prelude::*;
 
 #[component]
 pub fn ModelCard(
     team_id: String,
-    model: ModelWithPrompt,
+    model: ModelConfig,
     has_function_calling: bool,
     has_vision: bool,
     has_tool_use: bool,

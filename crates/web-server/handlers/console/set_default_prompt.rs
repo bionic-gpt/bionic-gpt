@@ -18,7 +18,7 @@ pub async fn set_default_prompt(
     Form(form): Form<IdForm>,
 ) -> (CookieJar, Redirect) {
     let updated_config = UserConfig {
-        default_prompt: Some(form.id),
+        default_model: Some(form.id),
     };
 
     // Create a cookie with root path so it's accessible from any path

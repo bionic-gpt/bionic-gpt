@@ -1,25 +1,23 @@
---: History(prompt_id?)
+--: History(model_id?)
 
 --! search_history : History
 WITH search_results AS (
     SELECT
         c.conversation_id,
-        c.prompt_id,
+        c.model_id,
         c.created_at,
         decrypt_text(c.content) as content
     FROM
         llm.chats c
     JOIN
         llm.conversations conv ON c.conversation_id = conv.id
-    JOIN
-        model_registry.prompts p ON c.prompt_id = p.id
     WHERE
         conv.user_id = :user_id
     AND LOWER(decrypt_text(c.content)) LIKE LOWER('%' || :search_term || '%')
 )
 SELECT
     sr.conversation_id as id,
-    sr.prompt_id as prompt_id,
+    sr.model_id as model_id,
     LEFT(COALESCE(sr.content), 255) as summary,
     trim(both '"' from to_json(sr.created_at)::text) as created_at_iso,
     sr.created_at
@@ -37,7 +35,7 @@ WITH summary AS (
 )
 SELECT
     c.id,
-    summary.prompt_id,
+    summary.model_id,
     CASE
         WHEN LENGTH(decrypt_text(summary.content)) > 150 THEN
             LEFT(decrypt_text(summary.content), 150) || '...'
@@ -53,8 +51,6 @@ JOIN
     summary
 ON
     c.id = summary.conversation_id
-JOIN
-    model_registry.prompts p ON summary.prompt_id = p.id
 WHERE
     c.user_id = current_app_user()
 AND
@@ -74,7 +70,7 @@ WITH summary AS (
 )
 SELECT
     c.id,
-    summary.prompt_id,
+    summary.model_id,
     CASE
         WHEN LENGTH(decrypt_text(summary.content)) > 150 THEN
             LEFT(decrypt_text(summary.content), 150) || '...'
@@ -90,8 +86,6 @@ JOIN
     summary
 ON
     c.id = summary.conversation_id
-JOIN
-    model_registry.prompts p ON summary.prompt_id = p.id
 WHERE
     c.project_id = :project_id
 AND

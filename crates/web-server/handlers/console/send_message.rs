@@ -18,7 +18,7 @@ use web_pages::routes::console::SendMessage;
 pub struct Message {
     pub message: String,
     pub conversation_id: Option<i64>,
-    pub prompt_id: i32,
+    pub model_id: i32,
 }
 
 pub async fn send_message(
@@ -31,7 +31,7 @@ pub async fn send_message(
     // Initialize variables to store form data
     let mut message_text = String::new();
     let mut conversation_id: Option<i64> = None;
-    let mut prompt_id: Option<i32> = None;
+    let mut model_id: Option<i32> = None;
     // Store file information and data for later processing
     let mut files_info: Vec<(String, String, Vec<u8>, usize)> = Vec::new();
 
@@ -50,9 +50,9 @@ pub async fn send_message(
                     }
                 }
             }
-            "prompt_id" => {
+            "model_id" => {
                 if let Ok(text) = field.text().await {
-                    prompt_id = Some(text.parse::<i32>().unwrap_or_default());
+                    model_id = Some(text.parse::<i32>().unwrap_or_default());
                 }
             }
             "attachments" => {
@@ -85,7 +85,7 @@ pub async fn send_message(
     }
 
     // Validate required fields
-    if message_text.is_empty() || prompt_id.is_none() {
+    if message_text.is_empty() || model_id.is_none() {
         return crate::layout::redirect(&web_pages::routes::console::Index { team_id }.to_string());
     }
 
@@ -93,7 +93,7 @@ pub async fn send_message(
     let message = Message {
         message: message_text,
         conversation_id,
-        prompt_id: prompt_id.unwrap(),
+        model_id: model_id.unwrap(),
     };
 
     // Validate the message
@@ -118,7 +118,7 @@ pub async fn send_message(
             .bind(
                 &transaction,
                 &conversation_id,
-                &message.prompt_id,
+                &message.model_id,
                 &None::<String>,
                 &None::<String>,
                 &message.message,

@@ -3,9 +3,10 @@ use axum::http::{request::Parts, StatusCode};
 use axum_extra::extract::cookie::Cookie;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct UserConfig {
-    pub default_prompt: Option<i32>,
+    #[serde(alias = "default_prompt")]
+    pub default_model: Option<i32>,
 }
 
 impl<S> FromRequestParts<S> for UserConfig
@@ -33,7 +34,7 @@ where
 
         // Fallback to default
         Ok(UserConfig {
-            default_prompt: None,
+            default_model: None,
         })
     }
 }

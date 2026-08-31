@@ -106,7 +106,7 @@ async fn save_results_db(pool: &Pool, request: SaveRequest<'_>) {
             .bind(
                 &transaction,
                 &chat.conversation_id,
-                &chat.prompt_id,
+                &chat.model_id,
                 &None::<String>,
                 &tool_calls_json,
                 &snapshot,
@@ -167,7 +167,7 @@ async fn save_results_db(pool: &Pool, request: SaveRequest<'_>) {
                     pool,
                     sub.to_string(),
                     chat.conversation_id,
-                    chat.prompt_id,
+                    chat.model_id,
                 )
                 .await;
 
@@ -195,7 +195,7 @@ async fn save_results_db(pool: &Pool, request: SaveRequest<'_>) {
                         .bind(
                             &transaction,
                             &chat.conversation_id,
-                            &chat.prompt_id,
+                            &chat.model_id,
                             &Some(stored_tool_call_id.clone()),
                             &None::<String>,
                             &result_json,

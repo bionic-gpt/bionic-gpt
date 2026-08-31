@@ -35,6 +35,7 @@ struct RuntimeOperation {
 enum OperationExecutor {
     OpenApiTool(Arc<dyn ToolDyn>),
     OpenUrl,
+    ScheduledTask(crate::scheduled_tasks::Operation),
 }
 
 #[derive(Clone)]
@@ -48,6 +49,7 @@ struct IntegrationInfo {
 pub struct RuntimeFunctionRegistry {
     integrations: Vec<IntegrationInfo>,
     functions: HashMap<String, RuntimeOperation>,
+    scheduled_context: Option<crate::scheduled_tasks::Context>,
 }
 
 impl RuntimeFunctionRegistry {
@@ -76,16 +78,34 @@ impl RuntimeFunctionRegistry {
 
         let row = transaction
             .query_one(
-                "SELECT team_id FROM llm.conversations WHERE id = $1",
+                "SELECT user_id, team_id, project_id FROM llm.conversations WHERE id = $1 AND user_id = current_app_user() AND team_id IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user())",
                 &[&conversation_id],
             )
             .await
             .map_err(|err| err.to_string())?;
-        let team_id: i32 = row.get(0);
+        let model_id: i32 = transaction
+            .query_one(
+                "SELECT model_id FROM llm.chats WHERE conversation_id = $1 ORDER BY id DESC LIMIT 1",
+                &[&conversation_id],
+            )
+            .await
+            .map_err(|err| err.to_string())?
+            .get(0);
+        let team_id: i32 = row.get(1);
+        let project_id: Option<i32> = row.get(2);
 
         transaction.commit().await.map_err(|err| err.to_string())?;
 
-        Self::load_for_team(pool, sub, team_id).await
+        let mut registry = Self::load_for_team(pool, sub, team_id).await?;
+        registry.add_scheduled_task_functions(crate::scheduled_tasks::Context {
+            pool: pool.clone(),
+            sub: sub.to_string(),
+            conversation_id,
+            model_id,
+            team_id,
+            project_id,
+        });
+        Ok(registry)
     }
 
     pub async fn load_for_team(pool: &db::Pool, sub: &str, team_id: i32) -> Result<Self, String> {
@@ -251,7 +271,61 @@ impl RuntimeFunctionRegistry {
         Self {
             integrations,
             functions,
+            scheduled_context: None,
         }
+    }
+
+    fn add_scheduled_task_functions(&mut self, context: crate::scheduled_tasks::Context) {
+        self.scheduled_context = Some(context.clone());
+        let definitions = [
+            (
+                "create_scheduled_task",
+                "Create a prompt that runs on a cron schedule.",
+                crate::scheduled_tasks::Operation::Create,
+                json!({"type":"object","properties":{"name":{"type":"string"},"cron":{"type":"string"},"timezone":{"type":"string"},"prompt":{"type":"string"}},"required":["name","cron","timezone","prompt"]}),
+            ),
+            (
+                "list_scheduled_tasks",
+                "List scheduled tasks owned by the current user.",
+                crate::scheduled_tasks::Operation::List,
+                json!({"type":"object","properties":{}}),
+            ),
+            (
+                "update_scheduled_task",
+                "Update a scheduled task owned by the current user.",
+                crate::scheduled_tasks::Operation::Update,
+                json!({"type":"object","properties":{"task_id":{"type":"integer"},"name":{"type":"string"},"cron":{"type":"string"},"timezone":{"type":"string"},"prompt":{"type":"string"},"enabled":{"type":"boolean"}},"required":["task_id"]}),
+            ),
+            (
+                "delete_scheduled_task",
+                "Delete a scheduled task owned by the current user.",
+                crate::scheduled_tasks::Operation::Delete,
+                json!({"type":"object","properties":{"task_id":{"type":"integer"}},"required":["task_id"]}),
+            ),
+        ];
+        for (name, description, operation, parameters) in definitions {
+            let runtime_operation = RuntimeOperation {
+                function_name: name.to_string(),
+                description: description.to_string(),
+                parameters,
+                byte_parameters: Vec::new(),
+                executor: OperationExecutor::ScheduledTask(operation),
+            };
+            self.functions
+                .insert(name.to_string(), runtime_operation.clone());
+        }
+        self.integrations.push(IntegrationInfo {
+            name: "Scheduled Tasks".to_string(),
+            slug: "scheduled-tasks".to_string(),
+            operations: self
+                .functions
+                .values()
+                .filter(|operation| {
+                    matches!(&operation.executor, OperationExecutor::ScheduledTask(_))
+                })
+                .cloned()
+                .collect(),
+        });
     }
 
     pub fn external_function_names(&self) -> Vec<String> {
@@ -400,6 +474,17 @@ Use run_bash to list `/home/user/functions`, then cat the relevant `.md` file be
                     Err(err) => ExtFunctionResult::Error(value_error(err.to_string())),
                 }
             }
+            OperationExecutor::ScheduledTask(operation) => {
+                let Some(context) = self.scheduled_context.as_ref() else {
+                    return ExtFunctionResult::Error(value_error(
+                        "scheduled tasks require an active conversation".to_string(),
+                    ));
+                };
+                match crate::scheduled_tasks::execute(context, *operation, arguments).await {
+                    Ok(value) => ExtFunctionResult::Return(json_to_monty(&value)),
+                    Err(error) => ExtFunctionResult::Error(value_error(error)),
+                }
+            }
         }
     }
 }
@@ -412,6 +497,18 @@ pub async fn available_function_catalogue_prompt_section(
     Ok(function_catalogue_for_team(pool, sub, team_id)
         .await?
         .prompt_section)
+}
+
+pub async fn available_function_catalogue_prompt_section_for_conversation(
+    pool: &db::Pool,
+    sub: &str,
+    conversation_id: i64,
+) -> Result<Option<String>, String> {
+    Ok(
+        function_catalogue_for_conversation(pool, sub, conversation_id)
+            .await?
+            .prompt_section,
+    )
 }
 
 pub async fn function_catalogue_for_team(

@@ -8,10 +8,10 @@ use serde_yaml::{Mapping, Value};
 
 use super::{
     AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, BASE_IMAGE,
-    CLI_GATEWAY_EXE_NAME, CLI_GATEWAY_IMAGE_REPO, DATABASE_URL, DB_FOLDER, DB_PASSWORD,
-    EVAL_MOCKS_IMAGE_REPO, MIGRATIONS_IMAGE_REPO, PIPELINE_FOLDER, POSTGRES_IMAGE,
-    POSTGRES_MCP_EXE_NAME, POSTGRES_MCP_IMAGE_REPO, RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_REPO,
-    SUMMARY_PATH, TARGET_TRIPLE,
+    CLI_GATEWAY_EXE_NAME, CLI_GATEWAY_IMAGE_REPO, CRON_EXE_NAME, CRON_IMAGE_REPO, DATABASE_URL,
+    DB_FOLDER, DB_PASSWORD, EVAL_MOCKS_IMAGE_REPO, MIGRATIONS_IMAGE_REPO, PIPELINE_FOLDER,
+    POSTGRES_IMAGE, POSTGRES_MCP_EXE_NAME, POSTGRES_MCP_IMAGE_REPO, RAG_ENGINE_EXE_NAME,
+    RAG_ENGINE_IMAGE_REPO, SUMMARY_PATH, TARGET_TRIPLE,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -62,6 +62,7 @@ struct BuildOutputs {
     airbyte_binary: File,
     postgres_mcp_binary: File,
     cli_gateway_binary: File,
+    cron_binary: File,
 }
 
 struct PublishCredentials {
@@ -207,6 +208,7 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
     let airbyte_binary = summary_container.file(release_binary_path(AIRBYTE_EXE_NAME));
     let postgres_mcp_binary = summary_container.file(release_binary_path(POSTGRES_MCP_EXE_NAME));
     let cli_gateway_binary = summary_container.file(release_binary_path(CLI_GATEWAY_EXE_NAME));
+    let cron_binary = summary_container.file(release_binary_path(CRON_EXE_NAME));
 
     Ok(BuildOutputs {
         container: summary_container,
@@ -216,6 +218,7 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
         airbyte_binary,
         postgres_mcp_binary,
         cli_gateway_binary,
+        cron_binary,
     })
 }
 
@@ -319,6 +322,26 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         credentials.as_ref(),
         registry,
         "app image",
+        &tags,
+    )
+    .await?;
+
+    let cron_container = client
+        .container()
+        .with_user("1001")
+        .with_file("/cron", outputs.cron_binary.clone())
+        .with_file("/etc/ssl/certs/ca-certificates.crt", ca_certs.clone())
+        .with_env_variable("SSL_CERT_FILE", "/etc/ssl/certs/ca-certificates.crt")
+        .with_entrypoint(vec!["./cron"]);
+
+    ensure_built(&cron_container, "scheduled task worker image").await?;
+    maybe_publish(
+        client,
+        &cron_container,
+        CRON_IMAGE_REPO,
+        credentials.as_ref(),
+        registry,
+        "scheduled task worker image",
         &tags,
     )
     .await?;

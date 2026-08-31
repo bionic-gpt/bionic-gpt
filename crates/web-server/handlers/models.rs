@@ -20,7 +20,7 @@ use serde::Deserialize;
 use validator::Validate;
 use web_pages::models::upsert as model_page;
 use web_pages::routes::models::{Delete, Edit, Index, New, SelectProvider, Upsert};
-use web_pages::{string_to_visibility, visibility_to_string};
+use web_pages::visibility_to_string;
 
 const DEFAULT_TPM_LIMIT: i32 = 1_000_000;
 const DEFAULT_RPM_LIMIT: i32 = 10_000;
@@ -147,7 +147,7 @@ pub async fn new_loader(
     let setup_required = required_models_missing(&transaction).await?;
     let mut form = model_page::ModelForm {
         id: None,
-        prompt_id: None,
+        model_id: None,
         name: "".to_string(),
         display_name: "".to_string(),
         model_type: "LLM".to_string(),
@@ -210,7 +210,7 @@ pub async fn edit_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let (rbac, team_id_num) =
+    let (rbac, _team_id_num) =
         authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_setup_models() {
@@ -218,20 +218,9 @@ pub async fn edit_loader(
     }
 
     let setup_required = required_models_missing(&transaction).await?;
-    let model = models::model_with_prompt()
-        .bind(&transaction, &id)
-        .one()
-        .await?;
+    let model = models::model_config().bind(&transaction, &id).one().await?;
 
-    let visibility = if let Some(prompt_id) = model.prompt_id {
-        let prompt = queries::prompts::prompt()
-            .bind(&transaction, &prompt_id, &team_id_num)
-            .one()
-            .await?;
-        visibility_to_string(prompt.visibility)
-    } else {
-        visibility_to_string(Visibility::Team)
-    };
+    let visibility = visibility_to_string(Visibility::Company);
 
     let capabilities = capabilities::get_model_capabilities()
         .bind(&transaction, &id)
@@ -261,7 +250,7 @@ pub async fn edit_loader(
 
     let form = model_page::ModelForm {
         id: Some(model.id),
-        prompt_id: model.prompt_id,
+        model_id: Some(model.id),
         name: model.name,
         // Preserve existing form values when editing
         display_name: model.display_name.clone(),
@@ -275,10 +264,10 @@ pub async fn edit_loader(
         visibility,
         description: model.description.clone(),
         disclaimer: model.disclaimer,
-        example1: model.example1,
-        example2: model.example2,
-        example3: model.example3,
-        example4: model.example4,
+        example1: model.example1.unwrap_or_default(),
+        example2: model.example2.unwrap_or_default(),
+        example3: model.example3.unwrap_or_default(),
+        example4: model.example4.unwrap_or_default(),
         has_capability_function_calling: has_function_calling,
         has_capability_vision: has_vision,
         has_capability_tool_use: has_tool_use,
@@ -331,7 +320,7 @@ pub async fn delete_action(
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct ModelForm {
     pub id: Option<i32>,
-    pub prompt_id: Option<i32>,
+    pub model_id: Option<i32>,
     #[serde(default)]
     #[serde(deserialize_with = "empty_string_is_none_i32")]
     pub provider_id: Option<i32>,
@@ -371,7 +360,7 @@ pub async fn upsert_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let (rbac, team_id_num) =
+    let (rbac, _team_id_num) =
         authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_setup_models() {
@@ -390,11 +379,6 @@ pub async fn upsert_action(
         .parse::<db::ModelProvider>()
         .map_err(CustomError::FaultySetup)?;
 
-    let mut visibility = string_to_visibility(&model_form.visibility);
-    if visibility == Visibility::Company && !rbac.is_sys_admin {
-        visibility = Visibility::Team;
-    }
-
     match (model_form.validate(), model_form.id) {
         (Ok(_), Some(model_id)) => {
             // The form is valid save to the database
@@ -412,33 +396,27 @@ pub async fn upsert_action(
                     &model_id,
                 )
                 .await?;
-
-            let system_prompt: Option<&String> = None;
-
-            if let Some(prompt_id) = model_form.prompt_id {
-                let temperature: Option<f32> = None;
-                let max_completion_tokens: Option<i32> = None;
-                queries::prompts::update()
-                    .bind(
-                        &transaction,
-                        &model_id,
-                        &model_form.display_name,
-                        &visibility,
-                        &system_prompt,
-                        &99,
-                        &max_completion_tokens,
-                        &80,
-                        &temperature,
-                        &model_form.description,
-                        &model_form.disclaimer,
-                        &Some(&model_form.example1),
-                        &Some(&model_form.example2),
-                        &Some(&model_form.example3),
-                        &Some(&model_form.example4),
-                        &prompt_id,
-                    )
-                    .await?;
-            }
+            let system_prompt: Option<String> = None;
+            let max_completion_tokens: Option<i32> = None;
+            let temperature: Option<f32> = None;
+            queries::models::update_config()
+                .bind(
+                    &transaction,
+                    &model_form.display_name,
+                    &model_form.description,
+                    &model_form.disclaimer,
+                    &Some(&model_form.example1),
+                    &Some(&model_form.example2),
+                    &Some(&model_form.example3),
+                    &Some(&model_form.example4),
+                    &system_prompt,
+                    &99,
+                    &max_completion_tokens,
+                    &80,
+                    &temperature,
+                    &model_id,
+                )
+                .await?;
 
             // Handle capabilities if it's an LLM model
             if model_type == ModelType::LLM {
@@ -499,29 +477,25 @@ pub async fn upsert_action(
 
             let system_prompt: Option<String> = None;
             let max_completion_tokens: Option<i32> = None;
-
+            let temperature: Option<f32> = None;
             if model_type == ModelType::LLM {
-                let temperature: Option<f32> = None;
-                queries::prompts::insert()
+                queries::models::update_config()
                     .bind(
                         &transaction,
-                        &team_id_num,
-                        &model_id,
                         &model_form.display_name,
-                        &visibility,
-                        &system_prompt,
-                        &99,
-                        &max_completion_tokens,
-                        &80,
-                        &temperature,
                         &model_form.description,
                         &model_form.disclaimer,
                         &Some(&model_form.example1),
                         &Some(&model_form.example2),
                         &Some(&model_form.example3),
                         &Some(&model_form.example4),
+                        &system_prompt,
+                        &99,
+                        &max_completion_tokens,
+                        &80,
+                        &temperature,
+                        &model_id,
                     )
-                    .one()
                     .await?;
             }
 

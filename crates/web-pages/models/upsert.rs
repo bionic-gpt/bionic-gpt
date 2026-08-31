@@ -10,7 +10,7 @@ use validator::Validate;
 #[derive(Deserialize, Validate, Default, Debug, Clone)]
 pub struct ModelForm {
     pub id: Option<i32>,
-    pub prompt_id: Option<i32>,
+    pub model_id: Option<i32>,
     pub name: String,
     pub display_name: String,
     pub model_type: String,
@@ -82,11 +82,11 @@ pub fn page(team_id: String, rbac: Rbac, setup_required: bool, form: ModelForm) 
                             name: "id"
                         }
                     }
-                    if let Some(pid) = form.prompt_id {
+                    if let Some(pid) = form.model_id {
                         input {
                             "type": "hidden",
                             value: "{pid}",
-                            name: "prompt_id"
+                            name: "model_id"
                         }
                     }
                     // Model Details
