@@ -248,6 +248,94 @@ pub async fn chat_generate(
     }
 }
 
+/// Runs a persisted chat to completion without requiring an HTTP client to drive
+/// the tool-call continuation loop. This is used by scheduled task workers.
+pub async fn run_scheduled_chat(
+    pool: Pool,
+    current_user: Jwt,
+    chat_id: i32,
+    max_turns: usize,
+) -> Result<(), String> {
+    let result_sink: Arc<dyn ResultSink> = Arc::new(DbResultSink::new(pool.clone()));
+    let user_config = UserConfig::default();
+
+    for turn in 0..max_turns {
+        let request = create_request(&pool, &current_user, chat_id, &user_config)
+            .await
+            .map_err(|error| error.to_string())?;
+
+        if limits::is_limit_exceeded_from_pool(&pool, request.model_id, request.user_id)
+            .await
+            .map_err(|error| error.to_string())?
+        {
+            let message = "You have exceeded your token limit for this model";
+            result_sink
+                .save(SaveRequest {
+                    snapshot: message,
+                    tool_calls: None,
+                    reasoning: None,
+                    usage: None,
+                    chat_id,
+                    sub: &current_user.sub,
+                    status: ChatStatus::Error,
+                })
+                .await;
+            return Err(message.to_string());
+        }
+
+        let (sender, mut receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(32);
+        let generation = tokio::spawn(async move { stream_chat_with_rig(request, sender).await });
+        let mut completed = None;
+        while let Some(event) = receiver.recv().await {
+            match event {
+                Ok(GenerationEvent::End {
+                    snapshot,
+                    tool_calls,
+                    reasoning,
+                    usage,
+                }) => {
+                    completed = Some((snapshot, tool_calls, reasoning, usage));
+                }
+                Ok(GenerationEvent::Text { .. }) => {}
+                Err(error) => return Err(error.to_string()),
+            }
+        }
+
+        generation
+            .await
+            .map_err(|error| error.to_string())?
+            .map_err(|error| error.to_string())?;
+
+        let Some((snapshot, tool_calls, reasoning, usage)) = completed else {
+            return Err("model returned no completion event".to_string());
+        };
+        let has_tool_calls = tool_calls.is_some();
+        result_sink
+            .save(SaveRequest {
+                snapshot: &snapshot,
+                tool_calls,
+                reasoning,
+                usage,
+                chat_id,
+                sub: &current_user.sub,
+                status: ChatStatus::Success,
+            })
+            .await;
+
+        if !has_tool_calls {
+            return Ok(());
+        }
+
+        tracing::debug!(
+            chat_id,
+            turn = turn + 1,
+            "Continuing scheduled tool call turn"
+        );
+    }
+
+    Err(format!("scheduled chat exceeded {max_turns} model turns"))
+}
+
 /// Executes a streaming rig completion and publishes intermediate events.
 pub(crate) async fn stream_chat_with_rig(
     request: RigChatRequest,

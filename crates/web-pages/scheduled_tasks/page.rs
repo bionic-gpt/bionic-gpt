@@ -107,6 +107,7 @@ mod tests {
             user_id: 2,
             team_id: 3,
             project_id: None,
+            prompt_id: 1,
             name: "Daily summary".to_string(),
             prompt: "Summarize the inbox".to_string(),
             cron: "0 8 * * *".to_string(),

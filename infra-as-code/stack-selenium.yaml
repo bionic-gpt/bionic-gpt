@@ -46,6 +46,10 @@ spec:
         - name: SMTP_TLS_OFF
           value: "true"
 
+    cron:
+      image: ghcr.io/bionic-gpt/bionicgpt-cron:1.12.20
+      database_url: APP_DATABASE_URL
+
     rag-engine:
       image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.20
       port: 7703

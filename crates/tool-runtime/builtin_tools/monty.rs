@@ -83,6 +83,14 @@ impl RuntimeFunctionRegistry {
             )
             .await
             .map_err(|err| err.to_string())?;
+        let prompt_id: i32 = transaction
+            .query_one(
+                "SELECT prompt_id FROM llm.chats WHERE conversation_id = $1 ORDER BY id DESC LIMIT 1",
+                &[&conversation_id],
+            )
+            .await
+            .map_err(|err| err.to_string())?
+            .get(0);
         let team_id: i32 = row.get(1);
         let project_id: Option<i32> = row.get(2);
 
@@ -93,6 +101,7 @@ impl RuntimeFunctionRegistry {
             pool: pool.clone(),
             sub: sub.to_string(),
             conversation_id,
+            prompt_id,
             team_id,
             project_id,
         });

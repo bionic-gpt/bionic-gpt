@@ -3,7 +3,7 @@ use axum::http::{request::Parts, StatusCode};
 use axum_extra::extract::cookie::Cookie;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct UserConfig {
     pub default_prompt: Option<i32>,
 }

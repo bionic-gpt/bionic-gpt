@@ -19,6 +19,7 @@ use tower_http::cors::{Any, CorsLayer};
 use axum_extra::routing::TypedPath;
 use serde::Deserialize;
 
+pub use jwt::Jwt;
 pub use user_config::UserConfig;
 
 pub fn routes() -> Router {

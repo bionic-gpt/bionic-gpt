@@ -1,0 +1,13 @@
+[package]
+name = "cron"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+agent-runtime = { path = "../agent-runtime" }
+chrono.workspace = true
+db = { path = "../db" }
+tool-runtime = { path = "../tool-runtime" }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "signal", "time"] }
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
