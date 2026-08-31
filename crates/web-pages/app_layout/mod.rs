@@ -26,6 +26,7 @@ pub enum SideBar {
     DocumentPipelines,
     Guardrails,
     History,
+    ScheduledTasks,
     Integrations,
     McpApiKeys,
     Models,

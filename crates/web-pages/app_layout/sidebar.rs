@@ -36,6 +36,14 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             title: history_label.clone(),
                             disabled: setup_required
                         }
+                        NavItem {
+                            id: SideBar::ScheduledTasks.to_string(),
+                            selected_item_id: selected_item.clone(),
+                            href: crate::routes::scheduled_tasks::Index { team_id: team_id.clone() },
+                            icon: nav_history_svg.name,
+                            title: "Scheduled",
+                            disabled: setup_required
+                        }
                     }
                 )
             }

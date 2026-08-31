@@ -25,6 +25,7 @@ pub mod providers;
 pub mod rate_limits;
 pub mod shared;
 pub use components::section_introduction::SectionIntroduction;
+pub mod scheduled_tasks;
 pub mod skills;
 pub mod snackbar;
 pub mod system_prompt;

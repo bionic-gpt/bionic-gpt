@@ -1,5 +1,5 @@
---: ScheduledTask()
---: ScheduledTaskRun()
+--: ScheduledTask(project_id?, last_run_at?)
+--: ScheduledTaskRun(started_at?, completed_at?, error?, conversation_id?)
 
 --! create : ScheduledTask
 INSERT INTO scheduled_tasks.tasks (
