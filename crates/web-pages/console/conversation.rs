@@ -3,7 +3,7 @@
 use super::{ChatWithChunks, PendingChatState};
 use crate::app_layout::SideBar;
 use crate::components::confirm_modal::ConfirmModal;
-use crate::console::model_popup::ModelPopup;
+use crate::console::model_popup::{model_label, ModelPopup};
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -70,7 +70,7 @@ fn Head(
 
         ModelPopup {
             id: prompt.id,
-            value: prompt.name,
+            value: model_label(&prompt.display_name, &prompt.name),
             prompts
         }
         div {

@@ -21,7 +21,7 @@ pub async fn index(
     let (rbac, _team_id_num) =
         authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
-    let prompts = queries::models::all_models()
+    let prompts = queries::models::llm_models()
         .bind(&transaction)
         .all()
         .await?;

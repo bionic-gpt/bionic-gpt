@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::SideBar;
-use crate::console::model_popup::ModelPopup;
+use crate::console::model_popup::{model_label, ModelPopup};
 use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::models::ModelConfig;
@@ -42,7 +42,7 @@ fn Head(team_id: String, rbac: Rbac, prompts: Vec<ModelConfig>, prompt: ModelCon
     rsx! {
         ModelPopup {
             id: prompt.id,
-            value: prompt.name,
+            value: model_label(&prompt.display_name, &prompt.name),
             prompts
         }
     }

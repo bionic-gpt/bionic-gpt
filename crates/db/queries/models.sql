@@ -29,6 +29,28 @@ SELECT id, name, model_type, provider_type, base_url, api_key,
 FROM model_registry.models
 ORDER BY updated_at DESC;
 
+--! llm_models : ModelConfig
+SELECT id, name, model_type, provider_type, base_url, api_key,
+       tpm_limit, rpm_limit, context_size, created_at, updated_at,
+       display_name, description, disclaimer, example1, example2,
+       example3, example4, system_prompt, max_history_items,
+       max_completion_tokens, trim_ratio, temperature,
+       (SELECT COALESCE(STRING_AGG(d.id::text, ','), '')
+        FROM rag.datasets d
+        WHERE d.visibility = 'Company'
+           OR (d.visibility = 'Private' AND d.created_by = current_app_user())
+           OR (d.visibility = 'Team' AND d.team_id IN
+               (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user()))) AS selected_datasets,
+       (SELECT COALESCE(STRING_AGG(d.name, ', '), '')
+        FROM rag.datasets d
+        WHERE d.visibility = 'Company'
+           OR (d.visibility = 'Private' AND d.created_by = current_app_user())
+           OR (d.visibility = 'Team' AND d.team_id IN
+               (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user()))) AS datasets
+FROM model_registry.models
+WHERE model_type = 'LLM'
+ORDER BY updated_at DESC;
+
 --! model_config : ModelConfig
 SELECT id, name, model_type, provider_type, base_url, api_key,
        tpm_limit, rpm_limit, context_size, created_at, updated_at,

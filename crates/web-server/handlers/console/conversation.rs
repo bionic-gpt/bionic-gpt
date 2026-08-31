@@ -43,14 +43,14 @@ pub async fn conversation(
     let (chat_history, pending_chat_state) =
         super::utils::process_chats(&transaction, chats).await?;
 
-    let prompts = queries::models::all_models()
+    let prompts = queries::models::llm_models()
         .bind(&transaction)
         .all()
         .await?;
 
     if prompts.is_empty() {
         return Err(CustomError::FaultySetup(
-            "No model prompts configured".to_string(),
+            "No LLM models configured".to_string(),
         ));
     }
 

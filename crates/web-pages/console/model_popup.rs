@@ -44,7 +44,7 @@ pub fn ModelPopup(id: i32, value: String, prompts: Vec<ModelConfig>) -> Element 
                             "data-action": "select-prompt",
                             span {
                                 class: "font-medium",
-                                "{prompt.name}"
+                                "{model_label(&prompt.display_name, &prompt.name)}"
                             }
                             p {
                                 class: "text-sm font-light",
@@ -55,5 +55,31 @@ pub fn ModelPopup(id: i32, value: String, prompts: Vec<ModelConfig>) -> Element 
                 }
             }
         }
+    }
+}
+
+pub(crate) fn model_label(display_name: &str, model_name: &str) -> String {
+    if display_name.trim().is_empty() {
+        model_name.to_string()
+    } else {
+        display_name.to_string()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::model_label;
+
+    #[test]
+    fn prefers_display_name() {
+        assert_eq!(
+            model_label("Customer Support", "provider/model"),
+            "Customer Support"
+        );
+    }
+
+    #[test]
+    fn falls_back_to_model_name_when_display_name_is_blank() {
+        assert_eq!(model_label("  ", "provider/model"), "provider/model");
     }
 }
