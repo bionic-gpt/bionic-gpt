@@ -5,6 +5,7 @@
 
 pub mod builtin_tools;
 pub mod openapi_tool_factory;
+pub mod scheduled_tasks;
 pub mod skills;
 pub mod system_tool_sources;
 pub mod token_count;

@@ -33,6 +33,7 @@ pub use queries::prompts::{Prompt, PromptDataset, SinglePrompt};
 pub use queries::providers::Provider;
 pub use queries::rate_limits::RateLimit;
 pub use queries::runtime_settings::RuntimeSetting;
+pub use queries::scheduled_tasks::{ScheduledTask, ScheduledTaskRun};
 pub use queries::skills::{Skill, SkillFile};
 pub use queries::teams::GetUsers as Member;
 pub use queries::teams::{Team, TeamOwner};
@@ -53,7 +54,7 @@ include!(concat!(env!("OUT_DIR"), "/cornucopia/src/lib.rs"));
 pub use types::{
     AuditAccessType, AuditAction, ChatRole, ChatStatus, IntegrationType, ModelCapability,
     ModelProvider, ModelType, OpenapiSpecCategory, Permission, PromptFlagType, Role,
-    TokenUsageType, Visibility,
+    ScheduledTaskRunStatus, TokenUsageType, Visibility,
 };
 
 impl std::fmt::Display for ModelProvider {
