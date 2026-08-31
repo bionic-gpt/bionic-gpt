@@ -10,7 +10,7 @@ pub struct Context {
     pub pool: Pool,
     pub sub: String,
     pub conversation_id: i64,
-    pub prompt_id: i32,
+    pub model_id: i32,
     pub team_id: i32,
     pub project_id: Option<i32>,
 }
@@ -76,8 +76,8 @@ async fn create(context: &Context, arguments: Value) -> Result<Value, String> {
         .await
         .map_err(|e| e.to_string())?;
     let row = tx.query_one(
-        "INSERT INTO scheduled_tasks.tasks (user_id, team_id, project_id, prompt_id, name, prompt, cron, timezone, next_run_at) VALUES (current_app_user(), $1, $2, $8, $3, $4, $5, $6, $7) RETURNING id, name, prompt, cron, timezone, enabled, next_run_at",
-        &[&context.team_id, &context.project_id, &name, &prompt, &cron, &timezone, &next_run_at, &context.prompt_id],
+        "INSERT INTO scheduled_tasks.tasks (user_id, team_id, project_id, model_id, name, prompt, cron, timezone, next_run_at) VALUES (current_app_user(), $1, $2, $8, $3, $4, $5, $6, $7) RETURNING id, name, prompt, cron, timezone, enabled, next_run_at",
+        &[&context.team_id, &context.project_id, &name, &prompt, &cron, &timezone, &next_run_at, &context.model_id],
     ).await.map_err(|e| e.to_string())?;
     tx.commit().await.map_err(|e| e.to_string())?;
     Ok(task_json(&row))

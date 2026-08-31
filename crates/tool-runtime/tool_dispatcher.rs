@@ -13,13 +13,13 @@ pub async fn execute_tool_calls(
     pool: &Pool,
     sub: String,
     conversation_id: i64,
-    prompt_id: i32,
+    model_id: i32,
 ) -> Vec<ToolResult> {
     info!("Executing {} tool calls", tool_calls.len());
 
     // Get tool instances with the pool for execution
     debug!("Getting tool instances");
-    let tools = get_tools(pool, sub.clone(), conversation_id, prompt_id).await;
+    let tools = get_tools(pool, sub.clone(), conversation_id, model_id).await;
     debug!("Got {} tool instances", tools.len());
 
     let mut tool_results: Vec<ToolResult> = Vec::new();
@@ -43,7 +43,7 @@ pub async fn get_tools(
     pool: &Pool,
     sub: String,
     conversation_id: i64,
-    prompt_id: i32,
+    model_id: i32,
 ) -> Vec<Arc<dyn ToolDyn>> {
     trace!("Getting available tool instances");
 
@@ -52,7 +52,7 @@ pub async fn get_tools(
         pool.clone(),
         sub.clone(),
         conversation_id,
-        prompt_id,
+        model_id,
     ))];
 
     info!("Returning {} tool instances", tools.len());

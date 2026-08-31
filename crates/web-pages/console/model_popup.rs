@@ -1,9 +1,9 @@
 use assets::files::button_select_svg;
-use db::Prompt;
+use db::queries::models::ModelConfig;
 use dioxus::prelude::*;
 
 #[component]
-pub fn ModelPopup(id: i32, value: String, prompts: Vec<Prompt>) -> Element {
+pub fn ModelPopup(id: i32, value: String, prompts: Vec<ModelConfig>) -> Element {
     rsx! {
         form {
             id: "prompt-form",

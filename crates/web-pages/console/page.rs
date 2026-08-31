@@ -3,13 +3,13 @@ use crate::app_layout::SideBar;
 use crate::console::model_popup::ModelPopup;
 use db::authz::Rbac;
 use db::queries::capabilities::Capability;
-use db::queries::prompts::{Prompt, SinglePrompt};
+use db::queries::models::ModelConfig;
 use dioxus::prelude::*;
 
 pub fn new_conversation(
     team_id: String,
-    prompts: Vec<Prompt>,
-    prompt: SinglePrompt,
+    prompts: Vec<ModelConfig>,
+    prompt: ModelConfig,
     rbac: Rbac,
     capabilities: Vec<Capability>,
 ) -> String {
@@ -38,7 +38,7 @@ pub fn new_conversation(
 }
 
 #[component]
-fn Head(team_id: String, rbac: Rbac, prompts: Vec<Prompt>, prompt: SinglePrompt) -> Element {
+fn Head(team_id: String, rbac: Rbac, prompts: Vec<ModelConfig>, prompt: ModelConfig) -> Element {
     rsx! {
         ModelPopup {
             id: prompt.id,

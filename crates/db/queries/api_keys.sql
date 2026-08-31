@@ -1,14 +1,13 @@
---: ApiKey(prompt_id?, prompt_name?, model_id?)
+--: ApiKey(model_id?, model_name?)
 
 --! api_keys : ApiKey
 SELECT
     a.id,
     a.name,
-    a.prompt_id,
+    a.model_id,
     a.user_id,
     a.team_id,
-    (SELECT name FROM model_registry.prompts p WHERE p.id = a.prompt_id) as prompt_name,
-    (SELECT model_id FROM model_registry.prompts p WHERE p.id = a.prompt_id) as model_id,
+    (SELECT display_name FROM model_registry.models m WHERE m.id = a.model_id) as model_name,
     a.api_key,
     a.created_at
 FROM
@@ -18,18 +17,18 @@ WHERE
 AND
     a.user_id = current_app_user()
 AND
-    a.prompt_id IS NOT NULL
+    a.model_id IS NOT NULL
 ORDER BY created_at DESC;
 
 --! new_api_key
 INSERT INTO iam.api_keys 
-    (prompt_id, user_id, team_id, name, api_key)
+    (model_id, user_id, team_id, name, api_key)
 VALUES
-    (:prompt_id, :user_id, :team_id, :name, encode(digest(:api_key, 'sha256'), 'hex'));
+    (:model_id, :user_id, :team_id, :name, encode(digest(:api_key, 'sha256'), 'hex'));
 
 --! new_mcp_api_key
 INSERT INTO iam.api_keys
-    (prompt_id, user_id, team_id, name, api_key)
+    (model_id, user_id, team_id, name, api_key)
 VALUES
     (NULL, :user_id, :team_id, :name, encode(digest(:api_key, 'sha256'), 'hex'))
 RETURNING id;
@@ -38,11 +37,10 @@ RETURNING id;
 SELECT
     a.id,
     a.name,
-    a.prompt_id,
+    a.model_id,
     a.user_id,
     a.team_id,
-    (SELECT name FROM model_registry.prompts p WHERE p.id = a.prompt_id) as prompt_name,
-    (SELECT model_id FROM model_registry.prompts p WHERE p.id = a.prompt_id) as model_id,
+    (SELECT display_name FROM model_registry.models m WHERE m.id = a.model_id) as model_name,
     a.api_key,
     a.created_at
 FROM
@@ -54,18 +52,17 @@ WHERE
 SELECT
     a.id,
     a.name,
-    a.prompt_id,
+    a.model_id,
     a.user_id,
     a.team_id,
-    (SELECT name FROM model_registry.prompts p WHERE p.id = a.prompt_id) as prompt_name,
-    (SELECT model_id FROM model_registry.prompts p WHERE p.id = a.prompt_id) as model_id,
+    (SELECT display_name FROM model_registry.models m WHERE m.id = a.model_id) as model_name,
     a.api_key,
     a.created_at
 FROM
     iam.api_keys a
 WHERE
     a.team_id = :team_id
-    AND a.prompt_id IS NULL
+    AND a.model_id IS NULL
 ORDER BY created_at DESC;
 
 --! delete

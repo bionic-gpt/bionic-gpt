@@ -3,14 +3,14 @@
 
 --! create : ScheduledTask
 INSERT INTO scheduled_tasks.tasks (
-    user_id, team_id, project_id, prompt_id, name, prompt, cron, timezone, next_run_at
+    user_id, team_id, project_id, model_id, name, prompt, cron, timezone, next_run_at
 )
-VALUES (current_app_user(), :team_id, :project_id, :prompt_id, :name, :prompt, :cron, :timezone, :next_run_at)
-RETURNING id, user_id, team_id, project_id, prompt_id, name, prompt, cron, timezone, enabled,
+VALUES (current_app_user(), :team_id, :project_id, :model_id, :name, :prompt, :cron, :timezone, :next_run_at)
+RETURNING id, user_id, team_id, project_id, model_id, name, prompt, cron, timezone, enabled,
     next_run_at, last_run_at, created_at, updated_at;
 
 --! list : ScheduledTask
-SELECT id, user_id, team_id, project_id, prompt_id, name, prompt, cron, timezone, enabled,
+SELECT id, user_id, team_id, project_id, model_id, name, prompt, cron, timezone, enabled,
     next_run_at, last_run_at, created_at, updated_at
 FROM scheduled_tasks.tasks
 WHERE user_id = current_app_user()
@@ -25,7 +25,7 @@ SET name = COALESCE(:name, name), prompt = COALESCE(:prompt, prompt),
 WHERE id = :task_id
   AND user_id = current_app_user()
   AND team_id IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user())
-RETURNING id, user_id, team_id, project_id, prompt_id, name, prompt, cron, timezone, enabled,
+RETURNING id, user_id, team_id, project_id, model_id, name, prompt, cron, timezone, enabled,
     next_run_at, last_run_at, created_at, updated_at;
 
 --! delete
@@ -35,7 +35,7 @@ WHERE id = :task_id
   AND team_id IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user());
 
 --! due : ScheduledTask
-SELECT id, user_id, team_id, project_id, prompt_id, name, prompt, cron, timezone, enabled,
+SELECT id, user_id, team_id, project_id, model_id, name, prompt, cron, timezone, enabled,
     next_run_at, last_run_at, created_at, updated_at
 FROM scheduled_tasks.tasks
 WHERE enabled = TRUE AND next_run_at <= :now
@@ -43,7 +43,7 @@ ORDER BY next_run_at, id
 LIMIT :limit;
 
 --! claim_due : ScheduledTask
-SELECT id, user_id, team_id, project_id, prompt_id, name, prompt, cron, timezone, enabled,
+SELECT id, user_id, team_id, project_id, model_id, name, prompt, cron, timezone, enabled,
     next_run_at, last_run_at, created_at, updated_at
 FROM scheduled_tasks.tasks
 WHERE id = :task_id AND enabled = TRUE AND next_run_at <= :now
@@ -65,8 +65,8 @@ VALUES (current_app_user(), :team_id)
 RETURNING id;
 
 --! create_worker_chat
-INSERT INTO llm.chats (conversation_id, prompt_id, content, role, status)
-VALUES (:conversation_id, :prompt_id, encrypt_text(:content), 'User', 'Pending')
+INSERT INTO llm.chats (conversation_id, model_id, content, role, status)
+VALUES (:conversation_id, :model_id, encrypt_text(:content), 'User', 'Pending')
 RETURNING id;
 
 --! create_run : ScheduledTaskRun

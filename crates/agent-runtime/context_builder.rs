@@ -1,5 +1,5 @@
 use crate::errors::CustomError;
-use db::queries::{prompts, runtime_settings};
+use db::queries::{models, runtime_settings};
 use db::Transaction;
 use db::{Chat, ChatRole};
 use rig::message::{AssistantContent, Message};
@@ -50,7 +50,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
 
 pub async fn execute_prompt(
     transaction: &Transaction<'_>,
-    prompt: prompts::SinglePrompt,
+    prompt: models::ModelConfig,
     _conversation_id: Option<i64>,
     include_skills: bool,
     integration_context: Option<String>,
@@ -82,7 +82,7 @@ pub async fn execute_prompt(
     };
 
     Ok(generate_prompt(
-        prompt.model_context_size as usize,
+        prompt.context_size as usize,
         max_completion_tokens,
         trim_ratio,
         Some(runtime_system_prompt),

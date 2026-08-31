@@ -7,8 +7,8 @@ use validator::Validate;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct IntegrationForm {
-    pub prompt_id: i32,
-    pub prompt_name: String,
+    pub model_id: i32,
+    pub model_name: String,
     pub selected_integration_ids: Vec<i32>,
     #[serde(skip)]
     pub error: Option<String>,

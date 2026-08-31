@@ -70,7 +70,7 @@ async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
     driver.set_implicit_wait_timeout(delay).await?;
     common::click_when_visible(driver, By::XPath("//button[@id='prompt-submit-button']")).await?;
 
-    common::wait_visible(driver, By::XPath("//a[text()='View Prompt']")).await?;
+    common::wait_visible(driver, By::XPath("//a[text()='View Model']")).await?;
 
     Ok(())
 }

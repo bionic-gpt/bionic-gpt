@@ -8,7 +8,7 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::capabilities::Capability;
-use db::queries::prompts::{Prompt, SinglePrompt};
+use db::queries::models::ModelConfig;
 use dioxus::prelude::*;
 
 pub fn page(
@@ -16,8 +16,8 @@ pub fn page(
     rbac: Rbac,
     chat_history: Vec<ChatWithChunks>,
     pending_chat_state: PendingChatState,
-    prompts: Vec<Prompt>,
-    prompt: SinglePrompt,
+    prompts: Vec<ModelConfig>,
+    prompt: ModelConfig,
     conversation_id: i64,
     is_tts_disabled: bool,
     capabilities: Vec<Capability>,
@@ -63,8 +63,8 @@ fn Head(
     team_id: String,
     rbac: Rbac,
     conversation_id: i64,
-    prompts: Vec<Prompt>,
-    prompt: SinglePrompt,
+    prompts: Vec<ModelConfig>,
+    prompt: ModelConfig,
 ) -> Element {
     rsx! {
 

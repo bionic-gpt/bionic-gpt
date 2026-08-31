@@ -2,7 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use db::authz::Rbac;
 use db::queries::capabilities::Capability;
-use db::queries::prompts::SinglePrompt;
+use db::queries::models::ModelConfig;
 use dioxus::prelude::*;
 
 use super::{ChatWithChunks, PendingChatState};
@@ -14,7 +14,7 @@ pub fn ConsoleLayout(
     rbac: Rbac,
     chat_history: Vec<ChatWithChunks>,
     pending_chat_state: PendingChatState,
-    prompt: SinglePrompt,
+    prompt: ModelConfig,
     selected_item: SideBar,
     title: String,
     header: Element,
@@ -47,7 +47,7 @@ pub fn ConsoleLayout(
                     div {
                         super::prompt_form::Form {
                             team_id: team_id.clone(),
-                            prompt_id: prompt.id,
+                            model_id: prompt.id,
                             lock_console: has_pending_chat,
                             conversation_id,
                             disclaimer: prompt.disclaimer,
@@ -64,7 +64,7 @@ pub fn ConsoleLayout(
                         div {
                             super::prompt_form::Form {
                                 team_id: team_id.clone(),
-                                prompt_id: prompt.id,
+                                model_id: prompt.id,
                                 lock_console: has_pending_chat,
                                 conversation_id,
                                 disclaimer: prompt.disclaimer,

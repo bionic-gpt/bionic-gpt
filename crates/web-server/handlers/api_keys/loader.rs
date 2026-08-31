@@ -25,8 +25,8 @@ pub async fn loader(
         .all()
         .await?;
 
-    let models = queries::prompts::prompts()
-        .bind(&transaction, &team_id_num)
+    let models = queries::models::all_models()
+        .bind(&transaction)
         .all()
         .await?;
 

@@ -45,7 +45,7 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
     common::set_input(
         driver,
         By::XPath("(//input[@name='name'])[last()]"),
-        "My Prompt",
+        "My Model",
     )
     .await?;
     common::set_input(
@@ -63,7 +63,7 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
 
     common::wait_visible(
         driver,
-        By::XPath("//h2[contains(normalize-space(), 'My Prompt')]"),
+        By::XPath("//h2[contains(normalize-space(), 'My Model')]"),
     )
     .await?;
 

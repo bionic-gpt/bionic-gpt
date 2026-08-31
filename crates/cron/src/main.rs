@@ -183,7 +183,7 @@ async fn execute_task_inner(
             .map_err(|error| error.to_string())?
     };
     let chat_id = scheduled_tasks::create_worker_chat()
-        .bind(&tx, &conversation_id, &task.prompt_id, &task.prompt)
+        .bind(&tx, &conversation_id, &task.model_id, &task.prompt)
         .one()
         .await
         .map_err(|error| error.to_string())?;

@@ -122,7 +122,7 @@ impl Config {
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
-            .execute("DELETE FROM model_registry.prompts", &[])
+            .execute("DELETE FROM model_registry.models", &[])
             .await
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 

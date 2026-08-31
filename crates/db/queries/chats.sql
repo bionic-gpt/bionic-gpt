@@ -3,9 +3,9 @@
 
 --! new_chat(tool_call_id?, tool_calls?)
 INSERT INTO llm.chats
-    (conversation_id, prompt_id, tool_call_id, tool_calls, content, role, status)
+    (conversation_id, model_id, tool_call_id, tool_calls, content, role, status)
 VALUES
-    (:conversation_id, :prompt_id, :tool_call_id, :tool_calls, encrypt_text(:content), :role, :status)
+    (:conversation_id, :model_id, :tool_call_id, :tool_calls, encrypt_text(:content), :role, :status)
 RETURNING id;
     
 --! chats : Chat
@@ -16,8 +16,8 @@ SELECT
     role,
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
-    prompt_id,
-    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM model_registry.prompts WHERE id = prompt_id)) as model_name,
+    model_id,
+    (SELECT name FROM model_registry.models WHERE id = chats.model_id) as model_name,
     status,
     (
         SELECT json_agg(json_build_object(
@@ -48,8 +48,8 @@ SELECT
     role,
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
-    prompt_id,
-    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM model_registry.prompts WHERE id = prompt_id)) as model_name,
+    model_id,
+    (SELECT name FROM model_registry.models WHERE id = chats.model_id) as model_name,
     status,
     (
         SELECT json_agg(json_build_object(
@@ -81,8 +81,8 @@ SELECT
     role,
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
-    prompt_id,
-    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM model_registry.prompts WHERE id = prompt_id)) as model_name,
+    model_id,
+    (SELECT name FROM model_registry.models WHERE id = chats.model_id) as model_name,
     status,
     (
         SELECT json_agg(json_build_object(

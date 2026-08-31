@@ -83,9 +83,9 @@ impl RuntimeFunctionRegistry {
             )
             .await
             .map_err(|err| err.to_string())?;
-        let prompt_id: i32 = transaction
+        let model_id: i32 = transaction
             .query_one(
-                "SELECT prompt_id FROM llm.chats WHERE conversation_id = $1 ORDER BY id DESC LIMIT 1",
+                "SELECT model_id FROM llm.chats WHERE conversation_id = $1 ORDER BY id DESC LIMIT 1",
                 &[&conversation_id],
             )
             .await
@@ -101,7 +101,7 @@ impl RuntimeFunctionRegistry {
             pool: pool.clone(),
             sub: sub.to_string(),
             conversation_id,
-            prompt_id,
+            model_id,
             team_id,
             project_id,
         });

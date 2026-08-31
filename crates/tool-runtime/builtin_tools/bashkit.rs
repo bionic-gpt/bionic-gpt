@@ -122,16 +122,16 @@ pub struct BashkitTool {
     pool: Pool,
     sub: String,
     conversation_id: i64,
-    prompt_id: i32,
+    model_id: i32,
 }
 
 impl BashkitTool {
-    pub fn new(pool: Pool, sub: String, conversation_id: i64, prompt_id: i32) -> Self {
+    pub fn new(pool: Pool, sub: String, conversation_id: i64, model_id: i32) -> Self {
         Self {
             pool,
             sub,
             conversation_id,
-            prompt_id,
+            model_id,
         }
     }
 }
@@ -355,7 +355,7 @@ async fn execute_run_bash(
                 pool: tool.pool.clone(),
                 sub: tool.sub.clone(),
                 conversation_id: tool.conversation_id,
-                prompt_id: tool.prompt_id,
+                model_id: tool.model_id,
             }),
         )
         .builtin("rag-read", Box::new(RagReadBuiltin))
@@ -372,7 +372,7 @@ async fn execute_run_bash(
     seed_datasets(
         &tool.pool,
         &tool.sub,
-        tool.prompt_id,
+        tool.model_id,
         tool.conversation_id,
         &bash,
     )
@@ -472,7 +472,7 @@ async fn seed_function_catalogue(
 async fn seed_datasets(
     pool: &Pool,
     sub: &str,
-    prompt_id: i32,
+    _model_id: i32,
     _conversation_id: i64,
     bash: &Bash,
 ) -> Result<(), serde_json::Value> {
@@ -494,21 +494,21 @@ async fn seed_datasets(
         .await
         .map_err(|e| json!({"error": "Failed to seed Bashkit VFS", "details": e.to_string()}))?;
 
-    let datasets = queries::prompts::prompt_datasets()
-        .bind(&transaction, &prompt_id)
+    let datasets = queries::datasets::datasets()
+        .bind(&transaction)
         .all()
         .await
         .map_err(|e| json!({"error": "Failed to get datasets", "details": e.to_string()}))?;
 
     let mut dataset_entries = Vec::new();
     for dataset in datasets {
-        let dataset_path = format!("{}/{}", DATASETS_DIR, dataset.dataset_id);
+        let dataset_path = format!("/{}/{}", DATASETS_DIR.trim_start_matches('/'), dataset.id);
         fs.mkdir(Path::new(&dataset_path), true).await.map_err(
             |e| json!({"error": "Failed to seed dataset directory", "details": e.to_string()}),
         )?;
 
         dataset_entries.push(DatasetEntry {
-            dataset_id: dataset.dataset_id,
+            dataset_id: dataset.id,
             name: dataset.name.clone(),
             path: dataset_path.clone(),
         });
@@ -517,13 +517,13 @@ async fn seed_datasets(
             fs.as_ref(),
             &format!("{dataset_path}/metadata.json"),
             &DatasetMetadata {
-                dataset_id: dataset.dataset_id,
+                dataset_id: dataset.id,
                 name: dataset.name.clone(),
             },
         )
         .await?;
 
-        let documents = dataset_documents(&transaction, prompt_id, dataset.dataset_id).await?;
+        let documents = dataset_documents(&transaction, dataset.id).await?;
 
         let mut file_entries = Vec::new();
         for document in documents {
@@ -546,7 +546,7 @@ async fn seed_datasets(
                 &format!("{file_path}/metadata.json"),
                 &FileMetadata {
                     document_id: document.id,
-                    dataset_id: dataset.dataset_id,
+                    dataset_id: dataset.id,
                     name: document.file_name,
                     size: document.content_size,
                     chunks: document.chunk_count,
@@ -554,8 +554,7 @@ async fn seed_datasets(
             )
             .await?;
 
-            let chunks =
-                document_chunks(&transaction, prompt_id, dataset.dataset_id, document.id).await?;
+            let chunks = document_chunks(&transaction, dataset.id, document.id).await?;
 
             for chunk in chunks {
                 let path = format!("{chunks_path}/{}.txt", chunk.id);
@@ -1077,20 +1076,6 @@ fn unique_attachment_file_name(file_name: &str, used: &mut HashSet<String>) -> S
     unreachable!("unbounded suffix loop should always return")
 }
 
-async fn conversation_team_id(
-    transaction: &Transaction<'_>,
-    conversation_id: i64,
-) -> Result<i32, serde_json::Value> {
-    let row = transaction
-        .query_one(
-            "SELECT team_id FROM llm.conversations WHERE id = $1",
-            &[&conversation_id],
-        )
-        .await
-        .map_err(|e| json!({"error": "Failed to get conversation", "details": e.to_string()}))?;
-    Ok(row.get(0))
-}
-
 struct SeedDocument {
     id: i32,
     file_name: String,
@@ -1105,7 +1090,6 @@ struct SeedChunk {
 
 async fn dataset_documents(
     transaction: &Transaction<'_>,
-    prompt_id: i32,
     dataset_id: i32,
 ) -> Result<Vec<SeedDocument>, serde_json::Value> {
     let rows = transaction
@@ -1118,12 +1102,9 @@ async fn dataset_documents(
                 (SELECT COUNT(id) FROM rag.chunks WHERE document_id = d.id) AS chunk_count
             FROM rag.documents d
             WHERE d.dataset_id = $1
-              AND d.dataset_id IN (
-                  SELECT dataset_id FROM model_registry.prompt_dataset WHERE prompt_id = $2
-              )
             ORDER BY d.updated_at DESC
             ",
-            &[&dataset_id, &prompt_id],
+            &[&dataset_id],
         )
         .await
         .map_err(|e| json!({"error": "Failed to get dataset files", "details": e.to_string()}))?;
@@ -1141,7 +1122,6 @@ async fn dataset_documents(
 
 async fn document_chunks(
     transaction: &Transaction<'_>,
-    prompt_id: i32,
     dataset_id: i32,
     document_id: i32,
 ) -> Result<Vec<SeedChunk>, serde_json::Value> {
@@ -1153,18 +1133,10 @@ async fn document_chunks(
             INNER JOIN rag.documents d ON d.id = c.document_id
             WHERE c.document_id = $1
               AND d.dataset_id = $2
-              AND d.dataset_id IN (
-                  SELECT dataset_id FROM model_registry.prompt_dataset WHERE prompt_id = $3
-              )
             ORDER BY c.page_number ASC, c.id ASC
             LIMIT $4
             ",
-            &[
-                &document_id,
-                &dataset_id,
-                &prompt_id,
-                &CHUNKS_PER_DOCUMENT_LIMIT,
-            ],
+            &[&document_id, &dataset_id, &CHUNKS_PER_DOCUMENT_LIMIT],
         )
         .await
         .map_err(|e| json!({"error": "Failed to get document chunks", "details": e.to_string()}))?;
@@ -1212,7 +1184,7 @@ struct RagSearchBuiltin {
     pool: Pool,
     sub: String,
     conversation_id: i64,
-    prompt_id: i32,
+    model_id: i32,
 }
 
 #[async_trait]
@@ -1227,7 +1199,7 @@ impl Builtin for RagSearchBuiltin {
             &self.pool,
             &self.sub,
             self.conversation_id,
-            self.prompt_id,
+            self.model_id,
             &query,
             limit,
         )
@@ -1263,7 +1235,7 @@ async fn execute_rag_search(
     pool: &Pool,
     sub: &str,
     conversation_id: i64,
-    prompt_id: i32,
+    _model_id: i32,
     query: &str,
     limit: i32,
 ) -> Result<Value, serde_json::Value> {
@@ -1280,7 +1252,7 @@ async fn execute_rag_search(
         .await
         .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
 
-    let chunks = search_context(&transaction, prompt_id, conversation_id, query, limit).await;
+    let chunks = search_context(&transaction, _model_id, conversation_id, query, limit).await;
 
     if chunks.is_ok() {
         transaction
@@ -1296,43 +1268,54 @@ async fn execute_rag_search(
 
 async fn search_context(
     transaction: &Transaction<'_>,
-    prompt_id: i32,
+    _model_id: i32,
     conversation_id: i64,
     query: &str,
     limit: i32,
 ) -> Result<Value, serde_json::Value> {
-    let team_id = conversation_team_id(transaction, conversation_id).await?;
-    let prompt = queries::prompts::prompt()
-        .bind(transaction, &prompt_id, &team_id)
+    let dataset_ids: Vec<i32> = transaction
+        .query(
+            "SELECT id FROM rag.datasets WHERE is_project = false AND
+             (visibility = 'Company' OR
+              (visibility = 'Private' AND created_by = current_app_user()) OR
+              (visibility = 'Team' AND team_id IN
+               (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user())))",
+            &[],
+        )
+        .await
+        .map_err(|e| json!({"error": "Failed to fetch datasets", "details": e.to_string()}))?
+        .into_iter()
+        .map(|row| row.get(0))
+        .collect();
+
+    if dataset_ids.is_empty() {
+        return Ok(json!({"chunks": []}));
+    }
+
+    let embeddings_model = queries::models::get_system_embedding_model()
+        .bind(transaction)
         .one()
         .await
-        .map_err(|e| json!({"error": "Failed to fetch prompt", "details": e.to_string()}))?;
-
-    let (base_url, model, api_key) = match (
-        prompt.embeddings_base_url,
-        prompt.embeddings_model,
-        prompt.embeddings_api_key,
-    ) {
-        (Some(url), Some(model), api_key) => (url, model, api_key),
-        _ => return Err(json!({"error": "Prompt missing embeddings configuration"})),
-    };
+        .map_err(
+            |e| json!({"error": "Failed to fetch embeddings model", "details": e.to_string()}),
+        )?;
 
     let embeddings = get_embeddings_via_rig(
         query,
-        &base_url,
-        &model,
-        prompt.embeddings_context_size.unwrap_or(256),
-        api_key.as_deref(),
+        &embeddings_model.base_url,
+        &embeddings_model.name,
+        embeddings_model.context_size,
+        embeddings_model.api_key.as_deref(),
     )
     .await
     .map_err(|e| json!({"error": "Failed to get embeddings", "details": e}))?;
 
-    let related = db::get_related_context(transaction, prompt_id, limit, embeddings)
+    let related = db::get_related_context(transaction, &dataset_ids, limit, embeddings)
         .await
         .map_err(|e| json!({"error": "Failed to search context", "details": e.to_string()}))?;
 
     let chunk_ids: Vec<i32> = related.iter().map(|chunk| chunk.chunk_id).collect();
-    let paths = chunk_paths(transaction, prompt_id, &chunk_ids).await?;
+    let paths = chunk_paths(transaction, &dataset_ids, &chunk_ids).await?;
     let paths_by_chunk: HashMap<i32, ChunkPath> = paths
         .into_iter()
         .map(|path| (path.chunk_id, path))
@@ -1361,7 +1344,7 @@ async fn search_context(
 
 async fn chunk_paths(
     transaction: &Transaction<'_>,
-    prompt_id: i32,
+    dataset_ids: &[i32],
     chunk_ids: &[i32],
 ) -> Result<Vec<ChunkPath>, serde_json::Value> {
     if chunk_ids.is_empty() {
@@ -1375,11 +1358,9 @@ async fn chunk_paths(
             FROM rag.chunks c
             INNER JOIN rag.documents d ON d.id = c.document_id
             WHERE c.id = ANY($1)
-              AND d.dataset_id IN (
-                  SELECT dataset_id FROM model_registry.prompt_dataset WHERE prompt_id = $2
-              )
+              AND d.dataset_id = ANY($2)
             ",
-            &[&chunk_ids, &prompt_id],
+            &[&chunk_ids, &dataset_ids],
         )
         .await
         .map_err(|e| json!({"error": "Failed to resolve chunk paths", "details": e.to_string()}))?;

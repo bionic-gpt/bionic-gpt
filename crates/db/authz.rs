@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::client::Params;
 use crate::queries::users::InsertParams;
-use crate::{queries, Dataset, Prompt};
+use crate::{queries, Dataset};
 use crate::{types, Permission, Transaction};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -251,10 +251,6 @@ impl Rbac {
 
     pub fn can_view_system_prompt(&self) -> bool {
         self.permissions.contains(&Permission::ViewSystemPrompt)
-    }
-
-    pub fn can_edit_prompt(&self, prompt: &Prompt) -> bool {
-        prompt.created_by == self.user_id || self.is_sys_admin
     }
 
     pub fn can_edit_dataset(&self, _dataset: &Dataset) -> bool {

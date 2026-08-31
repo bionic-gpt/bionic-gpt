@@ -15,7 +15,7 @@ use web_pages::routes::api_keys::{Delete, New};
 pub struct NewApiKey {
     #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
-    pub prompt_id: i32,
+    pub model_id: i32,
 }
 
 pub async fn action_new_api_key(
@@ -42,7 +42,7 @@ pub async fn action_new_api_key(
         queries::api_keys::new_api_key()
             .bind(
                 &transaction,
-                &new_api_key.prompt_id,
+                &new_api_key.model_id,
                 &rbac.user_id,
                 &team_id_num,
                 &new_api_key.name,
@@ -50,21 +50,21 @@ pub async fn action_new_api_key(
             )
             .await?;
 
-        if let Ok(prompt) = queries::prompts::prompt()
-            .bind(&transaction, &new_api_key.prompt_id, &team_id_num)
+        if let Ok(prompt) = queries::models::model_config()
+            .bind(&transaction, &new_api_key.model_id)
             .one()
             .await
         {
             generated_key = Some(GeneratedKey {
                 name: new_api_key.name.clone(),
                 value: api_key_value,
-                prompt_name: Some(prompt.name),
+                model_name: Some(prompt.name),
             });
         } else {
             generated_key = Some(GeneratedKey {
                 name: new_api_key.name.clone(),
                 value: api_key_value,
-                prompt_name: None,
+                model_name: None,
             });
         }
     }
@@ -74,8 +74,8 @@ pub async fn action_new_api_key(
         .all()
         .await?;
 
-    let models = queries::prompts::prompts()
-        .bind(&transaction, &team_id_num)
+    let models = queries::models::all_models()
+        .bind(&transaction)
         .all()
         .await?;
 
