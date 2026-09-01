@@ -24,16 +24,3 @@
   border-color: oklch(var(--bc) / 0.4);
   box-shadow: 0 10px 30px -15px oklch(var(--bc) / 0.35);
 }
-
-/* Keep blog author metadata clear of typography image margins. */
-.prose > div > div.my-8 {
-  align-items: center;
-}
-
-.prose > div > div.my-8 > img {
-  margin: 0;
-}
-
-.prose > div > div.my-8 > div {
-  margin: 0;
-}
