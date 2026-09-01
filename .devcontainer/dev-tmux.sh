@@ -9,8 +9,6 @@ if ! command -v tmux >/dev/null 2>&1; then
     sudo apt-get install -y -qq tmux
 fi
 
-tmux set-option -g mouse on
-
 attach() {
     if [ -n "${TMUX:-}" ]; then
         tmux switch-client -t "$session"
@@ -20,11 +18,13 @@ attach() {
 }
 
 if tmux has-session -t "$session" 2>/dev/null; then
+    tmux set-option -t "$session" -g mouse on
     attach
     exit 0
 fi
 
 tmux new-session -d -s "$session" -n app -c "$workspace"
+tmux set-option -t "$session" -g mouse on
 
 top_pane=$(tmux display-message -p -t "$session:app" '#{pane_id}')
 middle_pane=$(tmux split-window -v -p 66 -t "$top_pane" -c "$workspace" -P -F '#{pane_id}')

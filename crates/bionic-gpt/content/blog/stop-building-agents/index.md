@@ -82,7 +82,7 @@ The practical question is often: **what can we do with the agentic workspace alr
 
 Start with what is deployed. Build only when the existing capabilities cannot meet the requirement.
 
-## Human in the loop
+## Buiding agents doesn't scale
 
 Many apparent platform gaps are actually training and discoverability problems. Users need to know which tools, files, integrations, prompts and scheduled tasks are available.
 
@@ -91,3 +91,17 @@ Many apparent platform gaps are actually training and discoverability problems. 
 - A team that teaches people how to use the available agentic workspace creates more distributed capability while keeping governance centralised.
 
 The scalable model is not one team building every agent. It is one team creating the foundation, and many teams learning how to use it well.
+
+## Many use cases are already solved
+
+Simon Willison has a nice article on [Understanding Chat GPT Work](https://simonwillison.net/2026/Aug/30/understanding-chatgpt-work/) and he's deployed a site which show cases the tools and skills that come with Chat GPT.
+
+So when I say "Many use cases are already solved" you can look at the skills to see what Chat GPT (and the other platforms) are already capable of.
+
+If you have a use case such as "Check this security document for compliance", thats a general use case, the general use case being `document-check`.
+
+![BChat GPT skills and tools](skills-and-tools.png "Build versus use existing capabilities")
+
+## Skills and Tools
+
+## Example High Value Use Case
