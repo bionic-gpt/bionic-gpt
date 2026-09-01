@@ -4,6 +4,8 @@ This is not the exact post but it was similar.
 
 You can find many more like it.
 
+There is nothing wrong with the technology in this job description. The problem is the starting point. It assumes the answer is to assemble a new platform before anyone has worked out which problems are worth solving.
+
 
 ```markdown
 ## Senior Agentic AI Engineer
@@ -60,7 +62,11 @@ The issue I have with this, is it's a solution trying to find a problem.
 
 ## A better way
 
+Before hiring a team to build an agent platform, look at what is already available. Start with a chat interface, then add the project, integration, skill or scheduled task that the use case actually needs.
+
 ![Build versus use existing capabilities](vs-infographic.png "Build versus use existing capabilities")
+
+Only build a dedicated agent when the existing workspace cannot do the job. That keeps the effort focused on a real constraint rather than a long list of impressive platform requirements.
 
 ## Err, agentic Workspace, whats that?
 
