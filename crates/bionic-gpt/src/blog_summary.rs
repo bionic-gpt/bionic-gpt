@@ -7,6 +7,16 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 PageSummary {
+                    date: "2026-09-01",
+                    title: "Stop building Agents",
+                    description: "A practical look at when to use existing agentic capabilities and when to build a platform.",
+                    folder: "blog/stop-building-agents/",
+                    markdown: include_str!("../content/blog/stop-building-agents/index.md"),
+                    image: Some("/blog/stop-building-agents/stop-building-agents.png"),
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
+                },
+                PageSummary {
                     date: "2026-01-16",
                     title: "Evaluating Self-Hosted LLM Platforms: From Front Ends to Enterprise GenAI",
                     description: "A practical framework for comparing self-hosted LLM platforms across UI, orchestration, security, and enterprise readiness.",

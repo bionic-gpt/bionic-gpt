@@ -9,6 +9,8 @@ if ! command -v tmux >/dev/null 2>&1; then
     sudo apt-get install -y -qq tmux
 fi
 
+tmux set-option -g mouse on
+
 attach() {
     if [ -n "${TMUX:-}" ]; then
         tmux switch-client -t "$session"
