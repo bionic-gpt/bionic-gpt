@@ -73,59 +73,52 @@ Ask:
 
 ## Many Use Cases Aren't Applications Anymore
 
-Consider:
+Consider a simple request:
 
 > Check this supplier document against our security policies and identify any compliance issues.
 
 You could build an application for that.
 
-Or the workspace could read the documents and use a reusable **document comparison skill**.
+Or an agentic workspace can combine capabilities it already has: access the documents, apply a **document comparison skill**, and produce the result.
+
+![Skills and Integrations](skills-and-integrations.png "Skills and Integrations")
 
 No new application. No deployment. No engineering backlog.
 
-The same applies to many everyday use cases:
+The important change is that modern agentic platforms provide **reusable building blocks**. Skills define what the platform can do. Integrations give it access to the systems and data it needs.
 
-- analyse this spreadsheet
-- research these suppliers
-- query this database
-- investigate this market movement
-- prepare a presentation
-- process these emails
-- produce this monthly report
+### Typical Skills
 
-These are tasks, not necessarily applications.
+| Documents | Data | Research |
+|---|---|---|
+| Document comparison | Spreadsheet analysis | Web research |
+| PDF generation | Data visualisation | Summarisation |
+| Presentation creation | Database analysis | Report writing |
+| Document extraction | Code execution | Deep research |
 
-## Example: Future Bond Rollover
+### Typical Integrations
 
-Consider a trader who needs to analyse an upcoming bond futures rollover.
+| Productivity | Enterprise Data | External |
+|---|---|---|
+| Email | Databases | Web |
+| Calendar | Data warehouses | APIs |
+| File storage | Knowledge bases | Market data |
+| Office documents | Internal APIs | SaaS applications |
 
-### Integrations
+Combine these building blocks and a surprisingly large number of enterprise use cases become things a user can simply ask the platform to do.
 
-The workspace connects to the relevant positions and market data.
+### Potential Use Cases
 
-[Screenshot]
+| Analyse | Research | Automate |
+|---|---|---|
+| Check a contract against policy | Research potential suppliers | Process an inbox |
+| Analyse a spreadsheet | Investigate a market movement | Produce a monthly report |
+| Query operational data | Compare competing products | Monitor for changes |
+| Review financial positions | Prepare a management briefing | Run a scheduled analysis |
 
-### Skills
+These aren't necessarily applications anymore.
 
-The trader asks the workspace to analyse the rollover.
-
-Existing skills provide the analytical and reporting capabilities.
-
-[Screenshot]
-
-### Final Result
-
-The workspace performs the analysis and produces the Treasury report.
-
-[Screenshot]
-
-If this needs to happen every month:
-
-> Run this on the first business day of every month and send the report to Treasury.
-
-Now we have a recurring workflow.
-
-We haven't built a new application.
+**They're tasks assembled from capabilities the platform already has.**
 
 ## Fixing the Bottleneck
 
@@ -168,3 +161,8 @@ Engineering becomes the escalation path, not the starting point.
 **The goal isn't to build thousands of agents.**
 
 **It's to enable thousands of people to solve problems using agents.**
+
+## Conclusion
+
+
+![Agentic AI Approach](recommended-approach.png "Agentic AI Approach")
