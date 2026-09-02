@@ -1,4 +1,5 @@
 pub mod benefits;
+pub mod blog_extra_footer;
 pub mod customer_logos;
 pub mod extra_footer;
 pub mod faq_accordian;
