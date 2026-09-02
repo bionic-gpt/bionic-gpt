@@ -83,6 +83,18 @@ Or an agentic workspace can combine capabilities it already has: access the docu
 
 ![Skills and Integrations](skills-and-integrations.png "Skills and Integrations")
 
+### Skills and Integrations
+
+**Skills** are reusable ways of doing a task. They can contain instructions, examples, scripts and other resources that teach the platform how your organisation wants something done. OpenAI describes them as ["reusable, shareable workflows"](https://help.openai.com/en/articles/20001066-skills-in-chatgpt).
+
+A skill might know how to compare two documents, analyse a spreadsheet or produce a report in your company's preferred format.
+
+**Integrations** connect the workspace to the systems where the work and data already live: email, databases, file stores, APIs, market data and other enterprise systems. OpenAI's [connected apps](https://help.openai.com/en/articles/11487775-connected-apps-in-chatgpt) similarly allow ChatGPT to access information and perform supported actions in external services.
+
+Together they provide the building blocks:
+
+`User request + Skills + Integrations → Result`
+
 No new application. No deployment. No engineering backlog.
 
 The important change is that modern agentic platforms provide **reusable building blocks**. Skills define what the platform can do. Integrations give it access to the systems and data it needs.
@@ -117,6 +129,25 @@ Combine these building blocks and a surprisingly large number of enterprise use 
 | Review financial positions | Prepare a management briefing | Run a scheduled analysis |
 
 These aren't necessarily applications anymore.
+
+## From Prompt to Automation
+
+Some tasks don't just happen once.
+
+Suppose the user gets the result they want and then says:
+
+> Do this every Monday morning and send me the report.
+
+Agentic platforms are increasingly able to schedule the same work to run later or repeatedly. ChatGPT, for example, supports [scheduled tasks](https://help.openai.com/en/articles/10291617-scheduled-tasks-in-chatgpt) for recurring work, monitoring and supported connected apps.
+
+That creates a surprisingly short path:
+
+![Scheduled Tasks](schedule-it.png "Scheduled Tasks")
+
+The user can first prove that the workflow is useful interactively. Only then do they automate it.
+
+Again, that doesn't necessarily require a new application.
+
 
 **They're tasks assembled from capabilities the platform already has.**
 
@@ -156,5 +187,14 @@ Engineering becomes the escalation path, not the starting point.
 
 ## Conclusion
 
+Agentic AI doesn't have to mean building an agent for every use case.
+
+The platforms are increasingly already there. They have tools, skills, integrations, secure execution and automation. The first step should be to see what users can solve with those capabilities.
+
+Help people understand what's possible. Let them solve their own problems. When they hit a limitation, add the missing skill or integration so everyone benefits.
+
+And when a problem genuinely requires bespoke engineering, build it.
 
 ![Agentic AI Approach](recommended-approach.png "Agentic AI Approach")
+
+**Start with the problem. Use the platform. Extend it when necessary. Build last.**
