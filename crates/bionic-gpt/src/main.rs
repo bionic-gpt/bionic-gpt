@@ -1,6 +1,8 @@
 use std::net::SocketAddr;
 
-use ssg_whiz::{ExtraFooterConfig, ScriptAsset, Section, SiteAssets, SiteBuilder, SiteConfig};
+use ssg_whiz::{
+    ExtraFooterConfig, ScriptAsset, Section, SiteAssets, SiteBuilder, SiteConfig, SiteFeatures,
+};
 
 use bionic_gpt::{
     architect_course_summary, blog_summary, docs_summary, generator, pages_summary,
@@ -32,6 +34,7 @@ async fn main() {
         footer_links: footer_links(),
         site_meta: bionic_gpt::ui_links::site_meta(),
         site_header: Some(site_header),
+        features: SiteFeatures::default(),
         site_assets: SiteAssets {
             stylesheets: vec![
                 tailwind_stylesheet,

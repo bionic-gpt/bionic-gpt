@@ -5,26 +5,18 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'crates/dioxus-poc/**'
       - '*.md'
-      - '.github/workflows/integration*.yml'
-      - '.github/workflows/embeddings-docker.yml'
-      - 'crates/static-website/**'
-      - 'crates/deploy-mcp/**'
+      - 'crates/bionic-gpt/**'
       - Justfile
-      - stack.yaml
+      - 'infra-as-code/**'
   pull_request:
     branches:
       - main
     paths-ignore:
-      - 'crates/dioxus-poc/**'
       - '*.md'
-      - '.github/workflows/integration*.yml'
-      - '.github/workflows/embeddings-docker.yml'
-      - 'crates/static-website/**'
-      - 'crates/deploy-mcp/**'
+      - 'crates/bionic-gpt/**'
       - Justfile
-      - stack.yaml
+      - 'infra-as-code/**'
 
 jobs:
   dagger-pipeline:

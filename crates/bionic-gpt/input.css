@@ -6,7 +6,7 @@
 @source inline("sticky top-0 top-2.5 bottom-0 left-[-100%] z-10 z-40 z-50 hidden block flex flex-row flex-col items-center justify-between justify-center justify-end shrink-0 w-full w-52 w-[420px] h-3 h-5 h-8 h-[calc(100vh-108px)] max-w-5xl max-w-6xl max-w-none max-w-prose max-w-sm max-w-4xl");
 @source inline("mx-auto mt-0 mt-3 mt-24 mt-32 mb-2 mb-4 mb-6 mb-8 mb-12 px-5 px-6 pl-2 pl-4 pr-4 pt-2 pt-12 pb-5 pb-8 py-2 py-10 py-16 p-0 p-2 gap-1 gap-2 gap-3 gap-4 gap-6 gap-8");
 @source inline("border-y border-r border-base-300 ring-1 ring-base-300 rounded-full rounded-xl shadow shadow-md shadow-lg opacity-50 opacity-60 opacity-70 opacity-80 overflow-y-auto overflow-x-auto object-cover aspect-video w-3");
-@source inline("text-sm text-base text-lg text-xl text-3xl text-4xl text-5xl font-medium font-semibold font-bold font-extrabold uppercase leading-tight tracking-wide tracking-[0.08em] md:text-xl md:text-4xl md:text-5xl md:flex-row md:justify-between md:grid-cols-2 lg:block lg:flex lg:hidden lg:left-0 lg:mr-2 lg:overflow-y-auto lg:prose-xl lg:sticky");
+@source inline("text-sm text-base text-lg text-xl text-3xl text-4xl text-5xl font-medium font-semibold font-bold font-extrabold uppercase leading-tight tracking-wide tracking-[0.08em] md:text-xl md:text-4xl md:text-5xl md:flex-row md:justify-between md:grid-cols-2 lg:block lg:flex lg:hidden lg:left-0 lg:mr-2 lg:overflow-y-auto lg:max-w-[81.25ch] lg:prose-xl lg:sticky");
 @source inline("backdrop-filter backdrop-blur-lg bg-opacity-30 pointer-events-none cursor-not-allowed line-clamp-3");
 
 /** On chrome based browser fade between pages for a smoother look and feel **/
