@@ -28,13 +28,13 @@ We've specified the solution in extraordinary detail before we've identified the
 
 This creates two problems.
 
-### We build before we know what we need
+### Problem #1 - We build before we know what we need
 
 We've already decided that the answer involves agents, RAG, vector databases, orchestration and infrastructure.
 
 The use case might not need any of it.
 
-### The AI team becomes the bottleneck
+### Problem #2 - The AI team becomes the bottleneck
 
 Large organisations don't have ten potential AI use cases.
 
@@ -73,9 +73,9 @@ Ask:
 
 ## Many Use Cases Aren't Applications Anymore
 
-Consider a simple request:
+Consider a potential problem that users are having:
 
-> Check this supplier document against our security policies and identify any compliance issues.
+> We regularly receive supplier documents that need checking against our security policies. The checks are mostly manual and take time.
 
 You could build an application for that.
 
@@ -134,15 +134,7 @@ Next time they have a different problem, they don't necessarily need another AI 
 
 They can solve it themselves.
 
-Instead of:
-
-`User → Requirements → AI Team → Engineering → Deployment → User`
-
-we increasingly get:
-
-`User → Agentic Workspace → Result`
-
-The central AI team's role changes.
+![Self Service](fixing-the-bottleneck.png "Self Service")
 
 Instead of:
 
