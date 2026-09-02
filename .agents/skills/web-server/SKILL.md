@@ -28,12 +28,9 @@ the authenticated context.
 
 ## Verification
 
-Run focused tests for the handler or feature, then run:
-
-```bash
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo build
-```
-
-For database-backed handlers, apply migrations and run `cargo check -p db`
-before these checks. Report checks that require unavailable services.
+Use the `development` skill's watcher-first workflow for compilation and run
+focused handler tests for changed behavior. For database-backed handlers, apply
+migrations and run `cargo check -p db` when required by the database skill.
+Run Clippy, an independent build, or broader tests when the development skill's
+conditions require them. Do not start or manage the development environment.
+Report checks that require unavailable services.

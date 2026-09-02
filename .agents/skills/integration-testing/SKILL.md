@@ -15,7 +15,9 @@ recipe in `Justfile` before running tests. The current workflow uses a separate
 Bionic deployment in the `bionic-selenium` namespace and Selenium endpoints
 configured by the recipe.
 
-Bootstrap the local k3d environment with the verified recipes:
+The user owns environment setup. The following recipes are documented for
+reference, but Codex must not run them unless the user explicitly requests
+environment management:
 
 ```bash
 just dev-init
@@ -23,8 +25,8 @@ just dev-setup
 ```
 
 `dev-init` creates the `k3d-bionic` cluster and writes its kubeconfig;
-`dev-setup` deploys the development and Selenium stacks. Wait for the
-deployment reconciliation to complete before running tests.
+`dev-setup` deploys the development and Selenium stacks. Do not create, delete,
+redeploy, or restart these services as part of normal test work.
 
 Verified commands include:
 

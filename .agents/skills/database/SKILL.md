@@ -59,7 +59,10 @@ For migration-backed changes:
 1. Apply migrations with `dbmate --no-dump-schema --migrations-dir crates/db/migrations up`.
 2. Run `cargo check -p db` to verify migration-visible queries and Cornucopia generation.
 3. Run focused tests, authorization-isolation tests, and constraint/idempotency tests.
-4. Run Clippy and `cargo build` before broader workspace tests.
+4. Use the `development` skill's watcher-first workflow for compilation where it
+   covers the affected target. Run Clippy, an independent build, or broader
+   workspace tests when that skill's conditions require them. Do not start or
+   manage the development environment as part of database validation.
 
 If PostgreSQL is unavailable, do not hand-edit generated code or claim the
 database change is validated. Report the unavailable database-dependent checks.

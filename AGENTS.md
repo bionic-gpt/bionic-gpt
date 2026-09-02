@@ -11,9 +11,11 @@ marketing and course site is generated with Rust and `ssg_whiz`.
 - `web-server`: Axum routes, loaders, actions, and handlers.
 - `static-sites`: marketing, documentation, course content, and static assets.
 - `integration-testing`: k3d, Selenium, and end-to-end tests.
+- `development`: persistent local development, watchers, compilation feedback, and service diagnosis.
 
 Use the relevant skill before changing code in that area. A task may require
-more than one skill.
+more than one skill. Use `development` for compiling, running, validating, or
+diagnosing the local environment.
 
 ## Universal Rules
 

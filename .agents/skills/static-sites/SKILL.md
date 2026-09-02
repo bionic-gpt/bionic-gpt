@@ -45,7 +45,11 @@ the site's Tailwind input. Inspect `Justfile` before using other recipes.
 
 ## Verification
 
-Build or generate the site with the crate's existing command, commonly:
+Use the `development` skill's watcher-first workflow when working in the
+running site environment. Build or generate the site independently only when
+the watcher is unavailable, does not cover the target, output is inconclusive,
+or comprehensive validation is requested. The crate's existing commands are,
+commonly:
 
 ```bash
 DO_NOT_RUN_SERVER=1 cargo run -p bionic-gpt

@@ -30,11 +30,8 @@ markup together.
 
 ## Verification
 
-Run focused Rust checks for the affected crate, then:
-
-```bash
-cargo build
-```
-
-Use the relevant existing `Justfile` recipe for a live UI check. Do not rely on
-shell aliases; inspect `Justfile` if the recipe name or environment is unclear.
+Use the `development` skill's watcher-first workflow for compilation. Run
+focused tests and application-level or browser checks for the changed behavior.
+Use an independent build only when the development skill's conditions require
+it. Do not start or manage the development environment. Do not rely on shell
+aliases; inspect `Justfile` if the recipe name or environment is unclear.
