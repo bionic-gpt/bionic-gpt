@@ -40,7 +40,7 @@ application, MailHog, and API URLs. For direct database inspection, use the
 explicit connection configured by the environment, for example:
 
 ```bash
-dbmate --migrations-dir crates/db/migrations up
+dbmate --no-dump-schema --migrations-dir crates/db/migrations up
 psql "$DATABASE_URL"
 ```
 

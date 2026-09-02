@@ -16,7 +16,7 @@ We need to install another Bionic in its own namespace so that the `hostname_url
 If you've made changes to the database they'll need to be run into this new namespace.
 
 1. `export DATABASE_URL=postgresql://db-owner:testpassword@host.docker.internal:30005/bionic-gpt?sslmode=disable`
-1. `dbmate up`
+1. `dbmate --no-dump-schema --migrations-dir crates/db/migrations up`
 
 If you get db issues, you may need to restart the pod.
 

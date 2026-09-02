@@ -19,8 +19,8 @@ Rust code that persists or reads application data.
 Create and apply migrations explicitly:
 
 ```bash
-dbmate --migrations-dir crates/db/migrations new <migration-name>
-dbmate --migrations-dir crates/db/migrations up
+dbmate --no-dump-schema --migrations-dir crates/db/migrations new <migration-name>
+dbmate --no-dump-schema --migrations-dir crates/db/migrations up
 ```
 
 Use these direct database commands when needed:
@@ -56,7 +56,7 @@ Do not use the interactive `db`, `dbapp`, or `dbmate` shell aliases.
 
 For migration-backed changes:
 
-1. Apply migrations with `dbmate --migrations-dir crates/db/migrations up`.
+1. Apply migrations with `dbmate --no-dump-schema --migrations-dir crates/db/migrations up`.
 2. Run `cargo check -p db` to verify migration-visible queries and Cornucopia generation.
 3. Run focused tests, authorization-isolation tests, and constraint/idempotency tests.
 4. Run Clippy and `cargo build` before broader workspace tests.
