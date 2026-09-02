@@ -14,6 +14,7 @@ pub fn summary() -> Summary {
                     folder: "architect-course/",
                     markdown: include_str!("../content/architect-course/index.md"),
                     image: None,
+                    open_graph_image: None,
                     author_image: None,
                     author: None,
                 }],
@@ -30,6 +31,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/lab/docker-compose/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -42,6 +44,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/lab/api-provider/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -54,6 +57,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/lab/ollama/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -66,6 +70,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/lab/test-platform/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -83,6 +88,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/how-agentic-ai-works/understanding-tool-calls/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -95,6 +101,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/how-agentic-ai-works/agentic-loop/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -113,6 +120,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/ai-computer/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -126,6 +134,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/ai-computer/sandboxes/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -139,6 +148,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/ai-computer/virtual-file-system/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -152,6 +162,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/how-agentic-ai-works/runtime-tools/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -165,6 +176,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/ai-computer/datasets/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -177,6 +189,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/ai-computer/skills/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -189,6 +202,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/ai-computer/memory/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -201,6 +215,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/ai-computer/scheduled-tasks/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -220,6 +235,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/enterprise-evals/inbox-summarization/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -233,6 +249,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/enterprise-evals/research/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -246,6 +263,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/enterprise-evals/database/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -260,6 +278,7 @@ pub fn summary() -> Summary {
                             "/dashboard-builder-page.md"
                         )),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -273,6 +292,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/enterprise-evals/document-validation/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -286,6 +306,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/enterprise-evals/document-coauthoring/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -299,6 +320,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/enterprise-evals/vision-analysis/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -312,6 +334,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/enterprise-evals/persistent-state/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -329,6 +352,7 @@ pub fn summary() -> Summary {
                             "../content/architect-course/deployment-and-operations/why-kubernetes/index.md"
                         ),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },
@@ -339,6 +363,7 @@ pub fn summary() -> Summary {
                         folder: "architect-course/deployment-and-operations/install-linux/",
                         markdown: include_str!("../content/architect-course/deployment-and-operations/install-linux/index.md"),
                         image: None,
+                        open_graph_image: None,
                         author_image: None,
                         author: None,
                     },

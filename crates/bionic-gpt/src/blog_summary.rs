@@ -13,6 +13,7 @@ pub fn summary() -> Summary {
                     folder: "blog/stop-building-agents/",
                     markdown: include_str!("../content/blog/stop-building-agents/index.md"),
                     image: Some("/blog/stop-building-agents/stop-building-agents.png"),
+                    open_graph_image: Some("/blog/stop-building-agents/open-graph.png"),
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
@@ -23,6 +24,7 @@ pub fn summary() -> Summary {
                     folder: "blog/self-hosted-llm-platforms/",
                     markdown: include_str!("../content/blog/self-hosted-llm-platforms/index.md"),
                     image: Some("/blog/self-hosted-llm-platforms/hero.svg"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
                 },
@@ -33,6 +35,7 @@ pub fn summary() -> Summary {
                     folder: "blog/integrations/",
                     markdown: include_str!("../content/blog/integrations/index.md"),
                     image: Some("/blog/integrations/integrations.png"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
                 },
@@ -43,6 +46,7 @@ pub fn summary() -> Summary {
                     folder: "blog/junior-developers/",
                     markdown: include_str!("../content/blog/junior-developers/index.md"),
                     image: Some("/blog/junior-developers/junior-developer.png"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
@@ -53,6 +57,7 @@ pub fn summary() -> Summary {
                     folder: "blog/streaming/",
                     markdown: include_str!("../content/blog/streaming/index.md"),
                     image: Some("/blog/streaming/contentMonitoring.png"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
                 },
@@ -63,6 +68,7 @@ pub fn summary() -> Summary {
                     folder: "blog/ai-coding-automation/",
                     markdown: include_str!("../content/blog/ai-coding-automation/index.md"),
                     image: Some("/blog/ai-coding-automation/llama-coder.jpg"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
@@ -73,6 +79,7 @@ pub fn summary() -> Summary {
                     folder: "blog/ai-lakehouse/",
                     markdown: include_str!("../content/blog/ai-lakehouse/index.md"),
                     image: Some("/blog/ai-lakehouse/lakehouse-architecture.png"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
@@ -83,6 +90,7 @@ pub fn summary() -> Summary {
                     folder: "blog/ai-agents/",
                     markdown: include_str!("../content/blog/ai-agents/index.md"),
                     image: Some("/blog/ai-agents/ai-agents.png"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
                 },
@@ -93,6 +101,7 @@ pub fn summary() -> Summary {
                     folder: "blog/guardrails/",
                     markdown: include_str!("../content/blog/guardrails/index.md"),
                     image: Some("/blog/guardrails/guardrails.jpg"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
                 },
@@ -103,6 +112,7 @@ pub fn summary() -> Summary {
                     folder: "blog/preparing-for-gen-ai/",
                     markdown: include_str!("../content/blog/preparing-for-gen-ai/index.md"),
                     image: Some("/blog/preparing-for-gen-ai/enterprise.png"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
                 },
@@ -113,6 +123,7 @@ pub fn summary() -> Summary {
                     folder: "blog/code-rag-usecase/",
                     markdown: include_str!("../content/blog/code-rag-usecase/index.md"),
                     image: Some("/blog/code-rag-usecase/codeimage.png"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
                 },
@@ -123,6 +134,7 @@ pub fn summary() -> Summary {
                     folder: "blog/confidential-saas/",
                     markdown: include_str!("../content/blog/confidential-saas/index.md"),
                     image: Some("/blog/confidential-saas/kubernetes.png"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
@@ -133,6 +145,7 @@ pub fn summary() -> Summary {
                     folder: "blog/banning-chat-gpt/",
                     markdown: include_str!("../content/blog/banning-chat-gpt/index.md"),
                     image: Some("/blog/banning-chat-gpt/chat-gpt-banned.png"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
@@ -143,6 +156,7 @@ pub fn summary() -> Summary {
                     folder: "blog/model-denial-of-service/",
                     markdown: include_str!("../content/blog/model-denial-of-service/index.md"),
                     image: Some("/blog/model-denial-of-service/model-denial-of-service.png"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
@@ -153,6 +167,7 @@ pub fn summary() -> Summary {
                     folder: "blog/jupyter/",
                     markdown: include_str!("../content/blog/jupyter/index.md"),
                     image: Some("/blog/jupyter/llama-jupyter.jpg"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
                 },
@@ -163,6 +178,7 @@ pub fn summary() -> Summary {
                     folder: "blog/llm-hardware/",
                     markdown: include_str!("../content/blog/llm-hardware/index.md"),
                     image: Some("/blog/llm-hardware/multi-gpu-llm-setup.jpg"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
@@ -173,6 +189,7 @@ pub fn summary() -> Summary {
                     folder: "blog/you-dont-need-a-vector-database/",
                     markdown: include_str!("../content/blog/you-dont-need-a-vector-database/index.md"),
                     image: Some("/blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
@@ -183,6 +200,7 @@ pub fn summary() -> Summary {
                     folder: "blog/quantisation/",
                     markdown: include_str!("../content/blog/quantisation/index.md"),
                     image: Some("/blog/quantisation/futuristic-llama.jpg"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
                 },
@@ -193,6 +211,7 @@ pub fn summary() -> Summary {
                     folder: "blog/retrieval-augmented-generation/",
                     markdown: include_str!("../content/blog/retrieval-augmented-generation/index.md"),
                     image: Some("/blog/retrieval-augmented-generation/rag-llama.webp"),
+                    open_graph_image: None,
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
