@@ -27,11 +27,3 @@ responsive layouts, and the existing navigation/footer intact.
 Client behavior is bundled from `crates/web-assets/index.ts`. When adding or
 changing a DOM hook, verify the corresponding TypeScript module and rendered
 markup together.
-
-## Verification
-
-Use the `development` skill's watcher-first workflow for compilation. Run
-focused tests and application-level or browser checks for the changed behavior.
-Use an independent build only when the development skill's conditions require
-it. Do not start or manage the development environment. Do not rely on shell
-aliases; inspect `Justfile` if the recipe name or environment is unclear.

@@ -25,12 +25,3 @@ Follow existing Axum extractors, error types, transaction handling, and
 authorization helpers. Do not trust team, user, ownership, or conversation
 identifiers supplied by clients or model tools; derive and verify them through
 the authenticated context.
-
-## Verification
-
-Use the `development` skill's watcher-first workflow for compilation and run
-focused handler tests for changed behavior. For database-backed handlers, apply
-migrations and run `cargo check -p db` when required by the database skill.
-Run Clippy, an independent build, or broader tests when the development skill's
-conditions require them. Do not start or manage the development environment.
-Report checks that require unavailable services.
