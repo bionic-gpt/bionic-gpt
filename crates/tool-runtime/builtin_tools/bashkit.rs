@@ -190,18 +190,18 @@ pub fn preview_vfs_tree(
     skill_files: &[db::queries::skills::SkillFile],
     function_files: &[crate::builtin_tools::monty::RuntimeFunctionFile],
 ) -> String {
-    let skill_dirs = skill_summaries
+    let mut skill_dirs = builtin_skills::all()
         .iter()
-        .map(|skill| {
-            skills::skill_vfs_directory(skill.skill_id, &skill.skill_name, skill.is_system)
-                .trim_start_matches("/home/user/skills/")
-                .to_string()
-        })
-        .collect::<BTreeSet<_>>()
-        .into_iter()
-        .collect::<Vec<_>>();
+        .map(|skill| skill.name.to_string())
+        .collect::<BTreeSet<_>>();
+    skill_dirs.extend(skill_summaries.iter().map(|skill| {
+        skills::skill_vfs_directory(skill.skill_id, &skill.skill_name, skill.is_system)
+            .trim_start_matches("/home/user/skills/")
+            .to_string()
+    }));
+    let skill_dirs = skill_dirs.into_iter().collect::<Vec<_>>();
     let mut skill_file_trees: BTreeMap<String, PreviewTreeNode> = BTreeMap::new();
-    for file in skills::runtime_skill_files(skill_files.to_vec()) {
+    for file in skills::runtime_skill_files_with_builtins(skill_files.to_vec()) {
         let Some(relative_path) = file.path.strip_prefix("/home/user/skills/") else {
             continue;
         };
@@ -474,7 +474,7 @@ async fn seed_custom_skills(pool: &Pool, sub: &str, bash: &Bash) -> Result<(), s
         |e| json!({"error": "Failed to seed Bashkit skills directory", "details": e.to_string()}),
     )?;
 
-    for file in skills::runtime_skill_files(files) {
+    for file in skills::runtime_skill_files_with_builtins(files) {
         let path = Path::new(&file.path);
         if let Some(parent) = path.parent() {
             fs.mkdir(parent, true)
@@ -1527,14 +1527,14 @@ mod tests {
         let preview = preview_vfs_tree(
             &[db::queries::skills::SkillSummary {
                 skill_id: 42,
-                skill_name: "Presentation Builder".to_string(),
+                skill_name: "Custom Skill".to_string(),
                 description: "Build slides".to_string(),
                 is_system: true,
             }],
             &[
                 db::queries::skills::SkillFile {
                     skill_id: 42,
-                    skill_name: "Presentation Builder".to_string(),
+                    skill_name: "Custom Skill".to_string(),
                     description: "Build slides".to_string(),
                     is_system: true,
                     relative_path: "SKILL.md".to_string(),
@@ -1542,7 +1542,7 @@ mod tests {
                 },
                 db::queries::skills::SkillFile {
                     skill_id: 42,
-                    skill_name: "Presentation Builder".to_string(),
+                    skill_name: "Custom Skill".to_string(),
                     description: "Build slides".to_string(),
                     is_system: true,
                     relative_path: "package/bin/build.py".to_string(),

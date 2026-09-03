@@ -33,11 +33,27 @@ pub fn available_skills_prompt_section_with_custom(
     custom_skills: Vec<db::queries::skills::SkillSummary>,
 ) -> Option<String> {
     let mut deduplicated_custom_skills: BTreeMap<String, SkillChoice> = BTreeMap::new();
+    for skill in builtin_skills::all() {
+        insert_preferred_skill(
+            &mut deduplicated_custom_skills,
+            skill.name.to_string(),
+            SkillChoice {
+                skill_id: None,
+                is_system: true,
+                is_builtin: true,
+                skill: AvailableSkill {
+                    name: skill.name.to_string(),
+                    description: skill.description.to_string(),
+                },
+            },
+        );
+    }
     for skill in custom_skills {
         let slug = slugify_skill_name(&skill.skill_name);
         let choice = SkillChoice {
-            skill_id: skill.skill_id,
+            skill_id: Some(skill.skill_id),
             is_system: skill.is_system,
+            is_builtin: false,
             skill: AvailableSkill {
                 name: skill.skill_name,
                 description: skill.description,
@@ -90,6 +106,36 @@ pub fn runtime_skill_files(
         .collect()
 }
 
+pub fn runtime_skill_files_with_builtins(
+    custom_files: Vec<db::queries::skills::SkillFile>,
+) -> Vec<RuntimeSkillFile> {
+    let builtin_slugs = builtin_skills::all()
+        .iter()
+        .map(|skill| skill.name.to_string())
+        .collect::<BTreeSet<_>>();
+    let mut files = builtin_skills::all()
+        .iter()
+        .flat_map(|skill| {
+            skill.files.iter().map(move |file| RuntimeSkillFile {
+                path: format!("/home/user/skills/{}/{}", skill.name, file.path),
+                contents: file.contents.to_vec(),
+            })
+        })
+        .collect::<Vec<_>>();
+    files.extend(
+        runtime_skill_files(custom_files)
+            .into_iter()
+            .filter(|file| {
+                file.path
+                    .strip_prefix("/home/user/skills/")
+                    .and_then(|path| path.split('/').next())
+                    .map(|slug| !builtin_slugs.contains(slug))
+                    .unwrap_or(true)
+            }),
+    );
+    files
+}
+
 pub fn skill_vfs_directory(_skill_id: i32, name: &str, _is_system: bool) -> String {
     let slug = slugify_skill_name(name);
     format!("/home/user/skills/{slug}")
@@ -97,8 +143,9 @@ pub fn skill_vfs_directory(_skill_id: i32, name: &str, _is_system: bool) -> Stri
 
 #[derive(Debug, Clone)]
 struct SkillChoice {
-    skill_id: i32,
+    skill_id: Option<i32>,
     is_system: bool,
+    is_builtin: bool,
     skill: AvailableSkill,
 }
 
@@ -116,6 +163,9 @@ fn insert_preferred_skill(
 }
 
 fn is_preferred_skill(existing: &SkillChoice, candidate: &SkillChoice) -> bool {
+    if existing.is_builtin != candidate.is_builtin {
+        return existing.is_builtin;
+    }
     if existing.is_system != candidate.is_system {
         return existing.is_system;
     }
@@ -128,8 +178,9 @@ fn preferred_skill_ids_for_files(files: &[db::queries::skills::SkillFile]) -> BT
     for file in files {
         let slug = slugify_skill_name(&file.skill_name);
         let choice = SkillChoice {
-            skill_id: file.skill_id,
+            skill_id: Some(file.skill_id),
             is_system: file.is_system,
+            is_builtin: false,
             skill: AvailableSkill {
                 name: file.skill_name.clone(),
                 description: file.description.clone(),
@@ -140,7 +191,7 @@ fn preferred_skill_ids_for_files(files: &[db::queries::skills::SkillFile]) -> BT
 
     selected
         .into_values()
-        .map(|choice| choice.skill_id)
+        .filter_map(|choice| choice.skill_id)
         .collect()
 }
 
@@ -241,5 +292,35 @@ mod tests {
 
         assert!(prompt.contains("- Data Cleanup!: Earlier skill"));
         assert!(!prompt.contains("Later skill"));
+    }
+
+    #[test]
+    fn available_skills_include_builtin_skills() {
+        let prompt = available_skills_prompt_section_with_custom(Vec::new()).unwrap();
+        assert!(prompt.contains("- presentation-builder:"));
+        assert!(prompt.contains("- image-analysis:"));
+    }
+
+    #[test]
+    fn builtin_skill_wins_over_database_skill_with_same_slug() {
+        let prompt =
+            available_skills_prompt_section_with_custom(vec![db::queries::skills::SkillSummary {
+                skill_id: 2,
+                skill_name: "Presentation Builder".to_string(),
+                description: "Database override".to_string(),
+                is_system: false,
+            }])
+            .unwrap();
+
+        assert!(prompt.contains("Create reveal.js slide decks"));
+        assert!(!prompt.contains("Database override"));
+    }
+
+    #[test]
+    fn runtime_files_include_builtin_assets() {
+        let files = runtime_skill_files_with_builtins(Vec::new());
+        assert!(files
+            .iter()
+            .any(|file| file.path == "/home/user/skills/presentation-builder/reveal/reveal.js"));
     }
 }

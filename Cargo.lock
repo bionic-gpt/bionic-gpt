@@ -883,6 +883,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f4ad8f11f288f48ca24471bbd51ac257aaeaaa07adae295591266b792902ae64"
 
 [[package]]
+name = "builtin-skills"
+version = "0.1.0"
+
+[[package]]
 name = "bumpalo"
 version = "3.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7097,6 +7101,7 @@ dependencies = [
  "axum 0.8.8",
  "base64 0.22.1",
  "bashkit",
+ "builtin-skills",
  "chrono",
  "chrono-tz",
  "cron 0.15.0",
