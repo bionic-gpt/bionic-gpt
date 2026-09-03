@@ -8,7 +8,7 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{ChatStatus, Pool};
 use rig::client::CompletionClient;
-use rig::completion::{CompletionModel as _, GetTokenUsage, Usage};
+use rig::completion::{CompletionModel as _, Usage};
 use rig::message::ReasoningContent;
 use rig::providers::{groq, ollama, openai, openrouter};
 use rig::streaming::{StreamedAssistantContent, StreamingCompletionResponse};
@@ -341,6 +341,11 @@ pub(crate) async fn stream_chat_with_rig(
     request: RigChatRequest,
     sender: mpsc::Sender<Result<GenerationEvent, axum::Error>>,
 ) -> Result<StreamOutcome, Box<dyn std::error::Error + Send + Sync>> {
+    tracing::debug!(
+        provider = ?request.provider_type,
+        model = %request.model_name,
+        "Starting model stream"
+    );
     let api_key = request.api_key.as_deref().unwrap_or("");
     match request.provider_type {
         db::ModelProvider::OpenAI | db::ModelProvider::OpenAICompatible => {
@@ -392,21 +397,23 @@ fn ollama_base_url(base_url: &str) -> &str {
         .unwrap_or_else(|| base_url.trim_end_matches('/'))
 }
 
-async fn consume_rig_stream<R>(
-    mut stream: StreamingCompletionResponse<R>,
+async fn consume_rig_stream(
+    mut stream: StreamingCompletionResponse,
     sender: mpsc::Sender<Result<GenerationEvent, axum::Error>>,
-) -> Result<StreamOutcome, Box<dyn std::error::Error + Send + Sync>>
-where
-    R: Clone + Unpin + GetTokenUsage,
-{
+) -> Result<StreamOutcome, Box<dyn std::error::Error + Send + Sync>> {
     let mut snapshot = String::new();
     let mut tool_calls: Vec<ToolCall> = Vec::new();
     let mut reasoning: Vec<Reasoning> = Vec::new();
     let mut usage: Option<Usage> = None;
+    let mut text_event_count = 0;
+    let mut tool_call_delta_count = 0;
+    let mut final_event_received = false;
+    let mut unknown_event_count = 0;
 
     while let Some(item) = stream.next().await {
         match item {
             Ok(StreamedAssistantContent::Text(text)) => {
+                text_event_count += 1;
                 snapshot.push_str(&text.text);
                 if sender
                     .send(Ok(GenerationEvent::Text {
@@ -434,19 +441,28 @@ where
             Ok(StreamedAssistantContent::ToolCall { tool_call, .. }) => {
                 tool_calls.push(tool_call);
             }
-            Ok(StreamedAssistantContent::ToolCallDelta { .. }) => {}
-            Ok(StreamedAssistantContent::Reasoning(reasoning_item)) => {
+            Ok(StreamedAssistantContent::ToolCallDelta { .. }) => {
+                tool_call_delta_count += 1;
+            }
+            Ok(StreamedAssistantContent::Reasoning {
+                reasoning: reasoning_item,
+                ..
+            }) => {
                 push_reasoning(&mut reasoning, reasoning_item);
             }
             Ok(StreamedAssistantContent::ReasoningDelta {
                 id,
                 reasoning: delta,
+                ..
             }) => {
-                push_reasoning_delta(&mut reasoning, id, delta);
+                push_reasoning_delta(&mut reasoning, Some(id), delta);
             }
-            Ok(StreamedAssistantContent::Unknown(_)) => {}
+            Ok(StreamedAssistantContent::Unknown(_)) => {
+                unknown_event_count += 1;
+            }
             Ok(StreamedAssistantContent::Final(final_response)) => {
-                usage = Some(final_response.token_usage());
+                final_event_received = true;
+                usage = Some(final_response.usage);
             }
             Err(err) => return Err(Box::new(err)),
         }
@@ -464,6 +480,16 @@ where
     };
 
     if snapshot.trim().is_empty() && tool_calls_for_end.is_none() {
+        tracing::warn!(
+            text_event_count,
+            text_length = snapshot.len(),
+            tool_call_count = tool_calls.len(),
+            tool_call_delta_count,
+            reasoning_count = reasoning.len(),
+            final_event_received,
+            unknown_event_count,
+            "Model stream produced no user-visible text or complete tool call"
+        );
         return Err(Box::new(std::io::Error::other(
             "Model returned an empty response",
         )));
@@ -516,7 +542,9 @@ fn push_reasoning_delta(reasoning: &mut Vec<Reasoning>, id: Option<String>, delt
         }
     }
 
-    reasoning.push(Reasoning::new(&delta).optional_id(id));
+    let mut item = Reasoning::new(&delta);
+    item.id = id;
+    reasoning.push(item);
 }
 
 fn reasoning_ends_with_text(reasoning: &Reasoning) -> bool {

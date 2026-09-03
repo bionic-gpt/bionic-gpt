@@ -3,7 +3,6 @@ use db::queries::{models, runtime_settings};
 use db::Transaction;
 use db::{Chat, ChatRole};
 use rig::message::{AssistantContent, Message};
-use rig::OneOrMany;
 use tool_runtime::{parse_reasoning, parse_tool_calls, ToolCall};
 
 /// Converts database chats into rig-native messages.
@@ -30,13 +29,16 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                     items.push(AssistantContent::ToolCall(tool_call));
                 }
 
-                let content = OneOrMany::many(items)
-                    .unwrap_or_else(|_| OneOrMany::one(AssistantContent::text("")));
+                let content = if items.is_empty() {
+                    vec![AssistantContent::text("")]
+                } else {
+                    items
+                };
                 Message::Assistant { id: None, content }
             }
             ChatRole::Tool => {
                 let tool_call_id = chat.tool_call_id.unwrap_or_else(|| "tool_call".to_string());
-                Message::tool_result_with_call_id(tool_call_id.clone(), Some(tool_call_id), content)
+                Message::tool_result(tool_call_id, "run_bash", content)
             }
             ChatRole::System | ChatRole::Developer => Message::system(content),
             ChatRole::User => Message::user(content),

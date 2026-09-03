@@ -1,7 +1,6 @@
 use chrono::DateTime;
 use db::{Chat, ChatRole, ChatStatus};
 use rig::message::{AssistantContent, Message, UserContent};
-use rig::OneOrMany;
 
 use crate::context_builder::{convert_chat_to_messages, generate_prompt};
 use crate::moderation::strip_tool_data;
@@ -158,7 +157,7 @@ fn assistant_tool_calls(msg: &Message) -> Vec<(String, String, serde_json::Value
             .iter()
             .filter_map(|c| match c {
                 AssistantContent::ToolCall(tc) => Some((
-                    tc.id.clone(),
+                    tc.id.to_string(),
                     tc.function.name.clone(),
                     tc.function.arguments.clone(),
                 )),
@@ -172,7 +171,7 @@ fn assistant_tool_calls(msg: &Message) -> Vec<(String, String, serde_json::Value
 fn tool_result_call_id(msg: &Message) -> Option<&str> {
     match msg {
         Message::User { content } => content.iter().find_map(|c| match c {
-            UserContent::ToolResult(res) => Some(res.id.as_str()),
+            UserContent::ToolResult(res) => Some(res.call.as_str()),
             _ => None,
         }),
         _ => None,
@@ -358,19 +357,12 @@ fn test_strip_tool_data_removes_tool_messages() {
         Message::user("hi"),
         Message::Assistant {
             id: None,
-            content: OneOrMany::many(vec![AssistantContent::ToolCall(rig::message::ToolCall {
-                id: "call1".to_string(),
-                call_id: None,
-                signature: None,
-                additional_params: None,
-                function: rig::message::ToolFunction {
-                    name: "do_it".to_string(),
-                    arguments: serde_json::json!({}),
-                },
-            })])
-            .unwrap(),
+            content: vec![AssistantContent::ToolCall(rig::message::ToolCall::new(
+                rig::message::ToolCallId::new_or_mint("call1"),
+                rig::message::ToolFunction::new("do_it".to_string(), serde_json::json!({})),
+            ))],
         },
-        Message::tool_result_with_call_id("call1", None, "{}"),
+        Message::tool_result("call1", "do_it", "{}"),
     ];
 
     let sanitized = strip_tool_data(&messages);

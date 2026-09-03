@@ -239,16 +239,10 @@ mod tests {
             chat_id: 1,
             pending: false,
             tool_call_id: Some("call-1".to_string()),
-            tool_call: Some(ToolCall {
-                id: "call-1".to_string(),
-                call_id: None,
-                signature: None,
-                additional_params: None,
-                function: ToolCallFunction {
-                    name: name.to_string(),
-                    arguments,
-                },
-            }),
+            tool_call: Some(ToolCall::from_wire(
+                "call-1",
+                ToolCallFunction::new(name.to_string(), arguments),
+            )),
             response: None,
         }
     }

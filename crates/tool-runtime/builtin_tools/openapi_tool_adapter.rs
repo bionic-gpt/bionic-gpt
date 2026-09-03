@@ -12,8 +12,8 @@ use oas3::{
 };
 
 use crate::types::ToolDefinition;
+use crate::{ToolDyn, ToolError};
 use reqwest::{Client, Method, StatusCode, Url};
-use rig::tool::{ToolDyn, ToolError};
 use rig::wasm_compat::WasmBoxedFuture;
 use serde_json::Value;
 use std::collections::HashSet;

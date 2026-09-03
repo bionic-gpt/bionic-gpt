@@ -1,6 +1,6 @@
 use crate::builtin_tools::time_date::TimeDateTool;
 use crate::types::{ToolCall, ToolResultContent};
-use rig::tool::ToolDyn;
+use crate::ToolDyn;
 use serde_json::json;
 use std::sync::Arc;
 
@@ -35,25 +35,24 @@ async fn test_execute_tool_call_with_tools() {
     let tools: Vec<Arc<dyn ToolDyn>> = vec![time_date_tool];
 
     // Create a tool call
-    let tool_call = ToolCall {
-        id: "call_123".to_string(),
-        call_id: None,
-        signature: None,
-        additional_params: None,
-        function: ToolCallFunction {
-            name: "get_current_time_and_date".to_string(),
-            arguments: json!({"timezone": "utc"}),
-        },
-    };
+    let tool_call = ToolCall::new(
+        rig::message::ToolCallId::new_or_mint("call_123"),
+        ToolCallFunction::new(
+            "get_current_time_and_date".to_string(),
+            json!({"timezone": "utc"}),
+        ),
+    );
 
     // Execute the tool call
     let result = execute_tool_call_with_tools(&tools, &tool_call).await;
 
     // Verify the result
-    assert_eq!(result.id, "call_123".to_string());
+    assert_eq!(result.call.to_string(), "call_123");
     let payload = match result.content.first() {
-        ToolResultContent::Text(text) => text.text,
-        ToolResultContent::Image(_) => String::new(),
+        Some(ToolResultContent::Text(text)) => text.text.clone(),
+        Some(ToolResultContent::Image(_)) => String::new(),
+        Some(ToolResultContent::Json { value }) => value.to_string(),
+        None => String::new(),
     };
     let parsed: serde_json::Value = serde_json::from_str(&payload).unwrap_or_default();
     assert!(parsed["current_time"].is_string());

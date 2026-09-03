@@ -11,7 +11,6 @@ use axum::routing::post;
 use axum::Router;
 use db::ChatStatus;
 use rig::completion::{CompletionRequest, Message};
-use rig::OneOrMany;
 use serde_json::json;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
@@ -50,16 +49,10 @@ async fn event_stream_saves_on_end_with_tool_calls() {
     let result_sink_dyn: Arc<dyn ResultSink> = result_sink.clone();
     let sub = Arc::new("user-1".to_string());
 
-    let tool_calls = vec![ToolCall {
-        id: "call_1".to_string(),
-        call_id: None,
-        signature: None,
-        additional_params: None,
-        function: ToolCallFunction {
-            name: "do_thing".to_string(),
-            arguments: json!({}),
-        },
-    }];
+    let tool_calls = vec![ToolCall::new(
+        rig::message::ToolCallId::new_or_mint("call_1"),
+        ToolCallFunction::new("do_thing".to_string(), json!({})),
+    )];
 
     let input = tokio_stream::iter(vec![
         Ok(GenerationEvent::Text {
@@ -142,7 +135,7 @@ fn provider_request(provider_type: db::ModelProvider, base_url: String) -> RigCh
         completion: CompletionRequest {
             model: None,
             preamble: None,
-            chat_history: OneOrMany::one(Message::user("Say hi")),
+            chat_history: vec![Message::user("Say hi")],
             documents: vec![],
             tools: vec![ToolDefinition {
                 name: "run_bash".to_string(),
@@ -160,6 +153,7 @@ fn provider_request(provider_type: db::ModelProvider, base_url: String) -> RigCh
             tool_choice: None,
             additional_params: None,
             output_schema: None,
+            record_telemetry_content: false,
         },
         model_id: 1,
         user_id: 1,

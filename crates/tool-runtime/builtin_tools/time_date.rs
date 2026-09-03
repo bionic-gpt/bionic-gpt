@@ -1,6 +1,6 @@
 use crate::types::ToolDefinition;
+use crate::{ToolDyn, ToolError};
 use chrono::{Local, Utc};
-use rig::tool::{ToolDyn, ToolError};
 use rig::wasm_compat::WasmBoxedFuture;
 use serde_json::{json, Value};
 
