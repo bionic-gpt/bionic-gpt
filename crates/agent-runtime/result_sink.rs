@@ -77,8 +77,27 @@ async fn save_results_db(pool: &Pool, request: SaveRequest<'_>) {
         return;
     }
 
+    let mut executable_tool_calls = Vec::new();
+    let mut failed_tool_calls = Vec::new();
+    let mut stored_tool_calls = Vec::new();
+    for mut tool_call in tool_calls.unwrap_or_default() {
+        if let Some(error) = malformed_tool_call_error(&tool_call) {
+            tracing::warn!(
+                tool_name = %tool_call.function.name,
+                tool_id = %tool_call.id,
+                error = %error,
+                "Preserving malformed tool call as a retryable tool error"
+            );
+            tool_call.function.arguments = serde_json::json!({});
+            tool_call.additional_params = None;
+            failed_tool_calls.push((tool_call.clone(), error));
+        } else {
+            executable_tool_calls.push(tool_call.clone());
+        }
+        stored_tool_calls.push(tool_call);
+    }
     let tool_calls_json =
-        serialize_assistant_tool_state(tool_calls.as_deref(), reasoning.as_deref());
+        serialize_assistant_tool_state(Some(stored_tool_calls.as_slice()), reasoning.as_deref());
 
     if let Ok(chat) = queries::chats::chat()
         .bind(&transaction, &chat_id)
@@ -161,9 +180,9 @@ async fn save_results_db(pool: &Pool, request: SaveRequest<'_>) {
         }
 
         if status == ChatStatus::Success {
-            if let Some(tool_calls) = tool_calls {
+            if !executable_tool_calls.is_empty() {
                 let tool_call_results = execute_tool_calls(
-                    tool_calls,
+                    executable_tool_calls,
                     pool,
                     sub.to_string(),
                     chat.conversation_id,
@@ -209,6 +228,31 @@ async fn save_results_db(pool: &Pool, request: SaveRequest<'_>) {
                     }
                 }
             }
+
+            for (tool_call, error) in failed_tool_calls {
+                let result_json = serde_json::json!({
+                    "error": format!("Malformed JSON arguments: {error}"),
+                    "retryable": true
+                })
+                .to_string();
+                if let Err(e) = queries::chats::new_chat()
+                    .bind(
+                        &transaction,
+                        &chat.conversation_id,
+                        &chat.model_id,
+                        &Some(tool_call.id.to_string()),
+                        &None::<String>,
+                        &result_json,
+                        &ChatRole::Tool,
+                        &ChatStatus::Pending,
+                    )
+                    .one()
+                    .await
+                {
+                    tracing::error!("Error creating malformed tool result chat: {:?}", e);
+                    return;
+                }
+            }
         }
     } else {
         tracing::error!("Error retrieving chat");
@@ -217,4 +261,13 @@ async fn save_results_db(pool: &Pool, request: SaveRequest<'_>) {
     if let Err(e) = transaction.commit().await {
         tracing::error!("Error committing transaction: {:?}", e);
     }
+}
+
+fn malformed_tool_call_error(tool_call: &ToolCall) -> Option<String> {
+    tool_call
+        .additional_params
+        .as_ref()
+        .and_then(|params| params.get("bionic_malformed_tool_call"))
+        .and_then(|value| value.as_str())
+        .map(ToOwned::to_owned)
 }

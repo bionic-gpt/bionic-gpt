@@ -47,12 +47,20 @@ pub async fn get_tools(
     trace!("Getting available tool instances");
 
     // Start with internal tools
-    let tools: Vec<Arc<dyn ToolDyn>> = vec![Arc::new(builtin_tools::bashkit::BashkitTool::new(
-        pool.clone(),
-        sub.clone(),
-        conversation_id,
-        model_id,
-    ))];
+    let file_tool =
+        builtin_tools::files::FileTool::new(pool.clone(), sub.clone(), conversation_id, model_id);
+    let tools: Vec<Arc<dyn ToolDyn>> = vec![
+        Arc::new(builtin_tools::bashkit::BashkitTool::new(
+            pool.clone(),
+            sub.clone(),
+            conversation_id,
+            model_id,
+        )),
+        Arc::new(file_tool.clone().read()),
+        Arc::new(file_tool.clone().write()),
+        Arc::new(file_tool.clone().edit()),
+        Arc::new(file_tool.python()),
+    ];
 
     info!("Returning {} tool instances", tools.len());
     tools

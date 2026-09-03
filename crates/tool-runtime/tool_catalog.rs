@@ -3,7 +3,13 @@ use crate::builtin_tools;
 use crate::types::ToolDefinition;
 /// Returns the fixed model-facing tool definitions.
 pub fn get_chat_tool_definitions() -> Vec<ToolDefinition> {
-    vec![builtin_tools::bashkit::get_tool_definition()]
+    vec![
+        builtin_tools::bashkit::get_tool_definition(),
+        builtin_tools::files::get_read_file_definition(),
+        builtin_tools::files::get_write_file_definition(),
+        builtin_tools::files::get_edit_file_definition(),
+        builtin_tools::files::get_run_python_definition(),
+    ]
 }
 
 #[cfg(test)]
@@ -14,8 +20,11 @@ mod tests {
         let tools = get_chat_tool_definitions();
         let names: Vec<&str> = tools.iter().map(|tool| tool.name.as_str()).collect();
         assert!(names.contains(&"run_bash"));
+        assert!(names.contains(&"read_file"));
+        assert!(names.contains(&"write_file"));
+        assert!(names.contains(&"edit_file"));
+        assert!(names.contains(&"run_python"));
         assert!(!names.contains(&"open_url"));
-        assert!(!names.contains(&"run_python"));
         assert!(!names.contains(&"get_current_time_and_date"));
         assert!(!names.contains(&"search_tool_functions"));
         assert!(!names.contains(&"render_html"));

@@ -1,0 +1,4009 @@
+// ================================================================
+//! Google Gemini Completion Integration
+//! From [Gemini API Reference](https://ai.google.dev/api/generate-content)
+// ================================================================
+/// `gemini-3.1-flash-lite-preview` completion model
+pub const GEMINI_3_1_FLASH_LITE_PREVIEW: &str = "gemini-3.1-flash-lite-preview";
+/// `gemini-3-flash-preview` completion model
+pub const GEMINI_3_FLASH_PREVIEW: &str = "gemini-3-flash-preview";
+/// `gemini-2.5-pro-preview-06-05` completion model
+pub const GEMINI_2_5_PRO_PREVIEW_06_05: &str = "gemini-2.5-pro-preview-06-05";
+/// `gemini-2.5-pro-preview-05-06` completion model
+pub const GEMINI_2_5_PRO_PREVIEW_05_06: &str = "gemini-2.5-pro-preview-05-06";
+/// `gemini-2.5-pro-preview-03-25` completion model
+pub const GEMINI_2_5_PRO_PREVIEW_03_25: &str = "gemini-2.5-pro-preview-03-25";
+/// `gemini-2.5-flash-preview-04-17` completion model
+pub const GEMINI_2_5_FLASH_PREVIEW_04_17: &str = "gemini-2.5-flash-preview-04-17";
+/// `gemini-2.5-pro-exp-03-25` experimental completion model
+pub const GEMINI_2_5_PRO_EXP_03_25: &str = "gemini-2.5-pro-exp-03-25";
+/// `gemini-2.5-flash` completion model
+pub const GEMINI_2_5_FLASH: &str = "gemini-2.5-flash";
+/// `gemini-2.5-flash-image` image generation model, commonly referred to as Nano Banana.
+#[cfg(feature = "image")]
+#[cfg_attr(docsrs, doc(cfg(feature = "image")))]
+pub const GEMINI_2_5_FLASH_IMAGE: &str = "gemini-2.5-flash-image";
+/// `gemini-2.0-flash-lite` completion model
+pub const GEMINI_2_0_FLASH_LITE: &str = "gemini-2.0-flash-lite";
+/// `gemini-2.0-flash` completion model
+pub const GEMINI_2_0_FLASH: &str = "gemini-2.0-flash";
+
+use self::gemini_api_types::tool_parameters_to_schema;
+use crate::completion::{self, CompletionError, CompletionRequest};
+use crate::http_client::HttpClientExt;
+use crate::message::{self, MimeType, Reasoning};
+use crate::providers::gemini::completion::gemini_api_types::{
+    AdditionalParameters, FunctionCallingMode, ToolConfig,
+};
+use crate::providers::internal::completion_send::send_completion;
+use crate::providers::internal::envelope::DirectPayload;
+use crate::telemetry::{CompletionOperation, CompletionSpanBuilder, SpanCombinator};
+use gemini_api_types::{
+    Content, FinishReason, FunctionDeclaration, GenerateContentRequest, GenerateContentResponse,
+    GenerationConfig, Part, PartKind, Role, Tool, map_finish_reason,
+};
+use serde_json::{Map, Value};
+use std::convert::TryFrom;
+use tracing_futures::Instrument;
+
+use super::Client;
+
+// =================================================================
+// Rig Implementation Types
+// =================================================================
+
+/// Stable descriptor name for the Gemini GenerateContent API.
+///
+/// Recorded on every normalized response and stream this module produces, and
+/// on the telemetry spans, so the two never drift apart.
+pub(crate) const PROVIDER_NAME: &str = "gcp.gemini";
+
+#[derive(Clone, Debug)]
+pub struct CompletionModel<T = reqwest::Client> {
+    pub(crate) client: Client<T>,
+    pub model: String,
+}
+
+impl<T> CompletionModel<T> {
+    pub fn new(client: Client<T>, model: impl Into<String>) -> Self {
+        Self {
+            client,
+            model: model.into(),
+        }
+    }
+
+    pub fn with_model(client: Client<T>, model: &str) -> Self {
+        Self {
+            client,
+            model: model.into(),
+        }
+    }
+}
+
+impl<T> CompletionModel<T>
+where
+    T: HttpClientExt + Clone + 'static,
+{
+    /// Execute a completion and return Gemini's own `generateContent` payload.
+    ///
+    /// This is the escape hatch for provider-specific fields rig does not
+    /// normalize. It shares the request builder, transport, telemetry, and
+    /// error handling with
+    /// [`CompletionModel::completion`](completion::CompletionModel::completion),
+    /// which calls it and then applies the provider-local mapping — one network
+    /// request either way.
+    pub async fn raw_completion(
+        &self,
+        completion_request: CompletionRequest,
+    ) -> Result<GenerateContentResponse, CompletionError> {
+        let request_model = resolve_request_model(&self.model, &completion_request);
+        let span = CompletionSpanBuilder::new(
+            PROVIDER_NAME,
+            &request_model,
+            CompletionOperation::GenerateContent,
+        )
+        .system_instructions(
+            completion_request.preamble.as_deref(),
+            completion_request.record_telemetry_content,
+        )
+        .build();
+
+        let request = create_request_body(completion_request)?;
+
+        crate::providers::internal::trace_json(
+            crate::providers::internal::LogTarget::Completions,
+            "Gemini completion request",
+            &request,
+        );
+
+        let body = serde_json::to_vec(&request)?;
+
+        let path = completion_endpoint(&request_model);
+
+        let request = self
+            .client
+            .post(path.as_str())?
+            .body(body)
+            .map_err(|e| CompletionError::HttpError(e.into()))?;
+
+        send_completion::<_, DirectPayload<GenerateContentResponse>, _>(
+            &self.client,
+            request,
+            "Gemini completion",
+            // Gemini reports no transport request-id response header (verified
+            // against the live API); the normalized id is None by design.
+            None,
+            |response| {
+                let span = tracing::Span::current();
+                span.record_response_metadata(response);
+                let usage = response
+                    .usage_metadata
+                    .as_ref()
+                    .map(crate::completion::Usage::from)
+                    .unwrap_or_default();
+                span.record_token_usage(&usage);
+            },
+        )
+        .instrument(span)
+        .await
+        .map(|(payload, _)| payload)
+    }
+}
+
+impl<T> completion::CompletionModel for CompletionModel<T>
+where
+    T: HttpClientExt + Clone + 'static,
+{
+    async fn completion(
+        &self,
+        completion_request: CompletionRequest,
+    ) -> Result<completion::CompletionResponse, CompletionError> {
+        // Capture before `try_into` consumes the raw value.
+        let raw = self.raw_completion(completion_request).await?;
+        let captured = serde_json::to_value(&raw)?;
+        let response: completion::CompletionResponse = raw.try_into()?;
+        Ok(response.with_raw(captured))
+    }
+
+    async fn stream(
+        &self,
+        request: CompletionRequest,
+    ) -> Result<crate::streaming::StreamingCompletionResponse, CompletionError> {
+        CompletionModel::stream(self, request).await
+    }
+}
+
+impl<T> crate::client::ConstructCompletionModel<Client<T>> for CompletionModel<T>
+where
+    Client<T>: Clone,
+{
+    fn construct(client: &Client<T>, model: String) -> Self {
+        Self::new(client.clone(), model)
+    }
+}
+
+pub(crate) fn create_request_body(
+    completion_request: CompletionRequest,
+) -> Result<GenerateContentRequest, CompletionError> {
+    let chat_history = completion_request.chat_history_with_documents();
+
+    let CompletionRequest {
+        model: _,
+        preamble,
+        chat_history: _,
+        documents: _,
+        tools: function_tools,
+        temperature,
+        max_tokens,
+        tool_choice,
+        mut additional_params,
+        output_schema,
+        record_telemetry_content: _,
+    } = completion_request;
+
+    let mut full_history = Vec::new();
+    full_history.extend(chat_history);
+    // functionResponse.name keys the replay: cross-provider ingested
+    // results arrive with an empty name and their call carries it.
+    crate::providers::internal::resolve_empty_tool_result_names(&mut full_history);
+    let (history_system, full_history) = split_system_messages_from_history(full_history);
+
+    let mut additional_params_payload = additional_params
+        .take()
+        .unwrap_or_else(|| Value::Object(Map::new()));
+    let mut additional_tools =
+        extract_tools_from_additional_params(&mut additional_params_payload)?;
+
+    let AdditionalParameters {
+        mut generation_config,
+        additional_params,
+    } = serde_json::from_value::<AdditionalParameters>(additional_params_payload)?;
+
+    // Apply output_schema to generation_config, creating one if needed
+    if let Some(schema) = output_schema {
+        let cfg = generation_config.get_or_insert_with(GenerationConfig::default);
+        cfg.response_mime_type = Some("application/json".to_string());
+        cfg.response_json_schema = Some(schema.to_value());
+    }
+
+    // `Option::map` is a no-op on `None`, so a request that set `temperature` or
+    // `max_tokens` without ALSO supplying an `additional_params.generationConfig`
+    // used to drop both silently — `.max_tokens(8)` on a Gemini agent never
+    // reached `maxOutputTokens` and the model ran to its own limit. Create the
+    // config when either field is set, mirroring the `output_schema` arm above.
+    //
+    // `GenerationConfig::default()` is all-`None` and every field is
+    // `skip_serializing_if = "Option::is_none"`, so a caller who sets one field
+    // does not silently acquire the other: the unset field stays off the wire
+    // and Gemini applies its own default.
+    if temperature.is_some() || max_tokens.is_some() {
+        let cfg = generation_config.get_or_insert_with(GenerationConfig::default);
+
+        if let Some(temp) = temperature {
+            cfg.temperature = Some(temp);
+        }
+
+        if let Some(max_tokens) = max_tokens {
+            cfg.max_output_tokens = Some(max_tokens);
+        }
+    }
+
+    let mut system_parts: Vec<Part> = Vec::new();
+    if let Some(preamble) = preamble.filter(|preamble| !preamble.is_empty()) {
+        system_parts.push(preamble.into());
+    }
+    for content in history_system {
+        if !content.is_empty() {
+            system_parts.push(content.into());
+        }
+    }
+    let system_instruction = if system_parts.is_empty() {
+        None
+    } else {
+        Some(Content {
+            parts: system_parts,
+            role: Some(Role::Model),
+        })
+    };
+
+    let mut tools = if function_tools.is_empty() {
+        Vec::new()
+    } else {
+        vec![serde_json::to_value(Tool::try_from(function_tools)?)?]
+    };
+    tools.append(&mut additional_tools);
+    let tools = if tools.is_empty() { None } else { Some(tools) };
+
+    let tool_config = if let Some(cfg) = tool_choice {
+        Some(ToolConfig {
+            function_calling_config: Some(FunctionCallingMode::try_from(cfg)?),
+        })
+    } else {
+        None
+    };
+
+    let request = GenerateContentRequest {
+        contents: full_history
+            .into_iter()
+            .map(|msg| {
+                msg.try_into()
+                    .map_err(|e| CompletionError::RequestError(Box::new(e)))
+            })
+            .collect::<Result<Vec<_>, _>>()?,
+        generation_config,
+        safety_settings: None,
+        tools,
+        tool_config,
+        system_instruction,
+        additional_params,
+    };
+
+    Ok(request)
+}
+
+/// Split system messages out of a chat history, keeping their contents in
+/// order. Shared with sibling Gemini transports (e.g. `rig-gemini-grpc`).
+pub fn split_system_messages_from_history(
+    history: Vec<completion::Message>,
+) -> (Vec<String>, Vec<completion::Message>) {
+    let mut system = Vec::new();
+    let mut remaining = Vec::new();
+
+    for message in history {
+        match message {
+            completion::Message::System { content } => system.push(content),
+            other => remaining.push(other),
+        }
+    }
+
+    (system, remaining)
+}
+
+fn extract_tools_from_additional_params(
+    additional_params: &mut Value,
+) -> Result<Vec<Value>, CompletionError> {
+    if let Some(map) = additional_params.as_object_mut()
+        && let Some(raw_tools) = map.remove("tools")
+    {
+        return serde_json::from_value::<Vec<Value>>(raw_tools).map_err(|err| {
+            CompletionError::RequestError(
+                format!("Invalid Gemini `additional_params.tools` payload: {err}").into(),
+            )
+        });
+    }
+
+    Ok(Vec::new())
+}
+
+pub(crate) fn resolve_request_model(
+    default_model: &str,
+    completion_request: &CompletionRequest,
+) -> String {
+    completion_request
+        .model
+        .clone()
+        .unwrap_or_else(|| default_model.to_string())
+}
+
+pub(crate) fn completion_endpoint(model: &str) -> String {
+    format!("/v1beta/models/{model}:generateContent")
+}
+
+pub(crate) fn streaming_endpoint(model: &str) -> String {
+    format!("/v1beta/models/{model}:streamGenerateContent")
+}
+
+impl TryFrom<completion::ToolDefinition> for Tool {
+    type Error = CompletionError;
+
+    fn try_from(tool: completion::ToolDefinition) -> Result<Self, Self::Error> {
+        let parameters = tool_parameters_to_schema(tool.parameters)?;
+
+        Ok(Self {
+            function_declarations: vec![FunctionDeclaration {
+                name: tool.name,
+                description: tool.description,
+                parameters,
+            }],
+            code_execution: None,
+        })
+    }
+}
+
+impl TryFrom<Vec<completion::ToolDefinition>> for Tool {
+    type Error = CompletionError;
+
+    fn try_from(tools: Vec<completion::ToolDefinition>) -> Result<Self, Self::Error> {
+        let mut function_declarations = Vec::new();
+
+        for tool in tools {
+            let parameters = tool_parameters_to_schema(tool.parameters).map_err(|e| {
+                CompletionError::ProviderError(format!(
+                    "Tool '{}' could not be converted to a schema: {:?}",
+                    tool.name, e,
+                ))
+            })?;
+
+            function_declarations.push(FunctionDeclaration {
+                name: tool.name,
+                description: tool.description,
+                parameters,
+            });
+        }
+
+        Ok(Self {
+            function_declarations,
+            code_execution: None,
+        })
+    }
+}
+
+pub(crate) fn function_call_finish_reason_error(
+    reason: &FinishReason,
+    finish_message: Option<&str>,
+) -> Option<CompletionError> {
+    match reason {
+        FinishReason::MalformedFunctionCall
+        | FinishReason::UnexpectedToolCall
+        | FinishReason::MissingThoughtSignature
+        | FinishReason::TooManyToolCalls
+        | FinishReason::MalformedResponse => {
+            let message = finish_message.unwrap_or("no finish message provided");
+            Some(CompletionError::ResponseError(format!(
+                "Gemini stopped with finish_reason={reason:?}: {message}"
+            )))
+        }
+        _ => None,
+    }
+}
+
+/// Map one response `Part` onto the assistant content it carries.
+///
+/// An empty result means the part is real Gemini output that carries no
+/// rig-modeled assistant content, so it contributes nothing to the choice and
+/// the rest of the turn still converts. Only a part rig cannot account for at
+/// all is an `Err`. One part can yield *two* items: a trailing
+/// `thoughtSignature` rides a text part that carries no `thought` flag, and
+/// the signature belongs to a reasoning block rather than to the text.
+fn map_response_part(part: &Part) -> Result<Vec<completion::AssistantContent>, CompletionError> {
+    let Part {
+        thought,
+        thought_signature,
+        part,
+        ..
+    } = part;
+
+    Ok(vec![match part {
+        PartKind::Text(text) => {
+            if let Some(thought) = thought
+                && *thought
+            {
+                completion::AssistantContent::Reasoning(Reasoning::new_with_signature(
+                    text,
+                    thought_signature.clone(),
+                ))
+            } else if thought_signature.is_some() {
+                // A trailing signature on a part with no `thought` flag: the
+                // caller places it, because where it belongs depends on what
+                // came before. See `attach_trailing_signature`.
+                return Ok(vec![completion::AssistantContent::text(text)]);
+            } else {
+                completion::AssistantContent::text(text)
+            }
+        }
+        PartKind::InlineData(inline_data) => {
+            let mime_type = message::MediaType::from_mime_type(&inline_data.mime_type);
+
+            match mime_type {
+                Some(message::MediaType::Image(media_type)) => {
+                    message::AssistantContent::image_base64(
+                        &inline_data.data,
+                        Some(media_type),
+                        Some(message::ImageDetail::default()),
+                    )
+                }
+                _ => {
+                    return Err(CompletionError::ResponseError(format!(
+                        "Unsupported media type {mime_type:?}"
+                    )));
+                }
+            }
+        }
+        PartKind::FunctionCall(function_call) => {
+            let tool_call = message::ToolCall::from_wire(
+                function_call.id.clone().unwrap_or_default(),
+                message::ToolFunction::new(function_call.name.clone(), function_call.args.clone()),
+            )
+            .with_signature(thought_signature.clone());
+            completion::AssistantContent::ToolCall(tool_call)
+        }
+        // The `codeExecution` tool's own output. Rig lets callers enable that
+        // tool (`additional_params.tools = [{"codeExecution": {}}]`, lifted
+        // onto the request by `extract_tools_from_additional_params`), and
+        // Gemini then answers with `executableCode`/`codeExecutionResult`
+        // parts alongside the text. Neither has a slot in
+        // `AssistantContent` — the same position OpenAI Responses' hosted-tool
+        // items are in, which decode to `Output::Unknown` and contribute no
+        // content rather than failing the response. Erroring here discarded
+        // the entire turn, final text answer included, while the streaming
+        // adapter skipped the parts and kept it. Their own `thoughtSignature`
+        // goes with them, which is the streaming path's behaviour too — those
+        // part kinds have nowhere to round-trip from, so keeping the
+        // transports in step is the most that can be preserved here.
+        PartKind::ExecutableCode(_) | PartKind::CodeExecutionResult(_) => return Ok(Vec::new()),
+        other => {
+            return Err(CompletionError::ResponseError(format!(
+                "Gemini response part kind {} carries no assistant content rig can account for",
+                part_kind_name(other)
+            )));
+        }
+    }])
+}
+
+/// Place a trailing `thoughtSignature` — one that rode a part carrying no
+/// `thought` flag — onto the assistant content mapped so far.
+///
+/// Gemini hangs the signature on a trailing part instead of on the thought
+/// it belongs to — recorded on gemini-3-flash-preview and on
+/// gemini-2.5-flash alike — and the signature is replay-required state the provider
+/// validates (`MISSING_THOUGHT_SIGNATURE`). Only `Reasoning` round-trips it
+/// back onto a request, so it has to land on one — and *which* one is the
+/// same question the streaming accumulator answers, so the answer is the
+/// same:
+///
+/// * an earlier unsigned reasoning block takes it, because that block holds
+///   the chain-of-thought the signature signs
+///   (`streaming/parts.rs::a_trailing_signature_signs_the_finished_block`);
+/// * with no such block, it becomes a signature-only reasoning part, which
+///   is what the accumulator records when nothing streamed.
+///
+/// Blocking and streaming therefore normalize the same bytes to the same
+/// choice, which is the point: a turn replayed from either transport sends
+/// the signature back the same way. Public because the gRPC transport's
+/// unary mapper answers the same question about the same wire.
+pub fn attach_trailing_signature(
+    content: &mut Vec<completion::AssistantContent>,
+    signature: String,
+) {
+    let unsigned_reasoning = content.iter_mut().rev().find_map(|item| match item {
+        completion::AssistantContent::Reasoning(reasoning) => match reasoning.content.first_mut() {
+            Some(message::ReasoningContent::Text {
+                signature: slot @ None,
+                ..
+            }) => Some(slot),
+            _ => None,
+        },
+        _ => None,
+    });
+
+    match unsigned_reasoning {
+        Some(slot) => *slot = Some(signature),
+        None => content.push(completion::AssistantContent::Reasoning(
+            Reasoning::new_with_signature("", Some(signature)),
+        )),
+    }
+}
+
+/// The wire name of a part kind, for error messages.
+fn part_kind_name(part: &PartKind) -> &'static str {
+    match part {
+        PartKind::Text(_) => "text",
+        PartKind::InlineData(_) => "inlineData",
+        PartKind::FunctionCall(_) => "functionCall",
+        PartKind::FunctionResponse(_) => "functionResponse",
+        PartKind::FileData(_) => "fileData",
+        PartKind::ExecutableCode(_) => "executableCode",
+        PartKind::CodeExecutionResult(_) => "codeExecutionResult",
+    }
+}
+
+/// Normalize a Gemini `generateContent` response.
+impl TryFrom<GenerateContentResponse> for completion::CompletionResponse {
+    type Error = CompletionError;
+
+    fn try_from(response: GenerateContentResponse) -> Result<Self, Self::Error> {
+        let candidate = response.candidates.first().ok_or_else(|| {
+            CompletionError::ResponseError("No response candidates in response".into())
+        })?;
+
+        if let Some(reason) = candidate.finish_reason.as_ref()
+            && let Some(err) =
+                function_call_finish_reason_error(reason, candidate.finish_message.as_deref())
+        {
+            return Err(err);
+        }
+
+        let finish_reason = candidate.finish_reason.as_ref().and_then(map_finish_reason);
+
+        let parts = &candidate
+            .content
+            .as_ref()
+            .ok_or_else(|| {
+                let reason = candidate
+                    .finish_reason
+                    .as_ref()
+                    .map(|r| format!("finish_reason={r:?}"))
+                    .unwrap_or_else(|| "finish_reason=<unknown>".to_string());
+                let message = candidate
+                    .finish_message
+                    .as_deref()
+                    .unwrap_or("no finish message provided");
+                CompletionError::ResponseError(format!(
+                    "Gemini candidate missing content ({reason}, finish_message={message})"
+                ))
+            })?
+            .parts;
+
+        // Mapped in wire order, one part at a time — a part may contribute no
+        // content at all (skipped, not failed; see `map_response_part`), and
+        // `?` still surfaces the first error in wire order. A trailing
+        // signature is placed against the content mapped *before* it, so the
+        // fold cannot become a `map`.
+        let mut content: Vec<completion::AssistantContent> = Vec::with_capacity(parts.len());
+        for part in parts {
+            content.extend(map_response_part(part)?);
+            if !part.thought.unwrap_or(false)
+                && matches!(part.part, PartKind::Text(_))
+                && let Some(signature) = part.thought_signature.clone()
+            {
+                attach_trailing_signature(&mut content, signature);
+            }
+        }
+
+        let choice = crate::message::require_non_empty_response(content)?;
+
+        let usage = response
+            .usage_metadata
+            .as_ref()
+            .map(crate::completion::Usage::from)
+            .unwrap_or_default();
+
+        Ok(
+            completion::CompletionResponse::new(choice, usage, PROVIDER_NAME)
+                .with_optional_response_id(
+                    Some(response.response_id.as_str()).filter(|id| !id.is_empty()),
+                )
+                .with_optional_model(response.model_version.as_deref())
+                .with_optional_finish_reason(finish_reason),
+        )
+    }
+}
+
+pub mod gemini_api_types {
+    use crate::telemetry::ProviderResponseExt;
+    use std::{collections::HashMap, convert::Infallible, str::FromStr};
+
+    // =================================================================
+    // Gemini API Types
+    // =================================================================
+    use serde::{Deserialize, Serialize};
+    use serde_json::{Value, json};
+
+    use crate::message::{DocumentSourceKind, ImageMediaType, MessageError, MimeType};
+    use crate::{
+        completion::CompletionError,
+        message::{self},
+        providers::gemini::gemini_api_types::{CodeExecutionResult, ExecutableCode},
+    };
+
+    #[derive(Debug, Deserialize, Serialize, Default)]
+    #[serde(rename_all = "camelCase")]
+    pub struct AdditionalParameters {
+        /// Change your Gemini request configuration.
+        pub generation_config: Option<GenerationConfig>,
+        /// Any additional parameters that you want.
+        #[serde(flatten, skip_serializing_if = "Option::is_none")]
+        pub additional_params: Option<serde_json::Value>,
+    }
+
+    impl AdditionalParameters {
+        pub fn with_config(mut self, cfg: GenerationConfig) -> Self {
+            self.generation_config = Some(cfg);
+            self
+        }
+
+        pub fn with_params(mut self, params: serde_json::Value) -> Self {
+            self.additional_params = Some(params);
+            self
+        }
+    }
+
+    /// Response from the model supporting multiple candidate responses.
+    /// Safety ratings and content filtering are reported for both prompt in GenerateContentResponse.prompt_feedback
+    /// and for each candidate in finishReason and in safetyRatings.
+    /// The API:
+    ///     - Returns either all requested candidates or none of them
+    ///     - Returns no candidates at all only if there was something wrong with the prompt (check promptFeedback)
+    ///     - Reports feedback on each candidate in finishReason and safetyRatings.
+    #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct GenerateContentResponse {
+        #[serde(default)]
+        pub response_id: String,
+        /// Candidate responses from the model.
+        #[serde(default)]
+        pub candidates: Vec<ContentCandidate>,
+        /// Returns the prompt's feedback related to the content filters.
+        pub prompt_feedback: Option<PromptFeedback>,
+        /// Output only. Metadata on the generation requests' token usage.
+        pub usage_metadata: Option<UsageMetadata>,
+        pub model_version: Option<String>,
+    }
+
+    impl ProviderResponseExt for GenerateContentResponse {
+        type Usage = UsageMetadata;
+
+        fn get_response_id(&self) -> Option<String> {
+            Some(self.response_id.clone())
+        }
+
+        fn get_response_model_name(&self) -> Option<String> {
+            self.model_version.clone()
+        }
+
+        fn get_text_response(&self) -> Option<String> {
+            let str = self
+                .candidates
+                .iter()
+                .filter_map(|x| {
+                    let content = x.content.as_ref()?;
+                    if content.role.as_ref().is_none_or(|y| y != &Role::Model) {
+                        return None;
+                    }
+
+                    Some(visible_text_parts(content).collect::<Vec<_>>().join("\n"))
+                })
+                .collect::<Vec<String>>()
+                .join("\n");
+
+            if str.is_empty() { None } else { Some(str) }
+        }
+
+        fn get_usage(&self) -> Option<Self::Usage> {
+            self.usage_metadata.clone()
+        }
+    }
+
+    /// The model-visible text of a content's parts, in order.
+    ///
+    /// A `thought: true` part is the model's chain-of-thought, not its answer:
+    /// `thinkingConfig.includeThoughts` puts both in the same `parts` array,
+    /// distinguished only by that flag. Every reader that wants the response
+    /// *text* must skip them — the completion mapper routes them to
+    /// [`crate::message::AssistantContent::Reasoning`] instead, and a reader
+    /// that takes them for output text reports reasoning as the answer.
+    ///
+    /// The *skip* rule lives here; the *join* rule stays with each caller,
+    /// because they differ legitimately: a transcript is one continuous text
+    /// whose part boundaries are not sentence boundaries, so transcription
+    /// concatenates, while `get_text_response` keeps the newline separator it
+    /// has always used between a candidate's blocks.
+    pub(crate) fn visible_text_parts(content: &Content) -> impl Iterator<Item = &str> {
+        content.parts.iter().filter_map(|part| match &part.part {
+            PartKind::Text(text) if !part.thought.unwrap_or(false) => Some(text.as_str()),
+            _ => None,
+        })
+    }
+
+    /// A response candidate generated from the model.
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct ContentCandidate {
+        /// Output only. Generated content returned from the model.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub content: Option<Content>,
+        /// Optional. Output only. The reason why the model stopped generating tokens.
+        /// If empty, the model has not stopped generating tokens.
+        pub finish_reason: Option<FinishReason>,
+        /// List of ratings for the safety of a response candidate.
+        /// There is at most one rating per category.
+        pub safety_ratings: Option<Vec<SafetyRating>>,
+        /// Output only. Citation information for model-generated candidate.
+        /// This field may be populated with recitation information for any text included in the content.
+        /// These are passages that are "recited" from copyrighted material in the foundational LLM's training data.
+        pub citation_metadata: Option<CitationMetadata>,
+        /// Output only. Token count for this candidate.
+        pub token_count: Option<i32>,
+        /// Output only.
+        pub avg_logprobs: Option<f64>,
+        /// Output only. Log-likelihood scores for the response tokens and top tokens
+        pub logprobs_result: Option<LogprobsResult>,
+        /// Output only. Index of the candidate in the list of response candidates.
+        pub index: Option<i32>,
+        /// Output only. Additional information about why the model stopped generating tokens.
+        pub finish_message: Option<String>,
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct Content {
+        /// Ordered Parts that constitute a single message. Parts may have different MIME types.
+        #[serde(default)]
+        pub parts: Vec<Part>,
+        /// The producer of the content. Must be either 'user' or 'model'.
+        /// Useful to set for multi-turn conversations, otherwise can be left blank or unset.
+        pub role: Option<Role>,
+    }
+
+    impl TryFrom<message::Message> for Content {
+        type Error = message::MessageError;
+
+        fn try_from(msg: message::Message) -> Result<Self, Self::Error> {
+            Ok(match msg {
+                message::Message::System { content } => Content {
+                    parts: vec![content.into()],
+                    role: Some(Role::User),
+                },
+                message::Message::User { content } => Content {
+                    parts: content
+                        .into_iter()
+                        .map(|c| c.try_into())
+                        .collect::<Result<Vec<_>, _>>()?,
+                    role: Some(Role::User),
+                },
+                message::Message::Assistant { content, .. } => Content {
+                    role: Some(Role::Model),
+                    parts: content
+                        .into_iter()
+                        .map(|content| content.try_into())
+                        .collect::<Result<Vec<_>, _>>()?,
+                },
+            })
+        }
+    }
+
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+    #[serde(rename_all = "lowercase")]
+    pub enum Role {
+        User,
+        Model,
+    }
+
+    #[derive(Debug, Default, Deserialize, Serialize, Clone, PartialEq)]
+    #[serde(rename_all = "camelCase")]
+    pub struct Part {
+        /// whether or not the part is a reasoning/thinking text or not
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub thought: Option<bool>,
+        /// an opaque sig for the thought so it can be reused - is a base64 string
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub thought_signature: Option<String>,
+        #[serde(flatten)]
+        pub part: PartKind,
+        #[serde(flatten, skip_serializing_if = "Option::is_none")]
+        pub additional_params: Option<Value>,
+    }
+
+    /// A datatype containing media that is part of a multi-part [Content] message.
+    /// A Part consists of data which has an associated datatype. A Part can only contain one of the accepted types in Part.data.
+    /// A Part must have a fixed IANA MIME type identifying the type and subtype of the media if the inlineData field is filled with raw bytes.
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+    #[serde(rename_all = "camelCase")]
+    pub enum PartKind {
+        Text(String),
+        InlineData(Blob),
+        FunctionCall(FunctionCall),
+        FunctionResponse(FunctionResponse),
+        FileData(FileData),
+        ExecutableCode(ExecutableCode),
+        CodeExecutionResult(CodeExecutionResult),
+    }
+
+    // This default instance is primarily so we can easily fill in the optional fields of `Part`
+    // So this instance for `PartKind` (and the allocation it would cause) should be optimized away
+    impl Default for PartKind {
+        fn default() -> Self {
+            Self::Text(String::new())
+        }
+    }
+
+    impl From<String> for Part {
+        fn from(text: String) -> Self {
+            Self {
+                thought: Some(false),
+                thought_signature: None,
+                part: PartKind::Text(text),
+                additional_params: None,
+            }
+        }
+    }
+
+    impl From<&str> for Part {
+        fn from(text: &str) -> Self {
+            Self::from(text.to_string())
+        }
+    }
+
+    impl FromStr for Part {
+        type Err = Infallible;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            Ok(s.into())
+        }
+    }
+
+    /// Map a media body onto the Gemini part kind that carries it.
+    ///
+    /// Gemini takes every non-text body one of exactly two ways — a URI
+    /// reference (`fileData`) or a base64 payload (`inlineData`) — and rejects
+    /// the rest. `kind` names the medium in the rejection messages.
+    /// `string_is_data` says whether an untagged [`DocumentSourceKind::String`]
+    /// counts as a payload for this medium: it does for images and documents,
+    /// whose bodies routinely arrive as an unlabelled base64 string, but a bare
+    /// string is never audio or video.
+    fn media_source_to_part_kind(
+        kind: &str,
+        mime_type: String,
+        source: DocumentSourceKind,
+        string_is_data: bool,
+    ) -> Result<PartKind, message::MessageError> {
+        match source {
+            DocumentSourceKind::Url(file_uri) => Ok(PartKind::FileData(FileData {
+                mime_type: Some(mime_type),
+                file_uri,
+            })),
+            DocumentSourceKind::Base64(data) => Ok(PartKind::InlineData(Blob { mime_type, data })),
+            DocumentSourceKind::String(data) if string_is_data => {
+                Ok(PartKind::InlineData(Blob { mime_type, data }))
+            }
+            DocumentSourceKind::String(_) => Err(message::MessageError::ConversionError(format!(
+                "Strings cannot be used as Gemini {kind} inputs"
+            ))),
+            DocumentSourceKind::Raw(_) => Err(message::MessageError::ConversionError(
+                "Raw files not supported, encode as base64 first".to_string(),
+            )),
+            DocumentSourceKind::FileId(_) => Err(message::MessageError::ConversionError(format!(
+                "Provider file IDs are not supported for Gemini {kind} inputs"
+            ))),
+            DocumentSourceKind::Unknown => Err(message::MessageError::ConversionError(format!(
+                "Gemini {kind} input has no body"
+            ))),
+        }
+    }
+
+    impl TryFrom<(ImageMediaType, DocumentSourceKind)> for PartKind {
+        type Error = message::MessageError;
+        fn try_from(
+            (mime_type, doc_src): (ImageMediaType, DocumentSourceKind),
+        ) -> Result<Self, Self::Error> {
+            media_source_to_part_kind("image", mime_type.to_mime_type().to_string(), doc_src, true)
+        }
+    }
+
+    /// Convert a message image into a Gemini part.
+    ///
+    /// Gemini takes images identically in either role, so the user and
+    /// assistant conversions share this.
+    fn image_to_part(image: message::Image) -> Result<Part, message::MessageError> {
+        let message::Image {
+            data, media_type, ..
+        } = image;
+
+        let Some(media_type) = media_type else {
+            return Err(message::MessageError::ConversionError(
+                "Media type for image is required for Gemini".to_string(),
+            ));
+        };
+
+        match media_type {
+            message::ImageMediaType::JPEG
+            | message::ImageMediaType::PNG
+            | message::ImageMediaType::WEBP
+            | message::ImageMediaType::HEIC
+            | message::ImageMediaType::HEIF => Ok(Part {
+                thought: Some(false),
+                thought_signature: None,
+                part: PartKind::try_from((media_type, data))?,
+                additional_params: None,
+            }),
+            _ => Err(message::MessageError::ConversionError(format!(
+                "Unsupported image media type {media_type:?}"
+            ))),
+        }
+    }
+
+    fn gemini_tool_result_image_mime_type(
+        media_type: Option<&ImageMediaType>,
+    ) -> Result<&'static str, MessageError> {
+        let media_type = media_type.ok_or_else(|| {
+            MessageError::ConversionError(
+                "Image media type is required for Gemini tool results".to_string(),
+            )
+        })?;
+
+        match media_type {
+            ImageMediaType::JPEG | ImageMediaType::PNG | ImageMediaType::WEBP => {
+                Ok(media_type.to_mime_type())
+            }
+            _ => Err(MessageError::ConversionError(format!(
+                "Unsupported image media type {media_type:?} for Gemini tool results; supported types are JPEG, PNG, and WEBP"
+            ))),
+        }
+    }
+
+    impl TryFrom<message::UserContent> for Part {
+        type Error = message::MessageError;
+
+        fn try_from(content: message::UserContent) -> Result<Self, Self::Error> {
+            match content {
+                message::UserContent::Text(message::Text { text, .. }) => Ok(Part {
+                    thought: Some(false),
+                    thought_signature: None,
+                    part: PartKind::Text(text),
+                    additional_params: None,
+                }),
+                message::UserContent::ToolResult(message::ToolResult {
+                    call: _,
+                    provider,
+                    name,
+                    content,
+                }) => {
+                    // The executed tool's name travels as required data.
+                    let function_name = name;
+                    let mut response_values = Vec::new();
+                    let mut parts: Vec<FunctionResponsePart> = Vec::new();
+
+                    for item in content.iter() {
+                        match item {
+                            message::ToolResultContent::Text(text) => {
+                                response_values.push(json!(&text.text));
+                            }
+                            message::ToolResultContent::Json { value } => {
+                                response_values.push(value.clone());
+                            }
+                            message::ToolResultContent::Image(image) => {
+                                let part = match &image.data {
+                                    DocumentSourceKind::Base64(b64) => {
+                                        let mime_type = gemini_tool_result_image_mime_type(
+                                            image.media_type.as_ref(),
+                                        )?;
+
+                                        // Gemini's Developer API rejects synthetic `$ref` links
+                                        // for inline function-response parts even when their
+                                        // display names match. References are optional, so keep
+                                        // structured output in `response` and media in ordered
+                                        // `parts`, which both streaming and non-streaming models
+                                        // accept.
+                                        FunctionResponsePart {
+                                            inline_data: Some(FunctionResponseInlineData {
+                                                mime_type: mime_type.to_string(),
+                                                data: b64.clone(),
+                                                display_name: None,
+                                            }),
+                                            file_data: None,
+                                        }
+                                    }
+                                    DocumentSourceKind::Url(_) => {
+                                        return Err(message::MessageError::ConversionError(
+                                            "Gemini tool result images must use base64 inline data; URL-backed images are not supported"
+                                                .to_string(),
+                                        ));
+                                    }
+                                    _ => {
+                                        return Err(message::MessageError::ConversionError(
+                                            "Unsupported image source kind for tool results"
+                                                .to_string(),
+                                        ));
+                                    }
+                                };
+                                parts.push(part);
+                            }
+                        }
+                    }
+
+                    let response_json = if response_values.is_empty() {
+                        None
+                    } else {
+                        let result = if response_values.len() == 1 {
+                            response_values.remove(0)
+                        } else {
+                            serde_json::Value::Array(response_values)
+                        };
+                        Some(json!({ "result": result }))
+                    };
+
+                    Ok(Part {
+                        thought: Some(false),
+                        thought_signature: None,
+                        part: PartKind::FunctionResponse(FunctionResponse {
+                            name: function_name,
+                            id: provider.map(|provider| provider.call_id),
+                            response: response_json,
+                            parts: if parts.is_empty() { None } else { Some(parts) },
+                        }),
+                        additional_params: None,
+                    })
+                }
+                message::UserContent::Image(image) => image_to_part(image),
+                message::UserContent::Document(message::Document {
+                    data, media_type, ..
+                }) => {
+                    let Some(media_type) = media_type else {
+                        return Err(MessageError::ConversionError(
+                            "A mime type is required for document inputs to Gemini".to_string(),
+                        ));
+                    };
+
+                    // For text-like documents (RAG context), convert inline content to plain text.
+                    // URL-backed files should stay as file_data references so Gemini can fetch them.
+                    if matches!(
+                        media_type,
+                        message::DocumentMediaType::TXT
+                            | message::DocumentMediaType::RTF
+                            | message::DocumentMediaType::HTML
+                            | message::DocumentMediaType::CSS
+                            | message::DocumentMediaType::MARKDOWN
+                            | message::DocumentMediaType::CSV
+                            | message::DocumentMediaType::XML
+                            | message::DocumentMediaType::Javascript
+                            | message::DocumentMediaType::Python
+                    ) {
+                        use base64::Engine;
+                        let part = match data {
+                            DocumentSourceKind::String(text) => PartKind::Text(text),
+                            DocumentSourceKind::Base64(data) => {
+                                // Decode base64 text payloads.
+                                let text = String::from_utf8(
+                                    base64::engine::general_purpose::STANDARD
+                                        .decode(&data)
+                                        .map_err(|e| {
+                                            MessageError::ConversionError(format!(
+                                                "Failed to decode base64: {e}"
+                                            ))
+                                        })?,
+                                )
+                                .map_err(|e| {
+                                    MessageError::ConversionError(format!(
+                                        "Invalid UTF-8 in document: {e}"
+                                    ))
+                                })?;
+                                PartKind::Text(text)
+                            }
+                            DocumentSourceKind::Url(file_uri) => PartKind::FileData(FileData {
+                                mime_type: Some(media_type.to_mime_type().to_string()),
+                                file_uri,
+                            }),
+                            DocumentSourceKind::Raw(_) => {
+                                return Err(MessageError::ConversionError(
+                                    "Raw files not supported, encode as base64 first".to_string(),
+                                ));
+                            }
+                            DocumentSourceKind::FileId(_) => {
+                                return Err(MessageError::ConversionError(
+                                    "Provider file IDs are not supported for Gemini documents"
+                                        .to_string(),
+                                ));
+                            }
+                            DocumentSourceKind::Unknown => {
+                                return Err(MessageError::ConversionError(
+                                    "Document has no body".to_string(),
+                                ));
+                            }
+                        };
+
+                        Ok(Part {
+                            thought: Some(false),
+                            part,
+                            ..Default::default()
+                        })
+                    } else if !media_type.is_code() {
+                        let part = media_source_to_part_kind(
+                            "document",
+                            media_type.to_mime_type().to_string(),
+                            data,
+                            true,
+                        )?;
+
+                        Ok(Part {
+                            thought: Some(false),
+                            part,
+                            ..Default::default()
+                        })
+                    } else {
+                        Err(message::MessageError::ConversionError(format!(
+                            "Unsupported document media type {media_type:?}"
+                        )))
+                    }
+                }
+
+                message::UserContent::Audio(message::Audio {
+                    data, media_type, ..
+                }) => {
+                    let Some(media_type) = media_type else {
+                        return Err(MessageError::ConversionError(
+                            "A mime type is required for audio inputs to Gemini".to_string(),
+                        ));
+                    };
+
+                    let part = media_source_to_part_kind(
+                        "audio",
+                        media_type.to_mime_type().to_string(),
+                        data,
+                        false,
+                    )?;
+
+                    Ok(Part {
+                        thought: Some(false),
+                        part,
+                        ..Default::default()
+                    })
+                }
+                message::UserContent::Video(message::Video {
+                    data,
+                    media_type,
+                    additional_params,
+                    ..
+                }) => {
+                    let mime_type = media_type.map(|media_ty| media_ty.to_mime_type().to_string());
+
+                    let part = match data {
+                        // YouTube links are the one Gemini video source that
+                        // needs no MIME type: the service resolves the media
+                        // itself. Every other source must declare one.
+                        DocumentSourceKind::Url(file_uri)
+                            if file_uri.starts_with("https://www.youtube.com") =>
+                        {
+                            PartKind::FileData(FileData {
+                                mime_type,
+                                file_uri,
+                            })
+                        }
+                        data => {
+                            let mime_type = mime_type.ok_or_else(|| {
+                                MessageError::ConversionError(
+                                    "A mime type is required for non-Youtube video inputs to Gemini"
+                                        .to_string(),
+                                )
+                            })?;
+
+                            media_source_to_part_kind("video", mime_type, data, false)?
+                        }
+                    };
+
+                    Ok(Part {
+                        thought: Some(false),
+                        thought_signature: None,
+                        part,
+                        additional_params: additional_params.map(Into::into),
+                    })
+                }
+            }
+        }
+    }
+
+    impl TryFrom<message::AssistantContent> for Part {
+        type Error = message::MessageError;
+
+        fn try_from(content: message::AssistantContent) -> Result<Self, Self::Error> {
+            match content {
+                message::AssistantContent::Text(message::Text { text, .. }) => Ok(text.into()),
+                message::AssistantContent::Image(image) => image_to_part(image),
+                message::AssistantContent::ToolCall(tool_call) => Ok(tool_call.into()),
+                message::AssistantContent::Reasoning(reasoning) => Ok(Part {
+                    thought: Some(true),
+                    thought_signature: reasoning.first_signature().map(str::to_owned),
+                    part: PartKind::Text(reasoning.display_text()),
+                    additional_params: None,
+                }),
+            }
+        }
+    }
+
+    impl From<message::ToolCall> for Part {
+        fn from(tool_call: message::ToolCall) -> Self {
+            Self {
+                thought: Some(false),
+                thought_signature: tool_call.signature,
+                part: PartKind::FunctionCall(FunctionCall {
+                    name: tool_call.function.name,
+                    args: tool_call.function.arguments,
+                    // Only a provider-issued id may travel back on the wire;
+                    // minted correlation handles stay internal.
+                    id: tool_call.provider.map(|provider| provider.call_id),
+                }),
+                additional_params: None,
+            }
+        }
+    }
+
+    /// Raw media bytes.
+    /// Text should not be sent as raw bytes, use the 'text' field.
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+    #[serde(rename_all = "camelCase")]
+    pub struct Blob {
+        /// The IANA standard MIME type of the source data. Examples: - image/png - image/jpeg
+        /// If an unsupported MIME type is provided, an error will be returned.
+        pub mime_type: String,
+        /// Raw bytes for media formats. A base64-encoded string.
+        pub data: String,
+    }
+
+    /// A predicted FunctionCall returned from the model that contains a string representing the
+    /// FunctionDeclaration.name with the arguments and their values.
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+    pub struct FunctionCall {
+        /// Required. The name of the function to call. Must be a-z, A-Z, 0-9, or contain underscores
+        /// and dashes, with a maximum length of 63.
+        pub name: String,
+        /// Optional. The function parameters and values in JSON object format.
+        pub args: serde_json::Value,
+        /// Provider-supplied identifier used to correlate the function response.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub id: Option<String>,
+    }
+
+    impl From<message::ToolCall> for FunctionCall {
+        fn from(tool_call: message::ToolCall) -> Self {
+            Self {
+                name: tool_call.function.name,
+                args: tool_call.function.arguments,
+                id: tool_call.provider.map(|provider| provider.call_id),
+            }
+        }
+    }
+
+    /// The result output from a FunctionCall that contains a string representing the FunctionDeclaration.name
+    /// and a structured JSON object containing any output from the function is used as context to the model.
+    /// This should contain the result of aFunctionCall made based on model prediction.
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+    pub struct FunctionResponse {
+        /// The name of the function to call. Must be a-z, A-Z, 0-9, or contain underscores and dashes,
+        /// with a maximum length of 63.
+        pub name: String,
+        /// Provider-supplied identifier from the corresponding function call.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub id: Option<String>,
+        /// The function response in JSON object format.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub response: Option<serde_json::Value>,
+        /// Multimodal parts for the function response (e.g., images).
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub parts: Option<Vec<FunctionResponsePart>>,
+    }
+
+    /// A part of a multimodal function response.
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+    #[serde(rename_all = "camelCase")]
+    pub struct FunctionResponsePart {
+        /// Inline data containing base64-encoded media content.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub inline_data: Option<FunctionResponseInlineData>,
+        /// File data containing a URI reference.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub file_data: Option<FileData>,
+    }
+
+    /// Inline data for function response parts.
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+    #[serde(rename_all = "camelCase")]
+    pub struct FunctionResponseInlineData {
+        /// The IANA standard MIME type of the source data.
+        pub mime_type: String,
+        /// Raw bytes for media formats. A base64-encoded string.
+        pub data: String,
+        /// Optional display name for the content.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub display_name: Option<String>,
+    }
+
+    /// URI based data.
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+    #[serde(rename_all = "camelCase")]
+    pub struct FileData {
+        /// Optional. The IANA standard MIME type of the source data.
+        pub mime_type: Option<String>,
+        /// Required. URI.
+        pub file_uri: String,
+    }
+
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+    pub struct SafetyRating {
+        pub category: HarmCategory,
+        pub probability: HarmProbability,
+    }
+
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+    #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+    pub enum HarmProbability {
+        HarmProbabilityUnspecified,
+        Negligible,
+        Low,
+        Medium,
+        High,
+    }
+
+    #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+    #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+    pub enum HarmCategory {
+        HarmCategoryUnspecified,
+        HarmCategoryDerogatory,
+        HarmCategoryToxicity,
+        HarmCategoryViolence,
+        HarmCategorySexually,
+        HarmCategoryMedical,
+        HarmCategoryDangerous,
+        HarmCategoryHarassment,
+        HarmCategoryHateSpeech,
+        HarmCategorySexuallyExplicit,
+        HarmCategoryDangerousContent,
+        HarmCategoryCivicIntegrity,
+    }
+
+    #[derive(Debug, Deserialize, Clone, Default, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct UsageMetadata {
+        #[serde(default)]
+        pub prompt_token_count: i32,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub cached_content_token_count: Option<i32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub candidates_token_count: Option<i32>,
+        #[serde(default)]
+        pub total_token_count: i32,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub thoughts_token_count: Option<i32>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub prompt_tokens_details: Option<Vec<ModalityTokenCount>>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub cache_tokens_details: Option<Vec<ModalityTokenCount>>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub candidates_tokens_details: Option<Vec<ModalityTokenCount>>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub tool_use_prompt_token_count: Option<i32>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub tool_use_prompt_tokens_details: Option<Vec<ModalityTokenCount>>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub traffic_type: Option<TrafficType>,
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct ModalityTokenCount {
+        pub modality: Modality,
+        #[serde(default)]
+        pub token_count: i32,
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+    pub enum Modality {
+        ModalityUnspecified,
+        Text,
+        Image,
+        Video,
+        Audio,
+        Document,
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+    pub enum TrafficType {
+        TrafficTypeUnspecified,
+        OnDemand,
+        ProvisionedThroughput,
+    }
+
+    impl std::fmt::Display for UsageMetadata {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(
+                f,
+                "Prompt token count: {}\nCached content token count: {}\nCandidates token count: {}\nTotal token count: {}",
+                self.prompt_token_count,
+                match self.cached_content_token_count {
+                    Some(count) => count.to_string(),
+                    None => "n/a".to_string(),
+                },
+                match self.candidates_token_count {
+                    Some(count) => count.to_string(),
+                    None => "n/a".to_string(),
+                },
+                self.total_token_count
+            )
+        }
+    }
+
+    impl From<&UsageMetadata> for crate::completion::Usage {
+        fn from(value: &UsageMetadata) -> crate::completion::Usage {
+            let mut usage = crate::completion::Usage::new();
+
+            usage.input_tokens = value.prompt_token_count as u64;
+            usage.output_tokens = value.candidates_token_count.unwrap_or_default() as u64;
+            usage.cached_input_tokens = value.cached_content_token_count.unwrap_or_default() as u64;
+            usage.reasoning_tokens = value.thoughts_token_count.unwrap_or_default() as u64;
+            usage.tool_use_prompt_tokens =
+                value.tool_use_prompt_token_count.unwrap_or_default() as u64;
+            usage.total_tokens = value.total_token_count as u64;
+
+            usage
+        }
+    }
+
+    impl From<UsageMetadata> for crate::completion::Usage {
+        fn from(value: UsageMetadata) -> crate::completion::Usage {
+            (&value).into()
+        }
+    }
+
+    /// A set of the feedback metadata the prompt specified in [GenerateContentRequest.contents](GenerateContentRequest).
+    #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PromptFeedback {
+        /// Optional. If set, the prompt was blocked and no candidates are returned. Rephrase the prompt.
+        pub block_reason: Option<BlockReason>,
+        /// Ratings for safety of the prompt. There is at most one rating per category.
+        pub safety_ratings: Option<Vec<SafetyRating>>,
+    }
+
+    /// Reason why a prompt was blocked by the model
+    #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+    pub enum BlockReason {
+        /// Default value. This value is unused.
+        BlockReasonUnspecified,
+        /// Prompt was blocked due to safety reasons. Inspect safetyRatings to understand which safety category blocked it.
+        Safety,
+        /// Prompt was blocked due to unknown reasons.
+        Other,
+        /// Prompt was blocked due to the terms which are included from the terminology blocklist.
+        Blocklist,
+        /// Prompt was blocked due to prohibited content.
+        ProhibitedContent,
+        /// A block reason this crate does not know yet. Google adds wire
+        /// values without notice; carrying the spelling verbatim keeps the
+        /// whole payload deserializable instead of failing on the new value.
+        #[serde(untagged)]
+        Unknown(String),
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+    pub enum FinishReason {
+        /// Default value. This value is unused.
+        FinishReasonUnspecified,
+        /// Natural stop point of the model or provided stop sequence.
+        Stop,
+        /// The maximum number of tokens as specified in the request was reached.
+        MaxTokens,
+        /// The response candidate content was flagged for safety reasons.
+        Safety,
+        /// The response candidate content was flagged for recitation reasons.
+        Recitation,
+        /// The response candidate content was flagged for using an unsupported language.
+        Language,
+        /// Unknown reason.
+        Other,
+        /// Token generation stopped because the content contains forbidden terms.
+        Blocklist,
+        /// Token generation stopped for potentially containing prohibited content.
+        ProhibitedContent,
+        /// Token generation stopped because the content potentially contains Sensitive Personally Identifiable Information (SPII).
+        Spii,
+        /// The function call generated by the model is invalid.
+        MalformedFunctionCall,
+        /// The model emitted a tool call that was not expected by the request.
+        UnexpectedToolCall,
+        /// The response omitted a thought signature required for a tool-calling turn.
+        MissingThoughtSignature,
+        /// The model emitted more tool calls than the provider allows for the request.
+        TooManyToolCalls,
+        /// The provider could not parse the generated response into a valid protocol shape.
+        MalformedResponse,
+        /// A finish reason this crate does not know yet. Google adds wire
+        /// values without notice; carrying the spelling verbatim keeps the
+        /// whole payload deserializable — and the finish observable — instead
+        /// of failing on the new value, matching the gRPC crate's handling.
+        #[serde(untagged)]
+        Unknown(String),
+    }
+
+    impl FinishReason {
+        /// The exact spelling Gemini uses for this reason on the wire.
+        ///
+        /// Spelled out rather than derived from `Debug` (which would yield
+        /// `MaxTokens`, not `MAX_TOKENS`) so the string that reaches
+        /// [`crate::completion::FinishReason::Other`] is the provider's own.
+        pub fn as_wire_str(&self) -> &str {
+            match self {
+                Self::FinishReasonUnspecified => "FINISH_REASON_UNSPECIFIED",
+                Self::Stop => "STOP",
+                Self::MaxTokens => "MAX_TOKENS",
+                Self::Safety => "SAFETY",
+                Self::Recitation => "RECITATION",
+                Self::Language => "LANGUAGE",
+                Self::Other => "OTHER",
+                Self::Blocklist => "BLOCKLIST",
+                Self::ProhibitedContent => "PROHIBITED_CONTENT",
+                Self::Spii => "SPII",
+                Self::MalformedFunctionCall => "MALFORMED_FUNCTION_CALL",
+                Self::UnexpectedToolCall => "UNEXPECTED_TOOL_CALL",
+                Self::MissingThoughtSignature => "MISSING_THOUGHT_SIGNATURE",
+                Self::TooManyToolCalls => "TOO_MANY_TOOL_CALLS",
+                Self::MalformedResponse => "MALFORMED_RESPONSE",
+                Self::Unknown(reason) => reason,
+            }
+        }
+    }
+
+    /// Map a Google `finishReason` — in its wire SCREAMING_SNAKE spelling —
+    /// onto rig's normalized vocabulary.
+    ///
+    /// Every Google surface (Gemini REST, Gemini gRPC, Vertex AI) publishes the
+    /// same vocabulary, so they share one table and can never disagree about
+    /// what a reason means; each transport supplies only its own spelling
+    /// accessor and its own fallback for a discriminant it cannot name.
+    ///
+    /// Only the four reasons that have a normalized counterpart are folded in;
+    /// everything else — including Google's own `OTHER` and the tool-protocol
+    /// failures — is carried verbatim so a reason rig does not model never reads
+    /// as a natural stop. `None` for `FINISH_REASON_UNSPECIFIED`: it is the
+    /// proto default and means the service reported no reason.
+    pub fn map_google_finish_reason(wire_name: &str) -> Option<crate::completion::FinishReason> {
+        Some(match wire_name {
+            "FINISH_REASON_UNSPECIFIED" => return None,
+            "STOP" => crate::completion::FinishReason::Stop,
+            "MAX_TOKENS" => crate::completion::FinishReason::Length,
+            "SAFETY" | "BLOCKLIST" | "PROHIBITED_CONTENT" | "SPII" => {
+                crate::completion::FinishReason::ContentFilter
+            }
+            other => crate::completion::FinishReason::Other(other.to_owned()),
+        })
+    }
+
+    /// Map a Gemini REST `finishReason` onto rig's normalized vocabulary.
+    ///
+    /// Shared by the unary and streaming paths so both agree.
+    pub(crate) fn map_finish_reason(
+        reason: &FinishReason,
+    ) -> Option<crate::completion::FinishReason> {
+        map_google_finish_reason(reason.as_wire_str())
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct CitationMetadata {
+        #[serde(default)]
+        pub citation_sources: Vec<CitationSource>,
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct CitationSource {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub uri: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub start_index: Option<i32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub end_index: Option<i32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub license: Option<String>,
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct LogprobsResult {
+        #[serde(default)]
+        pub top_candidates: Vec<TopCandidate>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub log_probability_sum: Option<f64>,
+        #[serde(default)]
+        pub chosen_candidates: Vec<LogProbCandidate>,
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct TopCandidate {
+        #[serde(default)]
+        pub candidates: Vec<LogProbCandidate>,
+    }
+
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct LogProbCandidate {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub token: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub token_id: Option<i32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub log_probability: Option<f64>,
+    }
+
+    /// Gemini API Configuration options for model generation and outputs. Not all parameters are
+    /// configurable for every model. From [Gemini API Reference](https://ai.google.dev/api/generate-content#generationconfig)
+    /// ### Rig Note:
+    /// Can be serialized into a type-safe
+    /// [`CompletionRequest::additional_params`](crate::completion::CompletionRequest::additional_params)
+    /// value or a runtime builder's additional parameters.
+    ///
+    /// Every field defaults to `None`, and every field is
+    /// `skip_serializing_if = "Option::is_none"`. A default config therefore
+    /// puts *nothing* on the wire and lets Gemini apply each model's own
+    /// documented default. Do not reintroduce non-`None` defaults here: this
+    /// type seeds request construction, so a value set here is silently imposed
+    /// on callers who never asked for it (rig#2322 — a hardcoded
+    /// `max_output_tokens: Some(4096)` capped structured-output and image
+    /// requests at 4096 tokens regardless of the caller's budget).
+    #[derive(Debug, Default, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct GenerationConfig {
+        /// The set of character sequences (up to 5) that will stop output generation. If specified, the API will stop
+        /// at the first appearance of a stop_sequence. The stop sequence will not be included as part of the response.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub stop_sequences: Option<Vec<String>>,
+        /// MIME type of the generated candidate text. Supported MIME types are:
+        ///     - text/plain:  (default) Text output
+        ///     - application/json: JSON response in the response candidates.
+        ///     - text/x.enum: ENUM as a string response in the response candidates.
+        /// Refer to the docs for a list of all supported text MIME types
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub response_mime_type: Option<String>,
+        /// Output schema of the generated candidate text. Schemas must be a subset of the OpenAPI schema and can be
+        /// objects, primitives or arrays. If set, a compatible responseMimeType must also  be set. Compatible MIME
+        /// types: application/json: Schema for JSON response. Refer to the JSON text generation guide for more details.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub response_schema: Option<Schema>,
+        /// Optional. The output schema of the generated response.
+        /// This is an alternative to responseSchema that accepts a standard JSON Schema.
+        /// If this is set, responseSchema must be omitted.
+        /// Compatible MIME type: application/json.
+        /// Supported properties: $id, $defs, $ref, type, properties, etc.
+        #[serde(
+            skip_serializing_if = "Option::is_none",
+            rename = "_responseJsonSchema"
+        )]
+        pub _response_json_schema: Option<Value>,
+        /// Internal or alternative representation for `response_json_schema`.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub response_json_schema: Option<Value>,
+        /// Number of generated responses to return. Currently, this value can only be set to 1. If
+        /// unset, this will default to 1.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub candidate_count: Option<i32>,
+        /// The maximum number of tokens to include in a response candidate. Note: The default value varies by model, see
+        /// the Model.output_token_limit attribute of the Model returned from the getModel function.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub max_output_tokens: Option<u64>,
+        /// Controls the randomness of the output. Note: The default value varies by model, see the Model.temperature
+        /// attribute of the Model returned from the getModel function. Values can range from [0.0, 2.0].
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub temperature: Option<f64>,
+        /// The maximum cumulative probability of tokens to consider when sampling. The model uses combined Top-k and
+        /// Top-p (nucleus) sampling. Tokens are sorted based on their assigned probabilities so that only the most
+        /// likely tokens are considered. Top-k sampling directly limits the maximum number of tokens to consider, while
+        /// Nucleus sampling limits the number of tokens based on the cumulative probability. Note: The default value
+        /// varies by Model and is specified by theModel.top_p attribute returned from the getModel function. An empty
+        /// topK attribute indicates that the model doesn't apply top-k sampling and doesn't allow setting topK on requests.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub top_p: Option<f64>,
+        /// The maximum number of tokens to consider when sampling. Gemini models use Top-p (nucleus) sampling or a
+        /// combination of Top-k and nucleus sampling. Top-k sampling considers the set of topK most probable tokens.
+        /// Models running with nucleus sampling don't allow topK setting. Note: The default value varies by Model and is
+        /// specified by theModel.top_p attribute returned from the getModel function. An empty topK attribute indicates
+        /// that the model doesn't apply top-k sampling and doesn't allow setting topK on requests.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub top_k: Option<i32>,
+        /// Presence penalty applied to the next token's logprobs if the token has already been seen in the response.
+        /// This penalty is binary on/off and not dependent on the number of times the token is used (after the first).
+        /// Use frequencyPenalty for a penalty that increases with each use. A positive penalty will discourage the use
+        /// of tokens that have already been used in the response, increasing the vocabulary. A negative penalty will
+        /// encourage the use of tokens that have already been used in the response, decreasing the vocabulary.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub presence_penalty: Option<f64>,
+        /// Frequency penalty applied to the next token's logprobs, multiplied by the number of times each token has been
+        /// seen in the response so far. A positive penalty will discourage the use of tokens that have already been
+        /// used, proportional to the number of times the token has been used: The more a token is used, the more
+        /// difficult it is for the  model to use that token again increasing the vocabulary of responses. Caution: A
+        /// negative penalty will encourage the model to reuse tokens proportional to the number of times the token has
+        /// been used. Small negative values will reduce the vocabulary of a response. Larger negative values will cause
+        /// the model to  repeating a common token until it hits the maxOutputTokens limit: "...the the the the the...".
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub frequency_penalty: Option<f64>,
+        /// If true, export the logprobs results in response.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub response_logprobs: Option<bool>,
+        /// Only valid if responseLogprobs=True. This sets the number of top logprobs to return at each decoding step in
+        /// [Candidate.logprobs_result].
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub logprobs: Option<i32>,
+        /// Configuration for thinking/reasoning.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub thinking_config: Option<ThinkingConfig>,
+        /// Response modalities requested from models that support multimodal output.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub response_modalities: Option<Vec<ResponseModality>>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub image_config: Option<ImageConfig>,
+    }
+
+    /// Response modalities supported by Gemini multimodal output models.
+    #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+    #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+    pub enum ResponseModality {
+        Text,
+        Image,
+        Audio,
+    }
+
+    /// Thinking depth level for Gemini 3 models.
+    #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+    #[serde(rename_all = "snake_case")]
+    pub enum ThinkingLevel {
+        Minimal,
+        Low,
+        Medium,
+        High,
+    }
+
+    /// Configuration for the model's thinking/reasoning process.
+    /// Note: `thinking_budget` (Gemini 2.5) and `thinking_level` (Gemini 3) are mutually exclusive
+    /// and cannot be set in the same request.
+    #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct ThinkingConfig {
+        /// Token budget for thinking. Used by Gemini 2.5 models. Range: 0 to 32768.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub thinking_budget: Option<u32>,
+        /// Thinking depth level. Used by Gemini 3 models.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub thinking_level: Option<ThinkingLevel>,
+        /// When true, includes summarized versions of the model's reasoning in the response.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub include_thoughts: Option<bool>,
+    }
+
+    #[derive(Debug, Deserialize, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct ImageConfig {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub aspect_ratio: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub image_size: Option<String>,
+    }
+
+    /// The Schema object allows the definition of input and output data types. These types can be objects, but also
+    /// primitives and arrays. Represents a select subset of an OpenAPI 3.0 schema object.
+    /// From [Gemini API Reference](https://ai.google.dev/api/caching#Schema)
+    #[derive(Debug, Deserialize, Serialize, Clone)]
+    pub struct Schema {
+        pub r#type: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub format: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub description: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub nullable: Option<bool>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub r#enum: Option<Vec<String>>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub max_items: Option<i32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub min_items: Option<i32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub properties: Option<HashMap<String, Schema>>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub required: Option<Vec<String>>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub items: Option<Box<Schema>>,
+    }
+
+    /// Converts Rig tool parameters into Gemini's schema representation.
+    ///
+    /// Gemini does not need a `parameters` object for no-argument tools, and it
+    /// does not support JSON Schema references, so this helper keeps those
+    /// conventions centralized for all Gemini transports.
+    pub fn tool_parameters_to_schema(parameters: Value) -> Result<Option<Schema>, CompletionError> {
+        if parameters.is_null() || parameters == json!({"type": "object", "properties": {}}) {
+            Ok(None)
+        } else {
+            parameters.try_into().map(Some)
+        }
+    }
+
+    /// Flattens a JSON schema by resolving all `$ref` references inline.
+    /// It takes a JSON schema that may contain `$ref` references to definitions
+    /// in `$defs` or `definitions` sections and returns a new schema with all references
+    /// resolved and inlined. This is necessary for APIs like Gemini that don't support
+    /// schema references.
+    pub fn flatten_schema(mut schema: Value) -> Result<Value, CompletionError> {
+        // extracting $defs if they exist
+        let defs = if let Some(obj) = schema.as_object() {
+            obj.get("$defs").or_else(|| obj.get("definitions")).cloned()
+        } else {
+            None
+        };
+
+        let Some(defs_value) = defs else {
+            return Ok(schema);
+        };
+
+        let Some(defs_obj) = defs_value.as_object() else {
+            return Err(CompletionError::ResponseError(
+                "$defs must be an object".into(),
+            ));
+        };
+
+        resolve_refs(&mut schema, defs_obj)?;
+
+        // removing $defs from the final schema because we have inlined everything
+        if let Some(obj) = schema.as_object_mut() {
+            obj.remove("$defs");
+            obj.remove("definitions");
+        }
+
+        Ok(schema)
+    }
+
+    /// Recursively resolves all `$ref` references in a JSON value by
+    /// replacing them with their definitions.
+    fn resolve_refs(
+        value: &mut Value,
+        defs: &serde_json::Map<String, Value>,
+    ) -> Result<(), CompletionError> {
+        match value {
+            Value::Object(obj) => {
+                if let Some(ref_value) = obj.get("$ref")
+                    && let Some(ref_str) = ref_value.as_str()
+                {
+                    // "#/$defs/Person" -> "Person"
+                    let def_name = parse_ref_path(ref_str)?;
+
+                    let def = defs.get(&def_name).ok_or_else(|| {
+                        CompletionError::ResponseError(format!("Reference not found: {}", ref_str))
+                    })?;
+
+                    let mut resolved = def.clone();
+                    resolve_refs(&mut resolved, defs)?;
+                    *value = resolved;
+                    return Ok(());
+                }
+
+                for (_, v) in obj.iter_mut() {
+                    resolve_refs(v, defs)?;
+                }
+            }
+            Value::Array(arr) => {
+                for item in arr.iter_mut() {
+                    resolve_refs(item, defs)?;
+                }
+            }
+            _ => {}
+        }
+
+        Ok(())
+    }
+
+    /// Parses a JSON Schema `$ref` path to extract the definition name.
+    ///
+    /// JSON Schema references use URI fragment syntax to point to definitions within
+    /// the same document. This function extracts the definition name from common
+    /// reference patterns used in JSON Schema.
+    fn parse_ref_path(ref_str: &str) -> Result<String, CompletionError> {
+        if let Some(fragment) = ref_str.strip_prefix('#') {
+            if let Some(name) = fragment.strip_prefix("/$defs/") {
+                Ok(name.to_string())
+            } else if let Some(name) = fragment.strip_prefix("/definitions/") {
+                Ok(name.to_string())
+            } else {
+                Err(CompletionError::ResponseError(format!(
+                    "Unsupported reference format: {}",
+                    ref_str
+                )))
+            }
+        } else {
+            Err(CompletionError::ResponseError(format!(
+                "Only fragment references (#/...) are supported: {}",
+                ref_str
+            )))
+        }
+    }
+
+    /// Helper function to extract the type string from a JSON value.
+    /// Handles both direct string types and array types.
+    fn extract_type(type_value: &Value) -> Option<String> {
+        if let Some(t) = type_value.as_str() {
+            return Some(t.to_string());
+        }
+
+        type_value.as_array().and_then(|arr| {
+            arr.iter()
+                .filter_map(|v| v.as_str())
+                .find(|t| *t != "null")
+                .or_else(|| arr.iter().find_map(|v| v.as_str()))
+                .map(str::to_owned)
+        })
+    }
+
+    fn schema_is_null(obj: &serde_json::Map<String, Value>) -> bool {
+        obj.get("type")
+            .and_then(extract_type)
+            .as_deref()
+            .is_some_and(|t| t == "null")
+    }
+
+    fn schema_is_nullable(obj: &serde_json::Map<String, Value>) -> bool {
+        obj.get("nullable")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false)
+            || obj
+                .get("type")
+                .and_then(|v| v.as_array())
+                .is_some_and(|arr| arr.iter().any(|v| v.as_str() == Some("null")))
+            || ["anyOf", "oneOf", "allOf"].iter().any(|key| {
+                obj.get(*key).and_then(|v| v.as_array()).is_some_and(|arr| {
+                    arr.iter()
+                        .filter_map(|schema| schema.as_object())
+                        .any(schema_is_null)
+                })
+            })
+    }
+
+    /// Helper function to extract type from anyOf, oneOf, or allOf schemas.
+    /// Returns the type of the first non-null schema found.
+    fn extract_type_from_composition(composition: &Value) -> Option<String> {
+        composition.as_array().and_then(|arr| {
+            arr.iter().find_map(|schema| {
+                let obj = schema.as_object()?;
+                if schema_is_null(obj) {
+                    return None;
+                }
+
+                obj.get("type").and_then(extract_type).or_else(|| {
+                    if obj.contains_key("properties") {
+                        Some("object".to_string())
+                    } else if obj.contains_key("enum") {
+                        // Enum schemas without explicit type are string-backed
+                        Some("string".to_string())
+                    } else {
+                        None
+                    }
+                })
+            })
+        })
+    }
+
+    /// Helper function to extract the first non-null schema from anyOf, oneOf, or allOf.
+    /// Returns the schema object that should be used for properties, required, etc.
+    fn extract_schema_from_composition(
+        composition: &Value,
+    ) -> Option<serde_json::Map<String, Value>> {
+        composition.as_array().and_then(|arr| {
+            arr.iter().find_map(|schema| {
+                let obj = schema.as_object()?;
+                if schema_is_null(obj) {
+                    None
+                } else {
+                    Some(obj.clone())
+                }
+            })
+        })
+    }
+
+    fn extract_schema_from_composition_obj(
+        obj: &serde_json::Map<String, Value>,
+    ) -> Option<serde_json::Map<String, Value>> {
+        obj.get("anyOf")
+            .and_then(extract_schema_from_composition)
+            .or_else(|| obj.get("oneOf").and_then(extract_schema_from_composition))
+            .or_else(|| obj.get("allOf").and_then(extract_schema_from_composition))
+    }
+
+    /// Helper function to infer the type of a schema object.
+    /// Checks for explicit type, then anyOf/oneOf/allOf, then infers from properties.
+    fn infer_type(obj: &serde_json::Map<String, Value>) -> String {
+        // First, try direct type field
+        if let Some(type_val) = obj.get("type")
+            && let Some(type_str) = extract_type(type_val)
+        {
+            return type_str;
+        }
+
+        // Then try anyOf, oneOf, allOf (in that order)
+        if let Some(any_of) = obj.get("anyOf")
+            && let Some(type_str) = extract_type_from_composition(any_of)
+        {
+            return type_str;
+        }
+
+        if let Some(one_of) = obj.get("oneOf")
+            && let Some(type_str) = extract_type_from_composition(one_of)
+        {
+            return type_str;
+        }
+
+        if let Some(all_of) = obj.get("allOf")
+            && let Some(type_str) = extract_type_from_composition(all_of)
+        {
+            return type_str;
+        }
+
+        // Finally, infer object type if properties are present
+        if obj.contains_key("properties") {
+            "object".to_string()
+        } else if obj.contains_key("enum") {
+            "string".to_string()
+        } else {
+            String::new()
+        }
+    }
+
+    impl TryFrom<Value> for Schema {
+        type Error = CompletionError;
+
+        fn try_from(value: Value) -> Result<Self, Self::Error> {
+            let flattened_val = flatten_schema(value)?;
+            if let Some(obj) = flattened_val.as_object() {
+                // Determine which object to use for extracting properties and required fields.
+                // If this object has anyOf/oneOf/allOf, we need to extract properties from the composition.
+                let composition_source = extract_schema_from_composition_obj(obj);
+                let props_source = if obj.get("properties").is_none() {
+                    composition_source.clone().unwrap_or(obj.clone())
+                } else {
+                    obj.clone()
+                };
+
+                let schema_type = infer_type(obj);
+                let items = obj
+                    .get("items")
+                    .or_else(|| props_source.get("items"))
+                    .and_then(|v| v.clone().try_into().ok())
+                    .map(Box::new);
+
+                // Gemini requires `items` on array-typed schemas; default to
+                // string items when the source schema omits it.
+                let items = if schema_type == "array" && items.is_none() {
+                    Some(Box::new(Schema {
+                        r#type: "string".to_string(),
+                        format: None,
+                        description: None,
+                        nullable: None,
+                        r#enum: None,
+                        max_items: None,
+                        min_items: None,
+                        properties: None,
+                        required: None,
+                        items: None,
+                    }))
+                } else {
+                    items
+                };
+
+                Ok(Schema {
+                    r#type: schema_type,
+                    format: obj
+                        .get("format")
+                        .or_else(|| props_source.get("format"))
+                        .and_then(|v| v.as_str())
+                        .map(String::from),
+                    description: obj
+                        .get("description")
+                        .or_else(|| props_source.get("description"))
+                        .and_then(|v| v.as_str())
+                        .map(String::from),
+                    nullable: if schema_is_nullable(obj)
+                        || composition_source.as_ref().is_some_and(schema_is_nullable)
+                    {
+                        Some(true)
+                    } else {
+                        None
+                    },
+                    r#enum: obj
+                        .get("enum")
+                        .or_else(|| props_source.get("enum"))
+                        .and_then(|v| v.as_array())
+                        .map(|arr| {
+                            arr.iter()
+                                .filter_map(|v| v.as_str().map(String::from))
+                                .collect()
+                        }),
+                    max_items: obj
+                        .get("maxItems")
+                        .and_then(|v| v.as_i64())
+                        .map(|v| v as i32),
+                    min_items: obj
+                        .get("minItems")
+                        .and_then(|v| v.as_i64())
+                        .map(|v| v as i32),
+                    properties: props_source
+                        .get("properties")
+                        .and_then(|v| v.as_object())
+                        .map(|map| {
+                            map.iter()
+                                .filter_map(|(k, v)| {
+                                    v.clone().try_into().ok().map(|schema| (k.clone(), schema))
+                                })
+                                .collect()
+                        }),
+                    required: props_source
+                        .get("required")
+                        .and_then(|v| v.as_array())
+                        .map(|arr| {
+                            arr.iter()
+                                .filter_map(|v| v.as_str().map(String::from))
+                                .collect()
+                        }),
+                    items,
+                })
+            } else {
+                Err(CompletionError::ResponseError(
+                    "Expected a JSON object for Schema".into(),
+                ))
+            }
+        }
+    }
+
+    #[derive(Debug, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct GenerateContentRequest {
+        pub contents: Vec<Content>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub tools: Option<Vec<Value>>,
+        pub tool_config: Option<ToolConfig>,
+        /// Optional. Configuration options for model generation and outputs.
+        pub generation_config: Option<GenerationConfig>,
+        /// Optional. A list of unique SafetySetting instances for blocking unsafe content. This will be enforced on the
+        /// [GenerateContentRequest.contents] and [GenerateContentResponse.candidates]. There should not be more than one
+        /// setting for each SafetyCategory type. The API will block any contents and responses that fail to meet the
+        /// thresholds set by these settings. This list overrides the default settings for each SafetyCategory specified
+        /// in the safetySettings. If there is no SafetySetting for a given SafetyCategory provided in the list, the API
+        /// will use the default safety setting for that category. Harm categories:
+        ///     - HARM_CATEGORY_HATE_SPEECH,
+        ///     - HARM_CATEGORY_SEXUALLY_EXPLICIT
+        ///     - HARM_CATEGORY_DANGEROUS_CONTENT
+        ///     - HARM_CATEGORY_HARASSMENT
+        /// are supported.
+        /// Refer to the guide for detailed information on available safety settings. Also refer to the Safety guidance
+        /// to learn how to incorporate safety considerations in your AI applications.
+        pub safety_settings: Option<Vec<SafetySetting>>,
+        /// Optional. Developer set system instruction(s). Currently, text only.
+        /// From [Gemini API Reference](https://ai.google.dev/gemini-api/docs/system-instructions?lang=rest)
+        pub system_instruction: Option<Content>,
+        // cachedContent: Optional<String>
+        /// Additional parameters.
+        #[serde(flatten, skip_serializing_if = "Option::is_none")]
+        pub additional_params: Option<serde_json::Value>,
+    }
+
+    #[derive(Debug, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct Tool {
+        pub function_declarations: Vec<FunctionDeclaration>,
+        pub code_execution: Option<CodeExecution>,
+    }
+
+    #[derive(Debug, Serialize, Clone)]
+    #[serde(rename_all = "camelCase")]
+    pub struct FunctionDeclaration {
+        pub name: String,
+        pub description: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub parameters: Option<Schema>,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct ToolConfig {
+        pub function_calling_config: Option<FunctionCallingMode>,
+    }
+
+    #[derive(Debug, Serialize, Deserialize, Default)]
+    #[serde(tag = "mode", rename_all = "UPPERCASE")]
+    pub enum FunctionCallingMode {
+        #[default]
+        Auto,
+        None,
+        Any {
+            #[serde(skip_serializing_if = "Option::is_none")]
+            allowed_function_names: Option<Vec<String>>,
+        },
+    }
+
+    impl TryFrom<message::ToolChoice> for FunctionCallingMode {
+        type Error = CompletionError;
+        fn try_from(value: message::ToolChoice) -> Result<Self, Self::Error> {
+            let res = match value {
+                message::ToolChoice::Auto => Self::Auto,
+                message::ToolChoice::None => Self::None,
+                message::ToolChoice::Required => Self::Any {
+                    allowed_function_names: None,
+                },
+                message::ToolChoice::Specific { function_names } => Self::Any {
+                    allowed_function_names: Some(function_names),
+                },
+            };
+
+            Ok(res)
+        }
+    }
+
+    #[derive(Debug, Serialize)]
+    pub struct CodeExecution {}
+
+    #[derive(Debug, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct SafetySetting {
+        pub category: HarmCategory,
+        pub threshold: HarmBlockThreshold,
+    }
+
+    #[derive(Debug, Serialize)]
+    #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+    pub enum HarmBlockThreshold {
+        HarmBlockThresholdUnspecified,
+        BlockLowAndAbove,
+        BlockMediumAndAbove,
+        BlockOnlyHigh,
+        BlockNone,
+        Off,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        message,
+        providers::gemini::completion::gemini_api_types::{
+            BlockReason, CitationMetadata, ContentCandidate, FinishReason, FunctionCall,
+            GenerateContentResponse, LogprobsResult, ModalityTokenCount, PromptFeedback, Schema,
+            TopCandidate, UsageMetadata, flatten_schema, tool_parameters_to_schema,
+        },
+    };
+
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn test_usage_metadata_deserializes_without_total_token_count() {
+        // Gemini's proto3-JSON encoding omits fields whose value is the default (0),
+        // so `totalTokenCount` is absent on short/empty/blocked generations.
+        let usage: UsageMetadata =
+            serde_json::from_str(r#"{"promptTokenCount": 12}"#).expect("should deserialize");
+        assert_eq!(usage.total_token_count, 0);
+        assert_eq!(usage.prompt_token_count, 12);
+    }
+
+    #[test]
+    fn test_generate_content_response_deserializes_without_candidates_or_response_id() {
+        // Blocked prompt responses can omit default-valued proto fields, including
+        // empty repeated `candidates` and empty string `responseId`.
+        let response: GenerateContentResponse = serde_json::from_value(json!({
+            "promptFeedback": {
+                "blockReason": "SAFETY"
+            }
+        }))
+        .expect("blocked prompt response should deserialize");
+
+        assert!(response.response_id.is_empty());
+        assert!(response.candidates.is_empty());
+
+        let error = completion::CompletionResponse::try_from(response)
+            .expect_err("empty candidates should become a response error");
+        assert!(error.to_string().contains("No response candidates"));
+    }
+
+    #[test]
+    fn test_modality_token_count_deserializes_without_zero_token_count() {
+        let count: ModalityTokenCount = serde_json::from_value(json!({
+            "modality": "TEXT"
+        }))
+        .expect("zero tokenCount may be omitted");
+
+        assert_eq!(count.token_count, 0);
+    }
+
+    #[test]
+    fn test_response_metadata_repeated_fields_deserialize_when_omitted() {
+        let citation_metadata: CitationMetadata =
+            serde_json::from_value(json!({})).expect("empty citation metadata should deserialize");
+        assert!(citation_metadata.citation_sources.is_empty());
+
+        let logprobs: LogprobsResult =
+            serde_json::from_value(json!({})).expect("empty logprobs result should deserialize");
+        assert!(logprobs.top_candidates.is_empty());
+        assert_eq!(logprobs.log_probability_sum, None);
+        assert!(logprobs.chosen_candidates.is_empty());
+
+        let top_candidate: TopCandidate =
+            serde_json::from_value(json!({})).expect("empty top candidate should deserialize");
+        assert!(top_candidate.candidates.is_empty());
+    }
+
+    #[test]
+    fn test_logprobs_result_deserializes_official_json_field_names() {
+        let logprobs: LogprobsResult = serde_json::from_value(json!({
+            "topCandidates": [
+                {
+                    "candidates": [
+                        {
+                            "token": "Hello",
+                            "tokenId": 123,
+                            "logProbability": -0.1
+                        },
+                        {
+                            "token": "Hi",
+                            "tokenId": 124,
+                            "logProbability": -1.25
+                        }
+                    ]
+                }
+            ],
+            "logProbabilitySum": -0.1,
+            "chosenCandidates": [
+                {
+                    "token": "Hello",
+                    "tokenId": 123,
+                    "logProbability": -0.1
+                }
+            ]
+        }))
+        .expect("official Gemini logprobs result should deserialize");
+
+        assert_eq!(logprobs.top_candidates.len(), 1);
+        assert_eq!(logprobs.top_candidates[0].candidates.len(), 2);
+        assert_eq!(
+            logprobs.top_candidates[0].candidates[0].token.as_deref(),
+            Some("Hello")
+        );
+        assert_eq!(logprobs.top_candidates[0].candidates[0].token_id, Some(123));
+        assert_eq!(
+            logprobs.top_candidates[0].candidates[0].log_probability,
+            Some(-0.1)
+        );
+        assert_eq!(logprobs.log_probability_sum, Some(-0.1));
+        assert_eq!(logprobs.chosen_candidates.len(), 1);
+        assert_eq!(
+            logprobs.chosen_candidates[0].token.as_deref(),
+            Some("Hello")
+        );
+        assert_eq!(logprobs.chosen_candidates[0].token_id, Some(123));
+        assert_eq!(logprobs.chosen_candidates[0].log_probability, Some(-0.1));
+    }
+
+    #[test]
+    fn test_resolve_request_model_uses_override() {
+        let request = CompletionRequest {
+            model: Some("gemini-2.5-flash".to_string()),
+            preamble: None,
+            chat_history: vec!["Hello".into()],
+            documents: vec![],
+            tools: vec![],
+            temperature: None,
+            max_tokens: None,
+            tool_choice: None,
+            additional_params: None,
+            output_schema: None,
+            record_telemetry_content: false,
+        };
+
+        let request_model = resolve_request_model("gemini-2.0-flash", &request);
+        assert_eq!(request_model, "gemini-2.5-flash");
+        assert_eq!(
+            completion_endpoint(&request_model),
+            "/v1beta/models/gemini-2.5-flash:generateContent"
+        );
+        assert_eq!(
+            streaming_endpoint(&request_model),
+            "/v1beta/models/gemini-2.5-flash:streamGenerateContent"
+        );
+    }
+
+    #[test]
+    fn test_resolve_request_model_uses_default_when_unset() {
+        let request = CompletionRequest {
+            model: None,
+            preamble: None,
+            chat_history: vec!["Hello".into()],
+            documents: vec![],
+            tools: vec![],
+            temperature: None,
+            max_tokens: None,
+            tool_choice: None,
+            additional_params: None,
+            output_schema: None,
+            record_telemetry_content: false,
+        };
+
+        assert_eq!(
+            resolve_request_model("gemini-2.0-flash", &request),
+            "gemini-2.0-flash"
+        );
+    }
+
+    #[test]
+    fn test_deserialize_message_user() {
+        let raw_message = r#"{
+            "parts": [
+                {"text": "Hello, world!"},
+                {"inlineData": {"mimeType": "image/png", "data": "base64encodeddata"}},
+                {"functionCall": {"name": "test_function", "args": {"arg1": "value1"}}},
+                {"functionResponse": {"name": "test_function", "response": {"result": "success"}}},
+                {"fileData": {"mimeType": "application/pdf", "fileUri": "http://example.com/file.pdf"}},
+                {"executableCode": {"code": "print('Hello, world!')", "language": "PYTHON"}},
+                {"codeExecutionResult": {"output": "Hello, world!", "outcome": "OUTCOME_OK"}}
+            ],
+            "role": "user"
+        }"#;
+
+        let content: Content = {
+            let jd = &mut serde_json::Deserializer::from_str(raw_message);
+            serde_path_to_error::deserialize(jd).unwrap_or_else(|err| {
+                panic!("Deserialization error at {}: {}", err.path(), err);
+            })
+        };
+        assert_eq!(content.role, Some(Role::User));
+        assert_eq!(content.parts.len(), 7);
+
+        let parts: Vec<Part> = content.parts.into_iter().collect();
+
+        if let Part {
+            part: PartKind::Text(text),
+            ..
+        } = &parts[0]
+        {
+            assert_eq!(text, "Hello, world!");
+        } else {
+            panic!("Expected text part");
+        }
+
+        if let Part {
+            part: PartKind::InlineData(inline_data),
+            ..
+        } = &parts[1]
+        {
+            assert_eq!(inline_data.mime_type, "image/png");
+            assert_eq!(inline_data.data, "base64encodeddata");
+        } else {
+            panic!("Expected inline data part");
+        }
+
+        if let Part {
+            part: PartKind::FunctionCall(function_call),
+            ..
+        } = &parts[2]
+        {
+            assert_eq!(function_call.name, "test_function");
+            assert_eq!(
+                function_call.args.as_object().unwrap().get("arg1").unwrap(),
+                "value1"
+            );
+        } else {
+            panic!("Expected function call part");
+        }
+
+        if let Part {
+            part: PartKind::FunctionResponse(function_response),
+            ..
+        } = &parts[3]
+        {
+            assert_eq!(function_response.name, "test_function");
+            assert_eq!(
+                function_response
+                    .response
+                    .as_ref()
+                    .unwrap()
+                    .get("result")
+                    .unwrap(),
+                "success"
+            );
+        } else {
+            panic!("Expected function response part");
+        }
+
+        if let Part {
+            part: PartKind::FileData(file_data),
+            ..
+        } = &parts[4]
+        {
+            assert_eq!(file_data.mime_type.as_ref().unwrap(), "application/pdf");
+            assert_eq!(file_data.file_uri, "http://example.com/file.pdf");
+        } else {
+            panic!("Expected file data part");
+        }
+
+        if let Part {
+            part: PartKind::ExecutableCode(executable_code),
+            ..
+        } = &parts[5]
+        {
+            assert_eq!(executable_code.code, "print('Hello, world!')");
+        } else {
+            panic!("Expected executable code part");
+        }
+
+        if let Part {
+            part: PartKind::CodeExecutionResult(code_execution_result),
+            ..
+        } = &parts[6]
+        {
+            assert_eq!(
+                code_execution_result.clone().output.unwrap(),
+                "Hello, world!"
+            );
+        } else {
+            panic!("Expected code execution result part");
+        }
+    }
+
+    #[test]
+    fn test_deserialize_message_model() {
+        let json_data = json!({
+            "parts": [{"text": "Hello, user!"}],
+            "role": "model"
+        });
+
+        let content: Content = serde_json::from_value(json_data).unwrap();
+        assert_eq!(content.role, Some(Role::Model));
+        assert_eq!(content.parts.len(), 1);
+        if let Some(Part {
+            part: PartKind::Text(text),
+            ..
+        }) = content.parts.first()
+        {
+            assert_eq!(text, "Hello, user!");
+        } else {
+            panic!("Expected text part");
+        }
+    }
+
+    #[test]
+    fn test_message_conversion_user() {
+        let msg = message::Message::user("Hello, world!");
+        let content: Content = msg.try_into().unwrap();
+        assert_eq!(content.role, Some(Role::User));
+        assert_eq!(content.parts.len(), 1);
+        if let Some(Part {
+            part: PartKind::Text(text),
+            ..
+        }) = &content.parts.first()
+        {
+            assert_eq!(text, "Hello, world!");
+        } else {
+            panic!("Expected text part");
+        }
+    }
+
+    #[test]
+    fn test_message_conversion_model() {
+        let msg = message::Message::assistant("Hello, user!");
+
+        let content: Content = msg.try_into().unwrap();
+        assert_eq!(content.role, Some(Role::Model));
+        assert_eq!(content.parts.len(), 1);
+        if let Some(Part {
+            part: PartKind::Text(text),
+            ..
+        }) = &content.parts.first()
+        {
+            assert_eq!(text, "Hello, user!");
+        } else {
+            panic!("Expected text part");
+        }
+    }
+
+    #[test]
+    fn test_thought_signature_is_preserved_from_response_reasoning_part() {
+        let response = GenerateContentResponse {
+            response_id: "resp_1".to_string(),
+            candidates: vec![ContentCandidate {
+                content: Some(Content {
+                    parts: vec![Part {
+                        thought: Some(true),
+                        thought_signature: Some("thought_sig_123".to_string()),
+                        part: PartKind::Text("thinking text".to_string()),
+                        additional_params: None,
+                    }],
+                    role: Some(Role::Model),
+                }),
+                finish_reason: Some(FinishReason::Stop),
+                safety_ratings: None,
+                citation_metadata: None,
+                token_count: None,
+                avg_logprobs: None,
+                logprobs_result: None,
+                index: Some(0),
+                finish_message: None,
+            }],
+            prompt_feedback: None,
+            usage_metadata: None,
+            model_version: None,
+        };
+
+        let converted: crate::completion::CompletionResponse =
+            response.try_into().expect("convert response");
+        let first = converted.choice.first();
+        assert!(matches!(
+            first,
+            Some(message::AssistantContent::Reasoning(message::Reasoning { content, .. }))
+                if matches!(
+                    content.first(),
+                    Some(message::ReasoningContent::Text {
+                        text,
+                        signature: Some(signature)
+                    }) if text == "thinking text" && signature == "thought_sig_123"
+                )
+        ));
+    }
+
+    #[test]
+    fn test_tool_protocol_finish_reason_returns_response_error() {
+        for (reason, finish_message) in [
+            (
+                FinishReason::MalformedFunctionCall,
+                "malformed function call: default_api",
+            ),
+            (
+                FinishReason::UnexpectedToolCall,
+                "unexpected tool call: default_api",
+            ),
+            (
+                FinishReason::MissingThoughtSignature,
+                "missing thought signature for tool call",
+            ),
+            (
+                FinishReason::TooManyToolCalls,
+                "too many tool calls in response",
+            ),
+            (
+                FinishReason::MalformedResponse,
+                "malformed response from provider",
+            ),
+        ] {
+            let reason_name = format!("{reason:?}");
+            let response = GenerateContentResponse {
+                response_id: "resp_tool_protocol_error".to_string(),
+                candidates: vec![ContentCandidate {
+                    content: Some(Content {
+                        parts: vec![Part {
+                            thought: None,
+                            thought_signature: None,
+                            part: PartKind::FunctionCall(FunctionCall {
+                                name: "default_api".to_string(),
+                                args: json!({"x": 1}),
+                                id: None,
+                            }),
+                            additional_params: None,
+                        }],
+                        role: Some(Role::Model),
+                    }),
+                    finish_reason: Some(reason),
+                    safety_ratings: None,
+                    citation_metadata: None,
+                    token_count: None,
+                    avg_logprobs: None,
+                    logprobs_result: None,
+                    index: Some(0),
+                    finish_message: Some(finish_message.to_string()),
+                }],
+                prompt_feedback: None,
+                usage_metadata: None,
+                model_version: None,
+            };
+
+            let err = crate::completion::CompletionResponse::try_from(response)
+                .expect_err("tool protocol finish reason should fail");
+
+            assert!(matches!(
+                err,
+                CompletionError::ResponseError(message)
+                    if message.contains(&reason_name)
+                        && message.contains(finish_message)
+            ));
+        }
+    }
+
+    #[test]
+    fn test_completion_response_usage_preserves_cached_and_reasoning_tokens() {
+        let response = GenerateContentResponse {
+            response_id: "resp_1".to_string(),
+            candidates: vec![ContentCandidate {
+                content: Some(Content {
+                    parts: vec![Part {
+                        thought: None,
+                        thought_signature: None,
+                        part: PartKind::Text("answer".to_string()),
+                        additional_params: None,
+                    }],
+                    role: Some(Role::Model),
+                }),
+                finish_reason: Some(FinishReason::Stop),
+                safety_ratings: None,
+                citation_metadata: None,
+                token_count: None,
+                avg_logprobs: None,
+                logprobs_result: None,
+                index: Some(0),
+                finish_message: None,
+            }],
+            prompt_feedback: None,
+            usage_metadata: Some(UsageMetadata {
+                prompt_token_count: 40,
+                cached_content_token_count: Some(20),
+                candidates_token_count: Some(30),
+                total_token_count: 100,
+                thoughts_token_count: Some(10),
+                prompt_tokens_details: None,
+                cache_tokens_details: None,
+                candidates_tokens_details: None,
+                tool_use_prompt_token_count: Some(12),
+                tool_use_prompt_tokens_details: None,
+                traffic_type: None,
+            }),
+            model_version: Some("gemini-2.0-flash-001".to_string()),
+        };
+
+        let converted: crate::completion::CompletionResponse =
+            response.try_into().expect("convert response");
+
+        assert_eq!(converted.usage.input_tokens, 40);
+        assert_eq!(converted.usage.cached_input_tokens, 20);
+        assert_eq!(converted.usage.output_tokens, 30);
+        assert_eq!(converted.usage.reasoning_tokens, 10);
+        assert_eq!(converted.usage.tool_use_prompt_tokens, 12);
+        assert_eq!(converted.usage.total_tokens, 100);
+    }
+
+    #[test]
+    fn test_finish_reason_maps_every_wire_variant() {
+        use crate::completion::FinishReason as Normalized;
+
+        for (wire, expected) in [
+            (FinishReason::Stop, Normalized::Stop),
+            (FinishReason::MaxTokens, Normalized::Length),
+            (FinishReason::Safety, Normalized::ContentFilter),
+            (FinishReason::Blocklist, Normalized::ContentFilter),
+            (FinishReason::ProhibitedContent, Normalized::ContentFilter),
+            (FinishReason::Spii, Normalized::ContentFilter),
+            // Everything Gemini reports that rig does not model survives in the
+            // provider's own SCREAMING_SNAKE_CASE spelling.
+            (
+                FinishReason::Recitation,
+                Normalized::Other("RECITATION".to_string()),
+            ),
+            (
+                FinishReason::Language,
+                Normalized::Other("LANGUAGE".to_string()),
+            ),
+            (FinishReason::Other, Normalized::Other("OTHER".to_string())),
+            (
+                FinishReason::MalformedFunctionCall,
+                Normalized::Other("MALFORMED_FUNCTION_CALL".to_string()),
+            ),
+            (
+                FinishReason::UnexpectedToolCall,
+                Normalized::Other("UNEXPECTED_TOOL_CALL".to_string()),
+            ),
+            (
+                FinishReason::MissingThoughtSignature,
+                Normalized::Other("MISSING_THOUGHT_SIGNATURE".to_string()),
+            ),
+            (
+                FinishReason::TooManyToolCalls,
+                Normalized::Other("TOO_MANY_TOOL_CALLS".to_string()),
+            ),
+            (
+                FinishReason::MalformedResponse,
+                Normalized::Other("MALFORMED_RESPONSE".to_string()),
+            ),
+        ] {
+            assert_eq!(
+                map_finish_reason(&wire),
+                Some(expected),
+                "wire reason {wire:?}"
+            );
+        }
+
+        // The proto default means Gemini reported no reason; both the REST and
+        // gRPC mappers treat it as absent rather than an `Other` value.
+        assert_eq!(
+            map_finish_reason(&FinishReason::FinishReasonUnspecified),
+            None
+        );
+    }
+
+    #[test]
+    fn test_finish_reason_wire_spelling_matches_serde() {
+        // `as_wire_str` is hand-written; keep it honest against the serde
+        // representation the same enum deserializes from.
+        for reason in [
+            FinishReason::FinishReasonUnspecified,
+            FinishReason::Stop,
+            FinishReason::MaxTokens,
+            FinishReason::Safety,
+            FinishReason::Recitation,
+            FinishReason::Language,
+            FinishReason::Other,
+            FinishReason::Blocklist,
+            FinishReason::ProhibitedContent,
+            FinishReason::Spii,
+            FinishReason::MalformedFunctionCall,
+            FinishReason::UnexpectedToolCall,
+            FinishReason::MissingThoughtSignature,
+            FinishReason::TooManyToolCalls,
+            FinishReason::MalformedResponse,
+        ] {
+            let serialized = serde_json::to_value(&reason).expect("reason should serialize");
+            assert_eq!(serialized, json!(reason.as_wire_str()));
+        }
+    }
+
+    #[test]
+    fn test_unknown_finish_reason_round_trips_verbatim() {
+        // A wire value this crate does not know must land in `Unknown` with
+        // the provider's spelling intact — and serialize back to the same
+        // string — so nothing is lost between deserialize and re-serialize.
+        let reason: FinishReason = serde_json::from_value(json!("FINISH_REASON_FUTURE"))
+            .expect("unknown finish reason should deserialize");
+        assert!(matches!(&reason, FinishReason::Unknown(s) if s == "FINISH_REASON_FUTURE"));
+        assert_eq!(reason.as_wire_str(), "FINISH_REASON_FUTURE");
+        assert_eq!(
+            serde_json::to_value(&reason).expect("reason should serialize"),
+            json!("FINISH_REASON_FUTURE")
+        );
+        assert_eq!(
+            map_finish_reason(&reason),
+            Some(crate::completion::FinishReason::Other(
+                "FINISH_REASON_FUTURE".to_string()
+            ))
+        );
+    }
+
+    #[test]
+    fn test_unknown_block_reason_deserializes_verbatim() {
+        // Same contract for prompt feedback: a new block reason must not fail
+        // the payload, and the spelling is preserved.
+        let feedback: PromptFeedback = serde_json::from_value(json!({
+            "blockReason": "BLOCK_REASON_FUTURE"
+        }))
+        .expect("unknown block reason should deserialize");
+        assert!(matches!(
+            feedback.block_reason,
+            Some(BlockReason::Unknown(ref s)) if s == "BLOCK_REASON_FUTURE"
+        ));
+    }
+
+    #[test]
+    fn test_unary_response_with_unknown_finish_reason_stays_parseable() {
+        // A finish reason Google ships tomorrow must not fail the whole
+        // payload: content and usage stay intact, and the reason maps to
+        // `Other` verbatim — matching the gRPC crate's handling of unknowns.
+        let response: GenerateContentResponse = serde_json::from_value(json!({
+            "responseId": "resp-future",
+            "candidates": [{
+                "content": {
+                    "parts": [{"text": "hi"}],
+                    "role": "model"
+                },
+                "finishReason": "FINISH_REASON_FUTURE"
+            }],
+            "usageMetadata": {
+                "promptTokenCount": 3,
+                "candidatesTokenCount": 2,
+                "totalTokenCount": 5
+            }
+        }))
+        .expect("unknown finish reason should not fail the payload");
+
+        let converted: crate::completion::CompletionResponse =
+            response.try_into().expect("convert response");
+
+        assert!(matches!(
+            converted.choice.first(),
+            Some(message::AssistantContent::Text(text)) if text.text == "hi"
+        ));
+        assert_eq!(converted.usage.total_tokens, 5);
+        assert_eq!(
+            converted.finish_reason(),
+            Some(crate::completion::FinishReason::Other(
+                "FINISH_REASON_FUTURE".to_string()
+            ))
+        );
+    }
+
+    #[test]
+    fn test_streaming_candidate_with_unknown_finish_reason_stays_parseable() {
+        // Streaming terminal chunks embed the same `ContentCandidate`; an
+        // unknown reason must leave the chunk deserializable so the terminal
+        // record is still produced.
+        let candidate: ContentCandidate = serde_json::from_value(json!({
+            "content": {
+                "parts": [{"text": "done"}],
+                "role": "model"
+            },
+            "finishReason": "FINISH_REASON_FUTURE"
+        }))
+        .expect("unknown finish reason should not fail the chunk");
+
+        let reason = candidate.finish_reason.expect("finish reason present");
+        assert_eq!(
+            map_finish_reason(&reason),
+            Some(crate::completion::FinishReason::Other(
+                "FINISH_REASON_FUTURE".to_string()
+            ))
+        );
+    }
+
+    #[test]
+    fn test_completion_response_carries_normalized_metadata() {
+        let response: GenerateContentResponse = serde_json::from_value(json!({
+            "responseId": "resp-meta",
+            "modelVersion": "gemini-2.0-flash-001",
+            "candidates": [{
+                "content": {
+                    "parts": [{"text": "hi"}],
+                    "role": "model"
+                },
+                "finishReason": "MAX_TOKENS"
+            }]
+        }))
+        .expect("response should deserialize");
+
+        let converted: crate::completion::CompletionResponse =
+            response.try_into().expect("convert response");
+
+        assert_eq!(converted.provider, PROVIDER_NAME);
+        assert_eq!(converted.model.as_deref(), Some("gemini-2.0-flash-001"));
+        assert_eq!(converted.response_id.as_deref(), Some("resp-meta"));
+        assert_eq!(converted.message_id, None);
+        assert_eq!(
+            converted.finish_reason(),
+            Some(crate::completion::FinishReason::Length)
+        );
+    }
+
+    #[test]
+    fn test_completion_response_upgrades_stop_to_tool_calls() {
+        // Gemini reports STOP on turns that only emitted a function call; the
+        // normalized response must still say `ToolCalls`.
+        let response: GenerateContentResponse = serde_json::from_value(json!({
+            "responseId": "resp-tool",
+            "candidates": [{
+                "content": {
+                    "parts": [{
+                        "functionCall": {
+                            "name": "get_weather",
+                            "args": {"city": "Paris"}
+                        }
+                    }],
+                    "role": "model"
+                },
+                "finishReason": "STOP"
+            }]
+        }))
+        .expect("response should deserialize");
+
+        let converted: crate::completion::CompletionResponse =
+            response.try_into().expect("convert response");
+
+        assert_eq!(
+            converted.finish_reason(),
+            Some(crate::completion::FinishReason::ToolCalls)
+        );
+        assert_eq!(converted.model, None);
+    }
+
+    #[test]
+    fn test_reasoning_signature_is_emitted_in_gemini_part() {
+        let msg = message::Message::Assistant {
+            id: None,
+            content: vec![message::AssistantContent::Reasoning(
+                message::Reasoning::new_with_signature(
+                    "structured thought",
+                    Some("reuse_sig_456".to_string()),
+                ),
+            )],
+        };
+
+        let converted: Content = msg.try_into().expect("convert message");
+        let first = converted.parts.first().expect("reasoning part");
+        assert_eq!(first.thought, Some(true));
+        assert_eq!(first.thought_signature.as_deref(), Some("reuse_sig_456"));
+        assert!(matches!(
+            &first.part,
+            PartKind::Text(text) if text == "structured thought"
+        ));
+    }
+
+    #[test]
+    fn test_message_conversion_tool_call() {
+        let tool_call = message::ToolCall::from_wire(
+            "call-123",
+            message::ToolFunction {
+                name: "test_function".to_string(),
+                arguments: json!({"arg1": "value1"}),
+            },
+        );
+
+        let msg = message::Message::Assistant {
+            id: None,
+            content: vec![message::AssistantContent::ToolCall(tool_call)],
+        };
+
+        let content: Content = msg.try_into().unwrap();
+        assert_eq!(content.role, Some(Role::Model));
+        assert_eq!(content.parts.len(), 1);
+        if let Some(Part {
+            part: PartKind::FunctionCall(function_call),
+            ..
+        }) = content.parts.first()
+        {
+            assert_eq!(function_call.name, "test_function");
+            assert_eq!(
+                function_call.args.as_object().unwrap().get("arg1").unwrap(),
+                "value1"
+            );
+            assert_eq!(function_call.id.as_deref(), Some("call-123"));
+        } else {
+            panic!("Expected function call part");
+        }
+    }
+
+    #[test]
+    fn test_response_function_call_preserves_correlation_id() {
+        let response: GenerateContentResponse = serde_json::from_value(json!({
+            "responseId": "response-123",
+            "candidates": [{
+                "content": {
+                    "parts": [{
+                        "functionCall": {
+                            "name": "test_function",
+                            "args": {"arg1": "value1"},
+                            "id": "call-123"
+                        }
+                    }],
+                    "role": "model"
+                },
+                "finishReason": "STOP"
+            }]
+        }))
+        .expect("response should deserialize");
+
+        let converted: crate::completion::CompletionResponse =
+            response.try_into().expect("response should convert");
+        let Some(message::AssistantContent::ToolCall(tool_call)) = converted.choice.first() else {
+            panic!("expected a tool call");
+        };
+        assert_eq!(tool_call.id, "call-123");
+        assert_eq!(
+            tool_call.provider.as_ref().expect("wire id").call_id,
+            "call-123"
+        );
+    }
+
+    #[test]
+    fn test_vec_schema_conversion() {
+        let schema_with_ref = json!({
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/Person"
+            },
+            "$defs": {
+                "Person": {
+                    "type": "object",
+                    "properties": {
+                        "first_name": {
+                            "type": ["string", "null"],
+                            "description": "The person's first name, if provided (null otherwise)"
+                        },
+                        "last_name": {
+                            "type": ["string", "null"],
+                            "description": "The person's last name, if provided (null otherwise)"
+                        },
+                        "job": {
+                            "type": ["string", "null"],
+                            "description": "The person's job, if provided (null otherwise)"
+                        }
+                    },
+                    "required": []
+                }
+            }
+        });
+
+        let result: Result<Schema, _> = schema_with_ref.try_into();
+
+        match result {
+            Ok(schema) => {
+                assert_eq!(schema.r#type, "array");
+
+                if let Some(items) = schema.items {
+                    println!("item types: {}", items.r#type);
+
+                    assert_ne!(items.r#type, "", "Items type should not be empty string!");
+                    assert_eq!(items.r#type, "object", "Items should be object type");
+                } else {
+                    panic!("Schema should have items field for array type");
+                }
+            }
+            Err(e) => println!("Schema conversion failed: {:?}", e),
+        }
+    }
+
+    #[test]
+    fn test_object_schema() {
+        let simple_schema = json!({
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        });
+
+        let schema: Schema = simple_schema.try_into().unwrap();
+        assert_eq!(schema.r#type, "object");
+        assert!(schema.properties.is_some());
+    }
+
+    #[test]
+    fn test_array_with_inline_items() {
+        let inline_schema = json!({
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                }
+            }
+        });
+
+        let schema: Schema = inline_schema.try_into().unwrap();
+        assert_eq!(schema.r#type, "array");
+
+        if let Some(items) = schema.items {
+            assert_eq!(items.r#type, "object");
+            assert!(items.properties.is_some());
+        } else {
+            panic!("Schema should have items field");
+        }
+    }
+    #[test]
+    fn test_flattened_schema() {
+        let ref_schema = json!({
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/Person"
+            },
+            "$defs": {
+                "Person": {
+                    "type": "object",
+                    "properties": {
+                        "name": { "type": "string" }
+                    }
+                }
+            }
+        });
+
+        let flattened = flatten_schema(ref_schema).unwrap();
+        let schema: Schema = flattened.try_into().unwrap();
+
+        assert_eq!(schema.r#type, "array");
+
+        if let Some(items) = schema.items {
+            println!("Flattened items type: '{}'", items.r#type);
+
+            assert_eq!(items.r#type, "object");
+            assert!(items.properties.is_some());
+        }
+    }
+
+    #[test]
+    fn test_array_without_items_gets_default() {
+        let schema_json = json!({
+            "type": "object",
+            "properties": {
+                "service_ids": {
+                    "type": "array",
+                    "description": "A list of service IDs"
+                }
+            }
+        });
+
+        let schema: Schema = schema_json.try_into().unwrap();
+        let props = schema.properties.unwrap();
+        let service_ids = props.get("service_ids").unwrap();
+        assert_eq!(service_ids.r#type, "array");
+        let items = service_ids
+            .items
+            .as_ref()
+            .expect("array schema missing items should get a default");
+        assert_eq!(items.r#type, "string");
+    }
+
+    #[test]
+    fn test_tool_parameters_to_schema_maps_no_arg_tool_to_none() {
+        let schema = tool_parameters_to_schema(json!({"type": "object", "properties": {}}))
+            .expect("schema conversion");
+
+        assert!(schema.is_none());
+    }
+
+    #[test]
+    fn test_tool_parameters_to_schema_resolves_defs_ref() {
+        let schema_json = json!({
+            "type": "object",
+            "properties": {
+                "destination": { "$ref": "#/$defs/Destination" }
+            },
+            "required": ["destination"],
+            "$defs": {
+                "Destination": {
+                    "type": "object",
+                    "properties": {
+                        "city": { "type": "string" }
+                    },
+                    "required": ["city"]
+                }
+            }
+        });
+
+        let schema = tool_parameters_to_schema(schema_json)
+            .expect("schema conversion")
+            .expect("schema");
+        let props = schema.properties.expect("properties");
+        let destination = props.get("destination").expect("destination prop");
+
+        assert_eq!(destination.r#type, "object");
+        assert_eq!(destination.required, Some(vec!["city".to_string()]));
+    }
+
+    #[test]
+    fn test_tool_parameters_to_schema_handles_nullable_type_arrays() {
+        let schema_json = json!({
+            "type": "object",
+            "properties": {
+                "nickname": { "type": ["null", "string"] }
+            }
+        });
+
+        let schema = tool_parameters_to_schema(schema_json)
+            .expect("schema conversion")
+            .expect("schema");
+        let props = schema.properties.expect("properties");
+        let nickname = props.get("nickname").expect("nickname prop");
+
+        assert_eq!(nickname.r#type, "string");
+        assert_eq!(nickname.nullable, Some(true));
+    }
+
+    #[test]
+    fn test_txt_document_conversion_to_text_part() {
+        // Test that TXT documents are converted to plain text parts, not inline data
+        use crate::message::{DocumentMediaType, UserContent};
+
+        let doc = UserContent::document(
+            "Note: test.md\nPath: /test.md\nContent: Hello World!",
+            Some(DocumentMediaType::TXT),
+        );
+
+        let content: Content = message::Message::User { content: vec![doc] }
+            .try_into()
+            .unwrap();
+
+        if let Part {
+            part: PartKind::Text(text),
+            ..
+        } = &content.parts[0]
+        {
+            assert!(text.contains("Note: test.md"));
+            assert!(text.contains("Hello World!"));
+        } else {
+            panic!(
+                "Expected text part for TXT document, got: {:?}",
+                content.parts[0]
+            );
+        }
+    }
+
+    #[test]
+    fn test_tool_result_with_image_content() {
+        // Test that a ToolResult with image content converts correctly to Gemini's Part format
+        use crate::message::{
+            DocumentSourceKind, Image, ImageMediaType, ToolResult, ToolResultContent,
+        };
+
+        // Create a tool result with both text and image content
+        let tool_result = ToolResult {
+            call: message::ToolCallId::new_or_mint("call-123"),
+            provider: message::ProviderCallId::new("call-123"),
+            name: "test_tool".to_string(),
+            content: vec![
+                ToolResultContent::Text(message::Text::new(r#"{"status": "success"}"#.to_string())),
+                ToolResultContent::Image(Image {
+                    data: DocumentSourceKind::Base64("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==".to_string()),
+                    media_type: Some(ImageMediaType::PNG),
+                    detail: None,
+                    additional_params: None,
+                }),
+            ],
+        };
+
+        let user_content = message::UserContent::ToolResult(tool_result);
+        let msg = message::Message::User {
+            content: vec![user_content],
+        };
+
+        // Convert to Gemini Content
+        let content: Content = msg.try_into().expect("Should convert to Gemini Content");
+        assert_eq!(content.role, Some(Role::User));
+        assert_eq!(content.parts.len(), 1);
+
+        // Verify the part is a FunctionResponse with both response and parts
+        if let Some(Part {
+            part: PartKind::FunctionResponse(function_response),
+            ..
+        }) = content.parts.first()
+        {
+            assert_eq!(function_response.name, "test_tool");
+            assert_eq!(function_response.id.as_deref(), Some("call-123"));
+
+            // Check that response JSON is present
+            assert!(function_response.response.is_some());
+            let response = function_response.response.as_ref().unwrap();
+            assert_eq!(
+                response,
+                &json!({
+                    "result": r#"{"status": "success"}"#
+                })
+            );
+
+            // Check that parts with image data are present
+            assert!(function_response.parts.is_some());
+            let parts = function_response.parts.as_ref().unwrap();
+            assert_eq!(parts.len(), 1);
+
+            let image_part = &parts[0];
+            assert!(image_part.inline_data.is_some());
+            let inline_data = image_part.inline_data.as_ref().unwrap();
+            assert_eq!(inline_data.mime_type, "image/png");
+            assert!(!inline_data.data.is_empty());
+            assert_eq!(inline_data.display_name, None);
+        } else {
+            panic!("Expected FunctionResponse part");
+        }
+    }
+
+    #[test]
+    fn mixed_inline_images_and_text_keep_text_response_and_ordered_parts() {
+        use crate::message::{ImageMediaType, ToolResult, ToolResultContent};
+
+        let message = message::Message::User {
+            content: vec![message::UserContent::ToolResult(ToolResult {
+                call: message::ToolCallId::mint(),
+                provider: None,
+                name: "ordered_tool".to_string(),
+                content: vec![
+                    ToolResultContent::image_base64("first-image", Some(ImageMediaType::PNG), None),
+                    ToolResultContent::text("between-images"),
+                    ToolResultContent::image_base64(
+                        "second-image",
+                        Some(ImageMediaType::JPEG),
+                        None,
+                    ),
+                ],
+            })],
+        };
+
+        let content: Content = message.try_into().expect("tool result should convert");
+        let PartKind::FunctionResponse(response) = &content.parts[0].part else {
+            panic!("expected a function response");
+        };
+
+        assert_eq!(
+            response.response,
+            Some(json!({ "result": "between-images" }))
+        );
+
+        let parts = response
+            .parts
+            .as_ref()
+            .expect("images should be inline parts");
+        assert_eq!(parts.len(), 2);
+        let first = parts[0].inline_data.as_ref().expect("first inline image");
+        assert_eq!(first.mime_type, "image/png");
+        assert_eq!(first.data, "first-image");
+        assert_eq!(first.display_name, None);
+        let second = parts[1].inline_data.as_ref().expect("second inline image");
+        assert_eq!(second.mime_type, "image/jpeg");
+        assert_eq!(second.data, "second-image");
+        assert_eq!(second.display_name, None);
+    }
+
+    #[test]
+    fn mixed_inline_image_and_json_keep_structured_value_and_media_part() {
+        use crate::message::{ImageMediaType, ToolResult, ToolResultContent};
+
+        let message = message::Message::User {
+            content: vec![message::UserContent::ToolResult(ToolResult {
+                call: message::ToolCallId::mint(),
+                provider: None,
+                name: "ordered_tool".to_string(),
+                content: vec![
+                    ToolResultContent::json(json!({ "status": "ok" })),
+                    ToolResultContent::image_base64("image-data", Some(ImageMediaType::PNG), None),
+                ],
+            })],
+        };
+
+        let content: Content = message.try_into().expect("tool result should convert");
+        let PartKind::FunctionResponse(response) = &content.parts[0].part else {
+            panic!("expected a function response");
+        };
+
+        assert_eq!(
+            response.response,
+            Some(json!({ "result": { "status": "ok" } }))
+        );
+        let parts = response
+            .parts
+            .as_ref()
+            .expect("image should be an inline part");
+        assert_eq!(parts.len(), 1);
+        let inline_data = parts[0].inline_data.as_ref().expect("inline image data");
+        assert_eq!(inline_data.data, "image-data");
+        assert_eq!(inline_data.display_name, None);
+    }
+
+    #[test]
+    fn mixed_url_image_and_response_value_is_rejected() {
+        use crate::message::{DocumentSourceKind, Image, ImageMediaType, ToolResultContent};
+
+        let tool_result = message::Message::User {
+            content: vec![message::UserContent::ToolResult(message::ToolResult {
+                call: message::ToolCallId::mint(),
+                provider: None,
+                name: "url_tool".to_string(),
+                content: vec![
+                    ToolResultContent::Image(Image {
+                        data: DocumentSourceKind::Url("https://example.com/image.png".to_string()),
+                        media_type: Some(ImageMediaType::PNG),
+                        detail: None,
+                        additional_params: None,
+                    }),
+                    ToolResultContent::text("after-image"),
+                ],
+            })],
+        };
+
+        let error = Content::try_from(tool_result)
+            .expect_err("URL-backed tool result images should be rejected");
+        assert!(
+            error
+                .to_string()
+                .contains("URL-backed images are not supported"),
+            "unexpected error: {error}"
+        );
+    }
+
+    #[test]
+    fn tool_result_rejects_unsupported_image_media_types() {
+        use crate::message::{ImageMediaType, ToolResult, ToolResultContent};
+
+        for media_type in [
+            ImageMediaType::GIF,
+            ImageMediaType::HEIC,
+            ImageMediaType::HEIF,
+            ImageMediaType::SVG,
+        ] {
+            let message = message::Message::User {
+                content: vec![message::UserContent::ToolResult(ToolResult {
+                    call: message::ToolCallId::mint(),
+                    provider: None,
+                    name: "image_tool".to_string(),
+                    content: vec![ToolResultContent::image_base64(
+                        "image-data",
+                        Some(media_type),
+                        None,
+                    )],
+                })],
+            };
+
+            let error = Content::try_from(message)
+                .expect_err("unsupported tool result image type should be rejected");
+            assert!(
+                error
+                    .to_string()
+                    .contains("supported types are JPEG, PNG, and WEBP"),
+                "unexpected error: {error}"
+            );
+        }
+    }
+
+    #[test]
+    fn structured_json_refs_remain_literal_with_unreferenced_image_parts() {
+        use crate::message::{ImageMediaType, ToolResult, ToolResultContent};
+
+        let message = message::Message::User {
+            content: vec![message::UserContent::ToolResult(ToolResult {
+                call: message::ToolCallId::mint(),
+                provider: None,
+                name: "collision_tool".to_string(),
+                content: vec![
+                    ToolResultContent::json(json!({
+                        "literal": {
+                            "$ref": "tool_result_image_0"
+                        }
+                    })),
+                    ToolResultContent::image_base64("image-data", Some(ImageMediaType::PNG), None),
+                ],
+            })],
+        };
+
+        let content: Content = message.try_into().expect("tool result should convert");
+        let PartKind::FunctionResponse(response) = &content.parts[0].part else {
+            panic!("expected a function response");
+        };
+
+        assert_eq!(
+            response.response,
+            Some(json!({
+                "result": {
+                    "literal": {
+                        "$ref": "tool_result_image_0"
+                    }
+                }
+            }))
+        );
+        assert_eq!(
+            response.parts.as_ref().and_then(|parts| {
+                parts
+                    .first()
+                    .and_then(|part| part.inline_data.as_ref())
+                    .and_then(|part| part.display_name.as_deref())
+            }),
+            None
+        );
+    }
+
+    #[test]
+    fn tool_result_literal_text_and_structured_json_remain_distinct() {
+        use crate::message::{ToolResult, ToolResultContent};
+
+        let cases = [
+            (
+                ToolResultContent::text(r#"{"status":"ok"}"#),
+                json!({ "result": "{\"status\":\"ok\"}" }),
+            ),
+            (
+                ToolResultContent::json(json!({ "status": "ok" })),
+                json!({ "result": { "status": "ok" } }),
+            ),
+        ];
+
+        for (tool_content, expected) in cases {
+            let message = message::Message::User {
+                content: vec![message::UserContent::ToolResult(ToolResult {
+                    call: message::ToolCallId::mint(),
+                    provider: None,
+                    name: "test_tool".to_string(),
+                    content: vec![tool_content],
+                })],
+            };
+            let content: Content = message.try_into().expect("tool result should convert");
+
+            let PartKind::FunctionResponse(response) = &content.parts[0].part else {
+                panic!("expected a function response");
+            };
+            assert_eq!(response.response.as_ref(), Some(&expected));
+        }
+    }
+
+    /// A consumer echoing a minted `ToolCall::id` through
+    /// `tool_result()` must not put that handle on Gemini's wire: the
+    /// paired functionCall omitted its id (the provider issued none), and
+    /// an asymmetric functionCall/functionResponse id pair is rejected.
+    #[test]
+    fn echoed_minted_handle_never_reaches_the_function_response_id() {
+        use crate::message::{ToolCall, ToolCallId, ToolFunction, ToolResultContent};
+
+        // An id-less wire minted the handle (Gemini REST issued no id).
+        let call = ToolCall::new(
+            ToolCallId::mint(),
+            ToolFunction {
+                name: "lookup".to_string(),
+                arguments: json!({}),
+            },
+        );
+
+        let message = message::Message::User {
+            content: vec![message::UserContent::tool_result(
+                call.id.as_str(),
+                "lookup",
+                vec![ToolResultContent::text("out")],
+            )],
+        };
+        let content: Content = message.try_into().expect("tool result should convert");
+        let PartKind::FunctionResponse(response) = &content.parts[0].part else {
+            panic!("expected a function response");
+        };
+        assert_eq!(response.id, None);
+    }
+
+    /// A cross-provider ingested transcript (rig's inbound converters
+    /// stamp `name: ""` — Anthropic/OpenAI-chat/Cohere/Bedrock wires carry
+    /// no name) must reach Gemini with the name resolved from the paired
+    /// call: `functionResponse.name: ""` is INVALID_ARGUMENT.
+    #[test]
+    fn ingested_nameless_results_resolve_their_name_at_request_assembly() {
+        use crate::completion::request::CompletionRequest;
+        use crate::message::{AssistantContent, ToolCall, ToolFunction, ToolResultContent};
+
+        let request = CompletionRequest {
+            preamble: None,
+            chat_history: vec![
+                message::Message::user("weather?"),
+                message::Message::Assistant {
+                    id: None,
+                    content: vec![AssistantContent::ToolCall(ToolCall::from_wire(
+                        "toolu_abc",
+                        ToolFunction {
+                            name: "get_weather".to_owned(),
+                            arguments: json!({"city": "Paris"}),
+                        },
+                    ))],
+                },
+                message::Message::User {
+                    content: vec![message::UserContent::tool_result_from_wire(
+                        "toolu_abc",
+                        "",
+                        vec![ToolResultContent::text("sunny")],
+                    )],
+                },
+            ],
+            documents: vec![],
+            tools: vec![],
+            temperature: None,
+            model: None,
+            output_schema: None,
+            record_telemetry_content: false,
+            max_tokens: None,
+            tool_choice: None,
+            additional_params: None,
+        };
+
+        let body = create_request_body(request).expect("request should build");
+        let response_names: Vec<_> = body
+            .contents
+            .iter()
+            .flat_map(|content| &content.parts)
+            .filter_map(|part| match &part.part {
+                PartKind::FunctionResponse(response) => Some(response.name.clone()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(response_names, ["get_weather"]);
+    }
+
+    /// A wire-derived result keeps its provider-issued id on replay.
+    #[test]
+    fn wire_derived_tool_result_keeps_the_provider_id_on_the_wire() {
+        use crate::message::ToolResultContent;
+
+        let message = message::Message::User {
+            content: vec![message::UserContent::tool_result_from_wire(
+                "gemini-issued-id",
+                "lookup",
+                vec![ToolResultContent::text("out")],
+            )],
+        };
+        let content: Content = message.try_into().expect("tool result should convert");
+        let PartKind::FunctionResponse(response) = &content.parts[0].part else {
+            panic!("expected a function response");
+        };
+        assert_eq!(response.id.as_deref(), Some("gemini-issued-id"));
+    }
+
+    #[test]
+    fn test_markdown_document_conversion_to_text_part() {
+        // Test that MARKDOWN documents are converted to plain text parts
+        use crate::message::{DocumentMediaType, UserContent};
+
+        let doc = UserContent::document(
+            "# Heading\n\n* List item",
+            Some(DocumentMediaType::MARKDOWN),
+        );
+
+        let content: Content = message::Message::User { content: vec![doc] }
+            .try_into()
+            .unwrap();
+
+        if let Part {
+            part: PartKind::Text(text),
+            ..
+        } = &content.parts[0]
+        {
+            assert_eq!(text, "# Heading\n\n* List item");
+        } else {
+            panic!(
+                "Expected text part for MARKDOWN document, got: {:?}",
+                content.parts[0]
+            );
+        }
+    }
+
+    #[test]
+    fn test_markdown_url_document_conversion_to_file_data_part() {
+        // URL-backed MARKDOWN documents should be represented as file_data.
+        use crate::message::{DocumentMediaType, DocumentSourceKind, UserContent};
+
+        let doc = UserContent::Document(message::Document {
+            data: DocumentSourceKind::Url(
+                "https://generativelanguage.googleapis.com/v1beta/files/test-markdown".to_string(),
+            ),
+            media_type: Some(DocumentMediaType::MARKDOWN),
+            additional_params: None,
+        });
+
+        let content: Content = message::Message::User { content: vec![doc] }
+            .try_into()
+            .unwrap();
+
+        if let Part {
+            part: PartKind::FileData(file_data),
+            ..
+        } = &content.parts[0]
+        {
+            assert_eq!(
+                file_data.file_uri,
+                "https://generativelanguage.googleapis.com/v1beta/files/test-markdown"
+            );
+            assert_eq!(file_data.mime_type.as_deref(), Some("text/markdown"));
+        } else {
+            panic!(
+                "Expected file_data part for URL MARKDOWN document, got: {:?}",
+                content.parts[0]
+            );
+        }
+    }
+
+    #[test]
+    fn test_tool_result_with_url_image_is_rejected() {
+        use crate::message::{
+            DocumentSourceKind, Image, ImageMediaType, ToolResult, ToolResultContent,
+        };
+
+        let tool_result = ToolResult {
+            call: message::ToolCallId::mint(),
+            provider: None,
+            name: "screenshot_tool".to_string(),
+            content: vec![ToolResultContent::Image(Image {
+                data: DocumentSourceKind::Url("https://example.com/image.png".to_string()),
+                media_type: Some(ImageMediaType::PNG),
+                detail: None,
+                additional_params: None,
+            })],
+        };
+
+        let user_content = message::UserContent::ToolResult(tool_result);
+        let msg = message::Message::User {
+            content: vec![user_content],
+        };
+
+        let error =
+            Content::try_from(msg).expect_err("URL-backed tool result images should be rejected");
+        assert!(
+            error
+                .to_string()
+                .contains("URL-backed images are not supported"),
+            "unexpected error: {error}"
+        );
+    }
+
+    #[test]
+    fn test_create_request_body_with_documents() {
+        // Test that documents are injected into chat history
+        use crate::completion::request::{CompletionRequest, Document};
+        use crate::message::Message;
+
+        let documents = vec![
+            Document {
+                id: "doc1".to_string(),
+                text: "Note: first.md\nContent: First note".to_string(),
+                additional_props: std::collections::HashMap::new(),
+            },
+            Document {
+                id: "doc2".to_string(),
+                text: "Note: second.md\nContent: Second note".to_string(),
+                additional_props: std::collections::HashMap::new(),
+            },
+        ];
+
+        let documents_message = CompletionRequest {
+            preamble: None,
+            chat_history: vec![Message::user("placeholder")],
+            documents,
+            tools: vec![],
+            temperature: None,
+            model: None,
+            output_schema: None,
+            record_telemetry_content: false,
+            max_tokens: None,
+            tool_choice: None,
+            additional_params: None,
+        }
+        .normalized_documents()
+        .unwrap();
+
+        let completion_request = CompletionRequest {
+            preamble: Some("You are a helpful assistant".to_string()),
+            chat_history: vec![documents_message, Message::user("What are my notes about?")],
+            documents: vec![],
+            tools: vec![],
+            temperature: None,
+            model: None,
+            output_schema: None,
+            record_telemetry_content: false,
+            max_tokens: None,
+            tool_choice: None,
+            additional_params: None,
+        };
+
+        let request = create_request_body(completion_request).unwrap();
+
+        // Should have 2 contents: 1 for documents, 1 for user message
+        assert_eq!(
+            request.contents.len(),
+            2,
+            "Expected 2 contents (documents + user message)"
+        );
+
+        // First content should be documents with role User
+        assert_eq!(request.contents[0].role, Some(Role::User));
+        assert_eq!(
+            request.contents[0].parts.len(),
+            2,
+            "Expected 2 document parts"
+        );
+
+        // Check that documents are text parts
+        for part in &request.contents[0].parts {
+            if let Part {
+                part: PartKind::Text(text),
+                ..
+            } = part
+            {
+                assert!(
+                    text.contains("Note:") && text.contains("Content:"),
+                    "Document should contain note metadata"
+                );
+            } else {
+                panic!("Document parts should be text, not {:?}", part);
+            }
+        }
+
+        // Second content should be the user message
+        assert_eq!(request.contents[1].role, Some(Role::User));
+        if let Part {
+            part: PartKind::Text(text),
+            ..
+        } = &request.contents[1].parts[0]
+        {
+            assert_eq!(text, "What are my notes about?");
+        } else {
+            panic!("Expected user message to be text");
+        }
+    }
+
+    #[test]
+    fn test_create_request_body_without_documents() {
+        // Test backward compatibility: requests without documents work as before
+        use crate::completion::request::CompletionRequest;
+        use crate::message::Message;
+
+        let completion_request = CompletionRequest {
+            preamble: Some("You are a helpful assistant".to_string()),
+            chat_history: vec![Message::user("Hello")],
+            documents: vec![], // No documents
+            tools: vec![],
+            temperature: None,
+            max_tokens: None,
+            tool_choice: None,
+            model: None,
+            output_schema: None,
+            record_telemetry_content: false,
+            additional_params: None,
+        };
+
+        let request = create_request_body(completion_request).unwrap();
+
+        // Should have only 1 content (the user message)
+        assert_eq!(request.contents.len(), 1, "Expected only user message");
+        assert_eq!(request.contents[0].role, Some(Role::User));
+
+        if let Part {
+            part: PartKind::Text(text),
+            ..
+        } = &request.contents[0].parts[0]
+        {
+            assert_eq!(text, "Hello");
+        } else {
+            panic!("Expected user message to be text");
+        }
+    }
+
+    #[tokio::test]
+    async fn completion_non_success_preserves_status_and_body() {
+        use crate::client::completion::CompletionClient;
+        use crate::completion::CompletionModel as _;
+        use crate::providers::gemini::Client;
+        use crate::test_utils::RecordingHttpClient;
+
+        let body = r#"{"error":{"code":503,"message":"boom","status":"UNAVAILABLE"}}"#;
+        let http_client =
+            RecordingHttpClient::with_error_response(http::StatusCode::SERVICE_UNAVAILABLE, body);
+        let client = Client::builder()
+            .api_key("test-key")
+            .http_client(http_client)
+            .build()
+            .expect("build client");
+        let model = client.completion_model(super::GEMINI_3_FLASH_PREVIEW);
+        let request = model.completion_request("hello").build();
+
+        let error = model
+            .completion(request)
+            .await
+            .expect_err("should fail with non-success status");
+
+        assert!(matches!(error, CompletionError::HttpError(_)));
+        assert_eq!(
+            error.provider_response_status(),
+            Some(http::StatusCode::SERVICE_UNAVAILABLE)
+        );
+        assert_eq!(error.provider_response_body(), Some(body));
+    }
+}
