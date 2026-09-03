@@ -5,9 +5,7 @@ description: Create or modify Bionic's generated marketing site, documentation, 
 
 # Static Sites
 
-The current static site is `crates/bionic-gpt`; the old `static-website` and
-`deploy-mcp` directories do not exist and must not be referenced as active
-projects.
+The current static site is `crates/bionic-gpt`
 
 ## Content and Rendering
 
