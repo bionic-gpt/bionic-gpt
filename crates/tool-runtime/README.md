@@ -7,7 +7,8 @@ supports both built-in tools and OpenAPI-based external integrations.
 ## What it does
 
 - Uses rig's `ToolDyn` trait for all executable tools.
-- Registers built-in tools (time, web, Bashkit, documents, HTML canvas).
+- Registers built-in tools (Bashkit, virtual filesystem files, Python, and
+  generated-output support).
 - Loads system-level and team-connected OpenAPI specs into the Bashkit function
   catalogue.
 - Executes tool calls and returns JSON results.
@@ -24,9 +25,10 @@ supports both built-in tools and OpenAPI-based external integrations.
 
 ## Model-facing tools
 
-The model receives the fixed `run_bash` definition. OpenAPI integrations are
-discoverable as markdown files under `/home/user/functions` and are invoked
-from Python inside Bashkit; they are not exposed as direct model tools.
+The model receives fixed definitions for `run_bash`, `read_file`, `write_file`,
+`edit_file`, and `run_python`. OpenAPI integrations are discoverable as
+markdown files under `/home/user/functions` and are invoked from Python inside
+the sandbox; they are not exposed as direct model tools.
 
 ## Built-in tools
 
@@ -34,8 +36,8 @@ from Python inside Bashkit; they are not exposed as direct model tools.
 - `web`: open URL tool.
 - `run_bash`: Bashkit shell tool with `/home/user/skills`, `/home/user/datasets`,
   `/home/user/attachments`, and `rag-search` / `rag-read`.
-- `run_python`: Monty-backed Python snippets.
-- `render_html`: static HTML canvas artifacts.
+- `read_file`, `write_file`, `edit_file`: virtual filesystem file operations.
+- `run_python`: Monty-backed Python snippets with the virtual filesystem.
 
 ## OpenAPI integrations
 

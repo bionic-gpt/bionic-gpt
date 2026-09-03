@@ -208,6 +208,24 @@ async fn openrouter_tool_call_completion() -> Response<Body> {
         .unwrap()
 }
 
+async fn malformed_tool_call_completion() -> Response<Body> {
+    let body = concat!(
+        "data: {\"id\":\"response-2\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[",
+        "{\"index\":0,\"delta\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"index\":0,\"id\":\"call-malformed\",\"type\":\"function\",\"function\":{\"name\":\"run_bash\",\"arguments\":\"\"}}]},\"finish_reason\":null}],\"usage\":null}\n\n",
+        "data: {\"id\":\"response-2\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[",
+        "{\"index\":0,\"delta\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"{\\\"commands\\\":\\\"bad\\\\q\\\"}\"}}]},\"finish_reason\":null}],\"usage\":null}\n\n",
+        "data: {\"id\":\"response-2\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[",
+        "{\"index\":0,\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":\"tool_calls\"}],\"usage\":null}\n\n",
+        "data: [DONE]\n\n"
+    );
+
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "text/event-stream")
+        .body(Body::from(body))
+        .unwrap()
+}
+
 async fn successful_ollama_completion() -> Response<Body> {
     let body = concat!(
         "{\"model\":\"test-model\",\"created_at\":\"2026-08-26T00:00:00Z\",\"message\":{\"role\":\"assistant\",\"content\":\"Hello\"},\"done\":false}\n",
@@ -297,6 +315,41 @@ async fn rig_stream_assembles_openrouter_tool_call_fragments() {
     }
 
     assert!(saw_end);
+}
+
+#[tokio::test]
+async fn rig_stream_preserves_malformed_tool_calls_for_recovery() {
+    let base_url = start_mock_provider(
+        Router::new().route("/v1/chat/completions", post(malformed_tool_call_completion)),
+    )
+    .await;
+    let (sender, mut receiver) = mpsc::channel(8);
+
+    stream_chat_with_rig(tool_enabled_request(base_url), sender)
+        .await
+        .expect("malformed tool-call stream should remain recoverable");
+
+    let event = receiver
+        .recv()
+        .await
+        .expect("expected generation event")
+        .expect("generation event should succeed");
+    let GenerationEvent::End {
+        tool_calls: Some(tool_calls),
+        ..
+    } = event
+    else {
+        panic!("expected a recoverable tool call");
+    };
+
+    assert_eq!(tool_calls.len(), 1);
+    assert_eq!(tool_calls[0].id.to_string(), "call-malformed");
+    assert_eq!(tool_calls[0].function.arguments, json!({}));
+    assert!(tool_calls[0]
+        .additional_params
+        .as_ref()
+        .and_then(|params| params.get("bionic_malformed_tool_call"))
+        .is_some());
 }
 
 #[tokio::test]

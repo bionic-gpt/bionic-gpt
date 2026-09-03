@@ -31,6 +31,7 @@ const ATTACHMENTS_DIR: &str = "/home/user/attachments";
 const OUTPUT_DIR: &str = "/home/user/output";
 const MAX_OUTPUT_FILES: usize = 50;
 const MAX_OUTPUT_FILE_BYTES: u64 = 5 * 1024 * 1024;
+pub(crate) const MAX_FILE_TOOL_BYTES: usize = 2 * 1024 * 1024;
 
 #[derive(Debug, Deserialize)]
 struct RunBashArgs {
@@ -94,7 +95,7 @@ struct AttachmentEntry {
 }
 
 #[derive(Debug, Clone, Serialize)]
-struct OutputEntry {
+pub(crate) struct OutputEntry {
     id: i32,
     path: String,
     file_name: String,
@@ -164,7 +165,7 @@ impl ToolDyn for BashkitTool {
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_bash".to_string(),
-        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read available skill instructions, and /home/user/datasets to inspect connected datasets. To use an integration, list /home/user/functions, then cat the relevant .md file; it contains the exact function names, parameters, and usage examples. Use python3 for dependency-free Python through Monty inside Bashkit. Use /home/user/output for generated files that should persist across tool calls and appear in the chat. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call except /home/user/output, network access is disabled, and host files are not mounted.".to_string(),
+        description: "Run short shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use read_file, write_file, and edit_file for file contents. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read skill instructions, and /home/user/datasets to inspect connected datasets. To use an integration, list /home/user/functions, then cat the relevant .md file; it contains the exact function names, parameters, and usage examples. Use run_python for Python calculations and integration calls. Use /home/user/output for generated files that should persist across tool calls and appear in chat. Use rag-search 'query' and rag-read for indexed dataset content. Bash has no network or host filesystem access.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -388,8 +389,13 @@ async fn execute_run_bash(
     .map_err(|_| json!({"error": "bash execution timed out"}))?
     .map_err(|err| json!({"error": "bash execution failed", "details": err.to_string()}))?;
 
-    let output_sync_result =
-        persist_outputs(&tool.pool, &tool.sub, tool.conversation_id, &bash).await;
+    let output_sync_result = persist_outputs(
+        &tool.pool,
+        &tool.sub,
+        tool.conversation_id,
+        bash.fs().as_ref(),
+    )
+    .await;
 
     let mut response = json!({
         "stdout": result.stdout,
@@ -406,6 +412,41 @@ async fn execute_run_bash(
     }
 
     Ok(response)
+}
+
+pub(crate) async fn seeded_filesystem(
+    pool: &Pool,
+    sub: &str,
+    conversation_id: i64,
+    model_id: i32,
+) -> Result<std::sync::Arc<dyn FileSystem>, serde_json::Value> {
+    let fs: std::sync::Arc<dyn FileSystem> = std::sync::Arc::new(InMemoryFs::new());
+    let bash = Bash::builder()
+        .fs(fs.clone())
+        .username("user")
+        .hostname("bashkit")
+        .cwd(HOME_DIR)
+        .limits(ExecutionLimits::default())
+        .build();
+
+    seed_custom_skills(pool, sub, &bash).await?;
+    let registry = std::sync::Arc::new(
+        crate::builtin_tools::monty::RuntimeFunctionRegistry::load_for_conversation(
+            pool,
+            sub,
+            conversation_id,
+        )
+        .await
+        .map_err(
+            |e| json!({"error": "Failed to get function registry", "details": e.to_string()}),
+        )?,
+    );
+    seed_function_catalogue(&bash, registry.function_catalogue()).await?;
+    seed_datasets(pool, sub, model_id, conversation_id, &bash).await?;
+    seed_attachments(pool, sub, conversation_id, &bash).await?;
+    seed_outputs(pool, sub, conversation_id, &bash).await?;
+
+    Ok(fs)
 }
 
 async fn seed_custom_skills(pool: &Pool, sub: &str, bash: &Bash) -> Result<(), serde_json::Value> {
@@ -744,19 +785,18 @@ async fn seed_outputs(
     Ok(())
 }
 
-async fn persist_outputs(
+pub(crate) async fn persist_outputs(
     pool: &Pool,
     sub: &str,
     conversation_id: i64,
-    bash: &Bash,
+    fs: &dyn FileSystem,
 ) -> Result<Vec<OutputEntry>, serde_json::Value> {
     let conversation_id_i32 = db_conversation_id(conversation_id)?;
-    let fs = bash.fs();
     fs.mkdir(Path::new(OUTPUT_DIR), true).await.map_err(
         |e| json!({"error": "Failed to inspect output directory", "details": e.to_string()}),
     )?;
 
-    let files = collect_output_files(fs.as_ref(), Path::new(OUTPUT_DIR)).await?;
+    let files = collect_output_files(fs, Path::new(OUTPUT_DIR)).await?;
     let mut client = pool
         .get()
         .await

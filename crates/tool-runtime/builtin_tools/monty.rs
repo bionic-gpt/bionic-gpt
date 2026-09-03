@@ -363,7 +363,7 @@ impl RuntimeFunctionRegistry {
     pub fn function_catalogue(&self) -> FunctionCatalogue {
         let mut prompt = String::from(
             "Available function catalogues:\n\
-Use run_bash to list `/home/user/functions`, then cat the relevant `.md` file before calling an integration. The file contains the exact function names, parameters, and usage examples.\n",
+Use read_file or run_bash to inspect `/home/user/functions`, then read the relevant `.md` file before calling an integration with run_python. The file contains the exact function names, parameters, and usage examples.\n",
         );
         let mut files = Vec::new();
 
@@ -535,9 +535,9 @@ fn function_markdown(integration: &IntegrationInfo) -> String {
         .operations
         .first()
         .map(operation_example)
-        .unwrap_or_else(|| "python3 -c \"print(<function_name>())\"".to_string());
+        .unwrap_or_else(|| "print(<function_name>())".to_string());
     let mut markdown = format!(
-        "# {}\n\nSlug: {}\n\nCall these functions directly by name with python3 inside run_bash. These markdown files are documentation, not Python modules; do not use `from functions import ...`. Example:\n\n```bash\n{}\n```\n\nFunctions:\n",
+        "# {}\n\nSlug: {}\n\nCall these functions directly by name with run_python. These markdown files are documentation, not Python modules; do not use `from functions import ...`. Example:\n\n```python\n{}\n```\n\nFunctions:\n",
         integration.name,
         integration.slug,
         example
@@ -667,12 +667,12 @@ async fn persist_binary_result(
 fn operation_example(operation: &RuntimeOperation) -> String {
     if let Some(parameter) = file_path_parameter_name(&operation.parameters) {
         return format!(
-            "python3 -c \"print({}(**{{'{}': '/home/user/attachments/<document>'}}))\"  # use /home/user/output for generated files",
+            "print({}(**{{'{}': '/home/user/attachments/<document>'}}))  # use /home/user/output for generated files",
             operation.function_name, parameter
         );
     }
 
-    format!("python3 -c \"print({}())\"", operation.function_name)
+    format!("print({}())", operation.function_name)
 }
 
 fn file_path_parameter_name(parameters: &Value) -> Option<&str> {
@@ -903,8 +903,8 @@ mod tests {
 
         let prompt = catalogue.prompt_section.expect("expected prompt section");
         assert!(prompt.contains("- Web Fetch: /home/user/functions/web-fetch.md"));
-        assert!(prompt.contains("cat the relevant `.md` file before calling an integration"));
-        assert!(!prompt.contains("run_python"));
+        assert!(prompt.contains("read the relevant `.md` file before calling an integration"));
+        assert!(prompt.contains("with run_python"));
 
         let web_file = catalogue
             .files

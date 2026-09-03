@@ -42,6 +42,11 @@ syntect = "5.3"
 pulldown-cmark = "0.13"
 tower-livereload = "0.10"
 
+[patch.crates-io]
+# Temporary local Rig patch: preserve malformed streamed tool calls as
+# recoverable errors until the upstream fix is released.
+rig-core = { path = "vendor/rig-core" }
+
 # https://corrode.dev/blog/tips-for-faster-rust-compile-times/#turn-off-debuginfo
 [profile.dev]
 debug = 0

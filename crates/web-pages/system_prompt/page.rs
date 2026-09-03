@@ -219,7 +219,7 @@ fn DiscoverableFunctions(integration_context: Option<String>, token_estimate: i3
             }
             CardBody {
                 class: "text-sm text-base-content/80",
-                p { "Connected integrations and built-in web functions are exposed through catalogue files in /home/user/functions. Use run_bash to list the directory, then cat the relevant .md file before calling an integration; it contains the exact function names, parameters, and usage examples." }
+                p { "Connected integrations and built-in web functions are exposed through catalogue files in /home/user/functions. Use read_file or run_bash to inspect the directory, then read the relevant .md file before calling an integration with run_python; it contains the exact function names, parameters, and usage examples." }
                 if let Some(integration_context) = integration_context.as_ref() {
                     pre {
                         class: "mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded border border-base-300 bg-base-100 p-4 font-mono text-xs text-base-content",

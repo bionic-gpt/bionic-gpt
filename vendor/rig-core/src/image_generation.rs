@@ -1,0 +1,188 @@
+//! Everything related to core image generation abstractions in Rig.
+//! Rig allows calling a number of different providers (that support image generation) using the [ImageGenerationModel] trait.
+use crate::markers::{Missing, Provided};
+use crate::wasm_compat::{WasmCompatSend, WasmCompatSync};
+use serde_json::Value;
+
+crate::provider_response::provider_error_enum!(
+    ImageGenerationError, "image generation" {
+        /// Error building the image generation request
+        #[error("RequestError: {0}")]
+        RequestError(#[from] Box<dyn std::error::Error + Send + Sync + 'static>),
+    }
+);
+
+/// A unified response for a model image generation, returning both the image and the raw response.
+#[derive(Debug)]
+pub struct ImageGenerationResponse<T> {
+    pub image: Vec<u8>,
+    pub response: T,
+}
+
+pub trait ImageGenerationModel: Clone + WasmCompatSend + WasmCompatSync {
+    type Response: WasmCompatSend + WasmCompatSync;
+
+    type Client;
+
+    fn make(client: &Self::Client, model: impl Into<String>) -> Self;
+
+    fn image_generation(
+        &self,
+        request: ImageGenerationRequest,
+    ) -> impl std::future::Future<
+        Output = Result<ImageGenerationResponse<Self::Response>, ImageGenerationError>,
+    > + WasmCompatSend;
+
+    fn image_generation_request(&self) -> ImageGenerationRequestBuilder<Self, Missing> {
+        ImageGenerationRequestBuilder::new(self.clone())
+    }
+}
+/// An image generation request.
+pub struct ImageGenerationRequest {
+    pub prompt: String,
+    pub width: u32,
+    pub height: u32,
+    pub additional_params: Option<Value>,
+}
+
+/// A builder for `ImageGenerationRequest`.
+/// Can be sent to a model provider.
+pub struct ImageGenerationRequestBuilder<M, P = Missing>
+where
+    M: ImageGenerationModel,
+{
+    model: M,
+    prompt: P,
+    width: u32,
+    height: u32,
+    additional_params: Option<Value>,
+}
+
+impl<M> ImageGenerationRequestBuilder<M, Missing>
+where
+    M: ImageGenerationModel,
+{
+    pub fn new(model: M) -> Self {
+        Self {
+            model,
+            prompt: Missing,
+            height: 256,
+            width: 256,
+            additional_params: None,
+        }
+    }
+}
+
+impl<M, P> ImageGenerationRequestBuilder<M, P>
+where
+    M: ImageGenerationModel,
+{
+    /// Sets the prompt for the image generation request
+    pub fn prompt(self, prompt: &str) -> ImageGenerationRequestBuilder<M, Provided<String>> {
+        ImageGenerationRequestBuilder {
+            model: self.model,
+            prompt: Provided(prompt.to_string()),
+            width: self.width,
+            height: self.height,
+            additional_params: self.additional_params,
+        }
+    }
+
+    /// The width of the generated image
+    pub fn width(mut self, width: u32) -> Self {
+        self.width = width;
+        self
+    }
+
+    /// The height of the generated image
+    pub fn height(mut self, height: u32) -> Self {
+        self.height = height;
+        self
+    }
+
+    /// Adds additional parameters to the image generation request.
+    pub fn additional_params(mut self, params: Value) -> Self {
+        self.additional_params = Some(params);
+        self
+    }
+}
+
+impl<M> ImageGenerationRequestBuilder<M, Provided<String>>
+where
+    M: ImageGenerationModel,
+{
+    pub fn build(self) -> ImageGenerationRequest {
+        ImageGenerationRequest {
+            prompt: self.prompt.0,
+            width: self.width,
+            height: self.height,
+            additional_params: self.additional_params,
+        }
+    }
+
+    pub async fn send(self) -> Result<ImageGenerationResponse<M::Response>, ImageGenerationError> {
+        let model = self.model.clone();
+
+        model.image_generation(self.build()).await
+    }
+}
+
+#[cfg(test)]
+mod provider_response_tests {
+    use super::*;
+    use crate::{http_client, provider_response};
+    use http::StatusCode;
+
+    #[test]
+    fn image_generation_error_provider_response_helpers_with_preserved_json_body() {
+        let body = r#"{"error":{"message":"content policy"}}"#;
+        let error = ImageGenerationError::ProviderResponse(
+            provider_response::ProviderResponseError::without_status(body.to_string()),
+        );
+
+        assert_eq!(error.provider_response_body(), Some(body));
+        assert_eq!(error.provider_response_status(), None);
+        assert_eq!(
+            error.provider_response_json().expect("valid JSON"),
+            Some(serde_json::json!({ "error": { "message": "content policy" } }))
+        );
+    }
+
+    #[test]
+    fn image_generation_error_provider_response_helpers_with_http_non_success() {
+        let body = r#"{"error":{"message":"bad request"}}"#;
+        let error =
+            ImageGenerationError::HttpError(http_client::Error::InvalidStatusCodeWithMessage(
+                StatusCode::BAD_REQUEST,
+                body.to_string(),
+            ));
+
+        assert_eq!(error.provider_response_body(), Some(body));
+        assert_eq!(
+            error.provider_response_status(),
+            Some(StatusCode::BAD_REQUEST)
+        );
+        assert_eq!(
+            error.provider_response_json().expect("valid JSON"),
+            Some(serde_json::json!({ "error": { "message": "bad request" } }))
+        );
+    }
+
+    #[test]
+    fn image_generation_error_provider_error_is_not_a_provider_response() {
+        let error = ImageGenerationError::ProviderError("internal diagnostic".to_string());
+
+        assert_eq!(error.provider_response_body(), None);
+        assert_eq!(error.provider_response_status(), None);
+        assert_eq!(error.provider_response_json().expect("no body"), None);
+    }
+
+    #[test]
+    fn image_generation_error_provider_response_helpers_with_unrelated_variant() {
+        let error = ImageGenerationError::ResponseError("parse failed".to_string());
+
+        assert_eq!(error.provider_response_body(), None);
+        assert_eq!(error.provider_response_status(), None);
+        assert_eq!(error.provider_response_json().expect("no body"), None);
+    }
+}
