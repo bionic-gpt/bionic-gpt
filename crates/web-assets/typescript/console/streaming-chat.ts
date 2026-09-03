@@ -29,7 +29,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
         stopButton.addEventListener('click', stopListener);
     }
 
-    // Submit the existing form to trigger redirect/reset after streaming ends.
+    // Submit the existing form only after the backend confirms a completed stream.
     // Stream persistence is handled by the backend.
     const finalizeUiState = () => {
         element.setAttribute('aria-busy', 'false');
@@ -44,16 +44,42 @@ async function streamResult(chatId: string, element: HTMLElement) {
         }
     };
 
-    const res = await fetch(`/completions/${chatId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        signal,
-    });
+    const showError = (message: string) => {
+        element.replaceChildren();
+        element.setAttribute('aria-busy', 'false');
+        const error = document.createElement('p');
+        error.className = 'text-error whitespace-pre-wrap break-words';
+        error.textContent = message;
+        element.appendChild(error);
+    };
+
+    let res: Response;
+    try {
+        res = await fetch(`/completions/${chatId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            signal,
+        });
+    } catch (error) {
+        if (signal.aborted) {
+            showError('Generation stopped.');
+        } else {
+            console.error('Streaming request failed', error);
+            showError(`Streaming failed: ${String(error)}`);
+        }
+        return;
+    }
+
+    if (!res.ok) {
+        const message = await res.text().catch(() => '');
+        showError(message || `Streaming failed with HTTP ${res.status}.`);
+        return;
+    }
 
     if (!res.body) {
-        console.error('No response body');
+        showError('Streaming failed: the server returned no response body.');
         return;
     }
 
@@ -104,8 +130,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
 
             if (json.type === 'error') {
                 const message = String(json?.data?.message ?? 'Unknown streaming error');
-                appendText(`\n\n${message}`);
-                finalizeUiState();
+                showError(message);
                 return true;
             }
         } catch (_e) {
@@ -135,11 +160,10 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 }
             }
         }
-        finalizeUiState();
+        showError('Streaming ended before the response was completed.');
     } catch (err) {
         console.error('Streaming failed', err);
-        appendText(`\n\n${String(err)}`);
-        finalizeUiState();
+        showError(signal.aborted ? 'Generation stopped.' : `Streaming failed: ${String(err)}`);
     }
 
 }

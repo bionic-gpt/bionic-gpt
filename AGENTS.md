@@ -12,6 +12,8 @@ marketing and course site is generated with Rust and `ssg_whiz`.
 - `static-sites`: marketing, documentation, course content, and static assets.
 - `integration-testing`: k3d, Selenium, and end-to-end tests.
 - `development`: persistent local development, watchers, compilation feedback, and service diagnosis.
+- `local-deployment`: explicitly requested deployment of the local web application into k3d.
+- `k3d-environment`: explicitly requested creation or setup of the local k3d environment.
 
 Use the relevant skill before changing code in that area. A task may require
 more than one skill. Use `development` for compiling, running, validating, or
