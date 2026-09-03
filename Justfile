@@ -3,23 +3,6 @@ set dotenv-load := true
 list:
     just --list
 
-dev-init:
-    k3d cluster delete k3d-bionic
-    # 30000: nginx (bionic)
-    # 30001: postgres (bionic)
-    # 30002: selenium webdriver
-    # 30003: selenium vnc
-    # 30004: mailhog web
-    # 30005: postgres (selenium)
-    # 30006: nginx (selenium) So tests can call the api.
-    k3d cluster create k3d-bionic --agents 1 -p "30000-30006:30000-30006@agent:0"
-    just get-config
-
-dev-setup:
-    stack init --install-keycloak
-    stack deploy --manifest infra-as-code/stack.yaml --profile dev
-    stack deploy --manifest infra-as-code/stack-selenium.yaml
-
 ci:
     cargo run --bin dagger-pipeline -- pull-request
 
@@ -31,16 +14,6 @@ codex:
     sudo chmod u-s /usr/bin/bwrap
     sudo chown -R vscode:vscode /home/vscode/.codex
     sudo npm install -g @openai/codex
-
-# Retrieve the cluster kube config - so kubectl and k9s work.
-get-config:
-    sudo apt-get update -qq && sudo apt-get install -y -qq iproute2
-    k3d kubeconfig write k3d-bionic --kubeconfig-merge-default
-    sed -i "s/127\.0\.0\.1/$(ip route | awk '/default/ {print $3}')/g; s/0\.0\.0\.0/$(ip route | awk '/default/ {print $3}')/g" "$HOME/.kube/config"
-    # Disable TLS verification for local dev
-    sed -i '/certificate-authority-data/d' "$HOME/.kube/config"
-    sed -i '/cluster:/a \ \ \ \ insecure-skip-tls-verify: true' "$HOME/.kube/config"
-    echo "✅ kubeconfig updated and TLS verification disabled"
 
 # If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
 wa:
