@@ -344,6 +344,9 @@ pub(crate) async fn stream_chat_with_rig(
     tracing::debug!(
         provider = ?request.provider_type,
         model = %request.model_name,
+        base_url = %request.base_url,
+        tool_count = request.completion.tools.len(),
+        stream = true,
         "Starting model stream"
     );
     let api_key = request.api_key.as_deref().unwrap_or("");
@@ -409,11 +412,18 @@ async fn consume_rig_stream(
     let mut tool_call_delta_count = 0;
     let mut final_event_received = false;
     let mut unknown_event_count = 0;
+    let mut event_count = 0;
 
     while let Some(item) = stream.next().await {
+        event_count += 1;
         match item {
             Ok(StreamedAssistantContent::Text(text)) => {
                 text_event_count += 1;
+                tracing::debug!(
+                    event = event_count,
+                    delta_length = text.text.len(),
+                    "Rig stream text event"
+                );
                 snapshot.push_str(&text.text);
                 if sender
                     .send(Ok(GenerationEvent::Text {
@@ -439,15 +449,23 @@ async fn consume_rig_stream(
                 }
             }
             Ok(StreamedAssistantContent::ToolCall { tool_call, .. }) => {
+                tracing::debug!(
+                    event = event_count,
+                    tool_name = %tool_call.function.name,
+                    tool_id = %tool_call.id,
+                    "Rig stream complete tool-call event"
+                );
                 tool_calls.push(tool_call);
             }
             Ok(StreamedAssistantContent::ToolCallDelta { .. }) => {
                 tool_call_delta_count += 1;
+                tracing::debug!(event = event_count, "Rig stream tool-call delta event");
             }
             Ok(StreamedAssistantContent::Reasoning {
                 reasoning: reasoning_item,
                 ..
             }) => {
+                tracing::debug!(event = event_count, "Rig stream reasoning event");
                 push_reasoning(&mut reasoning, reasoning_item);
             }
             Ok(StreamedAssistantContent::ReasoningDelta {
@@ -455,18 +473,40 @@ async fn consume_rig_stream(
                 reasoning: delta,
                 ..
             }) => {
+                tracing::debug!(
+                    event = event_count,
+                    delta_length = delta.len(),
+                    "Rig stream reasoning delta event"
+                );
                 push_reasoning_delta(&mut reasoning, Some(id), delta);
             }
             Ok(StreamedAssistantContent::Unknown(_)) => {
                 unknown_event_count += 1;
+                tracing::debug!(event = event_count, "Rig stream unknown event");
             }
             Ok(StreamedAssistantContent::Final(final_response)) => {
                 final_event_received = true;
+                tracing::debug!(event = event_count, "Rig stream final event");
                 usage = Some(final_response.usage);
             }
-            Err(err) => return Err(Box::new(err)),
+            Err(err) => {
+                tracing::error!(event = event_count, error = %err, "Rig stream item failed");
+                return Err(Box::new(err));
+            }
         }
     }
+
+    tracing::debug!(
+        event_count,
+        text_event_count,
+        text_length = snapshot.len(),
+        tool_call_count = tool_calls.len(),
+        tool_call_delta_count,
+        reasoning_count = reasoning.len(),
+        final_event_received,
+        unknown_event_count,
+        "Rig model stream ended"
+    );
 
     let tool_calls_for_end = if tool_calls.is_empty() {
         None

@@ -187,6 +187,27 @@ async fn successful_chat_completion() -> Response<Body> {
         .unwrap()
 }
 
+async fn openrouter_tool_call_completion() -> Response<Body> {
+    let body = concat!(
+        "data: {\"id\":\"response-1\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[",
+        "{\"index\":0,\"delta\":{\"content\":null,\"role\":\"assistant\",\"reasoning\":\"I will inspect the skill.\"},\"finish_reason\":null}],\"usage\":null}\n\n",
+        "data: {\"id\":\"response-1\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[",
+        "{\"index\":0,\"delta\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"index\":0,\"id\":\"chatcmpl-tool-39706377994f418d8430f1c34d58a2a0\",\"type\":\"function\",\"function\":{\"name\":\"run_bash\",\"arguments\":\"\"}}]},\"finish_reason\":null}],\"usage\":null}\n\n",
+        "data: {\"id\":\"response-1\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[",
+        "{\"index\":0,\"delta\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"{\\\"commands\\\":\\\"cat /home/user/skills/document-coauthoring/SKILL.md\\\"}\"}}]},\"finish_reason\":null}],\"usage\":null}\n\n",
+        "data: {\"id\":\"response-1\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[",
+        "{\"index\":0,\"delta\":{\"content\":\"\",\"role\":\"assistant\",\"reasoning\":null},\"finish_reason\":\"tool_calls\"}],\"usage\":null}\n\n",
+        "data: {\"id\":\"response-1\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[],\"usage\":{\"prompt_tokens\":12988,\"completion_tokens\":536,\"total_tokens\":13524}}\n\n",
+        "data: [DONE]\n\n"
+    );
+
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "text/event-stream")
+        .body(Body::from(body))
+        .unwrap()
+}
+
 async fn successful_ollama_completion() -> Response<Body> {
     let body = concat!(
         "{\"model\":\"test-model\",\"created_at\":\"2026-08-26T00:00:00Z\",\"message\":{\"role\":\"assistant\",\"content\":\"Hello\"},\"done\":false}\n",
@@ -230,6 +251,52 @@ async fn rig_stream_uses_chat_completions_for_tool_enabled_requests() {
     )
     .await;
     assert_successful_stream(tool_enabled_request(base_url)).await;
+}
+
+#[tokio::test]
+async fn rig_stream_assembles_openrouter_tool_call_fragments() {
+    let base_url = start_mock_provider(Router::new().route(
+        "/v1/chat/completions",
+        post(openrouter_tool_call_completion),
+    ))
+    .await;
+    let (sender, mut receiver) = mpsc::channel(8);
+
+    stream_chat_with_rig(tool_enabled_request(base_url), sender)
+        .await
+        .expect("OpenRouter tool-call stream should succeed");
+
+    let mut saw_end = false;
+    while let Some(event) = receiver.recv().await {
+        match event.expect("generation event should succeed") {
+            GenerationEvent::Text { .. } => panic!("tool-call stream should not emit text"),
+            GenerationEvent::End {
+                tool_calls: Some(tool_calls),
+                reasoning,
+                ..
+            } => {
+                assert_eq!(tool_calls.len(), 1);
+                assert_eq!(
+                    tool_calls[0].id.to_string(),
+                    "chatcmpl-tool-39706377994f418d8430f1c34d58a2a0"
+                );
+                assert_eq!(tool_calls[0].function.name, "run_bash");
+                assert_eq!(
+                    tool_calls[0].function.arguments,
+                    json!({"commands": "cat /home/user/skills/document-coauthoring/SKILL.md"})
+                );
+                assert!(reasoning.is_some());
+                saw_end = true;
+            }
+            GenerationEvent::End {
+                tool_calls: None, ..
+            } => {
+                panic!("tool-call stream ended without a tool call")
+            }
+        }
+    }
+
+    assert!(saw_end);
 }
 
 #[tokio::test]
