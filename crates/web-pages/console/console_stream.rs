@@ -263,9 +263,14 @@ fn build_tool_call_index(chat_history: &[ChatWithChunks]) -> HashMap<String, Too
 
         if let Some(tool_calls_json) = &chat_with_chunks.chat.tool_calls {
             for tool_call in parse_tool_calls(Some(tool_calls_json)) {
-                index.insert(tool_call.id.clone(), tool_call.clone());
-                if let Some(call_id) = tool_call.call_id.clone() {
-                    index.insert(call_id, tool_call);
+                index.insert(tool_call.id.to_string(), tool_call.clone());
+                if let Some(provider) = tool_call.provider.clone() {
+                    let provider_call_id = provider.call_id;
+                    let provider_item_id = provider.item_id;
+                    index.insert(provider_call_id, tool_call.clone());
+                    if let Some(provider_item_id) = provider_item_id {
+                        index.insert(provider_item_id, tool_call);
+                    }
                 }
             }
         }
@@ -314,16 +319,11 @@ mod tests {
 
     #[test]
     fn build_tool_call_index_indexes_id_and_call_id() {
-        let tool_call = ToolCall {
-            id: "provider_item_id".to_string(),
-            call_id: Some("provider_call_id".to_string()),
-            signature: None,
-            additional_params: None,
-            function: ToolCallFunction {
-                name: "run_bash".to_string(),
-                arguments: json!({"query": "bitcoin price"}),
-            },
-        };
+        let tool_call = ToolCall::from_dual_wire(
+            "provider_item_id",
+            "provider_call_id",
+            ToolCallFunction::new("run_bash".to_string(), json!({"query": "bitcoin price"})),
+        );
         let history = vec![chat_with_tool_calls(vec![tool_call])];
 
         let index = build_tool_call_index(&history);
@@ -342,16 +342,13 @@ mod tests {
     fn groups_assistant_activity_and_response_under_the_user_turn() {
         let user = chat(1, ChatRole::User, Some("Find the record"));
         let mut assistant_call = chat(2, ChatRole::Assistant, None);
-        assistant_call.chat.tool_calls = serde_json::to_string(&vec![ToolCall {
-            id: "call-1".to_string(),
-            call_id: None,
-            signature: None,
-            additional_params: None,
-            function: ToolCallFunction {
-                name: "run_bash".to_string(),
-                arguments: json!({"commands": "sqlite3 customers.db '.tables'"}),
-            },
-        }])
+        assistant_call.chat.tool_calls = serde_json::to_string(&vec![ToolCall::from_wire(
+            "call-1",
+            ToolCallFunction::new(
+                "run_bash".to_string(),
+                json!({"commands": "sqlite3 customers.db '.tables'"}),
+            ),
+        )])
         .ok();
         let mut tool = chat(3, ChatRole::Tool, Some(r#"{"stdout":"customers"}"#));
         tool.chat.tool_call_id = Some("call-1".to_string());
@@ -392,16 +389,10 @@ mod tests {
     fn pending_tools_join_the_current_turn_as_one_activity_group() {
         let user = chat(1, ChatRole::User, Some("Inspect the data"));
         let mut assistant_call = chat(2, ChatRole::Assistant, None);
-        assistant_call.chat.tool_calls = serde_json::to_string(&vec![ToolCall {
-            id: "call-1".to_string(),
-            call_id: None,
-            signature: None,
-            additional_params: None,
-            function: ToolCallFunction {
-                name: "run_bash".to_string(),
-                arguments: json!({"commands": "ls"}),
-            },
-        }])
+        assistant_call.chat.tool_calls = serde_json::to_string(&vec![ToolCall::from_wire(
+            "call-1",
+            ToolCallFunction::new("run_bash".to_string(), json!({"commands": "ls"})),
+        )])
         .ok();
         let mut pending_tool = chat(3, ChatRole::Tool, None).chat;
         pending_tool.status = ChatStatus::Pending;

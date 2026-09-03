@@ -32,7 +32,7 @@ async fn main() {
         .unwrap_or(tracing::Level::INFO);
 
     // Create a filter that only enables your crates and disables others
-    let filter = tracing_subscriber::EnvFilter::new("")
+    let mut filter = tracing_subscriber::EnvFilter::new("")
         // Disable all crates by default
         .add_directive(tracing_subscriber::filter::LevelFilter::OFF.into())
         // Enable your crates with the specified log level
@@ -43,6 +43,12 @@ async fn main() {
         .add_directive(format!("tool_runtime={}", log_level).parse().unwrap())
         // Add more of your crates as needed
         ;
+
+    if let Ok(rig_log) = std::env::var("RIG_LOG") {
+        for directive in parse_rig_log_directives(&rig_log) {
+            filter = filter.add_directive(directive);
+        }
+    }
 
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
@@ -122,4 +128,41 @@ async fn main() {
     axum::serve(listener, app.into_make_service())
         .await
         .unwrap();
+}
+
+fn parse_rig_log_directives(
+    value: &str,
+) -> impl Iterator<Item = tracing_subscriber::filter::Directive> + '_ {
+    value
+        .split(',')
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .filter_map(|directive| match directive.parse() {
+            Ok(directive) => Some(directive),
+            Err(error) => {
+                eprintln!("Invalid RIG_LOG directive {directive:?}: {error}");
+                None
+            }
+        })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_rig_log_directives;
+
+    #[test]
+    fn parses_valid_rig_log_directives_and_skips_invalid_values() {
+        assert_eq!(
+            parse_rig_log_directives(
+                "rig::completions=trace,rig::streaming=bogus,rig::streaming=trace"
+            )
+            .count(),
+            2
+        );
+    }
+
+    #[test]
+    fn empty_rig_log_produces_no_directives() {
+        assert_eq!(parse_rig_log_directives("  , ").count(), 0);
+    }
 }

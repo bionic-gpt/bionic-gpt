@@ -4,11 +4,11 @@
 //! extracting tool definitions and handling parameter parsing.
 
 use crate::types::ToolDefinition;
+use crate::ToolDyn;
 use oas3::{
     self,
     spec::{Operation, RequestBody, SecurityScheme},
 };
-use rig::tool::ToolDyn;
 use serde_json::{json, Value};
 use std::sync::Arc;
 

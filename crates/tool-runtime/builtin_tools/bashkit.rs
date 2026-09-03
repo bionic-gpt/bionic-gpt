@@ -1,5 +1,6 @@
 use crate::skills;
 use crate::types::ToolDefinition;
+use crate::{ToolDyn, ToolError};
 use bashkit::{
     async_trait, Bash, Builtin, BuiltinContext, ExecResult, ExecutionLimits, FileSystem, FileType,
     InMemoryFs, PythonLimits, SqliteLimits,
@@ -9,7 +10,6 @@ use object_storage::StorageConfig;
 use rig::client::EmbeddingsClient;
 use rig::embeddings::EmbeddingModel;
 use rig::providers::{ollama, openai};
-use rig::tool::{ToolDyn, ToolError};
 use rig::wasm_compat::WasmBoxedFuture;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};

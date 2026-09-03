@@ -188,6 +188,13 @@ pub mod console {
         pub team_id: String,
         pub id: i32,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/generated_outputs/{id}/download")]
+    pub struct GeneratedOutputDownload {
+        pub team_id: String,
+        pub id: i32,
+    }
 }
 
 pub mod models {

@@ -11,7 +11,6 @@ use axum::routing::post;
 use axum::Router;
 use db::ChatStatus;
 use rig::completion::{CompletionRequest, Message};
-use rig::OneOrMany;
 use serde_json::json;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener;
@@ -50,16 +49,10 @@ async fn event_stream_saves_on_end_with_tool_calls() {
     let result_sink_dyn: Arc<dyn ResultSink> = result_sink.clone();
     let sub = Arc::new("user-1".to_string());
 
-    let tool_calls = vec![ToolCall {
-        id: "call_1".to_string(),
-        call_id: None,
-        signature: None,
-        additional_params: None,
-        function: ToolCallFunction {
-            name: "do_thing".to_string(),
-            arguments: json!({}),
-        },
-    }];
+    let tool_calls = vec![ToolCall::new(
+        rig::message::ToolCallId::new_or_mint("call_1"),
+        ToolCallFunction::new("do_thing".to_string(), json!({})),
+    )];
 
     let input = tokio_stream::iter(vec![
         Ok(GenerationEvent::Text {
@@ -142,7 +135,7 @@ fn provider_request(provider_type: db::ModelProvider, base_url: String) -> RigCh
         completion: CompletionRequest {
             model: None,
             preamble: None,
-            chat_history: OneOrMany::one(Message::user("Say hi")),
+            chat_history: vec![Message::user("Say hi")],
             documents: vec![],
             tools: vec![ToolDefinition {
                 name: "run_bash".to_string(),
@@ -160,6 +153,7 @@ fn provider_request(provider_type: db::ModelProvider, base_url: String) -> RigCh
             tool_choice: None,
             additional_params: None,
             output_schema: None,
+            record_telemetry_content: false,
         },
         model_id: 1,
         user_id: 1,
@@ -183,6 +177,27 @@ async fn successful_chat_completion() -> Response<Body> {
         "data: {\"id\":\"response-1\",\"model\":\"test-model\",\"choices\":[",
         "{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}",
         "],\"usage\":null}\n\n",
+        "data: [DONE]\n\n"
+    );
+
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "text/event-stream")
+        .body(Body::from(body))
+        .unwrap()
+}
+
+async fn openrouter_tool_call_completion() -> Response<Body> {
+    let body = concat!(
+        "data: {\"id\":\"response-1\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[",
+        "{\"index\":0,\"delta\":{\"content\":null,\"role\":\"assistant\",\"reasoning\":\"I will inspect the skill.\"},\"finish_reason\":null}],\"usage\":null}\n\n",
+        "data: {\"id\":\"response-1\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[",
+        "{\"index\":0,\"delta\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"index\":0,\"id\":\"chatcmpl-tool-39706377994f418d8430f1c34d58a2a0\",\"type\":\"function\",\"function\":{\"name\":\"run_bash\",\"arguments\":\"\"}}]},\"finish_reason\":null}],\"usage\":null}\n\n",
+        "data: {\"id\":\"response-1\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[",
+        "{\"index\":0,\"delta\":{\"content\":null,\"role\":\"assistant\",\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"{\\\"commands\\\":\\\"cat /home/user/skills/document-coauthoring/SKILL.md\\\"}\"}}]},\"finish_reason\":null}],\"usage\":null}\n\n",
+        "data: {\"id\":\"response-1\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[",
+        "{\"index\":0,\"delta\":{\"content\":\"\",\"role\":\"assistant\",\"reasoning\":null},\"finish_reason\":\"tool_calls\"}],\"usage\":null}\n\n",
+        "data: {\"id\":\"response-1\",\"model\":\"openai/gpt-oss-20b\",\"choices\":[],\"usage\":{\"prompt_tokens\":12988,\"completion_tokens\":536,\"total_tokens\":13524}}\n\n",
         "data: [DONE]\n\n"
     );
 
@@ -236,6 +251,52 @@ async fn rig_stream_uses_chat_completions_for_tool_enabled_requests() {
     )
     .await;
     assert_successful_stream(tool_enabled_request(base_url)).await;
+}
+
+#[tokio::test]
+async fn rig_stream_assembles_openrouter_tool_call_fragments() {
+    let base_url = start_mock_provider(Router::new().route(
+        "/v1/chat/completions",
+        post(openrouter_tool_call_completion),
+    ))
+    .await;
+    let (sender, mut receiver) = mpsc::channel(8);
+
+    stream_chat_with_rig(tool_enabled_request(base_url), sender)
+        .await
+        .expect("OpenRouter tool-call stream should succeed");
+
+    let mut saw_end = false;
+    while let Some(event) = receiver.recv().await {
+        match event.expect("generation event should succeed") {
+            GenerationEvent::Text { .. } => panic!("tool-call stream should not emit text"),
+            GenerationEvent::End {
+                tool_calls: Some(tool_calls),
+                reasoning,
+                ..
+            } => {
+                assert_eq!(tool_calls.len(), 1);
+                assert_eq!(
+                    tool_calls[0].id.to_string(),
+                    "chatcmpl-tool-39706377994f418d8430f1c34d58a2a0"
+                );
+                assert_eq!(tool_calls[0].function.name, "run_bash");
+                assert_eq!(
+                    tool_calls[0].function.arguments,
+                    json!({"commands": "cat /home/user/skills/document-coauthoring/SKILL.md"})
+                );
+                assert!(reasoning.is_some());
+                saw_end = true;
+            }
+            GenerationEvent::End {
+                tool_calls: None, ..
+            } => {
+                panic!("tool-call stream ended without a tool call")
+            }
+        }
+    }
+
+    assert!(saw_end);
 }
 
 #[tokio::test]

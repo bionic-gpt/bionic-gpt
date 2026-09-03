@@ -5,7 +5,6 @@ use crate::moderation::{moderate_chat, strip_tool_data, ModerationVerdict};
 use crate::user_config::UserConfig;
 use db::{queries, ChatRole, ChatStatus, Pool};
 use rig::completion::{CompletionRequest, Message as RigMessage};
-use rig::OneOrMany;
 use tool_runtime::{get_chat_tool_definitions, ToolDefinition};
 
 pub(crate) struct RigChatRequest {
@@ -174,8 +173,11 @@ pub(crate) async fn create_request(
     let completion = CompletionRequest {
         model: None,
         preamble: None,
-        chat_history: OneOrMany::many(messages)
-            .unwrap_or_else(|_| OneOrMany::one(RigMessage::user(""))),
+        chat_history: if messages.is_empty() {
+            vec![RigMessage::user("")]
+        } else {
+            messages
+        },
         documents: vec![],
         tools: tools.unwrap_or_default(),
         temperature: prompt.temperature.map(|t| t as f64),
@@ -183,6 +185,7 @@ pub(crate) async fn create_request(
         tool_choice: None,
         additional_params: None,
         output_schema: None,
+        record_telemetry_content: false,
     };
 
     Ok(RigChatRequest {

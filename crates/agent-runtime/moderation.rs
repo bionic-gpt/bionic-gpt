@@ -21,8 +21,11 @@ pub fn strip_tool_data(messages: &[Message]) -> Vec<Message> {
                     None
                 } else {
                     Some(Message::User {
-                        content: rig::OneOrMany::many(kept)
-                            .unwrap_or_else(|_| rig::OneOrMany::one(UserContent::text(""))),
+                        content: if kept.is_empty() {
+                            vec![UserContent::text("")]
+                        } else {
+                            kept
+                        },
                     })
                 }
             }
@@ -38,8 +41,11 @@ pub fn strip_tool_data(messages: &[Message]) -> Vec<Message> {
                 } else {
                     Some(Message::Assistant {
                         id,
-                        content: rig::OneOrMany::many(kept)
-                            .unwrap_or_else(|_| rig::OneOrMany::one(AssistantContent::text(""))),
+                        content: if kept.is_empty() {
+                            vec![AssistantContent::text("")]
+                        } else {
+                            kept
+                        },
                     })
                 }
             }

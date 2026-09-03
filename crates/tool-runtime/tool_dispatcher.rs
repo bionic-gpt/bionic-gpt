@@ -1,8 +1,7 @@
 use crate::builtin_tools;
 use crate::types::{ToolCall, ToolResult, ToolResultContent};
+use crate::ToolDyn;
 use db::Pool;
-use rig::tool::ToolDyn;
-use rig::OneOrMany;
 use serde_json::{json, Value};
 use std::sync::Arc;
 use tracing::{debug, error, info, trace, warn};
@@ -83,9 +82,10 @@ pub async fn execute_tool_call_with_tools(
         if let Ok(result) = result {
             debug!("Tool execution successful");
             return ToolResult {
-                id: tool_call.id.clone(),
-                call_id: tool_call.call_id.clone(),
-                content: OneOrMany::one(ToolResultContent::text(result)),
+                call: tool_call.id.clone(),
+                provider: tool_call.provider.clone(),
+                name: tool_name.clone(),
+                content: vec![ToolResultContent::text(result)],
             };
         } else if let Err(e) = result {
             error!("Tool execution failed: {}", e);
@@ -101,9 +101,10 @@ pub async fn execute_tool_call_with_tools(
 fn to_error_result(tool_call: &ToolCall, error: Value) -> ToolResult {
     debug!("Returning error result for tool call");
     ToolResult {
-        id: tool_call.id.clone(),
-        call_id: tool_call.call_id.clone(),
-        content: OneOrMany::one(ToolResultContent::text(error.to_string())),
+        call: tool_call.id.clone(),
+        provider: tool_call.provider.clone(),
+        name: tool_call.function.name.clone(),
+        content: vec![ToolResultContent::text(error.to_string())],
     }
 }
 
@@ -112,7 +113,7 @@ mod tests {
     use super::*;
     use crate::builtin_tools::time_date::TimeDateTool;
     use crate::types::{ToolCall, ToolCallFunction};
-    use rig::tool::ToolDyn;
+    use crate::ToolDyn;
     use serde_json::json;
 
     #[tokio::test]
@@ -120,22 +121,21 @@ mod tests {
         let time_date_tool: Arc<dyn ToolDyn> = Arc::new(TimeDateTool);
         let tools: Vec<Arc<dyn ToolDyn>> = vec![time_date_tool];
 
-        let tool_call = ToolCall {
-            id: "call_123".to_string(),
-            call_id: None,
-            signature: None,
-            additional_params: None,
-            function: ToolCallFunction {
-                name: "get_current_time_and_date".to_string(),
-                arguments: json!({"timezone": "utc"}),
-            },
-        };
+        let tool_call = ToolCall::new(
+            rig::message::ToolCallId::new_or_mint("call_123"),
+            ToolCallFunction::new(
+                "get_current_time_and_date".to_string(),
+                json!({"timezone": "utc"}),
+            ),
+        );
 
         let result = execute_tool_call_with_tools(&tools, &tool_call).await;
-        assert_eq!(result.id, "call_123".to_string());
+        assert_eq!(result.call.to_string(), "call_123");
         let payload = match result.content.first() {
-            ToolResultContent::Text(text) => text.text,
-            ToolResultContent::Image(_) => String::new(),
+            Some(ToolResultContent::Text(text)) => text.text.clone(),
+            Some(ToolResultContent::Image(_)) => String::new(),
+            Some(ToolResultContent::Json { value }) => value.to_string(),
+            None => String::new(),
         };
         let parsed: Value = serde_json::from_str(&payload).unwrap_or_default();
         assert_eq!(parsed["timezone"], "utc");

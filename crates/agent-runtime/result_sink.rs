@@ -172,13 +172,10 @@ async fn save_results_db(pool: &Pool, request: SaveRequest<'_>) {
                 .await;
 
                 for tool_call in tool_call_results {
-                    let stored_tool_call_id = tool_call
-                        .call_id
-                        .clone()
-                        .unwrap_or_else(|| tool_call.id.clone());
+                    let stored_tool_call_id = tool_call.call.to_string();
                     let result_json = match tool_call.content.first() {
-                        ToolResultContent::Text(text) => text.text,
-                        ToolResultContent::Image(image) => {
+                        Some(ToolResultContent::Text(text)) => text.text.clone(),
+                        Some(ToolResultContent::Image(image)) => {
                             match serde_json::to_string(&serde_json::json!({ "image": image })) {
                                 Ok(json) => json,
                                 Err(e) => {
@@ -190,6 +187,8 @@ async fn save_results_db(pool: &Pool, request: SaveRequest<'_>) {
                                 }
                             }
                         }
+                        Some(ToolResultContent::Json { value }) => value.to_string(),
+                        None => String::new(),
                     };
                     if let Err(e) = queries::chats::new_chat()
                         .bind(

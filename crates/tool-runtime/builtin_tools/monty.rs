@@ -1,8 +1,8 @@
+use crate::{ToolDyn, ToolError};
 use base64::Engine;
 use bashkit::{
     ExcType, ExtFunctionResult, FileSystem, MontyException, MontyObject, PythonExternalFnHandler,
 };
-use rig::tool::{ToolDyn, ToolError};
 use serde_json::{json, Map, Value};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
