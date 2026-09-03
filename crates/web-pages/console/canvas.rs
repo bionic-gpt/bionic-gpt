@@ -40,6 +40,14 @@ fn canvas_title(path: &str) -> String {
         .replace(['-', '_'], " ")
 }
 
+fn generated_output_download_url(team_id: &str, id: i32) -> String {
+    crate::routes::console::GeneratedOutputDownload {
+        team_id: team_id.to_string(),
+        id,
+    }
+    .to_string()
+}
+
 #[component]
 pub fn CanvasOutput(team_id: String, output: GeneratedOutputPayload) -> Element {
     let title = canvas_title(&output.path);
@@ -67,7 +75,7 @@ pub fn CanvasOutput(team_id: String, output: GeneratedOutputPayload) -> Element 
 }
 
 #[component]
-pub fn GeneratedFiles(outputs: Vec<GeneratedOutputPayload>) -> Element {
+pub fn GeneratedFiles(team_id: String, outputs: Vec<GeneratedOutputPayload>) -> Element {
     let files = outputs
         .into_iter()
         .filter(|output| !is_canvas_output(output))
@@ -98,6 +106,12 @@ pub fn GeneratedFiles(outputs: Vec<GeneratedOutputPayload>) -> Element {
                             span {
                                 class: "text-xs text-base-content/60",
                                 "{output.mime_type} - {output.size} bytes"
+                            }
+                            a {
+                                class: "btn btn-xs btn-outline ml-auto",
+                                href: "{generated_output_download_url(&team_id, output.id)}",
+                                download: "{output.file_name}",
+                                "Download"
                             }
                         }
                     }

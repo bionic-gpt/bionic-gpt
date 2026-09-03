@@ -222,6 +222,7 @@ pub fn AssistantActivity(
                 }
             }
             GeneratedFiles {
+                team_id: team_id.clone(),
                 outputs: generated_outputs
             }
         }

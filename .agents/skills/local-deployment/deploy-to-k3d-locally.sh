@@ -10,6 +10,7 @@ expected_context="k3d-k3d-bionic"
 namespace="bionic-gpt"
 deployment="bionic-gpt"
 stackapp="bionic-gpt"
+rig_log="rig::completions=trace,rig::streaming=trace"
 
 actual_context=$(kubectl config current-context)
 
@@ -101,6 +102,10 @@ if [ "${deployed_image:-}" != "$image" ]; then
     exit 1
 fi
 
+kubectl set env "deployment/$deployment" \
+    --namespace "$namespace" \
+    "RIG_LOG=$rig_log"
+
 if ! kubectl rollout status "deployment/$deployment" \
     --namespace "$namespace" \
     --timeout=180s
@@ -118,4 +123,5 @@ fi
 
 echo
 echo "Successfully deployed $image"
+echo "Rig request and stream tracing enabled"
 echo "Application: http://localhost:30000"

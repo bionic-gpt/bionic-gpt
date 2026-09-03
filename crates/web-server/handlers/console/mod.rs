@@ -1,6 +1,7 @@
 mod conversation;
 mod delete;
 mod generated_output_canvas;
+mod generated_output_download;
 mod index;
 mod send_message;
 mod set_default_prompt;
@@ -15,6 +16,7 @@ pub fn routes() -> Router {
     Router::new()
         .typed_get(conversation::conversation)
         .typed_get(generated_output_canvas::generated_output_canvas)
+        .typed_get(generated_output_download::generated_output_download)
         .typed_get(index::index)
         .typed_post(send_message::send_message)
         .typed_post(update_response::update_response)
