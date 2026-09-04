@@ -20,7 +20,8 @@ deploy them together, for example `web cli-gateway`; omitting names deploys
 `k3d-bionic`, patches that service, and waits for its rollout. Web assets and
 the CLI gateway's Typst runtime are packaged automatically.
 
-Web deployments enable Rig request and stream tracing through `RIG_LOG`.
+Web deployments enable Bionic debug logging through `LOG_LEVEL` and targeted
+Rig request and stream tracing through `RIG_LOG`.
 
 Prerequisites:
 
@@ -35,6 +36,7 @@ Inspect web traces after deployment with:
 kubectl logs deployment/bionic-gpt --namespace bionic-gpt --tail=200
 ```
 
-Look for the `rig::completions` and `rig::streaming` targets. This setting is
-applied by the local deployment script only and is not added to production
-StackApp manifests.
+Look for `agent_runtime` debug events, outgoing requests under
+`rig::completions`, and incoming SSE frames under `rig::streaming`. These
+settings are applied by the local deployment script only and are not added to
+production StackApp manifests.

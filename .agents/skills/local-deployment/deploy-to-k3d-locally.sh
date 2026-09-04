@@ -6,6 +6,7 @@ expected_context="k3d-k3d-bionic"
 namespace="bionic-gpt"
 stackapp="bionic-gpt"
 rig_log="rig::completions=trace,rig::streaming=trace"
+log_level="DEBUG"
 skill_dir=".agents/skills/local-deployment"
 
 usage() {
@@ -114,6 +115,7 @@ for service in "$@"; do
     if [ "$service" = "web" ]; then
         kubectl set env "deployment/$deployment" \
             --namespace "$namespace" \
+            "LOG_LEVEL=$log_level" \
             "RIG_LOG=$rig_log"
     fi
 
