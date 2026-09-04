@@ -129,7 +129,7 @@ pub fn get_read_file_definition() -> crate::types::ToolDefinition {
 pub fn get_write_file_definition() -> crate::types::ToolDefinition {
     definition(
         "write_file",
-        "Write a file to the virtual filesystem. Files under /home/user/output persist.",
+        "Write a file to the virtual filesystem. Files under /home/user/work and /home/user/output persist; only output files appear in chat.",
         json!({
             "type": "object",
             "properties": {
@@ -356,6 +356,7 @@ mod tests {
     #[test]
     fn paths_are_limited_to_the_virtual_home() {
         assert!(checked_path("/home/user/output/file.txt").is_ok());
+        assert!(checked_path("/home/user/work/file.txt").is_ok());
         assert!(checked_path("/tmp/file.txt").is_err());
         assert!(checked_path("/home/user/../etc/passwd").is_err());
     }

@@ -421,7 +421,7 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
                         .and_then(Value::as_array)
                     else {
                         return ExtFunctionResult::Error(value_error(format!(
-                            "{} must be a list of VFS attachment or output paths",
+                            "{} must be a list of VFS attachment, work, or output paths",
                             mapping.path_parameter
                         )));
                     };
@@ -429,7 +429,7 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
                     for path in paths {
                         let Some(path) = path.as_str() else {
                             return ExtFunctionResult::Error(value_error(format!(
-                                "{} entries must be VFS attachment or output paths",
+                                "{} entries must be VFS attachment, work, or output paths",
                                 mapping.path_parameter
                             )));
                         };
@@ -442,7 +442,7 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
                         .and_then(Value::as_str)
                     else {
                         return ExtFunctionResult::Error(value_error(format!(
-                            "{} must be a VFS attachment or output path",
+                            "{} must be a VFS attachment, work, or output path",
                             mapping.path_parameter
                         )));
                     };
@@ -453,7 +453,7 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
                 for path in paths {
                     if !is_allowed_file_path(&path) {
                         return ExtFunctionResult::Error(value_error(format!(
-                            "{} must refer to /home/user/attachments or /home/user/output",
+                            "{} must refer to /home/user/attachments, /home/user/work, or /home/user/output",
                             mapping.path_parameter
                         )));
                     }
@@ -669,12 +669,12 @@ fn expose_file_parameters(mut parameters: Value) -> (Value, Vec<FileParameterMap
             json!({
                 "type": "array",
                 "items": {"type": "string"},
-                "description": "Paths to documents in /home/user/attachments or /home/user/output."
+                "description": "Paths to documents in /home/user/attachments, /home/user/work, or /home/user/output."
             })
         } else {
             json!({
                 "type": "string",
-                "description": "Path to the document in /home/user/attachments or /home/user/output."
+                "description": "Path to the document in /home/user/attachments, /home/user/work, or /home/user/output."
             })
         };
         properties.insert(path_name.clone(), path_schema);
@@ -700,7 +700,9 @@ fn expose_file_parameters(mut parameters: Value) -> (Value, Vec<FileParameterMap
 }
 
 fn is_allowed_file_path(path: &str) -> bool {
-    path.starts_with("/home/user/attachments/") || path.starts_with("/home/user/output/")
+    path.starts_with("/home/user/attachments/")
+        || path.starts_with("/home/user/work/")
+        || path.starts_with("/home/user/output/")
 }
 
 async fn persist_binary_result(
@@ -1208,8 +1210,9 @@ mod tests {
     }
 
     #[test]
-    fn file_backed_functions_accept_only_attachment_and_output_paths() {
+    fn file_backed_functions_accept_persistent_and_attachment_paths() {
         assert!(is_allowed_file_path("/home/user/attachments/main.typ"));
+        assert!(is_allowed_file_path("/home/user/work/draft/main.typ"));
         assert!(is_allowed_file_path("/home/user/output/draft/main.typ"));
         assert!(!is_allowed_file_path("/home/user/skills/main.typ"));
         assert!(!is_allowed_file_path("/tmp/main.typ"));

@@ -29,6 +29,7 @@ const FUNCTIONS_DIR: &str = "/home/user/functions";
 const DATASETS_DIR: &str = "/home/user/datasets";
 const ATTACHMENTS_DIR: &str = "/home/user/attachments";
 const OUTPUT_DIR: &str = "/home/user/output";
+const WORK_DIR: &str = "/home/user/work";
 const MAX_OUTPUT_FILES: usize = 50;
 const MAX_OUTPUT_FILE_BYTES: u64 = 5 * 1024 * 1024;
 pub(crate) const MAX_FILE_TOOL_BYTES: usize = 2 * 1024 * 1024;
@@ -165,7 +166,7 @@ impl ToolDyn for BashkitTool {
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_bash".to_string(),
-        description: "Run short shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use read_file, write_file, and edit_file for file contents. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read skill instructions, and /home/user/datasets to inspect connected datasets. To use an integration, list /home/user/functions, then cat the relevant .md file; it contains the exact function names, parameters, and usage examples. Use run_python for Python calculations and integration calls. Use /home/user/output for generated files that should persist across tool calls and appear in chat. Use rag-search 'query' and rag-read for indexed dataset content. Bash has no network or host filesystem access.".to_string(),
+        description: "Run short shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use read_file, write_file, and edit_file for file contents. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read skill instructions, and /home/user/datasets to inspect connected datasets. To use an integration, list /home/user/functions, then cat the relevant .md file; it contains the exact function names, parameters, and usage examples. Use run_python for Python calculations and integration calls. Use /home/user/work for persistent intermediate files that should not appear in chat, and /home/user/output for generated files that should persist and appear in chat. Use rag-search 'query' and rag-read for indexed dataset content. Bash has no network or host filesystem access.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -241,6 +242,8 @@ pub fn preview_vfs_tree(
 |                   `-- <chunk_id>.txt\n\
 |-- output                      # persists for this conversation\n\
 |   `-- <generated_file_or_directory>\n\
+|-- work                        # persistent intermediate files\n\
+|   `-- <working_file_or_directory>\n\
 |-- functions                   # callable function catalogues\n",
     );
 
@@ -379,7 +382,7 @@ async fn execute_run_bash(
     )
     .await?;
     seed_attachments(&tool.pool, &tool.sub, tool.conversation_id, &bash).await?;
-    seed_outputs(&tool.pool, &tool.sub, tool.conversation_id, &bash).await?;
+    seed_persistent_files(&tool.pool, &tool.sub, tool.conversation_id, &bash).await?;
 
     let result = tokio::time::timeout(
         Duration::from_millis(timeout),
@@ -444,7 +447,7 @@ pub(crate) async fn seeded_filesystem(
     seed_function_catalogue(&bash, registry.function_catalogue()).await?;
     seed_datasets(pool, sub, model_id, conversation_id, &bash).await?;
     seed_attachments(pool, sub, conversation_id, &bash).await?;
-    seed_outputs(pool, sub, conversation_id, &bash).await?;
+    seed_persistent_files(pool, sub, conversation_id, &bash).await?;
 
     Ok(fs)
 }
@@ -725,7 +728,7 @@ async fn seed_attachments(
     Ok(())
 }
 
-async fn seed_outputs(
+async fn seed_persistent_files(
     pool: &Pool,
     sub: &str,
     conversation_id: i64,
@@ -749,6 +752,9 @@ async fn seed_outputs(
     fs.mkdir(Path::new(OUTPUT_DIR), true).await.map_err(
         |e| json!({"error": "Failed to seed output directory", "details": e.to_string()}),
     )?;
+    fs.mkdir(Path::new(WORK_DIR), true)
+        .await
+        .map_err(|e| json!({"error": "Failed to seed work directory", "details": e.to_string()}))?;
 
     let outputs = queries::generated_outputs::list_by_conversation()
         .bind(&transaction, &conversation_id)
@@ -759,7 +765,7 @@ async fn seed_outputs(
         )?;
 
     for output in outputs {
-        if !is_output_path(&output.path) {
+        if !is_persistent_path(&output.path) {
             continue;
         }
 
@@ -795,8 +801,14 @@ pub(crate) async fn persist_outputs(
     fs.mkdir(Path::new(OUTPUT_DIR), true).await.map_err(
         |e| json!({"error": "Failed to inspect output directory", "details": e.to_string()}),
     )?;
+    fs.mkdir(Path::new(WORK_DIR), true).await.map_err(
+        |e| json!({"error": "Failed to inspect work directory", "details": e.to_string()}),
+    )?;
 
-    let files = collect_output_files(fs, Path::new(OUTPUT_DIR)).await?;
+    let mut files = collect_persistent_files(fs, Path::new(OUTPUT_DIR)).await?;
+    files.extend(collect_persistent_files(fs, Path::new(WORK_DIR)).await?);
+    files.sort();
+    files.truncate(MAX_OUTPUT_FILES);
     let mut client = pool
         .get()
         .await
@@ -863,19 +875,21 @@ pub(crate) async fn persist_outputs(
         )
         .await?;
 
-        persisted.push(OutputEntry {
-            id,
-            path: file,
-            file_name,
-            mime_type,
-            size: file_size,
-        });
+        if is_output_path(&file) {
+            persisted.push(OutputEntry {
+                id,
+                path: file,
+                file_name,
+                mime_type,
+                size: file_size,
+            });
+        }
     }
 
     Ok(persisted)
 }
 
-async fn collect_output_files(
+async fn collect_persistent_files(
     fs: &dyn FileSystem,
     root: &Path,
 ) -> Result<Vec<String>, serde_json::Value> {
@@ -893,7 +907,7 @@ async fn collect_output_files(
                 && entry.metadata.size <= MAX_OUTPUT_FILE_BYTES
             {
                 let path = path.to_string_lossy().to_string();
-                if is_output_path(&path) {
+                if is_persistent_path(&path) {
                     files.push(path);
                     if files.len() >= MAX_OUTPUT_FILES {
                         files.sort();
@@ -1026,6 +1040,14 @@ async fn write_vfs_file(
 
 fn is_output_path(path: &str) -> bool {
     path == OUTPUT_DIR || path.starts_with(&format!("{OUTPUT_DIR}/"))
+}
+
+fn is_work_path(path: &str) -> bool {
+    path == WORK_DIR || path.starts_with(&format!("{WORK_DIR}/"))
+}
+
+fn is_persistent_path(path: &str) -> bool {
+    is_output_path(path) || is_work_path(path)
 }
 
 fn output_file_name(path: &str) -> String {
@@ -1565,7 +1587,18 @@ mod tests {
         assert!(preview.contains("build.py"));
         assert!(preview.contains("<uploaded_file_name>"));
         assert!(preview.contains("<chunk_id>.txt"));
+        assert!(preview.contains("|-- work"));
+        assert!(preview.contains("persistent intermediate files"));
         assert!(preview.contains("Omitted from this preview"));
+    }
+
+    #[test]
+    fn persistent_paths_include_hidden_work_files() {
+        assert!(is_persistent_path("/home/user/output/report.pdf"));
+        assert!(is_persistent_path("/home/user/work/report.json"));
+        assert!(!is_persistent_path("/home/user/attachments/report.pdf"));
+        assert!(is_output_path("/home/user/output/report.pdf"));
+        assert!(!is_output_path("/home/user/work/report.json"));
     }
 
     #[tokio::test]
