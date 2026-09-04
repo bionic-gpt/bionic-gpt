@@ -4,6 +4,7 @@ use axum::{
     extract::{Extension, Multipart},
     response::{IntoResponse, Response},
 };
+use builtin_skills::{parse_skill_frontmatter, SkillMetadata};
 use db::authz;
 use db::queries;
 use db::{Pool, Visibility};
@@ -20,12 +21,6 @@ struct SkillForm {
     id: Option<i32>,
     visibility: String,
     upload: Option<UploadedSkill>,
-}
-
-#[derive(Default)]
-struct SkillMetadata {
-    name: Option<String>,
-    description: Option<String>,
 }
 
 struct UploadedSkill {
@@ -79,17 +74,27 @@ pub async fn action_update_file(
     let relative_path = relative_path.unwrap_or_default();
     let content = content.unwrap_or_default();
     if relative_path.is_empty() || content.len() > 1024 * 1024 {
-        return crate::layout::redirect_and_snackbar(
+        return redirect_to_index(
             &View { team_id, id }.to_string(),
             "File path is required and text files must be 1 MiB or smaller",
         );
     }
     if std::str::from_utf8(&content).is_err() {
-        return crate::layout::redirect_and_snackbar(
+        return redirect_to_index(
             &View { team_id, id }.to_string(),
             "Only UTF-8 text files can be edited",
         );
     }
+    let metadata = if relative_path == "SKILL.md" {
+        match parse_skill_frontmatter(&content) {
+            Ok(metadata) => Some(metadata),
+            Err(message) => {
+                return redirect_to_index(&View { team_id, id }.to_string(), message);
+            }
+        }
+    } else {
+        None
+    };
 
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
@@ -102,17 +107,24 @@ pub async fn action_update_file(
         .into_iter()
         .find(|file| file.skill_id == id && file.relative_path == relative_path);
     let Some(file) = file else {
-        return crate::layout::redirect_and_snackbar(
-            &View { team_id, id }.to_string(),
-            "File not found",
-        );
+        return redirect_to_index(&View { team_id, id }.to_string(), "File not found");
     };
     if file.is_system {
-        return crate::layout::redirect_and_snackbar(
+        return redirect_to_index(
             &View { team_id, id }.to_string(),
             "System skill files cannot be edited",
         );
     }
+    let skill = if metadata.is_some() {
+        Some(
+            queries::skills::skill()
+                .bind(&transaction, &id)
+                .one()
+                .await?,
+        )
+    } else {
+        None
+    };
     let object_id = object_storage::upload(
         &storage_config,
         permissions.user_id,
@@ -124,8 +136,19 @@ pub async fn action_update_file(
     queries::skills::update_skill_file()
         .bind(&transaction, &object_id, &id, &relative_path)
         .await?;
+    if let (Some(metadata), Some(skill)) = (metadata, skill) {
+        queries::skills::update_skill()
+            .bind(
+                &transaction,
+                &metadata.name,
+                &metadata.description,
+                &skill.visibility,
+                &id,
+            )
+            .await?;
+    }
     transaction.commit().await?;
-    crate::layout::redirect_and_snackbar(&View { team_id, id }.to_string(), "File saved")
+    redirect_to_index(&View { team_id, id }.to_string(), "File saved")
 }
 
 pub async fn action_upsert(
@@ -152,21 +175,18 @@ pub async fn action_upsert(
         visibility = Visibility::Team;
     }
 
-    let (extracted_files, uploaded_metadata, fallback_name) = match form.upload {
-        Some(upload) => {
-            let fallback_name = fallback_skill_name(&upload.file_name);
-            match extract_skill_files(upload) {
-                Ok(files) => {
-                    let metadata = match skill_metadata(&files) {
-                        Ok(metadata) => metadata,
-                        Err(message) => return redirect_to_index(&index, message),
-                    };
-                    (Some(files), metadata, fallback_name)
-                }
-                Err(message) => return redirect_to_index(&index, message),
+    let (extracted_files, uploaded_metadata) = match form.upload {
+        Some(upload) => match extract_skill_files(upload) {
+            Ok(files) => {
+                let metadata = match skill_metadata(&files) {
+                    Ok(metadata) => metadata,
+                    Err(message) => return redirect_to_index(&index, message),
+                };
+                (Some(files), Some(metadata))
             }
-        }
-        None => (None, SkillMetadata::default(), None),
+            Err(message) => return redirect_to_index(&index, message),
+        },
+        None => (None, None),
     };
 
     if form.id.is_none() && extracted_files.is_none() {
@@ -183,22 +203,18 @@ pub async fn action_upsert(
         None => None,
     };
     let name = uploaded_metadata
-        .name
+        .as_ref()
+        .map(|metadata| metadata.name.clone())
         .or_else(|| existing_skill.as_ref().map(|skill| skill.name.clone()))
-        .or(fallback_name)
-        .unwrap_or_else(|| "Skill".to_string());
+        .expect("new skills require uploaded metadata");
     let description = uploaded_metadata
-        .description
+        .map(|metadata| metadata.description)
         .or_else(|| {
             existing_skill
                 .as_ref()
                 .map(|skill| skill.description.clone())
         })
-        .unwrap_or_default();
-
-    if name.trim().is_empty() {
-        return redirect_to_index(&index, "The skill name cannot be empty");
-    }
+        .expect("new skills require uploaded metadata");
 
     let skill_id = match form.id {
         Some(id) => {
@@ -280,54 +296,12 @@ async fn parse_skill_form(mut multipart: Multipart) -> Result<SkillForm, CustomE
     Ok(form)
 }
 
-fn fallback_skill_name(file_name: &str) -> Option<String> {
-    Path::new(file_name)
-        .file_stem()
-        .and_then(|stem| stem.to_str())
-        .map(str::trim)
-        .filter(|name| !name.is_empty() && !name.eq_ignore_ascii_case("skill"))
-        .map(ToOwned::to_owned)
-}
-
 fn skill_metadata(files: &[SkillFileUpload]) -> Result<SkillMetadata, String> {
     let Some(skill_file) = files.iter().find(|file| file.relative_path == "SKILL.md") else {
         return Err("The skill folder must contain SKILL.md at its root".to_string());
     };
 
     parse_skill_frontmatter(&skill_file.bytes)
-}
-
-fn parse_skill_frontmatter(bytes: &[u8]) -> Result<SkillMetadata, String> {
-    let text = std::str::from_utf8(bytes)
-        .map_err(|_| "SKILL.md must be valid UTF-8 to read its metadata".to_string())?;
-    let text = text.strip_prefix('\u{feff}').unwrap_or(text);
-    let Some(rest) = text.strip_prefix("---\n") else {
-        return Ok(SkillMetadata::default());
-    };
-    let Some((frontmatter, _body)) = rest.split_once("\n---\n") else {
-        return Err("SKILL.md frontmatter is not closed".to_string());
-    };
-
-    let mut metadata = SkillMetadata::default();
-    for line in frontmatter.lines() {
-        let Some((key, value)) = line.split_once(':') else {
-            return Err("SKILL.md frontmatter contains an invalid line".to_string());
-        };
-        let value = value.trim().trim_matches(['"', '\'']).trim().to_string();
-        if value.is_empty() && matches!(key.trim(), "name" | "description") {
-            return Err(format!(
-                "SKILL.md frontmatter field `{}` cannot be empty",
-                key.trim()
-            ));
-        }
-        match key.trim() {
-            "name" => metadata.name = Some(value),
-            "description" => metadata.description = Some(value),
-            _ => {}
-        }
-    }
-
-    Ok(metadata)
 }
 
 fn extract_skill_files(upload: UploadedSkill) -> Result<Vec<SkillFileUpload>, String> {
@@ -452,29 +426,17 @@ mod tests {
         )
         .expect("frontmatter should parse");
 
-        assert_eq!(metadata.name.as_deref(), Some("Dashboard Builder"));
-        assert_eq!(metadata.description.as_deref(), Some("Creates dashboards"));
+        assert_eq!(metadata.name, "Dashboard Builder");
+        assert_eq!(metadata.description, "Creates dashboards");
     }
 
     #[test]
-    fn accepts_skill_without_frontmatter() {
-        let metadata = parse_skill_frontmatter(b"# Legacy skill").expect("legacy skill is valid");
-
-        assert!(metadata.name.is_none());
-        assert!(metadata.description.is_none());
+    fn rejects_skill_without_frontmatter() {
+        assert!(parse_skill_frontmatter(b"# Legacy skill").is_err());
     }
 
     #[test]
     fn rejects_unclosed_frontmatter() {
         assert!(parse_skill_frontmatter(b"---\nname: Broken\n# Instructions").is_err());
-    }
-
-    #[test]
-    fn derives_fallback_name_from_zip_filename() {
-        assert_eq!(
-            fallback_skill_name("dashboard-builder.zip").as_deref(),
-            Some("dashboard-builder")
-        );
-        assert_eq!(fallback_skill_name("SKILL.md"), None);
     }
 }

@@ -1,3 +1,7 @@
+---
+name: structured-extraction
+description: Extract structured, source-located evidence from uploaded documents using runtime document APIs.
+---
 # Structured Extraction
 
 Use this skill when a task depends on facts contained in uploaded documents or other files and those facts must be extracted before analysis.

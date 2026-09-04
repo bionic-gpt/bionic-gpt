@@ -1,3 +1,7 @@
+---
+name: presentation-builder
+description: Create reveal.js slide decks and presentation-style visual artifacts as generated HTML canvas files.
+---
 # Presentation Builder
 
 Use this skill when the user asks for slides, a deck, a presentation, a pitch deck, a briefing, a visual walkthrough, or an HTML canvas presentation.

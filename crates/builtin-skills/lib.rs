@@ -1,16 +1,61 @@
 //! Skills shipped with the Bionic runtime.
 
+use std::sync::LazyLock;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SkillFile {
     pub path: &'static str,
     pub contents: &'static [u8],
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Skill {
-    pub name: &'static str,
-    pub description: &'static str,
+    pub name: String,
+    pub description: String,
     pub files: &'static [SkillFile],
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SkillMetadata {
+    pub name: String,
+    pub description: String,
+}
+
+pub fn parse_skill_frontmatter(bytes: &[u8]) -> Result<SkillMetadata, String> {
+    let text = std::str::from_utf8(bytes)
+        .map_err(|_| "SKILL.md must be valid UTF-8 to read its metadata".to_string())?;
+    let text = text.strip_prefix('\u{feff}').unwrap_or(text);
+    let normalized = text.replace("\r\n", "\n");
+    let rest = normalized
+        .strip_prefix("---\n")
+        .ok_or_else(|| "SKILL.md must start with frontmatter".to_string())?;
+    let (frontmatter, _body) = rest
+        .split_once("\n---\n")
+        .ok_or_else(|| "SKILL.md frontmatter is not closed".to_string())?;
+
+    let mut name = None;
+    let mut description = None;
+    for line in frontmatter.lines() {
+        let (key, value) = line
+            .split_once(':')
+            .ok_or_else(|| "SKILL.md frontmatter contains an invalid line".to_string())?;
+        let value = value.trim().trim_matches(['"', '\'']).trim().to_string();
+        match key.trim() {
+            "name" => name = Some(value),
+            "description" => description = Some(value),
+            _ => {}
+        }
+    }
+
+    let required = |field: &'static str, value: Option<String>| {
+        value
+            .filter(|value| !value.is_empty())
+            .ok_or_else(|| format!("SKILL.md frontmatter field `{field}` is required"))
+    };
+    Ok(SkillMetadata {
+        name: required("name", name)?,
+        description: required("description", description)?,
+    })
 }
 
 static DATASET_ANALYSIS_FILES: &[SkillFile] = &[SkillFile {
@@ -79,51 +124,38 @@ static PRESENTATION_BUILDER_FILES: &[SkillFile] = &[
     },
 ];
 
-static SKILLS: &[Skill] = &[
-    Skill {
-        name: "database",
-        description: "Create, query, update, or maintain SQLite databases and structured persistent data.",
-        files: DATABASE_FILES,
-    },
-    Skill {
-        name: "dataset-analysis",
-        description: "Use assistant datasets for grounded answers with rag-search and rag-read.",
-        files: DATASET_ANALYSIS_FILES,
-    },
-    Skill {
-        name: "document-coauthoring",
-        description: "Guide users through structured co-authoring of proposals, specifications, RFCs, and decision documents.",
-        files: DOCUMENT_COAUTHORING_FILES,
-    },
-    Skill {
-        name: "document-comparison",
-        description: "Compare extracted documents against rubrics and reference documents with traceable evidence.",
-        files: DOCUMENT_COMPARISON_FILES,
-    },
-    Skill {
-        name: "image-analysis",
-        description: "Use image evidence to produce domain-aware answers that distinguish observations and uncertainty.",
-        files: IMAGE_ANALYSIS_FILES,
-    },
-    Skill {
-        name: "presentation-builder",
-        description: "Create reveal.js slide decks and presentation-style visual artifacts as generated HTML canvas files.",
-        files: PRESENTATION_BUILDER_FILES,
-    },
-    Skill {
-        name: "shell-data-workbench",
-        description: "Inspect, filter, summarize, and transform sandbox files with shell tools.",
-        files: SHELL_DATA_WORKBENCH_FILES,
-    },
-    Skill {
-        name: "structured-extraction",
-        description: "Extract structured, source-located evidence from uploaded documents using runtime document APIs.",
-        files: STRUCTURED_EXTRACTION_FILES,
-    },
+static SKILL_FILE_SETS: &[&[SkillFile]] = &[
+    DATABASE_FILES,
+    DATASET_ANALYSIS_FILES,
+    DOCUMENT_COAUTHORING_FILES,
+    DOCUMENT_COMPARISON_FILES,
+    IMAGE_ANALYSIS_FILES,
+    PRESENTATION_BUILDER_FILES,
+    SHELL_DATA_WORKBENCH_FILES,
+    STRUCTURED_EXTRACTION_FILES,
 ];
 
+static SKILLS: LazyLock<Vec<Skill>> = LazyLock::new(|| {
+    SKILL_FILE_SETS
+        .iter()
+        .map(|files| {
+            let skill_file = files
+                .iter()
+                .find(|file| file.path == "SKILL.md")
+                .expect("built-in skill must contain SKILL.md");
+            let metadata = parse_skill_frontmatter(skill_file.contents)
+                .expect("built-in SKILL.md must contain valid metadata");
+            Skill {
+                name: metadata.name,
+                description: metadata.description,
+                files,
+            }
+        })
+        .collect()
+});
+
 pub fn all() -> &'static [Skill] {
-    SKILLS
+    SKILLS.as_slice()
 }
 
 #[cfg(test)]
@@ -153,5 +185,12 @@ mod tests {
             .files
             .iter()
             .any(|file| file.path == "bin/build-reveal-canvas.sh"));
+    }
+
+    #[test]
+    fn requires_complete_frontmatter() {
+        assert!(parse_skill_frontmatter(b"# Missing metadata").is_err());
+        assert!(parse_skill_frontmatter(b"---\nname: test\n---\n# Test").is_err());
+        assert!(parse_skill_frontmatter(b"---\nname: test\ndescription: \n---\n# Test").is_err());
     }
 }

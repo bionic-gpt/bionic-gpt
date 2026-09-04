@@ -7909,6 +7909,7 @@ dependencies = [
  "axum-extra",
  "axum_typed_multipart",
  "base64 0.22.1",
+ "builtin-skills",
  "chrono",
  "db",
  "http 1.4.0",

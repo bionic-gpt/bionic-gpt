@@ -1,3 +1,7 @@
+---
+name: shell-data-workbench
+description: Inspect, filter, summarize, and transform sandbox files with shell tools.
+---
 # Shell Data Workbench
 
 Use this skill when the user asks to inspect, filter, summarize, or transform files inside the Bashkit sandbox.

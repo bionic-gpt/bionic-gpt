@@ -1,3 +1,7 @@
+---
+name: dataset-analysis
+description: Use assistant datasets for grounded answers with rag-search and rag-read.
+---
 # Dataset Analysis
 
 Use this skill when the user asks a question that should be answered from the assistant's datasets.
