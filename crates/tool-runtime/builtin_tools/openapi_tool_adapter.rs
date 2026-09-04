@@ -24,7 +24,7 @@ pub enum HttpRequestBody {
     Json(Value),
     Multipart {
         fields: Vec<(String, String)>,
-        files: Vec<(String, Vec<u8>)>,
+        files: Vec<(String, String, Vec<u8>)>,
     },
 }
 
@@ -83,10 +83,10 @@ impl HttpClient for ReqwestHttpClient {
                     for (name, value) in fields {
                         form = form.text(name, value);
                     }
-                    for (name, bytes) in files {
+                    for (name, filename, bytes) in files {
                         form = form.part(
                             name,
-                            reqwest::multipart::Part::bytes(bytes).file_name("document.bin"),
+                            reqwest::multipart::Part::bytes(bytes).file_name(filename),
                         );
                     }
                     request = request.multipart(form);
@@ -324,7 +324,23 @@ async fn execute_openapi_tool(
         let mut files = Vec::new();
         if let Some(values) = request_body_params.as_object() {
             for (name, value) in values {
-                if value
+                if let Some(file_values) = bionic_file_values(value) {
+                    for file in file_values {
+                        let filename = file.get("filename").and_then(Value::as_str).ok_or_else(
+                            || serde_json::json!({"error": "File is missing filename"}),
+                        )?;
+                        let encoded = file
+                            .get("content_base64")
+                            .and_then(Value::as_str)
+                            .ok_or_else(
+                                || serde_json::json!({"error": "File is missing content_base64"}),
+                            )?;
+                        let bytes = base64::engine::general_purpose::STANDARD
+                            .decode(encoded)
+                            .map_err(|e| crate::json_error("Invalid base64 file", e))?;
+                        files.push((name.clone(), filename.to_string(), bytes));
+                    }
+                } else if value
                     .as_str()
                     .is_some_and(|_| name == "files" || name == "file")
                 {
@@ -332,7 +348,7 @@ async fn execute_openapi_tool(
                     let bytes = base64::engine::general_purpose::STANDARD
                         .decode(encoded)
                         .map_err(|e| crate::json_error("Invalid base64 file", e))?;
-                    files.push((name.clone(), bytes));
+                    files.push((name.clone(), "document.bin".to_string(), bytes));
                 } else if let Some(value) = value.as_str() {
                     fields.push((name.clone(), value.to_string()));
                 } else {
@@ -372,13 +388,31 @@ async fn execute_openapi_tool(
 
     // Check if the request was successful
     if !response.status.is_success() {
+        let details = error_response_details(&response.body);
         return Err(serde_json::json!({
             "error": "Request failed",
-            "status": response.status.to_string()
+            "status": response.status.to_string(),
+            "details": details,
         }));
     }
 
     parse_http_response(response)
+}
+
+fn error_response_details(body: &[u8]) -> Value {
+    serde_json::from_slice(body)
+        .unwrap_or_else(|_| Value::String(String::from_utf8_lossy(body).to_string()))
+}
+
+fn bionic_file_values(value: &Value) -> Option<Vec<&Value>> {
+    if value.get("__bionic_file") == Some(&Value::Bool(true)) {
+        return Some(vec![value]);
+    }
+    let values = value.as_array()?;
+    values
+        .iter()
+        .all(|value| value.get("__bionic_file") == Some(&Value::Bool(true)))
+        .then(|| values.iter().collect())
 }
 
 fn parse_http_response(response: HttpResponse) -> Result<Value, Value> {
@@ -553,6 +587,14 @@ mod tests {
         .unwrap();
 
         assert_eq!(value, json!({"ok": true}));
+    }
+
+    #[test]
+    fn keeps_plain_text_error_details() {
+        assert_eq!(
+            error_response_details(b"upstream rejected the upload"),
+            Value::String("upstream rejected the upload".to_string())
+        );
     }
 
     fn create_test_openapi_spec() -> oas3::OpenApiV3Spec {
@@ -829,6 +871,7 @@ mod tests {
     struct MockHttpClient {
         responses: Arc<tokio::sync::Mutex<VecDeque<HttpResponse>>>,
         captured_headers: Arc<tokio::sync::Mutex<Vec<Option<String>>>>,
+        captured_bodies: Arc<tokio::sync::Mutex<Vec<Option<HttpRequestBody>>>>,
     }
 
     impl MockHttpClient {
@@ -836,11 +879,16 @@ mod tests {
             Self {
                 responses: Arc::new(tokio::sync::Mutex::new(VecDeque::from(responses))),
                 captured_headers: Arc::new(tokio::sync::Mutex::new(Vec::new())),
+                captured_bodies: Arc::new(tokio::sync::Mutex::new(Vec::new())),
             }
         }
 
         async fn captured_headers(&self) -> Vec<Option<String>> {
             self.captured_headers.lock().await.clone()
+        }
+
+        async fn captured_bodies(&self) -> Vec<Option<HttpRequestBody>> {
+            self.captured_bodies.lock().await.clone()
         }
     }
 
@@ -851,7 +899,7 @@ mod tests {
             _method: Method,
             _url: Url,
             headers: Vec<(String, String)>,
-            _body: Option<HttpRequestBody>,
+            body: Option<HttpRequestBody>,
         ) -> Result<HttpResponse, String> {
             let auth_header = headers.iter().find_map(|(name, value)| {
                 if name.eq_ignore_ascii_case("authorization") {
@@ -861,6 +909,7 @@ mod tests {
                 }
             });
             self.captured_headers.lock().await.push(auth_header);
+            self.captured_bodies.lock().await.push(body);
             let mut responses = self.responses.lock().await;
             responses
                 .pop_front()
@@ -949,5 +998,116 @@ mod tests {
         assert_eq!(headers.len(), 2);
         assert_eq!(headers[0].as_deref(), Some("Bearer first"));
         assert_eq!(headers[1].as_deref(), Some("Bearer second"));
+    }
+
+    fn multipart_test_spec() -> oas3::OpenApiV3Spec {
+        serde_json::from_value(json!({
+            "openapi": "3.1.0",
+            "info": {"title": "Upload", "version": "1.0"},
+            "servers": [{"url": "http://cli-gateway:8080"}],
+            "paths": {
+                "/compile": {
+                    "post": {
+                        "operationId": "compileDocument",
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "multipart/form-data": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": ["files"],
+                                        "properties": {
+                                            "files": {
+                                                "type": "array",
+                                                "items": {"type": "string", "format": "binary"}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {"200": {"description": "ok"}}
+                    }
+                }
+            }
+        }))
+        .unwrap()
+    }
+
+    #[tokio::test]
+    async fn multipart_files_preserve_names_and_repeat_field() {
+        let client = Arc::new(MockHttpClient::new(vec![HttpResponse {
+            status: StatusCode::OK,
+            body: br#"{"ok":true}"#.to_vec(),
+            content_type: Some("application/json".to_string()),
+        }]));
+        let tool = OpenApiTool::with_http_client(
+            ToolDefinition {
+                name: "compileDocument".to_string(),
+                description: String::new(),
+                parameters: json!({}),
+            },
+            "http://cli-gateway:8080".to_string(),
+            multipart_test_spec(),
+            "compileDocument".to_string(),
+            "Authorization".to_string(),
+            None,
+            client.clone(),
+        );
+        let arguments = json!({
+            "files": [
+                {"__bionic_file": true, "filename": "main.typ", "content_base64": "I2hlbGxv"},
+                {"__bionic_file": true, "filename": "logo.png", "content_base64": "cG5n"}
+            ]
+        });
+
+        execute_openapi_tool(&tool, &arguments).await.unwrap();
+
+        let bodies = client.captured_bodies().await;
+        let Some(HttpRequestBody::Multipart { fields, files }) = &bodies[0] else {
+            panic!("expected multipart request body");
+        };
+        assert!(fields.is_empty());
+        assert_eq!(
+            files[0],
+            (
+                "files".to_string(),
+                "main.typ".to_string(),
+                b"#hello".to_vec()
+            )
+        );
+        assert_eq!(
+            files[1],
+            ("files".to_string(), "logo.png".to_string(), b"png".to_vec())
+        );
+    }
+
+    #[tokio::test]
+    async fn failed_requests_include_json_response_details() {
+        let client = Arc::new(MockHttpClient::new(vec![HttpResponse {
+            status: StatusCode::BAD_REQUEST,
+            body: br#"{"error":"uploaded files must have a filename"}"#.to_vec(),
+            content_type: Some("application/json".to_string()),
+        }]));
+        let tool = OpenApiTool::with_http_client(
+            ToolDefinition {
+                name: "compileDocument".to_string(),
+                description: String::new(),
+                parameters: json!({}),
+            },
+            "http://cli-gateway:8080".to_string(),
+            multipart_test_spec(),
+            "compileDocument".to_string(),
+            "Authorization".to_string(),
+            None,
+            client,
+        );
+
+        let error = execute_openapi_tool(&tool, &json!({})).await.unwrap_err();
+        assert_eq!(error["status"], "400 Bad Request");
+        assert_eq!(
+            error["details"]["error"],
+            "uploaded files must have a filename"
+        );
     }
 }

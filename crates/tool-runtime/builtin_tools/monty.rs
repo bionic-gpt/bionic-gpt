@@ -27,8 +27,15 @@ struct RuntimeOperation {
     function_name: String,
     description: String,
     parameters: Value,
-    byte_parameters: Vec<(String, String)>,
+    byte_parameters: Vec<FileParameterMapping>,
     executor: OperationExecutor,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct FileParameterMapping {
+    api_parameter: String,
+    path_parameter: String,
+    multiple: bool,
 }
 
 #[derive(Clone)]
@@ -407,28 +414,80 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
                     "file-backed functions require a Bashkit filesystem".to_string(),
                 ));
             };
-            for (api_parameter, path_parameter) in &operation.byte_parameters {
-                let Some(path) = arguments.get(path_parameter).and_then(Value::as_str) else {
-                    return ExtFunctionResult::Error(value_error(format!(
-                        "{path_parameter} must be a VFS attachment or output path"
-                    )));
-                };
-                if !is_allowed_file_path(path) {
-                    return ExtFunctionResult::Error(value_error(format!(
-                        "{path_parameter} must refer to /home/user/attachments or /home/user/output"
-                    )));
-                }
-                let bytes = match fs.read_file(std::path::Path::new(path)).await {
-                    Ok(bytes) => bytes,
-                    Err(err) => {
+            for mapping in &operation.byte_parameters {
+                let paths = if mapping.multiple {
+                    let Some(paths) = arguments
+                        .get(&mapping.path_parameter)
+                        .and_then(Value::as_array)
+                    else {
                         return ExtFunctionResult::Error(value_error(format!(
-                            "failed to read {path}: {err}"
-                        )))
+                            "{} must be a list of VFS attachment or output paths",
+                            mapping.path_parameter
+                        )));
+                    };
+                    let mut values = Vec::with_capacity(paths.len());
+                    for path in paths {
+                        let Some(path) = path.as_str() else {
+                            return ExtFunctionResult::Error(value_error(format!(
+                                "{} entries must be VFS attachment or output paths",
+                                mapping.path_parameter
+                            )));
+                        };
+                        values.push(path.to_string());
                     }
+                    values
+                } else {
+                    let Some(path) = arguments
+                        .get(&mapping.path_parameter)
+                        .and_then(Value::as_str)
+                    else {
+                        return ExtFunctionResult::Error(value_error(format!(
+                            "{} must be a VFS attachment or output path",
+                            mapping.path_parameter
+                        )));
+                    };
+                    vec![path.to_string()]
                 };
-                let encoded = base64::engine::general_purpose::STANDARD.encode(bytes);
-                arguments[api_parameter] = Value::String(encoded);
-                arguments.as_object_mut().unwrap().remove(path_parameter);
+
+                let mut files = Vec::with_capacity(paths.len());
+                for path in paths {
+                    if !is_allowed_file_path(&path) {
+                        return ExtFunctionResult::Error(value_error(format!(
+                            "{} must refer to /home/user/attachments or /home/user/output",
+                            mapping.path_parameter
+                        )));
+                    }
+                    let bytes = match fs.read_file(std::path::Path::new(&path)).await {
+                        Ok(bytes) => bytes,
+                        Err(err) => {
+                            return ExtFunctionResult::Error(value_error(format!(
+                                "failed to read {path}: {err}"
+                            )))
+                        }
+                    };
+                    let Some(filename) = std::path::Path::new(&path)
+                        .file_name()
+                        .and_then(|name| name.to_str())
+                    else {
+                        return ExtFunctionResult::Error(value_error(format!(
+                            "failed to determine a filename for {path}"
+                        )));
+                    };
+                    files.push(json!({
+                        "__bionic_file": true,
+                        "content_base64": base64::engine::general_purpose::STANDARD.encode(bytes),
+                        "filename": filename,
+                    }));
+                }
+                arguments[&mapping.api_parameter] = if mapping.multiple {
+                    Value::Array(files)
+                } else {
+                    files.into_iter().next().unwrap_or(Value::Null)
+                };
+                arguments
+                    .as_object_mut()
+                    .unwrap()
+                    .remove(&mapping.path_parameter);
             }
         }
 
@@ -571,7 +630,7 @@ fn runtime_operation(function_name: String, tool: Arc<dyn ToolDyn>) -> RuntimeOp
     }
 }
 
-fn expose_file_parameters(mut parameters: Value) -> (Value, Vec<(String, String)>) {
+fn expose_file_parameters(mut parameters: Value) -> (Value, Vec<FileParameterMapping>) {
     let mut mappings = Vec::new();
     let Some(properties) = parameters
         .get_mut("properties")
@@ -579,40 +638,60 @@ fn expose_file_parameters(mut parameters: Value) -> (Value, Vec<(String, String)
     else {
         return (parameters, mappings);
     };
-    let byte_names = properties
+    let file_parameters = properties
         .iter()
         .filter_map(|(name, schema)| {
-            (schema.get("format").and_then(Value::as_str) == Some("byte")
-                || schema.get("type").and_then(Value::as_str) == Some("array")
-                    && schema
-                        .get("items")
-                        .and_then(|items| items.get("format"))
-                        .and_then(Value::as_str)
-                        == Some("byte"))
-            .then_some(name.clone())
+            let direct_format = schema.get("format").and_then(Value::as_str);
+            let multiple = schema.get("type").and_then(Value::as_str) == Some("array");
+            let item_format = schema
+                .get("items")
+                .and_then(|items| items.get("format"))
+                .and_then(Value::as_str);
+            (matches!(direct_format, Some("byte" | "binary"))
+                || multiple && matches!(item_format, Some("byte" | "binary")))
+            .then_some((name.clone(), multiple))
         })
         .collect::<Vec<_>>();
-    for (index, api_name) in byte_names.into_iter().enumerate() {
+    for (index, (api_name, multiple)) in file_parameters.into_iter().enumerate() {
         let path_name = if index == 0 {
-            "file_path".to_string()
+            if multiple {
+                "file_paths".to_string()
+            } else {
+                "file_path".to_string()
+            }
+        } else if multiple {
+            format!("{api_name}_file_paths")
         } else {
             format!("{api_name}_file_path")
         };
         properties.remove(&api_name);
-        properties.insert(
-            path_name.clone(),
+        let path_schema = if multiple {
+            json!({
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Paths to documents in /home/user/attachments or /home/user/output."
+            })
+        } else {
             json!({
                 "type": "string",
                 "description": "Path to the document in /home/user/attachments or /home/user/output."
-            }),
-        );
-        mappings.push((api_name, path_name));
+            })
+        };
+        properties.insert(path_name.clone(), path_schema);
+        mappings.push(FileParameterMapping {
+            api_parameter: api_name,
+            path_parameter: path_name,
+            multiple,
+        });
     }
     if let Some(required) = parameters.get_mut("required").and_then(Value::as_array_mut) {
         for value in required {
             if let Some(name) = value.as_str() {
-                if let Some((_, path_name)) = mappings.iter().find(|(api, _)| api == name) {
-                    *value = Value::String(path_name.clone());
+                if let Some(mapping) = mappings
+                    .iter()
+                    .find(|mapping| mapping.api_parameter == name)
+                {
+                    *value = Value::String(mapping.path_parameter.clone());
                 }
             }
         }
@@ -669,6 +748,18 @@ fn operation_example(operation: &RuntimeOperation) -> String {
         return format!(
             "print({}(**{{'{}': '/home/user/attachments/<document>'}}))  # use /home/user/output for generated files",
             operation.function_name, parameter
+        );
+    }
+
+    if operation
+        .parameters
+        .get("properties")
+        .and_then(Value::as_object)
+        .is_some_and(|properties| properties.contains_key("file_paths"))
+    {
+        return format!(
+            "print({}(**{{'file_paths': ['/home/user/output/main.typ']}}))",
+            operation.function_name
         );
     }
 
@@ -968,7 +1059,11 @@ mod tests {
                     "file_path": {"type": "string"}
                 }
             }),
-            byte_parameters: vec![("files".to_string(), "file_path".to_string())],
+            byte_parameters: vec![FileParameterMapping {
+                api_parameter: "files".to_string(),
+                path_parameter: "file_path".to_string(),
+                multiple: false,
+            }],
             executor: OperationExecutor::OpenUrl,
         };
         let registry = RuntimeFunctionRegistry::with_builtin_functions(
@@ -1004,7 +1099,11 @@ mod tests {
 
         assert_eq!(
             mappings,
-            vec![("files".to_string(), "file_path".to_string())]
+            vec![FileParameterMapping {
+                api_parameter: "files".to_string(),
+                path_parameter: "file_path".to_string(),
+                multiple: false,
+            }]
         );
         assert!(parameters["properties"].get("files").is_none());
         assert!(parameters["properties"].get("file_path").is_some());
@@ -1012,13 +1111,36 @@ mod tests {
     }
 
     #[test]
-    fn array_byte_parameters_are_exposed_as_vfs_paths() {
+    fn binary_parameters_are_exposed_as_vfs_paths() {
+        let (parameters, mappings) = expose_file_parameters(json!({
+            "type": "object",
+            "properties": {
+                "file": {"type": "string", "format": "binary"}
+            },
+            "required": ["file"]
+        }));
+
+        assert_eq!(
+            mappings,
+            vec![FileParameterMapping {
+                api_parameter: "file".to_string(),
+                path_parameter: "file_path".to_string(),
+                multiple: false,
+            }]
+        );
+        assert!(parameters["properties"].get("file").is_none());
+        assert!(parameters["properties"].get("file_path").is_some());
+        assert_eq!(parameters["required"], json!(["file_path"]));
+    }
+
+    #[test]
+    fn array_binary_parameters_are_exposed_as_vfs_paths() {
         let (parameters, mappings) = expose_file_parameters(json!({
             "type": "object",
             "properties": {
                 "files": {
                     "type": "array",
-                    "items": {"type": "string", "format": "byte"}
+                    "items": {"type": "string", "format": "binary"}
                 }
             },
             "required": ["files"]
@@ -1026,10 +1148,63 @@ mod tests {
 
         assert_eq!(
             mappings,
-            vec![("files".to_string(), "file_path".to_string())]
+            vec![FileParameterMapping {
+                api_parameter: "files".to_string(),
+                path_parameter: "file_paths".to_string(),
+                multiple: true,
+            }]
         );
         assert!(parameters["properties"].get("files").is_none());
-        assert_eq!(parameters["required"], json!(["file_path"]));
+        assert_eq!(
+            parameters["properties"]["file_paths"]["items"]["type"],
+            "string"
+        );
+        assert_eq!(parameters["required"], json!(["file_paths"]));
+    }
+
+    #[test]
+    fn function_catalogue_documents_multiple_file_paths() {
+        let operation = RuntimeOperation {
+            function_name: "typst_compiledocument".to_string(),
+            description: "Compile a Typst document".to_string(),
+            parameters: json!({
+                "type": "object",
+                "properties": {
+                    "file_paths": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    }
+                },
+                "required": ["file_paths"]
+            }),
+            byte_parameters: vec![FileParameterMapping {
+                api_parameter: "files".to_string(),
+                path_parameter: "file_paths".to_string(),
+                multiple: true,
+            }],
+            executor: OperationExecutor::OpenUrl,
+        };
+        let registry = RuntimeFunctionRegistry::with_builtin_functions(
+            vec![IntegrationInfo {
+                name: "Typst Compilation API".to_string(),
+                slug: "typst".to_string(),
+                operations: vec![operation],
+            }],
+            HashMap::new(),
+        );
+
+        let markdown = String::from_utf8(
+            registry
+                .function_catalogue()
+                .files
+                .into_iter()
+                .find(|file| file.path.ends_with("typst.md"))
+                .unwrap()
+                .contents,
+        )
+        .unwrap();
+        assert!(markdown.contains("file_paths': ['/home/user/output/main.typ']"));
+        assert!(markdown.contains("parameters: file_paths"));
     }
 
     #[test]

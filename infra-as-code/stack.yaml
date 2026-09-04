@@ -51,3 +51,7 @@ spec:
     doc-engine:
       image: ghcr.io/xberg-io/xberg:1.0.14
       port: 8000
+
+    cli-gateway:
+      image: ghcr.io/bionic-gpt/bionicgpt-cli-gateway:1.12.22
+      port: 8080

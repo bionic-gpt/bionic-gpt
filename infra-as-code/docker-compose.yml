@@ -27,7 +27,7 @@ services:
 
   # Use by the Zero to Hero course for CLI-backed workflows.
   cli-gateway:
-    image: ghcr.io/bionic-gpt/bionicgpt-cli-gateway:1.12.18
+    image: ghcr.io/bionic-gpt/bionicgpt-cli-gateway:1.12.22
     ports:
       - "3200:8080"
 
