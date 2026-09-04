@@ -1,0 +1,20 @@
+FROM ghcr.io/typst/typst:0.15.1 AS typst
+
+FROM debian:trixie-slim AS runtime
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends --yes ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY service /service
+
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+
+WORKDIR /
+USER 1001
+ENTRYPOINT ["/service"]
+
+FROM runtime AS cli-gateway
+
+COPY --from=typst /bin/typst /usr/local/bin/typst
+COPY openapi.yaml /etc/cli-gateway/openapi.yaml

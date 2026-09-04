@@ -1,127 +1,130 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-base_image="debian:trixie-slim"
-image="bionic-gpt-local:$(date +%s)"
-binary="target/debug/web-server"
-
 cluster="k3d-bionic"
 expected_context="k3d-k3d-bionic"
 namespace="bionic-gpt"
-deployment="bionic-gpt"
 stackapp="bionic-gpt"
 rig_log="rig::completions=trace,rig::streaming=trace"
+skill_dir=".agents/skills/local-deployment"
+
+usage() {
+    echo "Usage: $0 [service ...]"
+    echo "Deploy one or more locally built Stack services. Defaults to: web"
+    echo "Example: $0 web cli-gateway"
+}
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+    usage
+    exit 0
+fi
+
+if [ "$#" -eq 0 ]; then
+    set -- web
+fi
+
+for service in "$@"; do
+    if [[ ! "$service" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+        echo "Invalid service name: $service" >&2
+        exit 1
+    fi
+done
 
 actual_context=$(kubectl config current-context)
-
 if [ "$actual_context" != "$expected_context" ]; then
     echo "Refusing to deploy using Kubernetes context: $actual_context" >&2
     echo "Expected: $expected_context" >&2
     exit 1
 fi
 
-# Build using the normal glibc target and existing incremental Cargo cache.
-npm run release --prefix crates/web-assets
-cargo build --bin web-server
-
-if [ ! -x "$binary" ]; then
-    echo "Executable not found: $binary" >&2
-    exit 1
-fi
-
-# Create a minimal temporary Docker build context.
 build_dir=$(mktemp -d)
 trap 'rm -rf "$build_dir"' EXIT
+timestamp=$(date +%s)
+declare -A deployed_services=()
 
-mkdir -p \
-    "$build_dir/dist" \
-    "$build_dir/images"
-
-cp "$binary" "$build_dir/web-server"
-cp -a crates/web-assets/dist/. "$build_dir/dist/"
-cp -a crates/web-assets/images/. "$build_dir/images/"
-
-cat >"$build_dir/Dockerfile" <<DOCKERFILE
-FROM $base_image
-
-RUN apt-get update \
-    && apt-get install --no-install-recommends --yes ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY web-server /axum-server
-COPY dist/ /workspace/crates/web-assets/dist/
-COPY images/ /workspace/crates/web-assets/images/
-
-ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-
-WORKDIR /
-USER 1001
-
-ENTRYPOINT ["/axum-server"]
-DOCKERFILE
-
-echo "Building $image"
-
-docker build \
-    --tag "$image" \
-    "$build_dir"
-
-echo "Importing $image into $cluster"
-
-k3d image import "$image" \
-    --cluster "$cluster"
-
-echo "Updating $stackapp"
-
-kubectl patch stackapp "$stackapp" \
-    --namespace "$namespace" \
-    --type merge \
-    --patch "{\"spec\":{\"services\":{\"web\":{\"image\":\"$image\"}}}}"
-
-# Wait for the operator to update the generated Deployment before checking
-# rollout status. Otherwise rollout status may report success for the old image.
-echo "Waiting for the operator to apply $image"
-
-for _ in $(seq 1 60); do
-    deployed_image=$(
-        kubectl get deployment "$deployment" \
-            --namespace "$namespace" \
-            --output jsonpath='{.spec.template.spec.containers[0].image}'
-    )
-
-    if [ "$deployed_image" = "$image" ]; then
-        break
+for service in "$@"; do
+    if [ -n "${deployed_services[$service]:-}" ]; then
+        continue
     fi
 
-    sleep 1
+    configured=$(kubectl get stackapp "$stackapp" \
+        --namespace "$namespace" \
+        --output go-template="{{if index .spec.services \"$service\"}}yes{{end}}")
+    if [ "$configured" != "yes" ]; then
+        echo "StackApp $stackapp has no service named $service" >&2
+        exit 1
+    fi
+
+    service_dir="$build_dir/$service"
+    image="bionic-gpt-local-$service:$timestamp"
+    deployment="$service"
+    binary="$service"
+    mkdir -p "$service_dir"
+
+    if [ "$service" = "web" ]; then
+        binary="web-server"
+        deployment="bionic-gpt"
+        npm run release --prefix crates/web-assets
+        cargo build --bin "$binary"
+        cp "target/debug/$binary" "$service_dir/web-server"
+        cp -a crates/web-assets/dist "$service_dir/dist"
+        cp -a crates/web-assets/images "$service_dir/images"
+        docker build \
+            --file "$skill_dir/Dockerfile.web" \
+            --tag "$image" \
+            "$service_dir"
+    else
+        cargo build --bin "$binary"
+        cp "target/debug/$binary" "$service_dir/service"
+        target="runtime"
+        if [ "$service" = "cli-gateway" ]; then
+            target="cli-gateway"
+            cp crates/cli-gateway/specs/typst.openapi.yaml "$service_dir/openapi.yaml"
+        fi
+        docker build \
+            --file "$skill_dir/Dockerfile.service" \
+            --target "$target" \
+            --tag "$image" \
+            "$service_dir"
+    fi
+
+    k3d image import "$image" --cluster "$cluster"
+    kubectl patch stackapp "$stackapp" \
+        --namespace "$namespace" \
+        --type merge \
+        --patch "{\"spec\":{\"services\":{\"$service\":{\"image\":\"$image\"}}}}"
+
+    echo "Waiting for $deployment to use $image"
+    deployed_image=""
+    for _ in $(seq 1 60); do
+        deployed_image=$(kubectl get deployment "$deployment" \
+            --namespace "$namespace" \
+            --output jsonpath='{.spec.template.spec.containers[0].image}')
+        if [ "$deployed_image" = "$image" ]; then
+            break
+        fi
+        sleep 1
+    done
+
+    if [ "$deployed_image" != "$image" ]; then
+        echo "Deployment $deployment still uses: ${deployed_image:-unknown}" >&2
+        exit 1
+    fi
+
+    if [ "$service" = "web" ]; then
+        kubectl set env "deployment/$deployment" \
+            --namespace "$namespace" \
+            "RIG_LOG=$rig_log"
+    fi
+
+    kubectl rollout status "deployment/$deployment" \
+        --namespace "$namespace" \
+        --timeout=180s
+
+    deployed_services[$service]="$image"
+    echo "Deployed $service as $image"
 done
 
-if [ "${deployed_image:-}" != "$image" ]; then
-    echo "Operator did not apply $image" >&2
-    echo "Deployment still uses: ${deployed_image:-unknown}" >&2
-    exit 1
+if [ -n "${deployed_services[web]:-}" ]; then
+    echo "Application: http://localhost:30000"
 fi
-
-kubectl set env "deployment/$deployment" \
-    --namespace "$namespace" \
-    "RIG_LOG=$rig_log"
-
-if ! kubectl rollout status "deployment/$deployment" \
-    --namespace "$namespace" \
-    --timeout=180s
-then
-    echo "Rollout failed. Current pods:" >&2
-    kubectl get pods --namespace "$namespace" >&2
-
-    echo "Recent application logs:" >&2
-    kubectl logs "deployment/$deployment" \
-        --namespace "$namespace" \
-        --tail=100 >&2 || true
-
-    exit 1
-fi
-
-echo
-echo "Successfully deployed $image"
-echo "Rig request and stream tracing enabled"
-echo "Application: http://localhost:30000"
