@@ -351,7 +351,7 @@ pub struct ModelForm {
     pub capability_vision: Option<String>,
     pub capability_tool_use: Option<String>,
     pub capability_guard: Option<String>,
-    #[serde(deserialize_with = "empty_string_is_none")]
+    #[serde(default, deserialize_with = "empty_string_is_none")]
     pub reasoning_effort: Option<String>,
 }
 
