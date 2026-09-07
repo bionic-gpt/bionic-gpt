@@ -172,6 +172,7 @@ pub async fn new_loader(
         has_capability_vision: false,
         has_capability_tool_use: false,
         has_capability_guard: false,
+        reasoning_effort: None,
         error: None,
     };
 
@@ -272,6 +273,7 @@ pub async fn edit_loader(
         has_capability_vision: has_vision,
         has_capability_tool_use: has_tool_use,
         has_capability_guard: has_guard,
+        reasoning_effort: model.reasoning_effort,
         error: None,
     };
 
@@ -349,6 +351,8 @@ pub struct ModelForm {
     pub capability_vision: Option<String>,
     pub capability_tool_use: Option<String>,
     pub capability_guard: Option<String>,
+    #[serde(deserialize_with = "empty_string_is_none")]
+    pub reasoning_effort: Option<String>,
 }
 
 pub async fn upsert_action(
@@ -414,6 +418,7 @@ pub async fn upsert_action(
                     &max_completion_tokens,
                     &80,
                     &temperature,
+                    &model_form.reasoning_effort,
                     &model_id,
                 )
                 .await?;
@@ -494,6 +499,7 @@ pub async fn upsert_action(
                         &max_completion_tokens,
                         &80,
                         &temperature,
+                        &model_form.reasoning_effort,
                         &model_id,
                     )
                     .await?;

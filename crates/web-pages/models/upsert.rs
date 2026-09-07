@@ -31,6 +31,7 @@ pub struct ModelForm {
     pub has_capability_vision: bool,
     pub has_capability_tool_use: bool,
     pub has_capability_guard: bool,
+    pub reasoning_effort: Option<String>,
     #[serde(skip)]
     pub error: Option<String>,
 }
@@ -271,6 +272,23 @@ pub fn page(team_id: String, rbac: Rbac, setup_required: bool, form: ModelForm) 
                                     name: "context_size",
                                     value: "{form.context_size_bytes}",
                                     required: true
+                                }
+                            }
+                            Fieldset {
+                                legend: "Reasoning Effort",
+                                legend_class: "mt-4",
+                                help_text: "Optional effort level for providers that support reasoning controls.",
+                                Select {
+                                    name: "reasoning_effort",
+                                    value: form.reasoning_effort.clone().unwrap_or_default(),
+                                    SelectOption { value: "", selected_value: form.reasoning_effort.clone().unwrap_or_default(), "Provider default" }
+                                    SelectOption { value: "none", selected_value: form.reasoning_effort.clone().unwrap_or_default(), "None" }
+                                    SelectOption { value: "minimal", selected_value: form.reasoning_effort.clone().unwrap_or_default(), "Minimal" }
+                                    SelectOption { value: "low", selected_value: form.reasoning_effort.clone().unwrap_or_default(), "Low" }
+                                    SelectOption { value: "medium", selected_value: form.reasoning_effort.clone().unwrap_or_default(), "Medium" }
+                                    SelectOption { value: "high", selected_value: form.reasoning_effort.clone().unwrap_or_default(), "High" }
+                                    SelectOption { value: "xhigh", selected_value: form.reasoning_effort.clone().unwrap_or_default(), "X-high" }
+                                    SelectOption { value: "max", selected_value: form.reasoning_effort.clone().unwrap_or_default(), "Max" }
                                 }
                             }
                         }
