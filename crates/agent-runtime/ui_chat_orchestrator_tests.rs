@@ -55,6 +55,9 @@ async fn event_stream_saves_on_end_with_tool_calls() {
     )];
 
     let input = tokio_stream::iter(vec![
+        Ok(GenerationEvent::Reasoning {
+            delta: "planning".to_string(),
+        }),
         Ok(GenerationEvent::Text {
             delta: "delta".to_string(),
         }),
@@ -68,6 +71,8 @@ async fn event_stream_saves_on_end_with_tool_calls() {
 
     let stream = build_event_stream(input, Arc::clone(&result_sink_dyn), 42, sub);
     pin!(stream);
+    let first = stream.next().await.expect("expected reasoning event");
+    assert!(format!("{:?}", first.expect("expected Ok(event)")).contains("reasoning_delta"));
     while stream.next().await.is_some() {}
 
     let calls = result_sink.calls.lock().unwrap().clone();
@@ -251,6 +256,7 @@ async fn assert_successful_stream(request: RigChatRequest) {
     while let Some(event) = receiver.recv().await {
         match event.expect("generation event should succeed") {
             GenerationEvent::Text { delta } => text.push_str(&delta),
+            GenerationEvent::Reasoning { .. } => {}
             GenerationEvent::End { snapshot, .. } => {
                 assert_eq!(snapshot, "Hello");
                 ended = true;
@@ -288,6 +294,7 @@ async fn rig_stream_assembles_openrouter_tool_call_fragments() {
     while let Some(event) = receiver.recv().await {
         match event.expect("generation event should succeed") {
             GenerationEvent::Text { .. } => panic!("tool-call stream should not emit text"),
+            GenerationEvent::Reasoning { .. } => {}
             GenerationEvent::End {
                 tool_calls: Some(tool_calls),
                 reasoning,

@@ -226,8 +226,12 @@ fn StreamingAssistantResponse(chat_id: i64, team_id: String) -> Element {
                 "aria-live": "polite",
                 "aria-busy": "true",
                 span {
+                    id: "streaming-thinking",
                     class: "text-sm text-base-content/55",
                     "Working…"
+                }
+                div {
+                    id: "streaming-content"
                 }
             }
             ProcessingForm {

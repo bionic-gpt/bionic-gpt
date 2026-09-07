@@ -183,12 +183,16 @@ pub async fn generate_prompt(
         );
     }
 
-    let mut history = history;
+    let mut history = group_tool_exchanges(history);
     let mut history_messages: Vec<Message> = Vec::new();
 
     while size_so_far < size_allowed {
-        if let Some(hist) = history.pop() {
-            size_so_far = add_message(&mut history_messages, hist, size_so_far, size_allowed);
+        if let Some(unit) = history.pop() {
+            let unit_size: usize = unit.iter().map(estimate_message_tokens).sum();
+            if size_so_far + unit_size < size_allowed {
+                size_so_far += unit_size;
+                history_messages.extend(unit);
+            }
         }
 
         if history.is_empty() {
@@ -202,6 +206,33 @@ pub async fn generate_prompt(
     tracing::debug!("{:?}", &messages);
 
     messages
+}
+
+fn group_tool_exchanges(history: Vec<Message>) -> Vec<Vec<Message>> {
+    let mut groups: Vec<Vec<Message>> = Vec::new();
+    for message in history {
+        if is_tool_result(&message) {
+            if groups
+                .last()
+                .is_some_and(|group| group.iter().any(assistant_has_tool_call))
+            {
+                groups.last_mut().unwrap().push(message);
+            } else {
+                groups.push(vec![message]);
+            }
+        } else {
+            groups.push(vec![message]);
+        }
+    }
+    groups
+}
+
+fn is_tool_result(message: &Message) -> bool {
+    matches!(message, Message::User { content } if content.iter().any(|item| matches!(item, rig::message::UserContent::ToolResult(_))))
+}
+
+fn assistant_has_tool_call(message: &Message) -> bool {
+    matches!(message, Message::Assistant { content, .. } if content.iter().any(|item| matches!(item, AssistantContent::ToolCall(_))))
 }
 
 fn combine_system_prompt(

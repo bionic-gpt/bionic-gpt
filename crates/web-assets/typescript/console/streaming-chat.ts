@@ -1,5 +1,6 @@
 // SSE event contract for `/completions/{chatId}`:
 // - { type: "text_delta", data: { delta: string } }
+// - { type: "reasoning_delta", data: { delta: string } }
 // - { type: "done", data: {} }
 // - { type: "error", data: { message: string } }
 //
@@ -87,14 +88,25 @@ async function streamResult(chatId: string, element: HTMLElement) {
     const decoder = new TextDecoder();
     let buffer = '';
     let hasStarted = false;
+    let reasoningText = '';
+    const thinking = document.getElementById('streaming-thinking');
+    const content = document.getElementById('streaming-content') ?? element;
 
     const appendText = (text: string) => {
         if (!hasStarted) {
-            element.replaceChildren();
+            thinking?.remove();
             element.setAttribute('aria-busy', 'false');
             hasStarted = true;
         }
-        element.appendChild(document.createTextNode(text));
+        content.appendChild(document.createTextNode(text));
+    };
+
+    const appendReasoning = (text: string) => {
+        if (!text || hasStarted) return;
+        reasoningText += text;
+        if (thinking) {
+            thinking.textContent = `Thinking: ${reasoningText}`;
+        }
     };
 
     const parseEvent = (chunk: string) => {
@@ -119,6 +131,14 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 const delta = json?.data?.delta;
                 if (typeof delta === 'string' && delta.length > 0) {
                     appendText(delta);
+                }
+                return false;
+            }
+
+            if (json.type === 'reasoning_delta') {
+                const delta = json?.data?.delta;
+                if (typeof delta === 'string' && delta.length > 0) {
+                    appendReasoning(delta);
                 }
                 return false;
             }
