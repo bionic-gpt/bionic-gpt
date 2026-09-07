@@ -9,6 +9,21 @@ struct ExtractionResult {
     content: String,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+enum ExtractionResponse {
+    Envelope { results: Vec<ExtractionResult> },
+    Items(Vec<ExtractionResult>),
+}
+
+impl ExtractionResponse {
+    fn into_results(self) -> Vec<ExtractionResult> {
+        match self {
+            Self::Envelope { results } | Self::Items(results) => results,
+        }
+    }
+}
+
 #[derive(Debug, Serialize)]
 struct ChunkRequest {
     text: String,
@@ -63,7 +78,10 @@ pub async fn document_to_chunks(
         return Err(format!("kreuzberg extract failed: {}", body).into());
     }
 
-    let extracted: Vec<ExtractionResult> = extract_response.json().await?;
+    let extracted = extract_response
+        .json::<ExtractionResponse>()
+        .await?
+        .into_results();
     let content = extracted
         .first()
         .ok_or("kreuzberg extract returned no results")?
@@ -105,4 +123,23 @@ pub async fn document_to_chunks(
         .collect();
 
     Ok(chunks)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ExtractionResponse;
+
+    #[test]
+    fn parses_xberg_results_envelope() {
+        let response: ExtractionResponse =
+            serde_json::from_str(r#"{"results":[{"content":"hello"}]}"#).unwrap();
+        assert_eq!(response.into_results()[0].content, "hello");
+    }
+
+    #[test]
+    fn retains_legacy_array_response_support() {
+        let response: ExtractionResponse =
+            serde_json::from_str(r#"[{"content":"hello"}]"#).unwrap();
+        assert_eq!(response.into_results()[0].content, "hello");
+    }
 }
