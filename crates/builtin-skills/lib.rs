@@ -83,10 +83,26 @@ static DOCUMENT_COAUTHORING_FILES: &[SkillFile] = &[SkillFile {
     contents: include_bytes!("skills/document-coauthoring/SKILL.md"),
 }];
 
-static DOCUMENT_GENERATION_FILES: &[SkillFile] = &[SkillFile {
-    path: "SKILL.md",
-    contents: include_bytes!("skills/document-generation/SKILL.md"),
-}];
+static DOCUMENT_GENERATION_FILES: &[SkillFile] = &[
+    SkillFile {
+        path: "SKILL.md",
+        contents: include_bytes!("skills/document-generation/SKILL.md"),
+    },
+    SkillFile {
+        path: "references/operational-form.typ",
+        contents: include_bytes!("skills/document-generation/references/operational-form.typ"),
+    },
+    SkillFile {
+        path: "references/professional-report.typ",
+        contents: include_bytes!("skills/document-generation/references/professional-report.typ"),
+    },
+    SkillFile {
+        path: "references/comparison-recommendation.typ",
+        contents: include_bytes!(
+            "skills/document-generation/references/comparison-recommendation.typ"
+        ),
+    },
+];
 
 static IMAGE_ANALYSIS_FILES: &[SkillFile] = &[SkillFile {
     path: "SKILL.md",
@@ -199,7 +215,17 @@ mod tests {
             .iter()
             .find(|skill| skill.name == "document-generation")
             .expect("document-generation must be registered");
-        assert!(skill.files.iter().any(|file| file.path == "SKILL.md"));
+        for path in [
+            "SKILL.md",
+            "references/operational-form.typ",
+            "references/professional-report.typ",
+            "references/comparison-recommendation.typ",
+        ] {
+            assert!(skill
+                .files
+                .iter()
+                .any(|file| file.path == path && !file.contents.is_empty()));
+        }
     }
 
     #[test]

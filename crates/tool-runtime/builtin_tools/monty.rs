@@ -733,12 +733,21 @@ async fn persist_binary_result(
     };
     let output_dir = arguments
         .as_object()
-        .and_then(|arguments| arguments.values().find_map(Value::as_str))
+        .and_then(|arguments| {
+            arguments.values().find_map(|value| match value {
+                Value::String(path) => Some(path.as_str()),
+                Value::Array(values) => values.iter().find_map(Value::as_str),
+                _ => None,
+            })
+        })
         .filter(|path| path.starts_with("/home/user/output/"))
         .and_then(|path| std::path::Path::new(path).parent())
         .map(|path| path.to_string_lossy().to_string())
         .unwrap_or_else(|| format!("/home/user/output/{function_name}"));
     let output_path = format!("{output_dir}/{filename}");
+    fs.mkdir(std::path::Path::new(&output_dir), true)
+        .await
+        .map_err(|error| format!("failed to create binary output directory: {error}"))?;
     fs.write_file(std::path::Path::new(&output_path), &bytes)
         .await
         .map_err(|error| format!("failed to persist binary tool response: {error}"))?;
@@ -1216,6 +1225,34 @@ mod tests {
         assert!(is_allowed_file_path("/home/user/output/draft/main.typ"));
         assert!(!is_allowed_file_path("/home/user/skills/main.typ"));
         assert!(!is_allowed_file_path("/tmp/main.typ"));
+    }
+
+    #[tokio::test]
+    async fn binary_results_create_nested_output_directories() {
+        let fs: Arc<dyn FileSystem> = Arc::new(bashkit::InMemoryFs::new());
+        let value = json!({
+            "__bionic_binary": true,
+            "content_base64": base64::engine::general_purpose::STANDARD.encode(b"pdf"),
+            "content_type": "application/pdf"
+        });
+        let arguments = json!({
+            "file_paths": ["/home/user/output/daily-task-list/main.typ"]
+        });
+
+        let path = persist_binary_result(&fs, &value, &arguments, "typst_compiledocument")
+            .await
+            .unwrap();
+
+        assert_eq!(
+            path.as_deref(),
+            Some("/home/user/output/daily-task-list/document.pdf")
+        );
+        assert_eq!(
+            fs.read_file(std::path::Path::new(path.as_deref().unwrap()))
+                .await
+                .unwrap(),
+            b"pdf"
+        );
     }
 
     #[test]
