@@ -16,6 +16,7 @@ path = "main.rs"
 db = { path = "../db" }
 agent-runtime = { path = "../agent-runtime" }
 tool-runtime = { path = "../tool-runtime" }
+builtin-skills = { path = "../builtin-skills" }
 object-storage = { path = "../object-storage" }
 assets = { path = "../web-assets" }
 web-pages = { path = "../web-pages" }
@@ -48,7 +49,7 @@ lettre = { version = "0.11.15", default-features = false,  features = ["rustls-t
 axum_typed_multipart = { version = "0.16.0", default-features = false }
 mime.workspace = true
 oas3.workspace = true
-reqwest = { workspace = true, default-features = false, features = ["json", "rustls"] }
+reqwest = { workspace = true, default-features = false, features = ["json", "multipart", "rustls"] }
 serde_urlencoded = "0.7.1"
 oauth2 = { workspace = true, features = ["reqwest"] }
 chrono = { workspace = true, features = ["serde"] }

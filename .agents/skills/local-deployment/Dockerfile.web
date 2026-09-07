@@ -1,0 +1,15 @@
+FROM debian:trixie-slim
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends --yes ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY web-server /axum-server
+COPY dist/ /workspace/crates/web-assets/dist/
+COPY images/ /workspace/crates/web-assets/images/
+
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+
+WORKDIR /
+USER 1001
+ENTRYPOINT ["/axum-server"]

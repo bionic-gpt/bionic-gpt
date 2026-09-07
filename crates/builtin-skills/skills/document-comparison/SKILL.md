@@ -1,3 +1,7 @@
+---
+name: document-comparison
+description: Compare extracted documents against rubrics and reference documents with traceable evidence.
+---
 # Document Comparison
 
 Use this skill when a user asks to compare documents, validate a document against a rubric or policy, reconcile evidence across files, or identify gaps and risks.

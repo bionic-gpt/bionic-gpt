@@ -4,11 +4,31 @@
 --! insert
 INSERT INTO llm.chats_attachments (
     chat_id,
-    object_id
+    object_id,
+    content_object_id
 ) VALUES (
     :chat_id,
-    :object_id
+    :object_id,
+    :content_object_id
 );
+
+--! get_extracted_content : AttachmentData
+SELECT
+    o.object_data,
+    o.file_name,
+    o.mime_type
+FROM
+    storage.objects o
+JOIN
+    llm.chats_attachments ca ON ca.content_object_id = o.id
+JOIN
+    llm.chats c ON ca.chat_id = c.id
+JOIN
+    llm.conversations conv ON c.conversation_id = conv.id
+WHERE
+    o.id = :id
+AND
+    conv.user_id = current_app_user();
 
 --! get_by_conversation : AttachmentObject
 SELECT
@@ -19,7 +39,8 @@ SELECT
     o.file_name,
     o.file_size,
     o.created_by,
-    o.created_at
+    o.created_at,
+    COALESCE(ca.content_object_id, 0) AS content_object_id
 FROM
     storage.objects o
 JOIN

@@ -1,3 +1,7 @@
+---
+name: image-analysis
+description: Use image evidence to produce domain-aware answers that distinguish observations and uncertainty.
+---
 # Image Analysis
 
 Use this skill when the user's task depends on information contained in an uploaded image, photograph, diagram, screenshot, equipment image, or rendered document.

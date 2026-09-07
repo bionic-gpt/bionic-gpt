@@ -1,5 +1,6 @@
 pub mod api_keys;
 pub mod api_pipeline;
+pub mod attachment_processing;
 pub mod audit_trail;
 pub mod console;
 pub mod datasets;

@@ -1,4 +1,6 @@
-use crate::builtin_tools::bashkit::{persist_outputs, seeded_filesystem, MAX_FILE_TOOL_BYTES};
+use crate::builtin_tools::bashkit::{
+    persist_outputs, seeded_filesystem, OutputEntry, MAX_FILE_TOOL_BYTES,
+};
 use crate::{ToolDyn, ToolError};
 use bashkit::{Bash, ExecutionLimits, FileSystem, PythonLimits};
 use db::Pool;
@@ -129,7 +131,7 @@ pub fn get_read_file_definition() -> crate::types::ToolDefinition {
 pub fn get_write_file_definition() -> crate::types::ToolDefinition {
     definition(
         "write_file",
-        "Write a file to the virtual filesystem. Files under /home/user/output persist.",
+        "Write a file to the virtual filesystem. Files under /home/user/work and /home/user/output persist; only output files appear in chat.",
         json!({
             "type": "object",
             "properties": {
@@ -235,8 +237,8 @@ async fn execute_operation(
             let path = checked_path(&arguments.path)?;
             ensure_size(arguments.content.as_bytes())?;
             write_file(&fs, &path, arguments.content.as_bytes()).await?;
-            persist_output_if_needed(tool, &fs).await?;
-            Ok(json!({"path": path, "written": true}).to_string())
+            let outputs = persist_output_if_needed(tool, &fs).await?;
+            Ok(json!({"path": path, "written": true, "outputs": outputs}).to_string())
         }
         Operation::Edit => {
             let arguments: EditArgs = serde_json::from_str(args)?;
@@ -248,8 +250,8 @@ async fn execute_operation(
             let updated = replace_once(&content, &arguments.find, &arguments.replace)?;
             ensure_size(updated.as_bytes())?;
             write_file(&fs, &path, updated.as_bytes()).await?;
-            persist_output_if_needed(tool, &fs).await?;
-            Ok(json!({"path": path, "edited": true}).to_string())
+            let outputs = persist_output_if_needed(tool, &fs).await?;
+            Ok(json!({"path": path, "edited": true, "outputs": outputs}).to_string())
         }
         Operation::Python => {
             let arguments: PythonArgs = serde_json::from_str(args)?;
@@ -280,11 +282,12 @@ async fn execute_operation(
             let result = bash
                 .exec("python3 /home/user/.runtime/run_python.py")
                 .await?;
-            persist_output_if_needed(tool, &fs).await?;
+            let outputs = persist_output_if_needed(tool, &fs).await?;
             Ok(json!({
                 "stdout": result.stdout,
                 "stderr": result.stderr,
-                "exit_code": result.exit_code
+                "exit_code": result.exit_code,
+                "outputs": outputs
             })
             .to_string())
         }
@@ -342,11 +345,10 @@ async fn write_file(
 async fn persist_output_if_needed(
     tool: &FileTool,
     fs: &Arc<dyn FileSystem>,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+) -> Result<Vec<OutputEntry>, Box<dyn std::error::Error + Send + Sync>> {
     persist_outputs(&tool.pool, &tool.sub, tool.conversation_id, fs.as_ref())
         .await
-        .map_err(|error| std::io::Error::other(error.to_string()))?;
-    Ok(())
+        .map_err(|error| std::io::Error::other(error.to_string()).into())
 }
 
 #[cfg(test)]
@@ -356,6 +358,7 @@ mod tests {
     #[test]
     fn paths_are_limited_to_the_virtual_home() {
         assert!(checked_path("/home/user/output/file.txt").is_ok());
+        assert!(checked_path("/home/user/work/file.txt").is_ok());
         assert!(checked_path("/tmp/file.txt").is_err());
         assert!(checked_path("/home/user/../etc/passwd").is_err());
     }

@@ -94,6 +94,7 @@ pub fn page(team_id: String, rbac: Rbac, data: SystemPromptPageData) -> String {
                         }
                     }
                 }
+                AttachmentContextCard {}
                 ToolDefinitionCards {
                     title: "Tools".to_string(),
                     description: "These tool definitions are sent as model tool metadata. They are not appended to the system prompt.".to_string(),
@@ -110,7 +111,7 @@ pub fn page(team_id: String, rbac: Rbac, data: SystemPromptPageData) -> String {
                 }
                 DebugPreview {
                     title: "Virtual filesystem".to_string(),
-                    description: "This is the Bashkit VFS layout. Datasets are prompt scoped; attachments and outputs are conversation scoped.".to_string(),
+                    description: "This is the Bashkit VFS layout. Datasets are prompt scoped; attachments, work files, and outputs are conversation scoped.".to_string(),
                     body: vfs_preview
                 }
                 TotalPromptSizeCard {
@@ -120,6 +121,23 @@ pub fn page(team_id: String, rbac: Rbac, data: SystemPromptPageData) -> String {
         }
     };
     crate::render(page)
+}
+
+#[component]
+fn AttachmentContextCard() -> Element {
+    rsx!(
+        Card {
+            CardHeader { title: "Current attachments" }
+            CardBody {
+                class: "text-sm text-base-content/80",
+                p { "For conversations with uploads, Bionic adds a compact attachment manifest to the runtime system prompt. The manifest contains metadata and paths; document contents remain in the virtual filesystem." }
+                pre {
+                    class: "mt-3 overflow-auto rounded border border-base-300 bg-base-100 p-4 font-mono text-xs text-base-content",
+                    "## Current attachments\n\n- **Quarterly Report.docx**\n  - type: Word document\n  - content: /home/user/attachments/42/content.md\n  - original: /home/user/attachments/42/original/Quarterly_Report.docx"
+                }
+            }
+        }
+    )
 }
 
 #[component]

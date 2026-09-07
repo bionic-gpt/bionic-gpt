@@ -103,14 +103,21 @@ where
                     OpenLog::Trace => tracing::trace!("SSE connection opened"),
                     OpenLog::Debug => tracing::debug!("SSE connection opened"),
                 },
-                Ok(Event::Message(message)) => match triage(message.data) {
-                    FrameDisposition::Skip => {}
-                    FrameDisposition::Frame(data) => yield Ok(WireFrame::Text(data)),
-                    FrameDisposition::Fail(error) => {
-                        yield Err(error);
-                        break;
+                Ok(Event::Message(message)) => {
+                    tracing::trace!(
+                        target: "rig::streaming",
+                        data = %message.data,
+                        "Incoming SSE frame"
+                    );
+                    match triage(message.data) {
+                        FrameDisposition::Skip => {}
+                        FrameDisposition::Frame(data) => yield Ok(WireFrame::Text(data)),
+                        FrameDisposition::Fail(error) => {
+                            yield Err(error);
+                            break;
+                        }
                     }
-                },
+                }
                 Err(crate::http_client::Error::StreamEnded)
                     if !options.stream_ended_is_error =>
                 {

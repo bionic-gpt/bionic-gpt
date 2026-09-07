@@ -53,7 +53,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
 pub async fn execute_prompt(
     transaction: &Transaction<'_>,
     prompt: models::ModelConfig,
-    _conversation_id: Option<i64>,
+    conversation_id: Option<i64>,
     include_skills: bool,
     integration_context: Option<String>,
     chat_history: Vec<Message>,
@@ -76,7 +76,16 @@ pub async fn execute_prompt(
     } else {
         None
     };
-    let runtime_context = combine_optional_sections(vec![skills_context, integration_context]);
+    let attachment_context = if let Some(conversation_id) = conversation_id {
+        Some(attachment_prompt_section(transaction, conversation_id).await?)
+    } else {
+        None
+    };
+    let runtime_context = combine_optional_sections(vec![
+        skills_context,
+        integration_context,
+        attachment_context,
+    ]);
     let runtime_context = if runtime_context.is_empty() {
         None
     } else {
@@ -93,6 +102,52 @@ pub async fn execute_prompt(
         chat_history,
     )
     .await)
+}
+
+async fn attachment_prompt_section(
+    transaction: &db::Transaction<'_>,
+    conversation_id: i64,
+) -> Result<String, CustomError> {
+    let attachments = db::queries::attachments::get_by_conversation()
+        .bind(transaction, &conversation_id)
+        .all()
+        .await?;
+    if attachments.is_empty() {
+        return Ok(String::new());
+    }
+
+    let mut section = String::from("## Current attachments\n\n");
+    for attachment in attachments {
+        let safe_name = sanitize_attachment_name(&attachment.file_name);
+        section.push_str(&format!(
+            "- **{}**\n  - type: {}\n  - content: /home/user/attachments/{}/content.md\n  - original: /home/user/attachments/{}/original/{}\n",
+            attachment.file_name,
+            attachment.mime_type,
+            attachment.id,
+            attachment.id,
+            safe_name
+        ));
+    }
+    Ok(section.trim_end().to_string())
+}
+
+fn sanitize_attachment_name(file_name: &str) -> String {
+    let leaf = file_name.rsplit(['/', '\\']).next().unwrap_or(file_name);
+    let sanitized = leaf
+        .chars()
+        .map(|character| {
+            if character.is_ascii_alphanumeric() || matches!(character, '.' | '-' | '_' | ' ') {
+                character
+            } else {
+                '_'
+            }
+        })
+        .collect::<String>();
+    if sanitized.is_empty() || sanitized == "." || sanitized == ".." {
+        "attachment".to_string()
+    } else {
+        sanitized
+    }
 }
 
 pub async fn generate_prompt(

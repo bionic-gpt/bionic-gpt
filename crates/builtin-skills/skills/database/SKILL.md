@@ -1,3 +1,7 @@
+---
+name: database
+description: Create, query, update, or maintain SQLite databases and structured persistent data.
+---
 # Database
 
 Use this skill when the user asks to inspect, query, create, or modify a SQLite database inside the Bashkit sandbox. Use the `sqlite` command for SQL work. This skill does not provide access to remote databases or the application's Postgres database.

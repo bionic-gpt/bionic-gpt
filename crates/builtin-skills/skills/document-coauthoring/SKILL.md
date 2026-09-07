@@ -1,3 +1,7 @@
+---
+name: document-coauthoring
+description: Guide users through structured co-authoring of proposals, specifications, RFCs, and decision documents.
+---
 # Document Co-authoring
 
 Use this skill when the user wants to write or revise a proposal, technical specification, RFC, decision record, design document, or similar structured documentation.
