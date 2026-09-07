@@ -32,17 +32,6 @@ fn event_data_for_text(delta: String) -> String {
     .to_string()
 }
 
-/// Formats an SSE message for a reasoning chunk.
-fn event_data_for_reasoning(delta: String) -> String {
-    json!({
-        "type": "reasoning_delta",
-        "data": {
-            "delta": delta
-        }
-    })
-    .to_string()
-}
-
 /// Formats an SSE message for stream completion.
 fn event_data_for_done() -> String {
     json!({
@@ -68,9 +57,6 @@ fn event_data_for_error(message: String) -> Event {
 #[derive(Debug)]
 pub enum GenerationEvent {
     Text {
-        delta: String,
-    },
-    Reasoning {
         delta: String,
     },
     End {
@@ -110,9 +96,6 @@ where
                 Ok(event) => match event {
                     GenerationEvent::Text { delta } => {
                         Ok(Event::default().data(event_data_for_text(delta)))
-                    }
-                    GenerationEvent::Reasoning { delta } => {
-                        Ok(Event::default().data(event_data_for_reasoning(delta)))
                     }
                     GenerationEvent::End {
                         snapshot,
@@ -314,7 +297,6 @@ pub async fn run_scheduled_chat(
                     completed = Some((snapshot, tool_calls, reasoning, usage));
                 }
                 Ok(GenerationEvent::Text { .. }) => {}
-                Ok(GenerationEvent::Reasoning { .. }) => {}
                 Err(error) => return Err(error.to_string()),
             }
         }
@@ -484,30 +466,6 @@ async fn consume_rig_stream(
                 ..
             }) => {
                 tracing::debug!(event = event_count, "Rig stream reasoning event");
-                let display_text = reasoning_item.display_text();
-                if !display_text.is_empty()
-                    && sender
-                        .send(Ok(GenerationEvent::Reasoning {
-                            delta: display_text,
-                        }))
-                        .await
-                        .is_err()
-                {
-                    return Ok(StreamOutcome::ClientDisconnected {
-                        snapshot,
-                        tool_calls: if tool_calls.is_empty() {
-                            None
-                        } else {
-                            Some(tool_calls)
-                        },
-                        reasoning: if reasoning.is_empty() {
-                            None
-                        } else {
-                            Some(reasoning)
-                        },
-                        usage,
-                    });
-                }
                 push_reasoning(&mut reasoning, reasoning_item);
             }
             Ok(StreamedAssistantContent::ReasoningDelta {
@@ -520,29 +478,6 @@ async fn consume_rig_stream(
                     delta_length = delta.len(),
                     "Rig stream reasoning delta event"
                 );
-                if !delta.is_empty()
-                    && sender
-                        .send(Ok(GenerationEvent::Reasoning {
-                            delta: delta.clone(),
-                        }))
-                        .await
-                        .is_err()
-                {
-                    return Ok(StreamOutcome::ClientDisconnected {
-                        snapshot,
-                        tool_calls: if tool_calls.is_empty() {
-                            None
-                        } else {
-                            Some(tool_calls)
-                        },
-                        reasoning: if reasoning.is_empty() {
-                            None
-                        } else {
-                            Some(reasoning)
-                        },
-                        usage,
-                    });
-                }
                 push_reasoning_delta(&mut reasoning, Some(id), delta);
             }
             Ok(StreamedAssistantContent::Unknown(_)) => {
