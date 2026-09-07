@@ -83,6 +83,11 @@ static DOCUMENT_COAUTHORING_FILES: &[SkillFile] = &[SkillFile {
     contents: include_bytes!("skills/document-coauthoring/SKILL.md"),
 }];
 
+static DOCUMENT_GENERATION_FILES: &[SkillFile] = &[SkillFile {
+    path: "SKILL.md",
+    contents: include_bytes!("skills/document-generation/SKILL.md"),
+}];
+
 static IMAGE_ANALYSIS_FILES: &[SkillFile] = &[SkillFile {
     path: "SKILL.md",
     contents: include_bytes!("skills/image-analysis/SKILL.md"),
@@ -129,6 +134,7 @@ static SKILL_FILE_SETS: &[&[SkillFile]] = &[
     DATASET_ANALYSIS_FILES,
     DOCUMENT_COAUTHORING_FILES,
     DOCUMENT_COMPARISON_FILES,
+    DOCUMENT_GENERATION_FILES,
     IMAGE_ANALYSIS_FILES,
     PRESENTATION_BUILDER_FILES,
     SHELL_DATA_WORKBENCH_FILES,
@@ -164,7 +170,7 @@ mod tests {
 
     #[test]
     fn exposes_all_builtin_skills_and_skill_files() {
-        assert_eq!(all().len(), 8);
+        assert_eq!(all().len(), 9);
         assert!(all().iter().all(|skill| {
             skill.files.iter().any(|file| file.path == "SKILL.md")
                 && skill.files.iter().all(|file| !file.contents.is_empty())
@@ -185,6 +191,15 @@ mod tests {
             .files
             .iter()
             .any(|file| file.path == "bin/build-reveal-canvas.sh"));
+    }
+
+    #[test]
+    fn document_generation_skill_is_registered() {
+        let skill = all()
+            .iter()
+            .find(|skill| skill.name == "document-generation")
+            .expect("document-generation must be registered");
+        assert!(skill.files.iter().any(|file| file.path == "SKILL.md"));
     }
 
     #[test]
