@@ -13,7 +13,7 @@ use rig::providers::{ollama, openai};
 use rig::wasm_compat::WasmBoxedFuture;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
@@ -91,6 +91,7 @@ struct AttachmentEntry {
     file_id: i32,
     name: String,
     path: String,
+    content_path: String,
     mime_type: String,
     size: i64,
 }
@@ -679,14 +680,20 @@ async fn seed_attachments(
         .await
         .map_err(|e| json!({"error": "Failed to get attachments", "details": e.to_string()}))?;
 
-    let planned_paths = plan_attachment_paths(
-        attachments
-            .iter()
-            .map(|attachment| attachment.file_name.as_str()),
-    );
     let mut entries = Vec::new();
 
-    for (attachment, path) in attachments.iter().zip(planned_paths) {
+    for attachment in attachments {
+        let path = format!(
+            "{ATTACHMENTS_DIR}/{}/original/{}",
+            attachment.id,
+            sanitize_attachment_file_name(&attachment.file_name)
+        );
+        let content_path = format!("{ATTACHMENTS_DIR}/{}/content.md", attachment.id);
+        if let Some(parent) = Path::new(&path).parent() {
+            fs.mkdir(parent, true).await.map_err(|e| {
+                json!({"error": "Failed to create attachment directory", "details": e.to_string()})
+            })?;
+        }
         let data = queries::attachments::get_content()
             .bind(&transaction, &attachment.id)
             .one()
@@ -704,10 +711,23 @@ async fn seed_attachments(
                 |e| json!({"error": "Failed to seed attachment file", "details": e.to_string()}),
             )?;
 
+        if attachment.content_object_id > 0 {
+            let content_object_id = attachment.content_object_id;
+            let content = queries::attachments::get_extracted_content()
+                .bind(&transaction, &content_object_id)
+                .one()
+                .await
+                .map_err(|e| json!({"error": "Failed to get extracted attachment content", "details": e.to_string()}))?;
+            fs.write_file(Path::new(&content_path), &content.object_data)
+                .await
+                .map_err(|e| json!({"error": "Failed to seed extracted attachment content", "details": e.to_string()}))?;
+        }
+
         entries.push(AttachmentEntry {
             file_id: attachment.id,
             name: attachment.file_name.clone(),
             path,
+            content_path,
             mime_type: attachment.mime_type.clone(),
             size: attachment.file_size,
         });
@@ -1075,18 +1095,6 @@ fn db_conversation_id(conversation_id: i64) -> Result<i32, serde_json::Value> {
         .map_err(|_| json!({"error": "conversation_id is outside the supported range"}))
 }
 
-fn plan_attachment_paths<'a>(file_names: impl IntoIterator<Item = &'a str>) -> Vec<String> {
-    let mut used = HashSet::new();
-    file_names
-        .into_iter()
-        .map(|file_name| {
-            let safe_name = sanitize_attachment_file_name(file_name);
-            let unique_name = unique_attachment_file_name(&safe_name, &mut used);
-            format!("{ATTACHMENTS_DIR}/{unique_name}")
-        })
-        .collect()
-}
-
 fn sanitize_attachment_file_name(file_name: &str) -> String {
     let leaf = file_name
         .rsplit(['/', '\\'])
@@ -1110,32 +1118,6 @@ fn sanitize_attachment_file_name(file_name: &str) -> String {
     } else {
         sanitized
     }
-}
-
-fn unique_attachment_file_name(file_name: &str, used: &mut HashSet<String>) -> String {
-    if used.insert(file_name.to_string()) {
-        return file_name.to_string();
-    }
-
-    let path = Path::new(file_name);
-    let stem = path
-        .file_stem()
-        .and_then(|stem| stem.to_str())
-        .filter(|stem| !stem.is_empty())
-        .unwrap_or(file_name);
-    let extension = path.extension().and_then(|extension| extension.to_str());
-
-    for suffix in 2.. {
-        let candidate = match extension {
-            Some(extension) if !extension.is_empty() => format!("{stem}-{suffix}.{extension}"),
-            _ => format!("{stem}-{suffix}"),
-        };
-        if used.insert(candidate.clone()) {
-            return candidate;
-        }
-    }
-
-    unreachable!("unbounded suffix loop should always return")
 }
 
 struct SeedDocument {
@@ -1659,20 +1641,6 @@ mod tests {
             "notes.md"
         );
         assert_eq!(sanitize_attachment_file_name("..."), "attachment");
-    }
-
-    #[test]
-    fn test_plan_attachment_paths_deduplicates_names() {
-        let paths = plan_attachment_paths(["report.txt", "report.txt", "report-2.txt", ""]);
-        assert_eq!(
-            paths,
-            vec![
-                "/home/user/attachments/report.txt",
-                "/home/user/attachments/report-2.txt",
-                "/home/user/attachments/report-2-2.txt",
-                "/home/user/attachments/attachment",
-            ]
-        );
     }
 
     #[test]

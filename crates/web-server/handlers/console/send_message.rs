@@ -1,3 +1,4 @@
+use crate::handlers::attachment_processing::extract_markdown;
 use crate::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Multipart},
@@ -176,11 +177,21 @@ async fn handle_attachments(
 ) -> Result<(), CustomError> {
     for (file_name, _content_type, file_data, _size) in files_info {
         // Upload the file to object storage
+        let markdown = extract_markdown(file_data, file_name).await?;
         match object_storage::upload(storage_config, user_id, team_id, file_name, file_data).await {
             Ok(object_id) => {
+                let content_name = "content.md";
+                let content_object_id = object_storage::upload(
+                    storage_config,
+                    user_id,
+                    team_id,
+                    content_name,
+                    markdown.as_bytes(),
+                )
+                .await?;
                 // Link the object to the chat
                 attachments::insert()
-                    .bind(transaction, chat_id, &object_id)
+                    .bind(transaction, chat_id, &object_id, &content_object_id)
                     .await
                     .map_err(|e| {
                         tracing::error!("Failed to link attachment: {}", e);

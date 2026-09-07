@@ -8,22 +8,22 @@ Use this skill when a task depends on facts contained in uploaded documents or o
 
 ## Workflow
 
-1. List `/home/user/attachments` and identify every relevant source file.
-2. For each source, call `document_conversion_api_extractdocument` directly with `run_python`. Pass the attachment path as `file_path`.
-3. In the same Python call, serialize the complete result to `/home/user/work/<source-name>.json` instead of printing it. For example:
+1. Read the `## Current attachments` section in the system prompt. It gives each original filename plus its preprocessed Markdown and original-file paths.
+2. For each source, call `document_conversion_api_extractdocument` directly with `run_python` only when the preprocessed Markdown is missing or a fresh extraction is explicitly needed. Pass the original path as `file_path`.
+3. In that Python call, serialize the complete result to `/home/user/work/<source-name>.json` instead of printing it. For example:
 
 ```python
 import json
 
 result = document_conversion_api_extractdocument(
-    file_path="/home/user/attachments/<source-file>"
+    file_path="/home/user/attachments/<attachment-id>/original/<source-file>"
 )
 with open("/home/user/work/<source-file>.json", "w") as extracted:
     extracted.write(json.dumps(result, ensure_ascii=False, indent=2))
 print("Saved extraction to /home/user/work/<source-file>.json")
 ```
 
-4. Inspect or search the saved JSON with `read_file` or `run_bash` commands such as `grep`; it remains available across later turns without appearing as a generated file in the conversation.
+4. Prefer reading or searching the preprocessed `/home/user/attachments/<attachment-id>/content.md` with `read_file` or `run_bash` commands such as `grep`; it remains available across later turns. Work files also persist without appearing as generated files in the conversation.
 5. Preserve the source filename and every available location marker when reporting evidence. Keep extraction separate from interpretation.
 6. If conversion fails or a format is unsupported, report the exact failure and do not substitute guessed content.
 
