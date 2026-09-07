@@ -351,6 +351,37 @@ async fn test_history_truncation_keeps_latest() {
     assert_eq!(contents[4], large_content);
 }
 
+#[tokio::test]
+async fn test_history_truncation_drops_tool_call_with_oversized_result() {
+    let conversation = vec![
+        create_test_chat(1, ChatRole::User, Some("request".to_string()), None, None),
+        create_test_chat(
+            2,
+            ChatRole::Assistant,
+            None,
+            Some(create_tool_call_json("call_large", "tool", "{}")),
+            None,
+        ),
+        create_test_chat(
+            3,
+            ChatRole::Tool,
+            Some("x".repeat(20_000)),
+            None,
+            Some("call_large".to_string()),
+        ),
+        create_test_chat(4, ChatRole::User, Some("latest".to_string()), None, None),
+    ];
+    let history = convert_chat_to_messages(conversation);
+    let messages = generate_prompt(2_000, 0, 1.0, None, None, None, history).await;
+
+    assert!(messages
+        .iter()
+        .any(|message| text_content(message) == Some("latest")));
+    assert!(!messages.iter().any(|message| {
+        matches!(message, Message::Assistant { content, .. } if content.iter().any(|item| matches!(item, AssistantContent::ToolCall(_))))
+    }));
+}
+
 #[test]
 fn test_strip_tool_data_removes_tool_messages() {
     let messages = vec![

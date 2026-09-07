@@ -170,6 +170,11 @@ pub(crate) async fn create_request(
 
     transaction.commit().await?;
 
+    let additional_params = prompt
+        .reasoning_effort
+        .as_ref()
+        .map(|effort| serde_json::json!({ "reasoning_effort": effort }));
+
     let completion = CompletionRequest {
         model: None,
         preamble: None,
@@ -183,7 +188,7 @@ pub(crate) async fn create_request(
         temperature: prompt.temperature.map(|t| t as f64),
         max_tokens: prompt.max_completion_tokens.map(|t| t as u64),
         tool_choice: None,
-        additional_params: None,
+        additional_params,
         output_schema: None,
         record_telemetry_content: false,
     };

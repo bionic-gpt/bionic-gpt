@@ -1,5 +1,5 @@
 --: Model(api_key?)
---: ModelConfig(api_key?, temperature?, max_completion_tokens?, system_prompt?, example1?, example2?, example3?, example4?, selected_datasets?, datasets?)
+--: ModelConfig(api_key?, temperature?, max_completion_tokens?, system_prompt?, example1?, example2?, example3?, example4?, selected_datasets?, datasets?, reasoning_effort?)
 
 --! models : Model
 SELECT id, name, model_type, provider_type, base_url, api_key,
@@ -13,7 +13,7 @@ SELECT id, name, model_type, provider_type, base_url, api_key,
        tpm_limit, rpm_limit, context_size, created_at, updated_at,
        display_name, description, disclaimer, example1, example2,
        example3, example4, system_prompt, max_history_items,
-       max_completion_tokens, trim_ratio, temperature,
+       max_completion_tokens, trim_ratio, temperature, reasoning_effort,
        (SELECT COALESCE(STRING_AGG(d.id::text, ','), '')
         FROM rag.datasets d
         WHERE d.visibility = 'Company'
@@ -34,7 +34,7 @@ SELECT id, name, model_type, provider_type, base_url, api_key,
        tpm_limit, rpm_limit, context_size, created_at, updated_at,
        display_name, description, disclaimer, example1, example2,
        example3, example4, system_prompt, max_history_items,
-       max_completion_tokens, trim_ratio, temperature,
+       max_completion_tokens, trim_ratio, temperature, reasoning_effort,
        (SELECT COALESCE(STRING_AGG(d.id::text, ','), '')
         FROM rag.datasets d
         WHERE d.visibility = 'Company'
@@ -56,7 +56,7 @@ SELECT id, name, model_type, provider_type, base_url, api_key,
        tpm_limit, rpm_limit, context_size, created_at, updated_at,
        display_name, description, disclaimer, example1, example2,
        example3, example4, system_prompt, max_history_items,
-       max_completion_tokens, trim_ratio, temperature,
+       max_completion_tokens, trim_ratio, temperature, reasoning_effort,
        (SELECT COALESCE(STRING_AGG(d.id::text, ','), '') FROM rag.datasets d
         WHERE d.visibility = 'Company'
            OR (d.visibility = 'Private' AND d.created_by = current_app_user())
@@ -102,7 +102,7 @@ SELECT m.id, m.name, m.model_type, m.provider_type, m.base_url, m.api_key,
        m.tpm_limit, m.rpm_limit, m.context_size, m.created_at, m.updated_at,
        m.display_name, m.description, m.disclaimer, m.example1, m.example2,
        m.example3, m.example4, m.system_prompt, m.max_history_items,
-       m.max_completion_tokens, m.trim_ratio, m.temperature,
+       m.max_completion_tokens, m.trim_ratio, m.temperature, m.reasoning_effort,
        '' AS selected_datasets, '' AS datasets
 FROM model_registry.models m
 JOIN llm.chats c ON c.model_id = m.id
@@ -125,14 +125,14 @@ UPDATE model_registry.models SET
     rpm_limit = :rpm_limit, context_size = :context_size
 WHERE id = :id;
 
---! update_config(system_prompt?, max_completion_tokens?, temperature?, example1?, example2?, example3?, example4?)
+--! update_config(system_prompt?, max_completion_tokens?, temperature?, example1?, example2?, example3?, example4?, reasoning_effort?)
 UPDATE model_registry.models SET
     display_name = :display_name, description = :description,
     disclaimer = :disclaimer, example1 = :example1, example2 = :example2,
     example3 = :example3, example4 = :example4, system_prompt = :system_prompt,
     max_history_items = :max_history_items,
     max_completion_tokens = :max_completion_tokens, trim_ratio = :trim_ratio,
-    temperature = :temperature
+    temperature = :temperature, reasoning_effort = :reasoning_effort
 WHERE id = :id;
 
 --! delete

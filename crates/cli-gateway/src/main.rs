@@ -26,6 +26,7 @@ const DEFAULT_SPEC: &str = "/etc/cli-gateway/openapi.yaml";
 const DEFAULT_BIND: &str = "0.0.0.0:8080";
 const MAX_REQUEST_BYTES: usize = 128 * 1024 * 1024;
 const DEFAULT_TIMEOUT_MS: u64 = 30_000;
+const MAX_DIAGNOSTIC_BYTES: usize = 12 * 1024;
 
 #[derive(Clone)]
 struct AppState {
@@ -309,12 +310,12 @@ async fn operation(
             )
         }
     };
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+    let (stdout, stdout_truncated) = bounded_diagnostic(&output.stdout);
+    let (stderr, stderr_truncated) = bounded_diagnostic(&output.stderr);
     if !output.status.success() {
         return json_response(
             StatusCode::UNPROCESSABLE_ENTITY,
-            json!({"error": "CLI execution failed", "operation": operation.operation_id, "exit_status": output.status.code(), "stdout": stdout, "stderr": stderr}),
+            json!({"error": "CLI execution failed", "operation": operation.operation_id, "exit_status": output.status.code(), "stdout": stdout, "stderr": stderr, "stdout_truncated": stdout_truncated, "stderr_truncated": stderr_truncated}),
         );
     }
     if let Some(output_path) = operation.output {
@@ -333,15 +334,37 @@ async fn operation(
             Err(error) => {
                 return json_response(
                     StatusCode::UNPROCESSABLE_ENTITY,
-                    json!({"error": "CLI did not produce the declared output", "operation": operation.operation_id, "detail": error.to_string(), "stdout": stdout, "stderr": stderr}),
+                    json!({"error": "CLI did not produce the declared output", "operation": operation.operation_id, "detail": error.to_string(), "stdout": stdout, "stderr": stderr, "stdout_truncated": stdout_truncated, "stderr_truncated": stderr_truncated}),
                 )
             }
         }
     }
     json_response(
         StatusCode::OK,
-        json!({"operation": operation.operation_id, "exit_status": output.status.code(), "stdout": stdout, "stderr": stderr}),
+        json!({"operation": operation.operation_id, "exit_status": output.status.code(), "stdout": stdout, "stderr": stderr, "stdout_truncated": stdout_truncated, "stderr_truncated": stderr_truncated}),
     )
+}
+
+fn bounded_diagnostic(bytes: &[u8]) -> (String, bool) {
+    let text = String::from_utf8_lossy(bytes);
+    if text.len() <= MAX_DIAGNOSTIC_BYTES {
+        return (text.into_owned(), false);
+    }
+
+    let marker = "\n… [diagnostic truncated] …\n";
+    let available = MAX_DIAGNOSTIC_BYTES.saturating_sub(marker.len());
+    let head_len = available / 2;
+    let tail_len = available - head_len;
+    let head_end = (0..=head_len.min(text.len()))
+        .rev()
+        .find(|index| text.is_char_boundary(*index))
+        .unwrap_or(0);
+    let head = &text[..head_end];
+    let tail_start = (text.len().saturating_sub(tail_len)..=text.len())
+        .find(|index| text.is_char_boundary(*index))
+        .unwrap_or(text.len());
+    let tail = &text[tail_start..];
+    (format!("{head}{marker}{tail}"), true)
 }
 
 async fn write_uploads(request: Request<Body>, workspace: &Path) -> Result<(), String> {
@@ -489,6 +512,14 @@ paths:
         let error =
             LoadedSpec::from_yaml(&SPEC.replace("output.txt", "../output.txt")).unwrap_err();
         assert!(error.contains("request workspace"));
+    }
+
+    #[test]
+    fn bounds_large_diagnostics_and_marks_truncation() {
+        let (diagnostic, truncated) = bounded_diagnostic(&vec![b'x'; MAX_DIAGNOSTIC_BYTES * 3]);
+        assert!(truncated);
+        assert!(diagnostic.len() <= MAX_DIAGNOSTIC_BYTES);
+        assert!(diagnostic.contains("diagnostic truncated"));
     }
 
     #[tokio::test]
