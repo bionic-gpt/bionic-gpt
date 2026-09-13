@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import importlib
 from pathlib import Path
 from threading import Lock
 
@@ -16,6 +17,7 @@ if str(automationbench_path) not in sys.path:
 
 from automationbench.schema.world import WorldState  # noqa: E402
 from automationbench.tools.api.fetch import api_fetch  # noqa: E402
+from automationbench.runner import compute_allowed_services, strip_none_values  # noqa: E402
 
 app = FastAPI(title="AutomationBench API adapter", version="1.0.0")
 openapi_dir = Path(os.environ.get("AUTOMATIONBENCH_OPENAPI", "/app/openapi"))
@@ -23,6 +25,7 @@ if openapi_dir.exists():
     app.mount("/openapi", StaticFiles(directory=openapi_dir), name="generated-openapi")
 world = WorldState()
 world_lock = Lock()
+_tasks: dict[str, dict] | None = None
 
 
 def _world_json() -> dict:
@@ -36,6 +39,25 @@ def _load_routes() -> dict[str, dict[str, str]]:
     return {item["name"]: item for item in json.loads(path.read_text()).get("services", [])}
 
 
+def _load_tasks() -> dict[str, dict]:
+    global _tasks
+    if _tasks is not None:
+        return _tasks
+    tasks: dict[str, dict] = {}
+    for domain in ("simple", "sales", "marketing", "operations", "support", "finance", "hr"):
+        module = importlib.import_module(f"automationbench.domains.{domain}.tasks")
+        dataset = module.get_simple_dataset() if domain == "simple" else module.__dict__[f"get_{domain}_dataset"]()
+        for row in dataset:
+            info = row.get("info", {})
+            if isinstance(info, str):
+                info = json.loads(info)
+            name = info.get("task_name") or row.get("task")
+            if name:
+                tasks[name] = {"prompt": row.get("prompt", []), "info": info}
+    _tasks = tasks
+    return tasks
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -47,6 +69,28 @@ def reset() -> dict:
     with world_lock:
         world = WorldState()
         return _world_json()
+
+
+@app.post("/benchmark/reset")
+async def benchmark_reset(request: Request):
+    payload = await request.json()
+    task_name = payload.get("task") if isinstance(payload, dict) else None
+    if not isinstance(task_name, str) or not task_name:
+        return JSONResponse({"error": "task is required"}, status_code=400)
+    task = _load_tasks().get(task_name)
+    if task is None:
+        return JSONResponse({"error": {"code": 404, "message": f"Unknown AutomationBench task: {task_name}"}}, status_code=404)
+    info = task["info"]
+    initial_state = strip_none_values(info.get("initial_state", {}))
+    assertions = info.get("assertions", [])
+    zapier_tools = info.get("zapier_tools", [])
+    allowed_services = compute_allowed_services(initial_state, assertions, zapier_tools)
+    replacement = WorldState(**initial_state)
+    replacement.meta.allowed_services = allowed_services
+    global world
+    with world_lock:
+        world = replacement
+        return {"task": task_name, "allowed_services": allowed_services, "world": _world_json()}
 
 
 @app.post("/admin/world")

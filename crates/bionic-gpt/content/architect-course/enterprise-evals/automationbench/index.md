@@ -41,3 +41,15 @@ BIONIC_TEAM_ID=5 BIONIC_USER_ID=1 ./import-automationbench.sh
 ```
 
 The helper is idempotent, creates team-visible authentication-free OpenAPI integrations, and does not create API-key or OAuth connections. The adapter exposes `/admin/world` for loading an `initial_state` and `/admin/reset` for starting over.
+
+## Reset for a benchmark task
+
+For repeatable evaluation runs, reset the shared world from the task name rather than constructing the state by hand:
+
+```bash
+curl -X POST http://localhost:8880/benchmark/reset \
+  -H 'Content-Type: application/json' \
+  -d '{"task":"simple.email_sf_contact_phone_update"}'
+```
+
+The response includes the task name, the services allowed for that task, and the initialized world. This replaces the current world for every caller of the container, so reset before starting each evaluation. Use `/admin/reset` for an empty world or `/admin/world` when you already have a serialized `initial_state` object.

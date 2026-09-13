@@ -8,3 +8,4 @@ httpx>=0.27
 python-dotenv>=1.2
 rich>=13.0
 verifiers>=0.2
+datasets>=3.0

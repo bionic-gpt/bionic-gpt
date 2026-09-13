@@ -23,6 +23,14 @@ curl -X POST localhost:8080/admin/world -H content-type:application/json -d '{"i
 curl 'localhost:8080/api/gmail/gmail/v1/users/me/messages'
 ```
 
+Reset directly to a named benchmark task:
+
+```bash
+curl -X POST localhost:8080/benchmark/reset \
+  -H 'content-type: application/json' \
+  -d '{"task":"simple.email_sf_contact_phone_update"}'
+```
+
 The container keeps one shared `WorldState`; `/admin/reset` replaces it and
 `/admin/world` returns its current serialized value. Generated OpenAPI files
 are served directly from `/openapi/<service>.yaml`; the files themselves are
