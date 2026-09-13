@@ -77,9 +77,31 @@ jobs:
       - name: Prepare release tag
         id: release_tag
         run: |
-          tag="v${{ steps.next_version.outputs.version }}-rc"
+          base_version="${{ steps.next_version.outputs.version }}"
+          legacy_tag="v${base_version}-rc"
+          base_pattern=$(printf '%s' "$base_version" | sed 's/\./\\\\./g')
+          next_rc=1
+
+          # Number repeated candidates for the same base version. Treat the
+          # legacy unnumbered tag as candidate 1 for compatibility.
+          while IFS= read -r existing_tag; do
+            if [ "$existing_tag" = "$legacy_tag" ]; then
+              candidate=1
+            elif [[ "$existing_tag" =~ ^v${base_pattern}-rc\.([0-9]+)$ ]]; then
+              candidate="${BASH_REMATCH[1]}"
+            else
+              continue
+            fi
+
+            if (( candidate >= next_rc )); then
+              next_rc=$((candidate + 1))
+            fi
+          done < <(git tag -l "v${base_version}-rc*")
+
+          tag="v${base_version}-rc.${next_rc}"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "version=${{ steps.next_version.outputs.version }}" >> "$GITHUB_OUTPUT"
+          echo "version=$base_version" >> "$GITHUB_OUTPUT"
+          echo "Prepared release candidate tag: $tag"
 
       - name: Create RC tag
         run: |

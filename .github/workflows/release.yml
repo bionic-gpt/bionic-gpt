@@ -26,13 +26,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          latest_rc=$(git tag -l "v*-rc" --sort=-v:refname | head -n1)
+          latest_rc=$(git tag -l "v*-rc*" --sort=-v:refname \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+-rc(\.[0-9]+)?$' \
+            | head -n1)
           if [ -z "${latest_rc}" ]; then
             echo "No RC tags found"
             exit 1
           fi
           echo "latest_rc=${latest_rc}" >> "$GITHUB_OUTPUT"
-          base="${latest_rc%%-rc}"
+          base="${latest_rc%%-rc*}"
           echo "base=${base#v}" >> "$GITHUB_OUTPUT"
           echo "Promoting ${latest_rc} -> ${base}"
 
