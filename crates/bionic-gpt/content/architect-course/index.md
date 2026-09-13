@@ -43,7 +43,8 @@ data, and success criteria.
   [memory](/architect-course/ai-computer/memory/), and
   [scheduled tasks](
   /architect-course/ai-computer/scheduled-tasks/).
-- **Run enterprise evals:** test [inbox summarization](
+- **Run enterprise evals:** start with [AutomationBench](
+  /architect-course/enterprise-evals/automationbench/), then test [inbox summarization](
   /architect-course/enterprise-evals/inbox-summarization/) and a
   [deep research](
   /architect-course/enterprise-evals/research/), test

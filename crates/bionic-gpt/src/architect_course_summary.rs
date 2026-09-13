@@ -226,6 +226,17 @@ pub fn summary() -> Summary {
                 pages: vec![
                     PageSummary {
                         date: "",
+                        title: "AutomationBench",
+                        description: "Run deterministic enterprise workflow evaluations with AutomationBench's simulated SaaS APIs.",
+                        folder: "architect-course/enterprise-evals/automationbench/",
+                        markdown: include_str!("../content/architect-course/enterprise-evals/automationbench/index.md"),
+                        image: None,
+                        open_graph_image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    PageSummary {
+                        date: "",
                         title: "Inbox Summarization",
                         description:
                             "Evaluate whether the model can inspect an inbox, identify the latest request and follow-up, and draft the right response.",
