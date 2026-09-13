@@ -1,82 +1,52 @@
-# Inbox Summarization
+# Email-to-CRM Automation
 
-This eval tests whether the model can inspect an enterprise inbox, identify the
-latest relevant request and follow-up, draft a useful response, and avoid
-sending it before approval.
+This lesson uses the real [AutomationBench](https://github.com/zapier/AutomationBench) task `simple.email_sf_contact_phone_update`. AutomationBench starts with seeded application state, exposes simulated services through ordinary OpenAPI integrations, and evaluates whether the resulting world state is correct.
 
-The eval provides a controlled email API with fixed messages and expected
-behaviour. It is designed to test inbox triage without connecting to a real
-mailbox.
+In this scenario:
 
-[Mockoon](https://mockoon.com/) lets us create a realistic mock REST API without
-connecting to a real mailbox. Bionic's eval mocks service runs the OpenAPI spec
-as a mock API.
+- Gmail contains an email from Jordan Lee with a new phone number.
+- Salesforce contains Jordan Lee’s existing contact.
+- The agent must connect the request across both systems and update the correct CRM record.
 
 ## Test Prompt
 
-Once the integration is available, try:
+Use this prompt exactly:
 
 ```text
-Review the inbox, identify the latest request that needs a reply, draft a
-response asking for the missing security requirements, and do not send it yet.
+Jordan Lee just emailed us with a new phone number. Can you find that email and update her phone number in Salesforce?
 ```
 
-A good result should:
+## Initialize the task
 
-1. List or inspect the available emails.
-2. Read the relevant request.
-3. Notice the security follow-up.
-4. Create a draft response.
-5. Avoid calling `sendDraft`.
+Before each evaluation, reset the AutomationBench adapter to the named task:
 
-## Download the Spec
+```bash
+curl -X POST http://localhost:8880/benchmark/reset \
+  -H 'Content-Type: application/json' \
+  -d '{"task":"simple.email_sf_contact_phone_update"}'
+```
 
-- [Download the OpenAPI spec](/architect-course/enterprise-evals/email-integration.openapi.yaml)
+This replaces the adapter’s shared world with the task’s seeded Gmail and Salesforce state. Reset again before each independent run so previous changes cannot affect the result.
 
-The OpenAPI spec defines the fake email service, provides deterministic example
-responses for Mockoon, and is what Bionic uses to turn that service into
-callable tools. The default lab already includes the mock API container.
+## What a good result does
 
-## What the Eval API Provides
+1. Search Gmail for Jordan Lee’s relevant email.
+2. Read the email and extract the new phone number.
+3. Find Jordan Lee’s contact in Salesforce.
+4. Update the correct Salesforce contact.
+5. Avoid modifying unrelated records.
+6. Confirm the external system state changed instead of merely claiming success.
 
-The API exposes four operations:
+## How the eval is scored
 
-| Operation | Method | Path | Purpose |
-| --- | --- | --- | --- |
-| `listEmails` | `GET` | `/email/emails` | List recent email messages |
-| `getEmail` | `GET` | `/email/emails/{id}` | Read one email |
-| `createDraft` | `POST` | `/email/drafts` | Create an email draft |
-| `sendDraft` | `POST` | `/email/send` | Queue a draft for sending |
-
-The inbox contains a primary request and a follow-up security review message.
-This gives the model enough operational context to test message inspection,
-follow-up detection, and draft creation without using a real email provider.
-
-## Add the Integration to Bionic
-
-Download the OpenAPI spec, then go to the admin area in Bionic. Open
-**OpenAPI Specs**, add a new spec, and paste or upload the inbox eval YAML.
-
-Return to the app, open **Integrations**, add an integration, and choose the
-email or inbox spec you just added.
-
-This eval integration does not require authentication. That keeps the
-evaluation focused on whether the model can discover tools, read enterprise
-context, and draft a useful response.
-
-That gives us a repeatable enterprise evaluation: the same API, the same data,
-and the same expected behaviour every time we test the platform.
-
-## Adding More Mock Integrations
-
-The eval mocks image is intended to grow with the course. Add future mock
-systems under their own path prefix and OpenAPI spec under:
+AutomationBench evaluates the resulting application/world state, not just the assistant’s textual response. For this task, the important final-state assertion is that Jordan Lee’s Salesforce phone number is:
 
 ```text
-infra-as-code/eval-mocks/openapi/specs/
++1-555-0101
 ```
 
-The course site copies those specs into the download path during the static site
-build, and the eval-mocks image merges the same specs into its Mockoon API. Keep
-the mock routes and OpenAPI specs in this one folder so the enterprise
-evaluation stays repeatable in CI, local development, and shared demos.
+The assistant’s response can be well written and still fail if Salesforce was not actually updated, or if another contact was changed instead.
+
+## Connect the integrations
+
+Import the AutomationBench OpenAPI integrations and make them available to the team before running the task. The adapter presents Gmail and Salesforce as normal Bionic integrations; no AutomationBench-specific behavior is required in Bionic.

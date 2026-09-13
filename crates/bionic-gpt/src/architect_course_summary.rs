@@ -237,9 +237,9 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Inbox Summarization",
+                        title: "Email-to-CRM Automation",
                         description:
-                            "Evaluate whether the model can inspect an inbox, identify the latest request and follow-up, and draft the right response.",
+                            "Evaluate cross-system email-to-CRM automation with seeded Gmail and Salesforce state.",
                         folder:
                             "architect-course/enterprise-evals/inbox-summarization/",
                         markdown: include_str!(
