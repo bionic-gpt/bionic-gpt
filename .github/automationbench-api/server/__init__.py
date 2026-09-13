@@ -1,0 +1,1 @@
+"""AutomationBench HTTP adapter."""
