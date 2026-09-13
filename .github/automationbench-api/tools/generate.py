@@ -74,6 +74,7 @@ def generate(automationbench: Path, output: Path) -> list[Path]:
     for stale in openapi_dir.glob("*.yaml"):
         stale.unlink()
     generated = []
+    route_services = []
     schema_data = []
     for source in sorted(schemas_dir.glob("*.jsonc")):
         data = load_jsonc(source)
@@ -81,13 +82,22 @@ def generate(automationbench: Path, output: Path) -> list[Path]:
         service = data["api"]
         document: dict[str, Any] = {"openapi": "3.1.0", "info": {"title": service, "version": str(data.get("version", "1.0.0"))}, "servers": [{"url": f"http://automationbench-api:8080/api/{service}"}], "paths": {}, "components": {"schemas": {}}}
         for name, definition in (data.get("schemas") or {}).items(): document["components"]["schemas"][name] = schema_ref(definition)
+        used_routes: set[tuple[str, str]] = set()
+        aliases: dict[str, str] = {}
         for endpoint in data.get("endpoints", []):
             route = "/" + path_for(service, endpoint["path"]).split("/", 3)[3]
+            key = (endpoint["method"].lower(), route)
+            if key in used_routes:
+                alias = route.rstrip("/") + "/_operation/" + endpoint["id"]
+                aliases[alias.lstrip("/")] = route.lstrip("/")
+                route = alias
+            used_routes.add((endpoint["method"].lower(), route))
             document["paths"].setdefault(route, {})[endpoint["method"].lower()] = operation(endpoint)
         target = openapi_dir / f"{service}.yaml"
         target.write_text(yaml.safe_dump(document, sort_keys=False, allow_unicode=True))
         generated.append(target)
-    (output / "routes.json").write_text(json.dumps({"services": [{"name": d["api"], "base_url": d.get("baseUrl", ""), "prefix": INTERNAL_PREFIX.get(d["api"], "")} for d in schema_data]}, indent=2, sort_keys=True) + "\n")
+        route_services.append({"name": service, "base_url": data.get("baseUrl", ""), "prefix": INTERNAL_PREFIX.get(service, ""), "aliases": aliases})
+    (output / "routes.json").write_text(json.dumps({"services": route_services}, indent=2, sort_keys=True) + "\n")
     # Keep the generated directory self-contained for Docker builds.
     adapter_root = Path(__file__).resolve().parents[1]
     shutil.copytree(adapter_root / "server", output / "server", dirs_exist_ok=True)

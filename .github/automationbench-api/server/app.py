@@ -80,6 +80,7 @@ async def api_proxy(service: str, path: str, request: Request):
     if route is None:
         return JSONResponse({"error": {"code": 404, "message": f"Unknown service: {service}"}}, status_code=404)
     prefix = route.get("prefix", "")
+    path = route.get("aliases", {}).get(path, path)
     internal_path = f"{prefix}{path}".lstrip("/")
     real_path = internal_path.removeprefix(prefix).lstrip("/")
     url = route["base_url"].rstrip("/") + "/" + real_path

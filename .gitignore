@@ -2,6 +2,8 @@
 /cache
 tmp
 .DS_Store
+__pycache__/
+*.pyc
 .aider*
 .env
 .DS_Store
