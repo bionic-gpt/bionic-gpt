@@ -18,10 +18,10 @@ pub(super) async fn run(
     let upstream_ref = client
         .git("https://github.com/Mercor-Intelligence/archipelago")
         .r#ref(archipelago_ref);
-    let upstream_sha = upstream_ref
-        .r#ref()
+    let upstream_commit = upstream_ref
+        .commit()
         .await
-        .wrap_err("failed to resolve Archipelago ref")?;
+        .wrap_err("failed to resolve Archipelago commit")?;
     let upstream_tree = upstream_ref.tree();
 
     let builder = client
@@ -116,10 +116,10 @@ pub(super) async fn run(
             Some(&credentials),
             "ghcr.io",
             "Office tools image",
-            &[upstream_sha.clone(), "latest".to_string()],
+            &[upstream_commit.clone(), "latest".to_string()],
         )
         .await?;
-        println!("Published Archipelago commit {upstream_sha}");
+        println!("Published Archipelago commit {upstream_commit}");
     } else {
         let tag = local_tag.unwrap_or("bionic-gpt-office-tools:local");
         let image_id = office_image
