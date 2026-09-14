@@ -761,24 +761,8 @@ async fn persist_binary_result(
         .get("content_type")
         .and_then(Value::as_str)
         .unwrap_or("application/octet-stream");
-    let filename = if content_type == "application/pdf" {
-        "document.pdf"
-    } else {
-        "output.bin"
-    };
-    let output_dir = arguments
-        .as_object()
-        .and_then(|arguments| {
-            arguments.values().find_map(|value| match value {
-                Value::String(path) => Some(path.as_str()),
-                Value::Array(values) => values.iter().find_map(Value::as_str),
-                _ => None,
-            })
-        })
-        .filter(|path| path.starts_with("/home/user/output/"))
-        .and_then(|path| std::path::Path::new(path).parent())
-        .map(|path| path.to_string_lossy().to_string())
-        .unwrap_or_else(|| format!("/home/user/output/{function_name}"));
+    let filename = binary_output_filename(arguments, content_type);
+    let output_dir = binary_output_directory(arguments, function_name);
     let output_path = format!("{output_dir}/{filename}");
     fs.mkdir(std::path::Path::new(&output_dir), true)
         .await
@@ -787,6 +771,93 @@ async fn persist_binary_result(
         .await
         .map_err(|error| format!("failed to persist binary tool response: {error}"))?;
     Ok(Some(output_path))
+}
+
+fn binary_output_filename(arguments: &Value, content_type: &str) -> String {
+    let Some(arguments) = arguments.as_object() else {
+        return fallback_binary_filename(content_type);
+    };
+
+    for key in ["file_name", "filename", "output_file_name"] {
+        if let Some(filename) = arguments.get(key).and_then(Value::as_str) {
+            if let Some(filename) = safe_binary_filename(filename) {
+                return filename;
+            }
+        }
+    }
+
+    for key in ["file_path", "path"] {
+        if let Some(path) = arguments.get(key).and_then(Value::as_str) {
+            if let Some(filename) = safe_binary_filename(path) {
+                return filename;
+            }
+        }
+    }
+
+    fallback_binary_filename(content_type)
+}
+
+fn binary_output_directory(arguments: &Value, function_name: &str) -> String {
+    let Some(arguments) = arguments.as_object() else {
+        return format!("/home/user/output/{function_name}");
+    };
+
+    for key in ["directory", "output_dir", "output_directory"] {
+        if let Some(directory) = arguments.get(key).and_then(Value::as_str) {
+            if is_output_path(directory) {
+                return directory.trim_end_matches('/').to_string();
+            }
+        }
+    }
+
+    for key in ["file_path", "path", "file_paths"] {
+        if let Some(value) = arguments.get(key) {
+            let paths = match value {
+                Value::String(path) => vec![path.as_str()],
+                Value::Array(values) => values.iter().filter_map(Value::as_str).collect(),
+                _ => Vec::new(),
+            };
+            for path in paths {
+                if is_persistent_path(path) {
+                    if let Some(parent) = std::path::Path::new(path).parent() {
+                        return parent.to_string_lossy().to_string();
+                    }
+                }
+            }
+        }
+    }
+
+    format!("/home/user/output/{function_name}")
+}
+
+fn is_output_path(path: &str) -> bool {
+    path == "/home/user/output" || path.starts_with("/home/user/output/")
+}
+
+fn is_persistent_path(path: &str) -> bool {
+    is_output_path(path) || path == "/home/user/work" || path.starts_with("/home/user/work/")
+}
+
+fn safe_binary_filename(value: &str) -> Option<String> {
+    std::path::Path::new(value)
+        .file_name()
+        .and_then(|name| name.to_str())
+        .filter(|name| !name.is_empty() && *name != "." && *name != "..")
+        .map(|name| {
+            name.chars()
+                .filter(|character| !character.is_control() && *character != '"')
+                .take(255)
+                .collect()
+        })
+        .filter(|name: &String| !name.is_empty())
+}
+
+fn fallback_binary_filename(content_type: &str) -> String {
+    if content_type == "application/pdf" {
+        "document.pdf".to_string()
+    } else {
+        "output.bin".to_string()
+    }
 }
 
 fn operation_example(operation: &RuntimeOperation) -> String {
@@ -1290,6 +1361,67 @@ mod tests {
                 .await
                 .unwrap(),
             b"pdf"
+        );
+    }
+
+    #[test]
+    fn binary_results_use_requested_filename_and_directory() {
+        let arguments = json!({
+            "directory": "/home/user/output",
+            "file_name": "example_sales.xlsx"
+        });
+
+        assert_eq!(
+            binary_output_filename(&arguments, "application/octet-stream"),
+            "example_sales.xlsx"
+        );
+        assert_eq!(
+            binary_output_directory(&arguments, "office_spreadsheets_create_spreadsheet"),
+            "/home/user/output"
+        );
+    }
+
+    #[test]
+    fn binary_results_preserve_existing_output_file_name() {
+        let arguments = json!({
+            "file_path": "/home/user/output/report.xlsx"
+        });
+
+        assert_eq!(
+            binary_output_filename(&arguments, "application/octet-stream"),
+            "report.xlsx"
+        );
+        assert_eq!(
+            binary_output_directory(&arguments, "office_spreadsheets_edit_spreadsheet"),
+            "/home/user/output"
+        );
+    }
+
+    #[test]
+    fn binary_results_keep_pdf_fallback() {
+        let arguments = json!({
+            "file_paths": ["/home/user/output/draft/main.typ"]
+        });
+
+        assert_eq!(
+            binary_output_filename(&arguments, "application/pdf"),
+            "document.pdf"
+        );
+        assert_eq!(
+            binary_output_directory(&arguments, "typst_compiledocument"),
+            "/home/user/output/draft"
+        );
+    }
+
+    #[test]
+    fn binary_results_strip_unsafe_filename_parts() {
+        let arguments = json!({
+            "file_name": "../report\".xlsx\n"
+        });
+
+        assert_eq!(
+            binary_output_filename(&arguments, "application/octet-stream"),
+            "report.xlsx"
         );
     }
 
