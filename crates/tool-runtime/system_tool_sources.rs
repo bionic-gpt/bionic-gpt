@@ -58,6 +58,16 @@ struct BuiltinSpec {
 
 const BUILTIN_SPECS: &[BuiltinSpec] = &[
     BuiltinSpec {
+        slug: "typst",
+        title: "Typst Compilation API",
+        contents: include_str!("system_specs/typst.openapi.json"),
+    },
+    BuiltinSpec {
+        slug: "document-conversion-api",
+        title: "Document Conversion API",
+        contents: include_str!("system_specs/document-conversion.openapi.json"),
+    },
+    BuiltinSpec {
         slug: "office-documents",
         title: "Office Documents",
         contents: include_str!("system_specs/office/documents.openapi.json"),
@@ -241,13 +251,19 @@ mod tests {
     }
 
     #[test]
-    fn built_in_office_specs_are_valid_openapi_documents() {
+    fn built_in_specs_are_valid_openapi_documents() {
         let specs = load_builtin_specs().unwrap();
-        assert_eq!(specs.len(), 3);
+        assert_eq!(specs.len(), 5);
         assert!(specs.iter().all(|spec| {
             spec.is_builtin
                 && spec.spec.get("openapi").is_some()
                 && spec.spec.get("paths").is_some()
+        }));
+        assert!(specs.iter().any(|spec| spec.slug == "typst"
+            && spec.spec["paths"]["/compile"]["post"]["operationId"] == "compileDocument"));
+        assert!(specs.iter().any(|spec| {
+            spec.slug == "document-conversion-api"
+                && spec.spec["paths"]["/extract"]["post"]["operationId"] == "extractDocument"
         }));
     }
 
