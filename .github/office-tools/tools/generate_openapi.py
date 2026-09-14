@@ -14,8 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from server.catalog import OPERATIONS, configure_import_paths, load_operation  # noqa: E402
 
 
-def schema_for(operation, root: Path) -> dict:
-    function, _ = load_operation(operation, root)
+def schema_for(function) -> dict:
     parameters = list(inspect.signature(function).parameters.values())
     annotations = inspect.get_annotations(function, eval_str=True)
     if not parameters:
@@ -69,12 +68,13 @@ def main() -> None:
             "components": {"schemas": {}},
         }
         for operation in (item for item in OPERATIONS if item.domain == domain):
-            schema = schema_for(operation, Path(os.environ["ARCHIPELAGO_ROOT"]))
+            function, _ = load_operation(operation, Path(os.environ["ARCHIPELAGO_ROOT"]))
+            schema = schema_for(function)
             document["paths"][f"/{domain}/{operation.name}"] = {
                 "post": {
                     "operationId": operation.name,
                     "summary": operation.name.replace("_", " ").capitalize(),
-                    "description": inspect.getdoc(load_operation(operation, Path(os.environ["ARCHIPELAGO_ROOT"]))[0]) or f"Mercor Archipelago {operation.name} operation.",
+                    "description": inspect.getdoc(function) or f"Mercor Archipelago {operation.name} operation.",
                     "requestBody": {"required": True, "content": {"multipart/form-data": {"schema": schema}}},
                     "responses": {
                         "200": {"description": "Successful response", "content": {"application/octet-stream" if operation.binary_response else "application/json": {"schema": {"type": "string", "format": "binary"} if operation.binary_response else {"type": "object", "additionalProperties": True}}}},

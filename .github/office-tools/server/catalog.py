@@ -9,6 +9,9 @@ from pathlib import Path
 from typing import Any
 
 
+_BASE_SYS_PATH = tuple(sys.path)
+
+
 @dataclass(frozen=True)
 class Operation:
     domain: str
@@ -64,24 +67,26 @@ OPERATIONS: tuple[Operation, ...] = (
 
 def configure_import_paths(root: Path, domain: str | None = None) -> None:
     staged_root = str(root.resolve())
-    sys.path[:] = [path for path in sys.path if not str(path).startswith(staged_root)]
     domains = (("documents", "docs_server"), ("spreadsheets", "sheets_server"), ("presentations", "slides_server"))
     if domain:
         domains = tuple(item for item in domains if item[0] == domain)
+    domain_paths: list[str] = []
     for domain_name, server_name in domains:
         server = root / domain_name / "mcp_servers" / server_name
         package_root = root / domain_name / "packages"
         package_paths = (package_root, package_root / "mcp_schema", package_root / "mercor-mcp-shared" / "packages")
         for path in (server, server / "tools", server / "utils", server / "models", *package_paths):
-            if path.exists() and str(path) not in sys.path:
-                sys.path.insert(0, str(path))
+            if path.exists() and str(path) not in domain_paths:
+                domain_paths.append(str(path))
+    sys.path[:] = domain_paths + [path for path in _BASE_SYS_PATH if not str(path).startswith(staged_root)]
+    importlib.invalidate_caches()
     os.environ.setdefault("APP_FS_ROOT", "/tmp/office-workspace")
 
 
 def load_operation(operation: Operation, root: Path) -> tuple[Any, Any]:
     configure_import_paths(root, operation.domain)
     for module_name in list(sys.modules):
-        if module_name in {"tools", "utils", "models", "mcp_schema"} or module_name.startswith(("tools.", "utils.", "models.", "mcp_schema.")):
+        if module_name in {"tools", "utils", "models", "mcp_schema", "mcp_actor"} or module_name.startswith(("tools.", "utils.", "models.", "mcp_schema.", "mcp_actor.")):
             del sys.modules[module_name]
     module = importlib.import_module(operation.module)
     function = getattr(module, operation.function)

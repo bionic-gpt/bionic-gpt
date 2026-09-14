@@ -8,11 +8,12 @@ import pytest
 from server.catalog import configure_import_paths, load_operation, operation_by_name
 
 
-ROOT = Path(os.environ.get("ARCHIPELAGO_ROOT", ""))
-pytestmark = pytest.mark.skipif(not ROOT.exists(), reason="staged Archipelago source is unavailable")
+ROOT = Path(os.environ["ARCHIPELAGO_ROOT"]) if os.environ.get("ARCHIPELAGO_ROOT") else None
+pytestmark = pytest.mark.skipif(ROOT is None or not ROOT.exists(), reason="staged Archipelago source is unavailable")
 
 
 def invoke(operation, payload):
+    assert ROOT is not None
     configure_import_paths(ROOT, operation.domain)
     function, _ = load_operation(operation, ROOT)
     annotation = inspect.get_annotations(function, eval_str=True)
