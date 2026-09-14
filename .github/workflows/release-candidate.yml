@@ -12,6 +12,10 @@ permissions:
   contents: write
   packages: write
 
+concurrency:
+  group: release-candidate-${{ github.event.inputs.ref || 'main' }}
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -21,7 +25,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
-      tag: ${{ steps.release_tag.outputs.tag }}
+      tag: ${{ steps.create_tag.outputs.tag }}
       version: ${{ steps.release_tag.outputs.version }}
     steps:
       - uses: actions/checkout@v6
@@ -77,6 +81,7 @@ jobs:
       - name: Prepare release tag
         id: release_tag
         run: |
+          git fetch --tags origin
           base_version="${{ steps.next_version.outputs.version }}"
           legacy_tag="v${base_version}-rc"
           base_pattern=$(printf '%s' "$base_version" | sed 's/\./\\\\./g')
@@ -104,17 +109,42 @@ jobs:
           echo "Prepared release candidate tag: $tag"
 
       - name: Create RC tag
+        id: create_tag
         run: |
           rc_tag="${{ steps.release_tag.outputs.tag }}"
-          git tag -a "$rc_tag" -m "Release candidate $rc_tag"
-          git push origin "$rc_tag"
+          base_version="${{ steps.release_tag.outputs.version }}"
+          next_rc="${rc_tag##*.}"
+
+          while true; do
+            rc_tag="v${base_version}-rc.${next_rc}"
+
+            if git rev-parse --verify --quiet "refs/tags/${rc_tag}" >/dev/null; then
+              next_rc=$((next_rc + 1))
+              continue
+            fi
+
+            git tag -a "$rc_tag" -m "Release candidate $rc_tag"
+            if git push origin "refs/tags/${rc_tag}"; then
+              echo "tag=$rc_tag" >> "$GITHUB_OUTPUT"
+              break
+            fi
+
+            git tag -d "$rc_tag"
+            if git ls-remote --exit-code --tags origin "refs/tags/${rc_tag}" >/dev/null 2>&1; then
+              next_rc=$((next_rc + 1))
+              continue
+            fi
+
+            echo "Failed to push release candidate tag ${rc_tag}" >&2
+            exit 1
+          done
 
       - name: Create GitHub Release (RC)
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.release_tag.outputs.tag }}
+          tag_name: ${{ steps.create_tag.outputs.tag }}
           target_commitish: ${{ github.sha }}
           prerelease: true
           generate_release_notes: true
