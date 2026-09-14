@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import importlib.util
 import inspect
 import os
 import sys
@@ -83,11 +84,46 @@ def configure_import_paths(root: Path, domain: str | None = None) -> None:
     os.environ.setdefault("APP_FS_ROOT", "/tmp/office-workspace")
 
 
+def _load_package_alias(package_name: str, package_dir: Path) -> None:
+    init_file = package_dir / "__init__.py"
+    if not init_file.exists():
+        raise ImportError(f"Missing staged {package_name} package: {init_file}")
+
+    spec = importlib.util.spec_from_file_location(
+        package_name,
+        init_file,
+        submodule_search_locations=[str(package_dir)],
+    )
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Could not create import spec for {package_name}: {init_file}")
+
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[package_name] = module
+    try:
+        spec.loader.exec_module(module)
+    except Exception:
+        sys.modules.pop(package_name, None)
+        raise
+
+
+def _load_domain_packages(root: Path, domain: str) -> None:
+    if domain == "presentations":
+        package_root = root / domain / "packages" / "mcp_schema" / "mcp_schema"
+    else:
+        package_root = root / domain / "packages" / "mercor-mcp-shared" / "packages"
+
+    _load_package_alias("mcp_schema", package_root / "mcp_schema")
+    actor_root = package_root / "mcp_actor"
+    if actor_root.exists():
+        _load_package_alias("mcp_actor", actor_root)
+
+
 def load_operation(operation: Operation, root: Path) -> tuple[Any, Any]:
     configure_import_paths(root, operation.domain)
     for module_name in list(sys.modules):
         if module_name in {"tools", "utils", "models", "mcp_schema", "mcp_actor"} or module_name.startswith(("tools.", "utils.", "models.", "mcp_schema.", "mcp_actor.")):
             del sys.modules[module_name]
+    _load_domain_packages(root, operation.domain)
     module = importlib.import_module(operation.module)
     function = getattr(module, operation.function)
     signature = inspect.signature(function)

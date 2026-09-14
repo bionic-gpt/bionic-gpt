@@ -13,6 +13,7 @@ pytestmark = pytest.mark.skipif(ROOT is None or not ROOT.exists(), reason="stage
 def schema_origin() -> str:
     import mcp_schema
 
+    assert mcp_schema.__file__ is not None
     return str(Path(mcp_schema.__file__).resolve())
 
 
