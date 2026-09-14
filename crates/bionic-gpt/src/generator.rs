@@ -40,9 +40,9 @@ const DASHBOARD_SKILL_ZIP: &str =
     "dist/architect-course/enterprise-evals/dashboard-builder/dashboard-builder.zip";
 const ARCHITECTURE_IMAGE_SOURCE: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/content/architect-course/bionic-architecture.png"
+    "/content/architect-course/architecture.svg"
 );
-const ARCHITECTURE_IMAGE_OUTPUT: &str = "dist/architect-course/bionic-architecture.png";
+const ARCHITECTURE_IMAGE_OUTPUT: &str = "dist/architect-course/architecture.svg";
 
 fn output_page(path: &str, html: String) -> SitePage {
     SitePage {

@@ -59,7 +59,7 @@ Bionic provides that foundation. Your team keeps control of the models, infrastr
 
 Bionic is not just a chat surface. Each conversation can become a controlled working environment where the model can discover available tools, read relevant skills, operate over files, execute sandboxed code, and return durable outputs.
 
-![Bionic architecture](crates/bionic-gpt/content/architect-course/bionic-architecture.png "Bionic architecture")
+![Bionic architecture](crates/bionic-gpt/content/architect-course/architecture.svg "Bionic architecture")
 
 ## Run Bionic
 

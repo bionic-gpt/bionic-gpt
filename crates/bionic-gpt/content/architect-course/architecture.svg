@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="880" viewBox="0 100 1600 880" role="img" aria-labelledby="title desc">
+  <title id="title">BionicGPT Kubernetes architecture</title>
+  <desc id="desc">Traditional enterprise architecture diagram showing users, a Kubernetes cluster containing access, application, agent runtime and data services, and external AI and enterprise services.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.10"/></filter>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#2563eb"/></marker>
+    <marker id="arrowSlate" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#64748b"/></marker>
+    <style>
+      .bg{fill:#f8fafc}.cluster{fill:#fff;stroke:#326ce5;stroke-width:3}.zone{fill:#f8fafc;stroke:#cbd5e1;stroke-width:1.5}.card{fill:#fff;stroke:#94a3b8;stroke-width:1.5;filter:url(#shadow)}
+      .title{font:700 30px Inter,Arial,sans-serif;fill:#0f172a}.subtitle{font:400 15px Inter,Arial,sans-serif;fill:#64748b}.clusterTitle{font:700 22px Inter,Arial,sans-serif;fill:#1d4ed8}.zoneTitle{font:700 14px Inter,Arial,sans-serif;fill:#475569;letter-spacing:1.5px}.cardTitle{font:700 17px Inter,Arial,sans-serif;fill:#0f172a}.cardText{font:400 13px Inter,Arial,sans-serif;fill:#64748b}.edgeLabel{font:600 12px Inter,Arial,sans-serif;fill:#475569}.icon{fill:#eff6ff;stroke:#93c5fd}.iconText{font:700 16px Inter,Arial,sans-serif;fill:#2563eb;text-anchor:middle}.flow{fill:none;stroke:#2563eb;stroke-width:2.4;marker-end:url(#arrowBlue)}.internal{fill:none;stroke:#64748b;stroke-width:1.8;marker-end:url(#arrowSlate)}
+    </style>
+  </defs>
+  <rect class="bg" width="1600" height="1000"/>
+  <!-- Users -->
+  <text class="zoneTitle" x="55" y="143">USERS</text>
+  <rect class="card" x="45" y="165" width="230" height="142" rx="12"/>
+  <circle class="icon" cx="82" cy="202" r="21"/><text class="iconText" x="82" y="208">U</text>
+  <text class="cardTitle" x="116" y="199">End Users</text><text class="cardText" x="116" y="223">Chat, projects and</text><text class="cardText" x="116" y="243">agentic tasks</text>
+  <rect class="card" x="45" y="333" width="230" height="142" rx="12"/>
+  <circle class="icon" cx="82" cy="370" r="21"/><text class="iconText" x="82" y="376">A</text>
+  <text class="cardTitle" x="116" y="367">Administrators</text><text class="cardText" x="116" y="391">Policies, models and</text><text class="cardText" x="116" y="411">platform configuration</text>
+
+  <!-- Kubernetes -->
+  <rect class="cluster" x="345" y="118" width="900" height="820" rx="22"/>
+  <rect x="345" y="118" width="900" height="58" rx="22" fill="#eff6ff"/><path d="M345 154V176H1245V154" fill="#eff6ff"/>
+  <circle cx="383" cy="147" r="17" fill="#326ce5"/><text x="383" y="153" style="font:700 14px Arial;fill:#fff;text-anchor:middle">K8s</text>
+  <text class="clusterTitle" x="413" y="154">Kubernetes Cluster</text>
+
+  <!-- Access zone -->
+  <rect class="zone" x="380" y="202" width="830" height="132" rx="14"/>
+  <text class="zoneTitle" x="405" y="228">ACCESS &amp; IDENTITY</text>
+  <rect class="card" x="405" y="246" width="365" height="66" rx="10"/>
+  <text class="cardTitle" x="430" y="274">Ingress &amp; Authentication</text><text class="cardText" x="430" y="295">Nginx · OAuth2 Proxy</text>
+  <rect class="card" x="800" y="246" width="385" height="66" rx="10"/>
+  <text class="cardTitle" x="825" y="274">Identity Provider</text><text class="cardText" x="825" y="295">Keycloak · SSO / OIDC</text>
+
+  <!-- Application zone -->
+  <rect class="zone" x="380" y="360" width="830" height="196" rx="14"/>
+  <text class="zoneTitle" x="405" y="386">BIONICGPT APPLICATION</text>
+  <rect class="card" x="405" y="405" width="365" height="124" rx="10"/>
+  <text class="cardTitle" x="430" y="438">Web Application &amp; API</text><text class="cardText" x="430" y="463">Rust application · Chat UI</text><text class="cardText" x="430" y="484">Projects · Assistants · Administration</text>
+  <rect class="card" x="800" y="405" width="385" height="124" rx="10"/>
+  <text class="cardTitle" x="825" y="438">Agent Orchestration</text><text class="cardText" x="825" y="463">Task planning · Model routing</text><text class="cardText" x="825" y="484">Skills · RAG · Audit history</text>
+
+  <!-- Runtime and data -->
+  <rect class="zone" x="380" y="582" width="830" height="148" rx="14"/>
+  <text class="zoneTitle" x="405" y="608">AGENT RUNTIME</text>
+  <rect class="card" x="405" y="627" width="780" height="78" rx="10"/>
+  <text class="cardTitle" x="430" y="657">Isolated Agent Runtime</text><text class="cardText" x="430" y="681">Sandboxed Python / Bash · Virtual workspace · Tools &amp; OpenAPI integrations · Artifact generation</text>
+
+  <rect class="zone" x="380" y="756" width="830" height="146" rx="14"/>
+  <text class="zoneTitle" x="405" y="782">DATA &amp; PERSISTENCE</text>
+  <rect class="card" x="405" y="801" width="365" height="76" rx="10"/>
+  <text class="cardTitle" x="430" y="831">PostgreSQL + PgVector</text><text class="cardText" x="430" y="854">Application data · Conversations · Retrieval</text>
+  <rect class="card" x="800" y="801" width="385" height="76" rx="10"/>
+  <text class="cardTitle" x="825" y="831">S3-Compatible Object Storage</text><text class="cardText" x="825" y="854">Uploads · Documents · Generated artifacts</text>
+
+  <!-- External services -->
+  <text class="zoneTitle" x="1320" y="143">EXTERNAL SERVICES</text>
+  <rect class="card" x="1310" y="165" width="245" height="130" rx="12"/>
+  <circle class="icon" cx="1347" cy="202" r="21"/><text class="iconText" x="1347" y="208">AI</text>
+  <text class="cardTitle" x="1381" y="197">LLM Providers</text><text class="cardText" x="1381" y="221">Cloud, sovereign or</text><text class="cardText" x="1381" y="241">on-premise inference</text>
+  <rect class="card" x="1310" y="321" width="245" height="130" rx="12"/>
+  <circle class="icon" cx="1347" cy="358" r="21"/><text class="iconText" x="1347" y="364">W</text>
+  <text class="cardTitle" x="1381" y="353">Web / Internet</text><text class="cardText" x="1381" y="377">Search and approved</text><text class="cardText" x="1381" y="397">external information</text>
+  <rect class="card" x="1310" y="477" width="245" height="146" rx="12"/>
+  <circle class="icon" cx="1347" cy="514" r="21"/><text class="iconText" x="1347" y="520">E</text>
+  <text class="cardTitle" x="1381" y="509">Enterprise Systems</text><text class="cardText" x="1381" y="533">Email · Calendar · CRM</text><text class="cardText" x="1381" y="553">Databases · Internal APIs</text>
+
+  <!-- Flows -->
+  <path class="flow" d="M275 236H325Q345 236 365 261H405"/><text class="edgeLabel" x="283" y="222">HTTPS</text>
+  <path class="flow" d="M275 404H318Q338 404 365 292H405"/>
+  <path class="internal" d="M770 279H800"/>
+  <path class="internal" d="M588 312V405"/>
+  <path class="internal" d="M770 467H800"/>
+  <path class="internal" d="M993 529V627"/>
+  <path class="internal" d="M588 529V801"/>
+  <path class="internal" d="M795 705V801"/>
+  <path class="flow" d="M1185 450H1265Q1285 450 1310 230"/><text class="edgeLabel" x="1248" y="289">model API</text>
+  <path class="flow" d="M1185 659H1255Q1280 659 1310 386"/><text class="edgeLabel" x="1245" y="420">search</text>
+  <path class="flow" d="M1185 680H1265Q1287 680 1310 550"/><text class="edgeLabel" x="1248" y="580">tools / APIs</text>
+  <text class="subtitle" x="345" y="970">All core services deploy inside the customer-controlled Kubernetes environment.</text>
+</svg>
