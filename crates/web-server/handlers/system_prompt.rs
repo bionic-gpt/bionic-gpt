@@ -56,10 +56,14 @@ pub async fn loader(
         Ok(catalogue) => catalogue,
         Err(err) => tool_runtime::builtin_tools::monty::FunctionCatalogue {
             prompt_section: Some(format!("Failed to preview discoverable functions: {err}")),
+            built_in_prompt_section: None,
+            connected_prompt_section: None,
             files: Vec::new(),
         },
     };
     let integration_context = function_catalogue.prompt_section.clone();
+    let built_in_tools = function_catalogue.built_in_prompt_section.clone();
+    let connected_integrations = function_catalogue.connected_prompt_section.clone();
     let vfs_preview = tool_runtime::builtin_tools::bashkit::preview_vfs_tree(
         &skill_summaries,
         &skill_files,
@@ -71,6 +75,8 @@ pub async fn loader(
         &setting.value,
         runtime_additions.as_deref(),
         integration_context.as_deref(),
+        built_in_tools.as_deref(),
+        connected_integrations.as_deref(),
         &tool_definitions,
     );
     let tools_preview = build_tool_previews(tool_definitions);
@@ -81,7 +87,8 @@ pub async fn loader(
         SystemPromptPageData {
             setting,
             runtime_additions,
-            integration_context,
+            built_in_tools,
+            connected_integrations,
             prompt_size_preview,
             tools_preview,
             vfs_preview,
@@ -95,6 +102,8 @@ fn build_prompt_size_preview(
     default_prompt: &str,
     runtime_additions: Option<&str>,
     integration_context: Option<&str>,
+    built_in_tools: Option<&str>,
+    connected_integrations: Option<&str>,
     tools: &[tool_runtime::ToolDefinition],
 ) -> PromptSizePreview {
     let runtime_additions = runtime_additions.unwrap_or_default();
@@ -107,6 +116,9 @@ fn build_prompt_size_preview(
     let default_prompt_tokens = estimate_text_tokens(default_prompt);
     let runtime_additions_tokens = estimate_text_tokens(runtime_additions);
     let integration_context_tokens = estimate_text_tokens(integration_context);
+    let built_in_tools_tokens = estimate_text_tokens(built_in_tools.unwrap_or_default());
+    let connected_integration_tokens =
+        estimate_text_tokens(connected_integrations.unwrap_or_default());
     let combined_system_message_tokens = estimate_text_tokens(&combined_system_message);
     let tool_metadata_tokens = estimate_text_tokens(&tool_metadata);
 
@@ -114,6 +126,8 @@ fn build_prompt_size_preview(
         default_prompt_tokens,
         runtime_additions_tokens,
         integration_context_tokens,
+        built_in_tools_tokens,
+        connected_integration_tokens,
         combined_system_message_tokens,
         tool_metadata_tokens,
         total_foundation_tokens: combined_system_message_tokens + tool_metadata_tokens,
@@ -197,12 +211,16 @@ mod tests {
             "You are helpful.",
             Some("Use available skills when relevant."),
             Some("Available function catalogues:\n- Email: /home/user/functions/email.md\n- Web Fetch: /home/user/functions/web-fetch.md"),
+            Some("Built-in tools:\n- Web Fetch: /home/user/functions/web-fetch.md"),
+            Some("Connected integrations:\n- Email: /home/user/functions/email.md"),
             &tools,
         );
 
         assert!(preview.default_prompt_tokens > 0);
         assert!(preview.runtime_additions_tokens > 0);
         assert!(preview.integration_context_tokens > 0);
+        assert!(preview.built_in_tools_tokens > 0);
+        assert!(preview.connected_integration_tokens > 0);
         assert!(preview.combined_system_message_tokens >= preview.default_prompt_tokens);
         assert!(preview.tool_metadata_tokens > 0);
         assert_eq!(preview.tool_count, 1);
@@ -214,7 +232,7 @@ mod tests {
 
     #[test]
     fn prompt_size_preview_handles_empty_runtime_additions() {
-        let preview = build_prompt_size_preview("System prompt", None, None, &[]);
+        let preview = build_prompt_size_preview("System prompt", None, None, None, None, &[]);
 
         assert!(preview.default_prompt_tokens > 0);
         assert_eq!(preview.runtime_additions_tokens, 0);

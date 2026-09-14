@@ -1,0 +1,925 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Bionic Presentations Office API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://office-tools:8080"
+    }
+  ],
+  "paths": {
+    "/presentations/create_deck": {
+      "post": {
+        "operationId": "create_deck",
+        "summary": "Create deck",
+        "description": "Create a new PowerPoint presentation with specified slides and layouts.\n\nNotes:\n    - Directory created if doesn't exist\n    - Minimum 1 slide required\n    - All template slides removed; only specified slides included\n\n    Layout-specific:\n    - Bullets: 'title_and_content', 'two_content' only\n    - Tables: header=True makes first row bold\n    - two_content: 'columns' overrides 'bullets'/'table' if both provided",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for creating a new PowerPoint presentation.",
+                "properties": {
+                  "directory": {
+                    "description": "Absolute directory path where the presentation will be saved. Must start with '/' (e.g., '/documents/presentations')",
+                    "type": "string"
+                  },
+                  "file_name": {
+                    "description": "Name of the PowerPoint file to create. Must end with '.pptx' and cannot contain '/' (e.g., 'quarterly_report.pptx')",
+                    "type": "string"
+                  },
+                  "slides": {
+                    "description": "List of slide definitions (each with layout and optional content: title, bullets, table, etc.)",
+                    "items": {},
+                    "type": "array"
+                  },
+                  "metadata": {
+                    "description": "(Optional) Optional document metadata (title, subject, author, comments)",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "directory",
+                  "file_name",
+                  "slides"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/delete_deck": {
+      "post": {
+        "operationId": "delete_deck",
+        "summary": "Delete deck",
+        "description": "Delete a PowerPoint presentation file from the filesystem.\n\nPermanently removes a .pptx file from the specified path. This operation cannot be undone.\n\nNotes:\n    - Permanent, cannot be undone\n    - Idempotent: success even if file doesn't exist\n    - Fails only if file locked, insufficient permissions, or read-only disk",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for deleting a presentation.",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  }
+                },
+                "required": [
+                  "file_path"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/add_slide": {
+      "post": {
+        "operationId": "add_slide",
+        "summary": "Add slide",
+        "description": "Add a new slide to an existing PowerPoint presentation at a specific position.\n\nInserts a slide with the chosen layout (title, title_and_content, blank, etc.) at any\nposition in the presentation. Can optionally set title, subtitle, and bullet points during creation.\n\nNotes:\n    - index must be <= total slides. Use current slide count to append at end\n    - Subtitle only renders on 'title' and 'section_header' layouts (silently ignored on others)\n    - Bullets work on layouts with body content areas",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for adding a slide to a presentation.",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "index": {
+                    "description": "0-based position to insert the new slide. 0 = first position, must be <= total slide count. Use existing slide count to append at end",
+                    "type": "integer"
+                  },
+                  "layout": {
+                    "description": "(Optional) Slide layout type. One of: 'title', 'title_and_content' (default), 'section_header', 'two_content', 'title_only', 'blank'",
+                    "enum": [
+                      "title",
+                      "title_and_content",
+                      "section_header",
+                      "two_content",
+                      "title_only",
+                      "blank"
+                    ],
+                    "type": "string"
+                  },
+                  "title": {
+                    "description": "(Optional) Optional title text for the slide. Supported on all layouts except 'blank' (e.g., 'Introduction')",
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "subtitle": {
+                    "description": "(Optional) Optional subtitle text. Only rendered on 'title' and 'section_header' layouts; silently ignored on others (e.g., 'Chapter 1')",
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "bullets": {
+                    "description": "(Optional) Optional list of bullet point strings. Must contain at least 1 item if provided. Only applies to layouts with body placeholders (e.g., ['Point 1', 'Point 2'])",
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "index"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/edit_slides": {
+      "post": {
+        "operationId": "edit_slides",
+        "summary": "Edit slides",
+        "description": "Apply batch edits to a PowerPoint presentation.\n\nNotes:\n    - Operations execute sequentially. Slide deletions affect later indices\n    - Any operation failure prevents all changes (atomic)\n    - Placeholder names: 'title', 'body' (single-column), 'left'/'right' (two_content layout)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for editing slides.",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "operations": {
+                    "description": "List of operations (executed sequentially - deleting slide 2 makes slide 3 become slide 2 for later ops).\n\nAvailable operation types:\n1. replace_text: {type, search, replace, match_case?}\n2. delete_slide: {type, index}\n3. update_slide_title: {type, index, title}\n4. update_slide_subtitle: {type, index, subtitle}\n5. set_bullets: {type, index, placeholder?, items}\n6. append_bullets: {type, index, placeholder?, items}\n7. clear_placeholder: {type, index, placeholder?}\n8. append_table: {type, index, placeholder?, rows, header?}\n9. update_table_cell: {type, index, table_idx, row, column, text}\n10. duplicate_slide: {type, index, position?}\n11. set_notes: {type, index, notes}\n12. apply_text_formatting: {type, index, placeholder?, paragraph_index?, run_index?, bold?, italic?, underline?, font_size?, font_color?, font_name?, alignment?}\n13. add_hyperlink: {type, index, placeholder?, url, paragraph_index?, run_index?}\n14. format_table_cell: {type, index, table_idx, row, column, bold?, italic?, underline?, font_size?, font_color?, bg_color?}",
+                    "items": {
+                      "description": "(Union of: UpdateSlideTitleOperation, UpdateSlideSubtitleOperation, SetBulletsOperation, AppendBulletsOperation, ClearPlaceholderOperation, ReplaceTextOperation, AppendTableOperation, UpdateTableCellOperation, DeleteSlideOperation, DuplicateSlideOperation, SetNotesOperation, ApplyTextFormattingOperation, AddHyperlinkOperation, FormatTableCellOperation)"
+                    },
+                    "type": "array"
+                  },
+                  "metadata": {
+                    "description": "(Optional) Optional metadata object to update document properties (title, subject, author, comments)",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "operations"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/add_image": {
+      "post": {
+        "operationId": "add_image",
+        "summary": "Add image",
+        "description": "Insert an image file into a slide at specified position and size.\n\nNotes:\n    - Standard slide dimensions: 10\" wide \u00d7 7.5\" tall\n    - If only width OR height provided, aspect ratio is maintained\n    - If both width and height provided, exact dimensions used (no aspect ratio preservation)\n    - If neither provided, original image dimensions used",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for adding an image to a slide.",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "image_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "slide_index": {
+                    "description": "0-based slide index",
+                    "type": "integer"
+                  },
+                  "x": {
+                    "description": "(Optional) Horizontal position of the image's left edge in inches from slide left. Default: 1.0 inches",
+                    "type": "number"
+                  },
+                  "y": {
+                    "description": "(Optional) Vertical position of the image's top edge in inches from slide top. Default: 1.5 inches",
+                    "type": "number"
+                  },
+                  "width": {
+                    "description": "(Optional) Width in inches. Both provided: exact dimensions. Only width: height scales proportionally. Neither: original size",
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "height": {
+                    "description": "(Optional) Height in inches. Both provided: exact dimensions. Only height: width scales proportionally. Neither: original size",
+                    "type": "number",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "image_path",
+                  "slide_index"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/modify_image": {
+      "post": {
+        "operationId": "modify_image",
+        "summary": "Modify image",
+        "description": "Modify an existing image on a slide with transformations like rotate, flip, crop, or adjust brightness/contrast.\n\nNotes:\n    - Find image_index via read_individualslide (matches array position)\n    - PNG/GIF may convert to JPEG\n    - Original permanently replaced on save",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for modifying an existing image on a slide.",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "slide_index": {
+                    "description": "0-based slide index",
+                    "type": "integer"
+                  },
+                  "image_index": {
+                    "description": "0-based index of image on slide (matches position in read_individualslide's images array, NOT annotation number). First image = 0",
+                    "type": "integer"
+                  },
+                  "operation": {
+                    "description": "Modification type: 'rotate', 'flip', 'brightness', 'contrast', or 'crop'",
+                    "enum": [
+                      "rotate",
+                      "flip",
+                      "brightness",
+                      "contrast",
+                      "crop"
+                    ],
+                    "type": "string"
+                  },
+                  "rotation": {
+                    "description": "(Optional) Rotation angle in degrees clockwise (0-360) for 'rotate' operation",
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "flip": {
+                    "description": "(Optional) Flip direction for 'flip' operation: 'horizontal' or 'vertical'",
+                    "enum": [
+                      "horizontal",
+                      "vertical"
+                    ],
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "brightness": {
+                    "description": "(Optional) Brightness factor for 'brightness' operation (1.0=no change, <1.0=darker, >1.0=brighter)",
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "contrast": {
+                    "description": "(Optional) Contrast factor for 'contrast' operation (1.0=no change, <1.0=less, >1.0=more)",
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "crop_left": {
+                    "description": "(Optional) Left crop boundary in pixels from image left edge. Required for 'crop' operation. Must be >= 0 and < crop_right",
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "crop_top": {
+                    "description": "(Optional) Top crop boundary in pixels from image top edge. Required for 'crop' operation. Must be >= 0 and < crop_bottom",
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "crop_right": {
+                    "description": "(Optional) Right crop boundary in pixels from image left edge. Required for 'crop' operation. Must be > crop_left and <= image width",
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "crop_bottom": {
+                    "description": "(Optional) Bottom crop boundary in pixels from image top edge. Required for 'crop' operation. Must be > crop_top and <= image height",
+                    "type": "integer",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "slide_index",
+                  "image_index",
+                  "operation"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/insert_chart": {
+      "post": {
+        "operationId": "insert_chart",
+        "summary": "Insert chart",
+        "description": "Insert a chart into a slide using data from an Excel spreadsheet.\n\nNotes:\n    Data format:\n    - First column: category labels (or X-values for scatter)\n    - Remaining columns: data series\n    - include_header=true: first row = series names\n    - Non-numeric values \u2192 0.0 (silent conversion, except scatter X-values which error)\n\n    Chart-specific:\n    - Pie/doughnut: uses only first series\n    - Scatter: requires numeric X-values (first column) or errors\n\n    Position presets: 'body' (centered 8\u00d75\"), 'left'/'right' (half-width 4.5\u00d75\")",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for inserting a chart into a slide.",
+                "properties": {
+                  "presentation_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "slide_index": {
+                    "description": "0-based slide index",
+                    "type": "integer"
+                  },
+                  "spreadsheet_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "sheet_name": {
+                    "description": "Worksheet name (e.g., 'Sheet1', 'Sales Data')",
+                    "type": "string"
+                  },
+                  "data_range": {
+                    "description": "Excel range (e.g., 'A1:D5'). First column = categories/X-values, remaining columns = data series. First row = series names if include_header=true, else data",
+                    "type": "string"
+                  },
+                  "chart_type": {
+                    "description": "(Optional) Chart type: 'bar' (vertical columns), 'line', 'pie', 'area', 'scatter' (needs numeric X), 'doughnut', 'radar'",
+                    "enum": [
+                      "bar",
+                      "line",
+                      "pie",
+                      "area",
+                      "scatter",
+                      "doughnut",
+                      "radar"
+                    ],
+                    "type": "string"
+                  },
+                  "title": {
+                    "description": "(Optional) Optional chart title",
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "position": {
+                    "description": "(Optional) Chart position: 'body' (centered), 'left' (left half), 'right' (right half)",
+                    "enum": [
+                      "body",
+                      "left",
+                      "right"
+                    ],
+                    "type": "string"
+                  },
+                  "include_header": {
+                    "description": "(Optional) First row contains series names (true) or is data (false)",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "presentation_path",
+                  "slide_index",
+                  "spreadsheet_path",
+                  "sheet_name",
+                  "data_range"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/insert_table": {
+      "post": {
+        "operationId": "insert_table",
+        "summary": "Insert table",
+        "description": "Insert a table into a slide at a specified position and size.\n\nCreates a table with the given data and places it on a slide at specific coordinates.\nSupports custom dimensions and optional header row formatting (bold first row).\n\nNotes:\n    - All rows must have same column count (determined by first row)\n    - Cell values auto-convert to strings (None\u2192empty, 123\u2192'123')\n    - header=True makes first row bold\n    - Dimensions in inches. Standard slide: 10\" \u00d7 7.5\"\n    - Cells auto-wrap text. Columns/rows distributed evenly",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for inserting a table into a slide.",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "slide_index": {
+                    "description": "0-based slide index",
+                    "type": "integer"
+                  },
+                  "rows": {
+                    "description": "2D list of cell values (e.g., [['Name', 'Value'], ['A', '1']]). All rows must have same column count",
+                    "items": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "type": "array"
+                  },
+                  "header": {
+                    "description": "(Optional) Bold first row as header",
+                    "type": "boolean"
+                  },
+                  "x": {
+                    "description": "(Optional) Horizontal position of table's left edge in inches",
+                    "type": "number"
+                  },
+                  "y": {
+                    "description": "(Optional) Vertical position of table's top edge in inches",
+                    "type": "number"
+                  },
+                  "width": {
+                    "description": "(Optional) Total table width in inches. Columns share width equally",
+                    "type": "number"
+                  },
+                  "height": {
+                    "description": "(Optional) Total table height in inches. Rows share height equally",
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "slide_index",
+                  "rows"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/add_shape": {
+      "post": {
+        "operationId": "add_shape",
+        "summary": "Add shape",
+        "description": "Add a geometric shape to a slide with optional text, colors, and styling.\n\nNotes:\n    Shapes: Basic (rectangle, rounded_rectangle, oval, triangle),\n            Arrows (right/left/up/down_arrow),\n            Polygons (pentagon, hexagon, star),\n            Decorative (heart, lightning_bolt, cloud)\n\n    Colors: 6-char hex RGB (e.g., 'FF0000' or '#FF0000'), case-insensitive\n    Text: Centered by default, no auto-wrap, may clip if too long\n    Coordinates/sizes: inches. Standard slide = 10\" \u00d7 7.5\"",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for adding a shape to a slide.",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "slide_index": {
+                    "description": "0-based slide index",
+                    "type": "integer"
+                  },
+                  "shape_type": {
+                    "description": "Shape type",
+                    "enum": [
+                      "rectangle",
+                      "rounded_rectangle",
+                      "oval",
+                      "triangle",
+                      "right_arrow",
+                      "left_arrow",
+                      "up_arrow",
+                      "down_arrow",
+                      "pentagon",
+                      "hexagon",
+                      "star",
+                      "heart",
+                      "lightning_bolt",
+                      "cloud"
+                    ],
+                    "type": "string"
+                  },
+                  "x": {
+                    "description": "(Optional) Horizontal position of shape's left edge in inches from slide left. Default: 1.0 inches",
+                    "type": "number"
+                  },
+                  "y": {
+                    "description": "(Optional) Vertical position of shape's top edge in inches from slide top. Default: 1.0 inches",
+                    "type": "number"
+                  },
+                  "width": {
+                    "description": "(Optional) Shape width in inches. Must be positive. Default: 2.0 inches",
+                    "type": "number"
+                  },
+                  "height": {
+                    "description": "(Optional) Shape height in inches. Must be positive. Default: 2.0 inches",
+                    "type": "number"
+                  },
+                  "fill_color": {
+                    "description": "(Optional) Shape fill color as hex RGB (e.g., 'FF0000' or '#0000FF'). null = default",
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "line_color": {
+                    "description": "(Optional) Shape outline color as 6-character hex RGB string (e.g., '000000' for black). null = default outline",
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "line_width": {
+                    "description": "(Optional) Outline width in points. Must be positive if provided. null = default",
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "text": {
+                    "description": "(Optional) Optional text to display inside the shape (e.g., 'Click Here')",
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "text_color": {
+                    "description": "(Optional) Text color as hex RGB (e.g., 'FFFFFF'). Requires 'text'. null = default",
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "font_size": {
+                    "description": "(Optional) Font size in points (pt) for shape text. Must be positive if provided. Requires 'text' to be set. null = default size",
+                    "type": "number",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "slide_index",
+                  "shape_type"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/read_slides": {
+      "post": {
+        "operationId": "read_slides",
+        "summary": "Read slides",
+        "description": "Read text content from a PowerPoint presentation as markdown within a character range.\n\nConverts the entire presentation to markdown format and returns a substring based on start/end\ncharacter positions. Useful for previewing content or reading large presentations in chunks.\n\nNotes:\n    - Presentation converted to markdown (titles, bullets, tables as markdown; images as [image])\n    - Max range: 10,000 chars. For longer content, use sequential calls\n    - Use read_completedeck for structured slide-by-slide access",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for reading text content from a presentation.",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "start": {
+                    "description": "(Optional) Starting character position (0-based)",
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "end": {
+                    "description": "(Optional) Ending character position (exclusive). Default: 500 (returns chars 0-499). Max range: 10,000 (end - start <= 10000)",
+                    "type": "integer",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "file_path"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/read_completedeck": {
+      "post": {
+        "operationId": "read_completedeck",
+        "summary": "Read completedeck",
+        "description": "Read overview information about all slides in a PowerPoint presentation.\n\nProvides a high-level summary of the entire deck with slide titles and content previews.\nIdeal for understanding deck structure before performing detailed operations.\n\nNotes:\n    - Fast overview without detailed components\n    - Use slide_index to target slides with edit_slides/read_individualslide\n    - For details: read_individualslide. For markdown: read_slides\n    - Content preview: up to 500 chars, truncated without indicator\n    - Title defaults to 'Slide {index}' if no text found\n    - Speaker notes excluded",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for reading an overview of all slides in a presentation.",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  }
+                },
+                "required": [
+                  "file_path"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/read_individualslide": {
+      "post": {
+        "operationId": "read_individualslide",
+        "summary": "Read individualslide",
+        "description": "Read detailed information about a single slide including all components, images, and metadata.\n\nProvides comprehensive details about one slide: layout, shapes (with positions and text), tables\n(with data), placeholder types, and images (with cache annotations for later retrieval).\n\nNotes:\n    - Images cached 15 min with annotation keys (format: 'slide{i}_img{j}')\n    - Table data as 2D array: rows[row_idx][col_idx]\n    - Positions in inches from top-left\n    - Use read_completedeck for quick overview instead",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for reading detailed information about a single slide.",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "slide_index": {
+                    "description": "0-based slide index",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "slide_index"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/presentations/read_image": {
+      "post": {
+        "operationId": "read_image",
+        "summary": "Read image",
+        "description": "Retrieve a cached image from a slide using its annotation key.\n\nFetches image data that was previously cached by read_individualslide. Images are identified\nby their annotation keys (e.g., \"slide2_img0\") which are provided in the read_individualslide response.\n\nNotes:\n    - MUST call read_individualslide first to cache images\n    - Cache expires in 15 minutes\n    - Images auto-compressed to JPEG (max 1920\u00d71080, 85% quality)\n    - Annotation must match read_individualslide output exactly\n    - Leading '@' auto-stripped if present",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "description": "Input model for retrieving a cached image from a slide.",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "annotation": {
+                    "description": "Image cache key from read_individualslide (e.g., 'slide0_img0'). IMPORTANT: Cache expires in 15 minutes - re-run read_individualslide if retrieval fails. Leading '@' auto-stripped",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "annotation"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

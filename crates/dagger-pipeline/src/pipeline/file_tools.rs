@@ -1,6 +1,6 @@
 use std::env;
 
-use dagger_sdk::{Directory, Query};
+use dagger_sdk::{Container, Directory, Query};
 use eyre::{Result, WrapErr, eyre};
 
 use super::ci::{PublishCredentials, ensure_built, maybe_publish};
@@ -8,13 +8,11 @@ use super::ci::{PublishCredentials, ensure_built, maybe_publish};
 const OFFICE_TOOLS_ROOT: &str = "crates/dagger-pipeline/office-tools";
 const OFFICE_TOOLS_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/office-tools";
 
-pub(super) async fn run(
+async fn office_spec_builder(
     client: &Query,
     repo: &Directory,
     archipelago_ref: &str,
-    local_tag: Option<&str>,
-    publish: bool,
-) -> Result<()> {
+) -> Result<(Container, String)> {
     let upstream_ref = client
         .git("https://github.com/Mercor-Intelligence/archipelago")
         .r#ref(archipelago_ref);
@@ -68,7 +66,36 @@ pub(super) async fn run(
             &format!("{OFFICE_TOOLS_ROOT}/tools/validate.py"),
             "--openapi",
             &format!("{OFFICE_TOOLS_ROOT}/dist/openapi"),
-        ])
+        ]);
+
+    Ok((builder, upstream_commit))
+}
+
+pub(super) async fn generate_specs(
+    client: &Query,
+    repo: &Directory,
+    archipelago_ref: &str,
+    output: &str,
+) -> Result<()> {
+    let (builder, upstream_commit) = office_spec_builder(client, repo, archipelago_ref).await?;
+    builder
+        .directory(format!("/repo/{OFFICE_TOOLS_ROOT}/dist/openapi"))
+        .export(output)
+        .await
+        .wrap_err("failed to export built-in Office OpenAPI specs")?;
+    println!("Generated Office OpenAPI specs from Archipelago {upstream_commit} in {output}");
+    Ok(())
+}
+
+pub(super) async fn run(
+    client: &Query,
+    repo: &Directory,
+    archipelago_ref: &str,
+    local_tag: Option<&str>,
+    publish: bool,
+) -> Result<()> {
+    let (builder, upstream_commit) = office_spec_builder(client, repo, archipelago_ref).await?;
+    let builder = builder
         .with_exec(vec!["apt-get", "update"])
         .with_exec(vec![
             "apt-get",

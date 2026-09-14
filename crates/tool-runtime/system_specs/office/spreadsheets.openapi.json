@@ -1,0 +1,816 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Bionic Spreadsheets Office API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://office-tools:8080"
+    }
+  ],
+  "paths": {
+    "/spreadsheets/create_spreadsheet": {
+      "post": {
+        "operationId": "create_spreadsheet",
+        "summary": "Create spreadsheet",
+        "description": "Create a new `.xlsx` workbook with validated sheet definitions, headers, and rows.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "directory": {
+                    "description": "Absolute directory path where the spreadsheet will be created. Use '/' for root or a nested path (e.g., '/reports/2024', '/data')",
+                    "type": "string"
+                  },
+                  "file_name": {
+                    "description": "Output filename ending with .xlsx (e.g., 'sales_report.xlsx', 'inventory.xlsx'). Must not contain '/' characters",
+                    "type": "string"
+                  },
+                  "sheets": {
+                    "description": "List of sheet definitions. Each sheet has: 'name' (required, string) - the tab name (e.g., 'Sheet1', 'Sales Data'); 'headers' (optional, list) - column headers as strings/numbers, freezes first row if provided (e.g., ['Name', 'Age', 'City']); 'rows' (optional, list of lists) - 2D array of cell values where each inner list is a row (e.g., [['John', 30, 'NYC'], ['Jane', 25, 'LA']]). When headers are provided, each row must have the same number of elements as headers.",
+                    "items": {
+                      "$ref": "#/components/schemas/SheetDefinition"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "directory",
+                  "file_name",
+                  "sheets"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/spreadsheets/delete_spreadsheet": {
+      "post": {
+        "operationId": "delete_spreadsheet",
+        "summary": "Delete spreadsheet",
+        "description": "Delete an Excel workbook file from the filesystem.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  }
+                },
+                "required": [
+                  "file_path"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/spreadsheets/read_tab": {
+      "post": {
+        "operationId": "read_tab",
+        "summary": "Read tab",
+        "description": "Read worksheet data from a tab or range with optional formula extraction and truncation.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "tab_index": {
+                    "description": "0-based worksheet tab index (e.g., 0 for first tab, 1 for second tab). Use list_tabs_in_spreadsheet to discover available tabs",
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "cell_range": {
+                    "description": "(Optional) Optional cell range to read. Single cell (e.g., 'A1', 'B5') returns one value; range (e.g., 'A1:C5', 'B2:D10') returns 2D array. If null/omitted, reads the entire worksheet",
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "include_formulas": {
+                    "description": "(Optional) Include formula information (default False for efficiency)",
+                    "nullable": true,
+                    "type": "boolean"
+                  },
+                  "max_rows": {
+                    "description": "(Optional) Maximum rows to return (default 1000, None for unlimited)",
+                    "nullable": true,
+                    "type": "integer"
+                  },
+                  "max_cols": {
+                    "description": "(Optional) Maximum columns to return (default 100, None for unlimited)",
+                    "nullable": true,
+                    "type": "integer"
+                  },
+                  "compact": {
+                    "description": "(Optional) Use compact CSV-style output without formatting (default False)",
+                    "nullable": true,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "tab_index"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/spreadsheets/read_csv": {
+      "post": {
+        "operationId": "read_csv",
+        "summary": "Read csv",
+        "description": "Read a CSV file with configurable delimiter/encoding and return structured rows.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "delimiter": {
+                    "description": "(Optional) Column delimiter character. Default is ',' (comma). Use '\\t' for tab-delimited files, ';' for semicolon-separated",
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "encoding": {
+                    "description": "(Optional) File character encoding (e.g., 'utf-8', 'utf-8-sig', 'latin-1', 'cp1252'). Default is 'utf-8'",
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "has_header": {
+                    "description": "(Optional) If true (default), treats first row as column headers. If false, all rows are data rows",
+                    "nullable": true,
+                    "type": "boolean"
+                  },
+                  "row_limit": {
+                    "description": "(Optional) Maximum number of data rows to return (default 1000 for token efficiency, None for unlimited). Header row does NOT count toward this limit. Examples: has_header=True + row_limit=100 returns 101 rows total (1 header + 100 data). has_header=False + row_limit=100 returns 100 rows total.",
+                    "nullable": true,
+                    "type": "integer"
+                  },
+                  "compact": {
+                    "description": "(Optional) If true, use compact CSV-style output without table formatting. Default is false (table format)",
+                    "nullable": true,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "file_path"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/spreadsheets/list_tabs_in_spreadsheet": {
+      "post": {
+        "operationId": "list_tabs_in_spreadsheet",
+        "summary": "List tabs in spreadsheet",
+        "description": "List all worksheet tabs in a workbook with their metadata.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  }
+                },
+                "required": [
+                  "file_path"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/spreadsheets/add_tab": {
+      "post": {
+        "operationId": "add_tab",
+        "summary": "Add tab",
+        "description": "Add a new worksheet tab to an existing workbook, with optional seed data.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "tab_name": {
+                    "description": "Name for the new worksheet tab (e.g., 'Sheet2', 'Sales Data'). Maximum 31 characters. Cannot contain: \\ / ? * [ ]. Must not already exist in workbook",
+                    "maxLength": 31,
+                    "type": "string"
+                  },
+                  "sheet_data": {
+                    "description": "(Optional) Optional initial data with 'headers' (list of column names) and 'rows' (list of lists of cell values). If headers are provided, rows must match header length. Headers freeze the first row automatically",
+                    "nullable": true,
+                    "$ref": "#/components/schemas/SheetData"
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "tab_name"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/spreadsheets/delete_tab": {
+      "post": {
+        "operationId": "delete_tab",
+        "summary": "Delete tab",
+        "description": "Remove a worksheet tab from a workbook.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "tab_index": {
+                    "description": "0-based index of the worksheet tab to delete (e.g., 0 for first tab). Cannot delete the last remaining tab in a workbook",
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "tab_index"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/spreadsheets/edit_spreadsheet": {
+      "post": {
+        "operationId": "edit_spreadsheet",
+        "summary": "Edit spreadsheet",
+        "description": "Apply a batch of spreadsheet edit operations atomically to a single workbook.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "operations": {
+                    "description": "List of edit operation objects. Each must include a 'type' field specifying the operation: 'set_cell', 'append_rows', 'rename_sheet', 'format_cells', 'merge_cells', 'unmerge_cells', 'set_column_width', 'set_row_height', 'freeze_panes', 'add_named_range', 'delete_named_range', 'add_data_validation', 'add_conditional_formatting', 'set_auto_filter', 'set_number_format', 'add_image'. Operations are applied in order",
+                    "items": {
+                      "discriminator": {
+                        "mapping": {
+                          "add_conditional_formatting": "#/components/schemas/AddConditionalFormattingOperation",
+                          "add_data_validation": "#/components/schemas/AddDataValidationOperation",
+                          "add_image": "#/components/schemas/AddImageOperation",
+                          "add_named_range": "#/components/schemas/AddNamedRangeOperation",
+                          "append_rows": "#/components/schemas/AppendRowsOperation",
+                          "delete_named_range": "#/components/schemas/DeleteNamedRangeOperation",
+                          "format_cells": "#/components/schemas/FormatCellsOperation",
+                          "freeze_panes": "#/components/schemas/FreezePanesOperation",
+                          "merge_cells": "#/components/schemas/MergeCellsOperation",
+                          "rename_sheet": "#/components/schemas/RenameSheetOperation",
+                          "set_auto_filter": "#/components/schemas/SetAutoFilterOperation",
+                          "set_cell": "#/components/schemas/SetCellOperation",
+                          "set_column_width": "#/components/schemas/SetColumnWidthOperation",
+                          "set_number_format": "#/components/schemas/SetNumberFormatOperation",
+                          "set_row_height": "#/components/schemas/SetRowHeightOperation",
+                          "unmerge_cells": "#/components/schemas/UnmergeCellsOperation"
+                        },
+                        "propertyName": "type"
+                      },
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/SetCellOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/AppendRowsOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/RenameSheetOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/FormatCellsOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/MergeCellsOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/UnmergeCellsOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/SetColumnWidthOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/SetRowHeightOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/FreezePanesOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/AddNamedRangeOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/DeleteNamedRangeOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/AddDataValidationOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/AddConditionalFormattingOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/SetAutoFilterOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/SetNumberFormatOperation"
+                        },
+                        {
+                          "$ref": "#/components/schemas/AddImageOperation"
+                        }
+                      ]
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "operations"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/spreadsheets/add_content_text": {
+      "post": {
+        "operationId": "add_content_text",
+        "summary": "Add content text",
+        "description": "Add text, number, or formula to a specific cell in a worksheet.\n\nThe target cell must be empty; this tool will not overwrite existing values.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "tab_index": {
+                    "description": "0-based worksheet tab index (e.g., 0 for first tab, 1 for second tab)",
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "cell": {
+                    "description": "Excel cell reference (e.g., 'A1', 'B5'). Case-insensitive. The cell must be empty; this tool will not overwrite existing values",
+                    "type": "string"
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ],
+                    "description": "Value to set in the cell. Can be string, number, boolean, or formula starting with '='",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "tab_index",
+                  "cell",
+                  "value"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/spreadsheets/delete_content_cell": {
+      "post": {
+        "operationId": "delete_content_cell",
+        "summary": "Delete content cell",
+        "description": "Clear the content of a specific cell, setting it to empty.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "tab_index": {
+                    "description": "0-based worksheet tab index (e.g., 0 for first tab, 1 for second tab)",
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "cell": {
+                    "description": "Excel cell reference to clear (e.g., 'A1', 'B5'). Case-insensitive. Sets cell value to null/empty",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "tab_index",
+                  "cell"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/spreadsheets/create_chart": {
+      "post": {
+        "operationId": "create_chart",
+        "summary": "Create chart",
+        "description": "Create a chart visualization in a worksheet from a data range.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "sheet": {
+                    "description": "Name of the worksheet tab containing the source data for the chart (e.g., 'Sheet1', 'Sales Data'). Sheet must exist",
+                    "type": "string"
+                  },
+                  "data_range": {
+                    "description": "Cell range containing chart data in A1:Z99 notation (e.g., 'A1:C10', 'B2:E20'). Must be a bounded rectangular range. First column typically contains category labels, other columns contain data series",
+                    "type": "string"
+                  },
+                  "chart_type": {
+                    "description": "(Optional) Type of chart to create. Valid values: 'bar' (vertical bar/column chart, default), 'line' (line chart), 'pie' (pie chart)",
+                    "enum": [
+                      "bar",
+                      "line",
+                      "pie"
+                    ],
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "title": {
+                    "description": "(Optional) Optional title displayed above the chart (e.g., 'Monthly Sales'). If null, chart type name is used",
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "position": {
+                    "description": "(Optional) Cell reference for top-left corner of the chart (e.g., 'E2', 'G5'). Default is 'E2'. Chart is placed in the same sheet as the data",
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "categories_column": {
+                    "description": "(Optional) 1-based column index within data_range for category labels (X-axis). Default (null) uses first column as categories. Set to 0 to skip categories entirely. For pie charts, this determines slice labels",
+                    "nullable": true,
+                    "type": "integer"
+                  },
+                  "include_header": {
+                    "description": "(Optional) If true (default), first row of data_range is treated as series names/labels. If false, all rows are data. When true, data_range must contain at least 2 rows",
+                    "nullable": true,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "sheet",
+                  "data_range"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    },
+    "/spreadsheets/filter_tab": {
+      "post": {
+        "operationId": "filter_tab",
+        "summary": "Filter tab",
+        "description": "Filter worksheet rows using column conditions and optionally persist auto-filter criteria.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Office file upload"
+                  },
+                  "tab_index": {
+                    "description": "0-based worksheet tab index (e.g., 0 for first tab)",
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "filters": {
+                    "description": "List of filter condition objects. Each condition has: 'column' (column letter like 'A' or header name if use_headers=true), 'operator' (see valid operators below), 'value' (comparison value, optional for is_empty/is_not_empty). Valid operators: 'equals', 'not_equals', 'greater_than', 'less_than', 'greater_than_or_equal', 'less_than_or_equal', 'contains', 'not_contains', 'starts_with', 'ends_with', 'is_empty', 'is_not_empty'",
+                    "items": {
+                      "$ref": "#/components/schemas/FilterCondition"
+                    },
+                    "type": "array"
+                  },
+                  "cell_range": {
+                    "description": "(Optional) Optional cell range to filter within (e.g., 'A1:D100', 'B5:F50'). If null, filters entire worksheet. Must be a range (A1:B10), not a single cell",
+                    "nullable": true,
+                    "type": "string"
+                  },
+                  "match_all": {
+                    "description": "(Optional) If true (default), all filter conditions must match for a row to be included (AND logic). If false, any matching condition includes the row (OR logic)",
+                    "nullable": true,
+                    "type": "boolean"
+                  },
+                  "use_headers": {
+                    "description": "(Optional) If true (default), first row is treated as column headers, excluded from filtered results, and column names in filter conditions can reference header values (case-insensitive)",
+                    "nullable": true,
+                    "type": "boolean"
+                  },
+                  "include_diagnostics": {
+                    "description": "(Optional) If True, include diagnostic info when no matches found (default False for efficiency)",
+                    "nullable": true,
+                    "type": "boolean"
+                  },
+                  "compact": {
+                    "description": "(Optional) Use compact CSV-style output without formatting (default False)",
+                    "nullable": true,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "file_path",
+                  "tab_index",
+                  "filters"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid operation input"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

@@ -19,6 +19,8 @@ pub struct RuntimeFunctionFile {
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct FunctionCatalogue {
     pub prompt_section: Option<String>,
+    pub built_in_prompt_section: Option<String>,
+    pub connected_prompt_section: Option<String>,
     pub files: Vec<RuntimeFunctionFile>,
 }
 
@@ -50,6 +52,7 @@ struct IntegrationInfo {
     name: String,
     slug: String,
     operations: Vec<RuntimeOperation>,
+    is_builtin: bool,
 }
 
 #[derive(Clone)]
@@ -138,12 +141,12 @@ impl RuntimeFunctionRegistry {
         let system_specs = crate::system_tool_sources::load_system_openapi_specs(pool).await?;
         let server_overrides = crate::system_tool_sources::openapi_server_overrides();
         for system_spec in system_specs {
-            let openapi = match crate::BionicOpenAPI::new(&system_spec.spec.spec) {
+            let openapi = match crate::BionicOpenAPI::new(&system_spec.spec) {
                 Ok(api) => api,
                 Err(err) => {
                     tracing::warn!(
                         "Skipping system integration {} with invalid OpenAPI spec: {}",
-                        system_spec.spec.slug,
+                        system_spec.slug,
                         err
                     );
                     continue;
@@ -152,29 +155,27 @@ impl RuntimeFunctionRegistry {
             if openapi.has_api_key_security() && system_spec.api_key.is_none() {
                 tracing::warn!(
                     "Skipping system integration {} because its API key is not configured",
-                    system_spec.spec.slug
+                    system_spec.slug
                 );
                 continue;
             }
             let token_provider = system_spec
                 .api_key
                 .map(|key| Arc::new(crate::StaticTokenProvider::new(key)) as Arc<_>);
-            let base_url_override = server_overrides
-                .get(&system_spec.spec.slug)
-                .map(String::as_str);
+            let base_url_override = server_overrides.get(&system_spec.slug).map(String::as_str);
             let tools = match openapi.create_tools_with_base_url(token_provider, base_url_override)
             {
                 Ok(tools) => tools,
                 Err(err) => {
                     tracing::warn!(
                         "Skipping system integration {} because tools could not be created: {}",
-                        system_spec.spec.slug,
+                        system_spec.slug,
                         err
                     );
                     continue;
                 }
             };
-            let slug = unique_identifier(&system_spec.spec.slug, &mut used_integration_slugs);
+            let slug = unique_identifier(&system_spec.slug, &mut used_integration_slugs);
             let mut operations = Vec::new();
             for tool in tools {
                 let operation_name = unique_identifier(
@@ -186,9 +187,10 @@ impl RuntimeFunctionRegistry {
                 operations.push(operation);
             }
             integrations.push(IntegrationInfo {
-                name: system_spec.spec.title,
+                name: system_spec.title,
                 slug,
                 operations,
+                is_builtin: system_spec.is_builtin,
             });
         }
 
@@ -244,6 +246,7 @@ impl RuntimeFunctionRegistry {
                 name: integration.integration_name,
                 slug,
                 operations,
+                is_builtin: false,
             });
         }
 
@@ -273,6 +276,7 @@ impl RuntimeFunctionRegistry {
             name: "Web Fetch".to_string(),
             slug: "web-fetch".to_string(),
             operations: vec![web_operation],
+            is_builtin: true,
         });
 
         Self {
@@ -332,6 +336,7 @@ impl RuntimeFunctionRegistry {
                 })
                 .cloned()
                 .collect(),
+            is_builtin: true,
         });
     }
 
@@ -368,26 +373,56 @@ impl RuntimeFunctionRegistry {
     }
 
     pub fn function_catalogue(&self) -> FunctionCatalogue {
-        let mut prompt = String::from(
+        let instructions = String::from(
             "Available function catalogues:\n\
 Use read_file or run_bash to inspect `/home/user/functions`, then read the relevant `.md` file before calling an integration with run_python. The file contains the exact function names, parameters, and usage examples.\n",
         );
         let mut files = Vec::new();
+        let mut built_in_lines = Vec::new();
+        let mut connected_lines = Vec::new();
 
         for integration in &self.integrations {
-            prompt.push_str(&format!(
+            let line = format!(
                 "- {}: {FUNCTIONS_DIR}/{}.md\n",
                 integration.name, integration.slug
-            ));
+            );
+            if integration.is_builtin {
+                built_in_lines.push(line);
+            } else {
+                connected_lines.push(line);
+            }
             files.push(RuntimeFunctionFile {
                 path: format!("{FUNCTIONS_DIR}/{}.md", integration.slug),
                 contents: function_markdown(integration).into_bytes(),
             });
         }
 
+        let section = |title: &str, lines: &[String]| {
+            if lines.is_empty() {
+                None
+            } else {
+                Some(
+                    format!("{title}:\n{}", lines.concat())
+                        .trim_end()
+                        .to_string(),
+                )
+            }
+        };
+        let built_in_prompt_section = section("Built-in tools", &built_in_lines);
+        let connected_prompt_section = section("Connected integrations", &connected_lines);
+        let mut prompt = instructions;
+        for section in [&built_in_prompt_section, &connected_prompt_section]
+            .into_iter()
+            .flatten()
+        {
+            prompt.push_str(section);
+            prompt.push('\n');
+        }
         prompt.truncate(prompt.trim_end().len());
         FunctionCatalogue {
             prompt_section: Some(prompt),
+            built_in_prompt_section,
+            connected_prompt_section,
             files,
         }
     }
@@ -1033,6 +1068,7 @@ mod tests {
                 name: "Enterprise Email API".to_string(),
                 slug: "enterprise_email_api".to_string(),
                 operations: vec![operation],
+                is_builtin: false,
             }],
             HashMap::new(),
         );
@@ -1082,6 +1118,7 @@ mod tests {
                 name: "Document Conversion API".to_string(),
                 slug: "document_conversion_api".to_string(),
                 operations: vec![operation],
+                is_builtin: true,
             }],
             HashMap::new(),
         );
@@ -1200,6 +1237,7 @@ mod tests {
                 name: "Typst Compilation API".to_string(),
                 slug: "typst".to_string(),
                 operations: vec![operation],
+                is_builtin: true,
             }],
             HashMap::new(),
         );

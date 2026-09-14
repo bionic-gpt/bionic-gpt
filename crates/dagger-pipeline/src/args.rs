@@ -15,6 +15,15 @@ pub enum Command {
     All,
     /// Generate the combined eval mocks OpenAPI spec for local Mockoon testing.
     GenerateEvalMocksSpec,
+    /// Generate and validate the built-in Office OpenAPI specs.
+    GenerateOfficeSpecs {
+        /// Archipelago branch, tag, or commit to inspect.
+        #[arg(long, default_value = "main")]
+        archipelago_ref: String,
+        /// Destination directory for the generated specs.
+        #[arg(long, default_value = "crates/tool-runtime/system_specs/office")]
+        output: String,
+    },
     /// Build the Office tools image locally, optionally publishing it to GHCR.
     OfficeTools {
         /// Archipelago branch, tag, or commit to package.

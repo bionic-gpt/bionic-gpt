@@ -43,9 +43,36 @@ struct SelectedSpec {
 
 #[derive(Clone, Debug)]
 pub struct SystemOpenapiSpec {
-    pub spec: OpenapiSpec,
+    pub slug: String,
+    pub title: String,
+    pub spec: Value,
     pub api_key: Option<String>,
+    pub is_builtin: bool,
 }
+
+struct BuiltinSpec {
+    slug: &'static str,
+    title: &'static str,
+    contents: &'static str,
+}
+
+const BUILTIN_SPECS: &[BuiltinSpec] = &[
+    BuiltinSpec {
+        slug: "office-documents",
+        title: "Office Documents",
+        contents: include_str!("system_specs/office/documents.openapi.json"),
+    },
+    BuiltinSpec {
+        slug: "office-spreadsheets",
+        title: "Office Spreadsheets",
+        contents: include_str!("system_specs/office/spreadsheets.openapi.json"),
+    },
+    BuiltinSpec {
+        slug: "office-presentations",
+        title: "Office Presentations",
+        contents: include_str!("system_specs/office/presentations.openapi.json"),
+    },
+];
 
 async fn load_selected_spec(
     transaction: &db::Transaction<'_>,
@@ -117,11 +144,16 @@ pub async fn load_system_openapi_specs(pool: &Pool) -> Result<Vec<SystemOpenapiS
             .map_err(|e| e.to_string())?
         {
             specs.push(SystemOpenapiSpec {
-                spec: selected.spec,
+                slug: selected.spec.slug,
+                title: selected.spec.title,
+                spec: selected.spec.spec,
                 api_key: selected.api_key,
+                is_builtin: true,
             });
         }
     }
+
+    specs.extend(load_builtin_specs()?);
 
     let web_search = match load_selected_spec(&transaction, OpenapiSpecCategory::WebSearch)
         .await
@@ -135,16 +167,37 @@ pub async fn load_system_openapi_specs(pool: &Pool) -> Result<Vec<SystemOpenapiS
     if let Some(selected) = web_search {
         if !specs
             .iter()
-            .any(|existing| existing.spec.id == selected.spec.id)
+            .any(|existing| existing.slug == selected.spec.slug)
         {
             specs.push(SystemOpenapiSpec {
-                spec: selected.spec,
+                slug: selected.spec.slug,
+                title: selected.spec.title,
+                spec: selected.spec.spec,
                 api_key: selected.api_key,
+                is_builtin: true,
             });
         }
     }
 
     Ok(specs)
+}
+
+fn load_builtin_specs() -> Result<Vec<SystemOpenapiSpec>, String> {
+    BUILTIN_SPECS
+        .iter()
+        .map(|builtin| {
+            let spec = serde_json::from_str(builtin.contents).map_err(|error| {
+                format!("invalid built-in OpenAPI spec {}: {error}", builtin.slug)
+            })?;
+            Ok(SystemOpenapiSpec {
+                slug: builtin.slug.to_string(),
+                title: builtin.title.to_string(),
+                spec,
+                api_key: None,
+                is_builtin: true,
+            })
+        })
+        .collect()
 }
 
 fn is_usable_selected_spec(spec: &OpenapiSpec, category: OpenapiSpecCategory) -> bool {
@@ -185,6 +238,17 @@ mod tests {
             created_at: "2026-08-20T00:00:00Z".to_string(),
             updated_at: "2026-08-20T00:00:00Z".to_string(),
         }
+    }
+
+    #[test]
+    fn built_in_office_specs_are_valid_openapi_documents() {
+        let specs = load_builtin_specs().unwrap();
+        assert_eq!(specs.len(), 3);
+        assert!(specs.iter().all(|spec| {
+            spec.is_builtin
+                && spec.spec.get("openapi").is_some()
+                && spec.spec.get("paths").is_some()
+        }));
     }
 
     #[test]
