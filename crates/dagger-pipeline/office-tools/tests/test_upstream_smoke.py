@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from server.catalog import configure_import_paths, load_operation, operation_by_name
+from server.common import _set_root_on_loaded_modules
 
 
 ROOT = Path(os.environ["ARCHIPELAGO_ROOT"]) if os.environ.get("ARCHIPELAGO_ROOT") else None
@@ -16,6 +17,7 @@ def invoke(operation, payload):
     assert ROOT is not None
     configure_import_paths(ROOT, operation.domain)
     function, _ = load_operation(operation, ROOT)
+    _set_root_on_loaded_modules(Path(os.environ["APP_FS_ROOT"]))
     annotation = inspect.get_annotations(function, eval_str=True)
     parameter = next(iter(inspect.signature(function).parameters.values()), None)
     argument = annotation[parameter.name].model_validate(payload) if parameter and hasattr(annotation[parameter.name], "model_validate") else payload
@@ -25,6 +27,7 @@ def invoke(operation, payload):
 
 def test_document_create_and_reopen(tmp_path):
     os.environ["APP_FS_ROOT"] = str(tmp_path)
+    _set_root_on_loaded_modules(tmp_path)
     invoke(operation_by_name("documents", "create_document"), {
         "directory": "/",
         "file_name": "smoke.docx",
@@ -37,6 +40,7 @@ def test_document_create_and_reopen(tmp_path):
 
 def test_spreadsheet_create_and_reopen(tmp_path):
     os.environ["APP_FS_ROOT"] = str(tmp_path)
+    _set_root_on_loaded_modules(tmp_path)
     invoke(operation_by_name("spreadsheets", "create_spreadsheet"), {
         "directory": "/",
         "file_name": "smoke.xlsx",
@@ -52,12 +56,19 @@ def test_spreadsheet_create_and_reopen(tmp_path):
 
     workbook = load_workbook(tmp_path / "smoke.xlsx", data_only=False)
     assert workbook["Data"]["A2"].value == 1
-    assert workbook["Data"]["A3"].value == "=SUM(A2:A2)"
+    formula = workbook["Data"]["A3"].value
+    assert formula.startswith("=SUM(")
+    assert "A2" in formula
     workbook.close()
+
+    recalculated = load_workbook(tmp_path / "smoke.xlsx", data_only=True)
+    assert recalculated["Data"]["A3"].value == 1
+    recalculated.close()
 
 
 def test_presentation_create_and_reopen(tmp_path):
     os.environ["APP_FS_ROOT"] = str(tmp_path)
+    _set_root_on_loaded_modules(tmp_path)
     invoke(operation_by_name("presentations", "create_deck"), {
         "directory": "/",
         "file_name": "smoke.pptx",

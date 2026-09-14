@@ -15,65 +15,20 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+      DAGGER_LOG_FORMAT: plain
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: Mercor-Intelligence/archipelago
-          ref: ${{ inputs.archipelago_ref || 'main' }}
-          path: Archipelago
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Install adapter dependencies
-        run: python -m pip install -r .github/office-tools/requirements.txt
-      - name: Stage upstream Office implementations
+      - uses: actions/checkout@v6
+      - name: Build and publish Office tools with Dagger
         run: |
-          rm -rf .github/office-tools/dist
-          python .github/office-tools/tools/stage_archipelago.py \
-            --archipelago Archipelago \
-            --output .github/office-tools/dist
-      - name: Generate and validate OpenAPI
-        run: |
-          python .github/office-tools/tools/generate_openapi.py \
-            --staged .github/office-tools/dist \
-            --output .github/office-tools/dist/openapi
-          python .github/office-tools/tools/validate.py \
-            --openapi .github/office-tools/dist/openapi
-      - name: Run adapter tests
-        env:
-          ARCHIPELAGO_ROOT: ${{ github.workspace }}/.github/office-tools/dist/archipelago
-          PYTHONPATH: ${{ github.workspace }}/.github/office-tools:${{ github.workspace }}/.github/office-tools/dist
-        run: pytest -q .github/office-tools/tests
-      - name: Stage adapter package and record source revision
-        run: |
-          git -C Archipelago rev-parse HEAD > .github/office-tools/dist/archipelago-commit.txt
-          cp -R .github/office-tools/server .github/office-tools/dist/server
-          cp .github/office-tools/requirements.txt .github/office-tools/dist/requirements.txt
-          cp .github/office-tools/Dockerfile .github/office-tools/dist/Dockerfile
-          cp .github/office-tools/README.md .github/office-tools/dist/README.md
-      - name: Build and publish image
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
-          sha=$(cat .github/office-tools/dist/archipelago-commit.txt)
-          image="ghcr.io/${owner}/office-tools"
-          echo "$GH_TOKEN" | docker login ghcr.io -u '${{ github.actor }}' --password-stdin
-          docker build -t "${image}:${sha}" -t "${image}:latest" .github/office-tools/dist
-          docker push "${image}:${sha}"
-          docker push "${image}:latest"
-          echo "Published operation IDs:"
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          for path in sorted(Path('.github/office-tools/dist/openapi').glob('*.json')):
-              document = json.loads(path.read_text())
-              ids = [operation['operationId'] for item in document['paths'].values() for operation in item.values()]
-              print(f'{path.name}: {", ".join(ids)}')
-          PY
+          cargo run -p dagger-pipeline --release -- \
+            office-tools \
+            --archipelago-ref '${{ inputs.archipelago_ref || 'main' }}' \
+            --publish
       - name: Upload generated OpenAPI
         uses: actions/upload-artifact@v4
         with:
           name: office-tools-openapi
-          path: .github/office-tools/dist/openapi
+          path: office-tools-openapi

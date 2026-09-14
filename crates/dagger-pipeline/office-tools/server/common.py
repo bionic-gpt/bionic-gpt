@@ -31,13 +31,20 @@ def _json_or_value(value: str) -> Any:
 
 def _set_root_on_loaded_modules(root: Path) -> None:
     os.environ["APP_FS_ROOT"] = str(root)
+    os.environ["FILESYSTEM_ROOT"] = str(root)
     os.environ["APP_DOCS_ROOT"] = str(root)
     os.environ["APP_SHEETS_ROOT"] = str(root)
     os.environ["APP_SLIDES_ROOT"] = str(root)
     for module in list(__import__("sys").modules.values()):
         if module is None:
             continue
-        for attribute in ("DOCS_ROOT", "SHEETS_ROOT", "SLIDES_ROOT"):
+        for attribute in (
+            "TARGET_AGENT_FILESYSTEM_ROOT",
+            "FILESYSTEM_ROOT",
+            "DOCS_ROOT",
+            "SHEETS_ROOT",
+            "SLIDES_ROOT",
+        ):
             if hasattr(module, attribute):
                 try:
                     setattr(module, attribute, str(root))
@@ -82,6 +89,7 @@ async def call_operation(operation: Operation, request: Request) -> tuple[Any, b
         async with _CALL_LOCK:
             _set_root_on_loaded_modules(root)
             function, _ = load_operation(operation, upstream_root)
+            _set_root_on_loaded_modules(root)
             model_type = _model_from_signature(function)
             try:
                 argument = model_type.model_validate(payload) if model_type is not None else payload

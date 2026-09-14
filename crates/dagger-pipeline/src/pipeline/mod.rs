@@ -1,4 +1,5 @@
 mod ci;
+mod file_tools;
 use crate::args::{Args, Command};
 use dagger_sdk::{HostDirectoryOpts, Query, connect};
 use eyre::{Result, WrapErr};
@@ -55,6 +56,11 @@ async fn dispatch(client: Query, command: Command) -> Result<()> {
         Command::PullRequest => ci::run(&client, &repo, ci::PublishMode::PullRequest).await?,
         Command::All => ci::run(&client, &repo, ci::PublishMode::All).await?,
         Command::GenerateEvalMocksSpec => unreachable!("handled before Dagger connection"),
+        Command::OfficeTools {
+            archipelago_ref,
+            tag,
+            publish,
+        } => file_tools::run(&client, &repo, &archipelago_ref, tag.as_deref(), publish).await?,
     }
 
     Ok(())

@@ -108,12 +108,12 @@ def _load_package_alias(package_name: str, package_dir: Path) -> None:
 
 def _load_domain_packages(root: Path, domain: str) -> None:
     if domain == "presentations":
-        package_root = root / domain / "packages" / "mcp_schema" / "mcp_schema"
+        package_root = root / domain / "packages"
     else:
         package_root = root / domain / "packages" / "mercor-mcp-shared" / "packages"
 
-    _load_package_alias("mcp_schema", package_root / "mcp_schema")
-    actor_root = package_root / "mcp_actor"
+    _load_package_alias("mcp_schema", package_root / "mcp_schema" / "mcp_schema")
+    actor_root = package_root / "mcp_actor" / "mcp_actor"
     if actor_root.exists():
         _load_package_alias("mcp_actor", actor_root)
 

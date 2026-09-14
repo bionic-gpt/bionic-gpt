@@ -65,9 +65,9 @@ struct BuildOutputs {
     cron_binary: File,
 }
 
-struct PublishCredentials {
-    username: String,
-    token: String,
+pub(super) struct PublishCredentials {
+    pub(super) username: String,
+    pub(super) token: String,
 }
 
 fn release_binary_path(exe: &str) -> String {
@@ -690,7 +690,7 @@ fn string_value(value: &str) -> Value {
     Value::String(value.to_string())
 }
 
-async fn ensure_built(container: &Container, label: &str) -> Result<()> {
+pub(super) async fn ensure_built(container: &Container, label: &str) -> Result<()> {
     println!("Building {label}");
     container
         .id()
@@ -700,7 +700,7 @@ async fn ensure_built(container: &Container, label: &str) -> Result<()> {
     Ok(())
 }
 
-async fn maybe_publish(
+pub(super) async fn maybe_publish(
     client: &Query,
     container: &Container,
     image_repo: &str,
