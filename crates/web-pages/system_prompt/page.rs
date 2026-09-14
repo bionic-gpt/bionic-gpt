@@ -17,6 +17,8 @@ pub struct PromptSizePreview {
     pub default_prompt_tokens: i32,
     pub runtime_additions_tokens: i32,
     pub integration_context_tokens: i32,
+    pub built_in_tools_tokens: i32,
+    pub connected_integration_tokens: i32,
     pub combined_system_message_tokens: i32,
     pub tool_metadata_tokens: i32,
     pub total_foundation_tokens: i32,
@@ -27,7 +29,8 @@ pub struct PromptSizePreview {
 pub struct SystemPromptPageData {
     pub setting: RuntimeSetting,
     pub runtime_additions: Option<String>,
-    pub integration_context: Option<String>,
+    pub built_in_tools: Option<String>,
+    pub connected_integrations: Option<String>,
     pub prompt_size_preview: PromptSizePreview,
     pub tools_preview: Vec<ToolPreview>,
     pub vfs_preview: String,
@@ -37,7 +40,8 @@ pub fn page(team_id: String, rbac: Rbac, data: SystemPromptPageData) -> String {
     let SystemPromptPageData {
         setting,
         runtime_additions,
-        integration_context,
+        built_in_tools,
+        connected_integrations,
         prompt_size_preview,
         tools_preview,
         vfs_preview,
@@ -105,9 +109,13 @@ pub fn page(team_id: String, rbac: Rbac, data: SystemPromptPageData) -> String {
                     runtime_additions,
                     token_estimate: prompt_size_preview.runtime_additions_tokens
                 }
+                BuiltInTools {
+                    content: built_in_tools,
+                    token_estimate: prompt_size_preview.built_in_tools_tokens
+                }
                 DiscoverableFunctions {
-                    integration_context,
-                    token_estimate: prompt_size_preview.integration_context_tokens
+                    integration_context: connected_integrations,
+                    token_estimate: prompt_size_preview.connected_integration_tokens
                 }
                 DebugPreview {
                     title: "Virtual filesystem".to_string(),
@@ -221,6 +229,30 @@ fn DiscoverableSkills(runtime_additions: Option<String>, token_estimate: i32) ->
                     }
                 } else {
                     EmptyPreview { message: "No discoverable skills are currently visible.".to_string() }
+                }
+            }
+        }
+    )
+}
+
+#[component]
+fn BuiltInTools(content: Option<String>, token_estimate: i32) -> Element {
+    rsx!(
+        Card {
+            CardHeaderWithEstimate {
+                title: "Built-in tools".to_string(),
+                token_estimate
+            }
+            CardBody {
+                class: "text-sm text-base-content/80",
+                p { "These tools are shipped with Bionic and available system-wide. They are immutable here; use the catalogue files in /home/user/functions to discover their callable operations." }
+                if let Some(content) = content.as_ref() {
+                    pre {
+                        class: "mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded border border-base-300 bg-base-100 p-4 font-mono text-xs text-base-content",
+                        "{content}"
+                    }
+                } else {
+                    EmptyPreview { message: "No built-in tools are currently available.".to_string() }
                 }
             }
         }

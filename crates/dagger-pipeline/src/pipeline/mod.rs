@@ -56,6 +56,10 @@ async fn dispatch(client: Query, command: Command) -> Result<()> {
         Command::PullRequest => ci::run(&client, &repo, ci::PublishMode::PullRequest).await?,
         Command::All => ci::run(&client, &repo, ci::PublishMode::All).await?,
         Command::GenerateEvalMocksSpec => unreachable!("handled before Dagger connection"),
+        Command::GenerateOfficeSpecs {
+            archipelago_ref,
+            output,
+        } => file_tools::generate_specs(&client, &repo, &archipelago_ref, &output).await?,
         Command::OfficeTools {
             archipelago_ref,
             tag,

@@ -14,6 +14,7 @@ marketing and course site is generated with Rust and `ssg_whiz`.
 - `development`: persistent local development, watchers, compilation feedback, and service diagnosis.
 - `local-deployment`: explicitly requested deployment of one or more locally built services into k3d.
 - `k3d-environment`: explicitly requested creation or setup of the local k3d environment.
+- `office-tools`: regenerate built-in Office OpenAPI specs from an Archipelago ref.
 
 Use the relevant skill before changing code in that area. A task may require
 more than one skill. Use `development` for compiling, running, validating, or
