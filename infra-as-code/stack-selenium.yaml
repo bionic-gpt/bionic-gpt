@@ -58,3 +58,7 @@ spec:
     doc-engine:
       image: ghcr.io/xberg-io/xberg:1.0.14
       port: 8000
+
+    office-tools:
+      image: ghcr.io/bionic-gpt/office-tools:latest
+      port: 8080

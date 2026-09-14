@@ -31,6 +31,12 @@ services:
     ports:
       - "3200:8080"
 
+  # Use by the Zero to Hero course for Office document workflows.
+  office-tools:
+    image: ${OFFICE_TOOLS_IMAGE:-ghcr.io/bionic-gpt/office-tools:latest}
+    ports:
+      - "3400:8080"
+
   # Use by the Zero to Hero course.
   doc-engine:
     image: ghcr.io/xberg-io/xberg:1.0.14

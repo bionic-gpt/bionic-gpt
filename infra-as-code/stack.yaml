@@ -55,3 +55,7 @@ spec:
     cli-gateway:
       image: ghcr.io/bionic-gpt/bionicgpt-cli-gateway:1.12.22
       port: 8080
+
+    office-tools:
+      image: ghcr.io/bionic-gpt/office-tools:latest
+      port: 8080
