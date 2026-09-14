@@ -16,6 +16,10 @@ spec:
         db:
           expose_db_port: 30001
           danger_override_password: testpassword
+      services:
+        automationbench-api:
+          image: ghcr.io/bionic-gpt/automationbench-api:4a8e1061254004d9dac807054eed33fad7d1ff14
+          port: 8080
     uat:
       components:
         oidc:
