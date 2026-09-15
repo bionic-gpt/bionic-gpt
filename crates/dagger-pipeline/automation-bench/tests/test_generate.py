@@ -133,3 +133,69 @@ def test_generated_specs_preserve_nested_request_schemas(tmp_path: Path):
     assert document["components"]["schemas"]["MessagePart"]["properties"]["headers"]["items"] == {
         "$ref": "#/components/schemas/MessagePartHeader"
     }
+
+
+def test_generated_specs_convert_body_parameters_to_request_body(tmp_path: Path):
+    source = tmp_path / "AutomationBench" / "automationbench/tools/api/schemas"
+    source.mkdir(parents=True)
+    (source / "slack.jsonc").write_text(
+        json.dumps(
+            {
+                "api": "slack",
+                "endpoints": [
+                    {
+                        "id": "slack.messages.update",
+                        "method": "POST",
+                        "path": "api/chat.update",
+                        "parameters": {
+                            "channel": {
+                                "type": "string",
+                                "description": "Channel containing the message.",
+                                "required": True,
+                                "location": "body",
+                            },
+                            "ts": {
+                                "type": "string",
+                                "description": "Timestamp of the message.",
+                                "required": True,
+                                "location": "body",
+                            },
+                            "token": {
+                                "type": "string",
+                                "required": True,
+                                "location": "query",
+                            },
+                        },
+                    }
+                ],
+            }
+        )
+    )
+
+    output = tmp_path / "dist"
+    generate(tmp_path / "AutomationBench", output)
+    document = yaml.safe_load((output / "openapi/slack.yaml").read_text())
+    operation = document["paths"]["/api/chat.update"]["post"]
+
+    assert operation["parameters"] == [
+        {
+            "name": "token",
+            "in": "query",
+            "required": True,
+            "schema": {"type": "string"},
+        }
+    ]
+    assert operation["requestBody"]["content"]["application/json"]["schema"] == {
+        "type": "object",
+        "properties": {
+            "channel": {
+                "type": "string",
+                "description": "Channel containing the message.",
+            },
+            "ts": {
+                "type": "string",
+                "description": "Timestamp of the message.",
+            },
+        },
+        "required": ["channel", "ts"],
+    }

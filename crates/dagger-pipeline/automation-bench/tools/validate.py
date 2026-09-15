@@ -23,6 +23,11 @@ def validate(automationbench: Path, output: Path) -> None:
                 if method.lower() not in {"get", "post", "put", "patch", "delete", "options", "head"}: continue
                 assert operation["operationId"] not in ids, operation["operationId"]
                 ids.add(operation["operationId"])
+                for parameter in operation.get("parameters", []):
+                    assert parameter["in"] != "body", (
+                        f"legacy body parameter in {document_path.name}: "
+                        f"{operation['operationId']}"
+                    )
     source_ids = {endpoint["id"] for path in sources for endpoint in load_jsonc(path).get("endpoints", [])}
     assert ids == source_ids, f"operation coverage mismatch: {source_ids - ids} / {ids - source_ids}"
 

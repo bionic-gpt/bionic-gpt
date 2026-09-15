@@ -92,6 +92,17 @@ def request_schema(request: Any, schemas: dict[str, Any]) -> dict[str, Any]:
 
     return {"type": "object", "additionalProperties": True}
 
+
+def parameter_schema(info: dict[str, Any]) -> dict[str, Any]:
+    raw_schema = info.get("schema")
+    if raw_schema is None:
+        raw_schema = {
+            key: value
+            for key, value in info.items()
+            if key not in {"description", "location", "required"}
+        }
+    return schema_ref(raw_schema)
+
 def path_for(service: str, endpoint_path: str) -> str:
     prefix = INTERNAL_PREFIX.get(service, "")
     relative = endpoint_path.removeprefix(prefix)
@@ -118,18 +129,43 @@ def operation(endpoint: dict[str, Any], schemas: dict[str, Any]) -> dict[str, An
         "responses": {"200": {"description": endpoint.get("response", "Successful response"), "content": {"application/json": {"schema": {"type": "object", "additionalProperties": True}}}}},
     }
     parameters = []
+    body_parameters = []
     for name, info in (endpoint.get("parameters") or {}).items():
         info = info if isinstance(info, dict) else {}
-        parameter = {"name": name, "in": info.get("location", "query"), "required": bool(info.get("required", False)), "schema": schema_ref(info),}
+        location = info.get("location", "query")
+        if location == "body":
+            body_parameters.append((name, info))
+            continue
+        parameter = {
+            "name": name,
+            "in": location,
+            "required": bool(info.get("required", False)),
+            "schema": parameter_schema(info),
+        }
         if info.get("description"): parameter["description"] = info["description"]
         parameters.append(parameter)
     if parameters: result["parameters"] = parameters
     request = endpoint.get("request") or endpoint.get("requestBody")
-    if request:
+    if request or body_parameters:
+        if request:
+            body_schema = request_schema(request, schemas)
+        else:
+            properties = {}
+            required = []
+            for name, info in body_parameters:
+                property_schema = parameter_schema(info)
+                if info.get("description"):
+                    property_schema["description"] = info["description"]
+                properties[name] = property_schema
+                if info.get("required", False):
+                    required.append(name)
+            body_schema = {"type": "object", "properties": properties}
+            if required:
+                body_schema["required"] = required
         result["requestBody"] = {
             "required": True,
             "content": {
-                "application/json": {"schema": request_schema(request, schemas)}
+                "application/json": {"schema": body_schema}
             },
         }
     return result
