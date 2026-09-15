@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="749" height="665" viewBox="0 0 749 665" role="img" aria-labelledby="title desc">
+  <title id="title">Meeting brief conversation</title>
+  <desc id="desc">A chat prompt asking for the next meeting, followed by a clean meeting brief.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff542f"/>
+      <stop offset="1" stop-color="#ff4b2c"/>
+    </linearGradient>
+    <filter id="paper-grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="8" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint"><feFuncA type="table" tableValues="0 0.035"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="150%">
+      <feDropShadow dx="0" dy="9" stdDeviation="15" flood-color="#a62012" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      text { font-family: Inter, Arial, Helvetica, sans-serif; }
+      .body { fill:#3e495d; font-size:17px; }
+      .strong { fill:#374256; font-weight:700; }
+      .bullet { fill:#d7dbe2; font-size:18px; }
+    </style>
+  </defs>
+
+  <g filter="url(#soft-shadow)">
+    <rect x="255" y="46" width="240" height="48" rx="12" fill="#ffffff"/>
+  </g>
+  <text x="375" y="76" text-anchor="middle" fill="#141414" font-size="16px">Brief me on my next meeting.</text>
+
+  <line x1="375.5" y1="102" x2="375.5" y2="154" stroke="#1e1e1e" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <g filter="url(#soft-shadow)">
+    <rect x="48" y="163" width="654" height="466" rx="16" fill="#ffffff"/>
+  </g>
+  <rect x="48" y="163" width="654" height="466" rx="16" fill="#ffffff" filter="url(#paper-grain)"/>
+
+  <g transform="translate(81 201)">
+    <text x="0" y="20" font-size="21" class="strong">🏢 Client Meeting: Website Redesign Kickoff</text>
+
+    <text x="0" y="62" class="body">⏰ <tspan class="strong">When:</tspan> Today, 14:00–15:00 (Europe/Paris time)</text>
+    <text x="374" y="62" class="body">📍 <tspan class="strong">Where:</tspan> Google Meet</text>
+
+    <text x="8" y="107" class="bullet">•</text>
+    <text x="31" y="106" class="body">Meeting ID: abc-xyz-123</text>
+
+    <text x="0" y="151" font-size="20" class="strong">👥 Attendees:</text>
+    <text x="8" y="188" class="bullet">•</text><text x="31" y="187" class="body">You (Manon)</text>
+    <text x="8" y="217" class="bullet">•</text><text x="31" y="216" class="body">Marc Dubois (Client, Marketing Director) – Confirmed</text>
+    <text x="8" y="246" class="bullet">•</text><text x="31" y="245" class="body">Nayéli (Client, Tech Lead) – Confirmed</text>
+    <text x="8" y="275" class="bullet">•</text><text x="31" y="274" class="body">Ysée (Your Team, UX Designer) – Confirmed</text>
+
+    <text x="0" y="322" font-size="20" class="strong">📌 Agenda:</text>
+    <text x="8" y="359" class="bullet">•</text><text x="31" y="358" class="body">Review current website pain points</text>
+    <text x="8" y="388" class="bullet">•</text><text x="31" y="387" class="body">Present initial design mockups</text>
+  </g>
+</svg>

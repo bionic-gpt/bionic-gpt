@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="749" height="665" viewBox="0 0 749 665" role="img" aria-labelledby="title desc">
+  <title id="title">Investment banking task completed with a skill</title>
+  <desc id="desc">A transparent chat vignette showing a professional finance prompt, a specialist skill, file and spreadsheet activity, and completed editable deliverables.</desc>
+  <defs>
+    <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="8" result="noise"/><feColorMatrix in="noise" type="saturate" values="0" result="mono"/><feComponentTransfer in="mono" result="faint"><feFuncA type="table" tableValues="0 0.035"/></feComponentTransfer><feBlend in="SourceGraphic" in2="faint" mode="multiply"/></filter>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="150%"><feDropShadow dx="0" dy="9" stdDeviation="15" flood-color="#222222" flood-opacity="0.12"/></filter>
+    <style>text{font-family:Inter,Arial,Helvetica,sans-serif}.tool{fill:#59575d;font-size:15px;font-weight:700}.detail{fill:#89878d;font-size:15px}.body{fill:#3e495d;font-size:15px}</style>
+  </defs>
+
+  <g filter="url(#shadow)"><rect x="112" y="31" width="525" height="112" rx="14" fill="#fff"/></g>
+  <text x="138" y="65" fill="#171717" font-size="15px">
+    <tspan x="138">Calculate the accretion or dilution for BBDC and TVPG</tspan>
+    <tspan x="138" dy="24">shareholders, sensitised across purchase price, synergies</tspan>
+    <tspan x="138" dy="24">and financing assumptions. Deliver an editable model.</tspan>
+  </text>
+
+  <line x1="374.5" y1="143" x2="374.5" y2="175" stroke="#555" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <g filter="url(#shadow)"><rect x="48" y="175" width="654" height="458" rx="16" fill="#fff"/></g>
+  <rect x="48" y="175" width="654" height="458" rx="16" fill="#fff" filter="url(#grain)"/>
+
+  <g transform="translate(81 211)">
+    <text x="0" y="18" font-size="18" fill="#252525">I’ll build and check the transaction model.</text>
+    <line x1="13" y1="65" x2="13" y2="268" stroke="#e2e3e6" stroke-width="2"/>
+
+    <circle cx="13" cy="65" r="11" fill="#fff0e8"/><text x="13" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="#c65326">S</text>
+    <text x="39" y="71"><tspan class="tool">Skill</tspan><tspan dx="9" fill="#d1d1d5">•</tspan><tspan dx="9" class="detail">Investment banking workflow loaded</tspan></text>
+
+    <circle cx="13" cy="121" r="11" fill="#f1f2f4"/><text x="13" y="126" text-anchor="middle" font-size="11" font-weight="700" fill="#62656d">F</text>
+    <text x="39" y="127"><tspan class="tool">Files</tspan><tspan dx="9" fill="#d1d1d5">•</tspan><tspan dx="9" class="detail">BBDC and TVPG filings read</tspan></text>
+
+    <circle cx="13" cy="177" r="11" fill="#eaf7f1"/><text x="13" y="182" text-anchor="middle" font-size="11" font-weight="700" fill="#16825e">X</text>
+    <text x="39" y="183"><tspan class="tool">Spreadsheet</tspan><tspan dx="9" fill="#d1d1d5">•</tspan><tspan dx="9" class="detail">Accretion / dilution model built</tspan></text>
+
+    <text x="13" y="222" text-anchor="middle" font-size="20" fill="#b8b8bd">⋮</text>
+
+    <circle cx="13" cy="268" r="11" fill="#eaf7f1"/><text x="13" y="273" text-anchor="middle" font-size="11" font-weight="700" fill="#16825e">X</text>
+    <text x="39" y="274"><tspan class="tool">Spreadsheet</tspan><tspan dx="9" fill="#d1d1d5">•</tspan><tspan dx="9" class="detail">Sensitivity tables and checks completed</tspan></text>
+
+    <line x1="0" y1="306" x2="587" y2="306" stroke="#ececef"/>
+    <text x="0" y="343" font-size="18" fill="#374256" font-weight="700">Analysis complete. The editable model includes</text>
+    <text x="0" y="369" font-size="18" fill="#374256" font-weight="700">both shareholder views and all requested sensitivities.</text>
+
+    <rect x="0" y="393" width="244" height="39" rx="9" fill="#eef8f3"/>
+    <text x="17" y="418" font-size="14" fill="#256b53" font-weight="700">Accretion model.xlsx</text>
+    <rect x="256" y="393" width="230" height="39" rx="9" fill="#f2f0fa"/>
+    <text x="273" y="418" font-size="14" fill="#5d5680" font-weight="700">Executive summary.docx</text>
+  </g>
+</svg>

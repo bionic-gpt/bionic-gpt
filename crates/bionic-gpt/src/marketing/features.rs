@@ -113,3 +113,73 @@ pub fn BionicFeatures(class: Option<String>) -> Element {
         }
     }
 }
+
+#[derive(Clone, PartialEq)]
+struct MeetingBriefVignette {
+    title: String,
+    description: String,
+    image: String,
+    image_alt: String,
+    image_left: bool,
+}
+
+fn meeting_brief_vignettes() -> Vec<MeetingBriefVignette> {
+    vec![
+        MeetingBriefVignette {
+            title: "Connect your existing tools without custom code".to_string(),
+            description: "Give Bionic an OpenAPI specification and it can discover and use the API. Connect systems such as Gmail, Salesforce and your internal applications without building a bespoke agent for every workflow.".to_string(),
+            image: "/landing-page/meeting-brief.svg".to_string(),
+            image_alt: "A chat prompt followed by a meeting brief with attendees, context and agenda".to_string(),
+            image_left: false,
+        },
+        MeetingBriefVignette {
+            title: "Built for long-horizon work".to_string(),
+            description: "Bionic is designed to run demanding agent benchmarks such as AutomationBench. That means it can follow multi-step workflows, use several business systems and maintain context until the task is complete.".to_string(),
+            image: "/landing-page/jordan-lee-eval.svg".to_string(),
+            image_alt: "A chat request uses Gmail to find a phone number and updates the matching Salesforce contact".to_string(),
+            image_left: true,
+        },
+        MeetingBriefVignette {
+            title: "Built for work that challenges frontier models".to_string(),
+            description: "Mercor’s APEX benchmarks test agents on multi-hour professional tasks in areas such as investment banking, consulting and law. Bionic skills give models repeatable methods for completing this work and producing the artifacts professionals expect.".to_string(),
+            image: "/landing-page/apex-skill-lift.svg".to_string(),
+            image_alt: "An investment banking task uses a specialist skill, source files and a spreadsheet to produce editable deliverables".to_string(),
+            image_left: false,
+        },
+    ]
+}
+
+#[component]
+pub fn CapabilityVignettes(class: Option<String>) -> Element {
+    let class = class.unwrap_or_default();
+
+    rsx! {
+        section {
+            class: format!("{class} grid gap-12"),
+            for vignette in meeting_brief_vignettes() {
+                div {
+                    class: "grid gap-8 md:grid-cols-2 md:items-center",
+                    div {
+                        class: if vignette.image_left { "order-2 max-w-md md:order-2" } else { "order-2 max-w-md md:order-1" },
+                        h2 {
+                            class: "text-3xl font-bold tracking-tight sm:text-4xl",
+                            "{vignette.title}"
+                        }
+                        p {
+                            class: "mt-4 text-lg leading-8 opacity-80",
+                            "{vignette.description}"
+                        }
+                    }
+                    div {
+                        class: if vignette.image_left { "order-1 overflow-hidden rounded-2xl bg-primary p-3 shadow-lg sm:p-5 md:order-1" } else { "order-1 overflow-hidden rounded-2xl bg-primary p-3 shadow-lg sm:p-5 md:order-2" },
+                        img {
+                            class: "h-auto w-full",
+                            src: "{vignette.image}",
+                            alt: "{vignette.image_alt}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

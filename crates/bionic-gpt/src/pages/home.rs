@@ -1,6 +1,7 @@
 use crate::marketing::{
     customer_logos::Customers,
     faq_accordian::{Faq, FaqText},
+    features::CapabilityVignettes,
     footer::Footer,
     security::Security,
     video_hero::VideoHero,
@@ -26,8 +27,8 @@ pub fn home_page() -> String {
                 class: "px-4 md:px-0 w-full lg:max-w-5xl mt-16 md:mt-36 mx-auto grid gap-y-28",
                 VideoHero {
                     video_id: "slRiOOM17tM",
-                    title: "Build sovereign AI without rebuilding the whole stack",
-                    subtitle: "Bionic is the open-source foundation for internal AI teams. Deploy on-premise, in private cloud or in air-gapped environments, then build your own integrations, workflows and use cases on top.",
+                    title: "Your sovereign AI agent for enterprise tasks, fluent in your knowledge and tools.",
+                    subtitle: "Bionic connects AI to your organisation’s knowledge and tools, so it can research, analyse, create and take action. Deploy on-premise, in your private cloud or air-gapped, with full control over your data and models.",
                     claim: "Open source. Self-hosted. Model independent.",
                     cta_label: "Deploy Bionic",
                     cta_href: deploy_url.to_string()
@@ -43,6 +44,8 @@ pub fn home_page() -> String {
                 }
 
                 Customers {}
+
+                CapabilityVignettes {}
 
                 section {
                     class: "grid gap-8",
@@ -129,201 +132,6 @@ pub fn home_page() -> String {
                                     li { "differentiated capabilities" }
                                 }
                             }
-                        }
-                    }
-                }
-
-                section {
-                    class: "rounded-2xl bg-neutral p-6 text-neutral-content md:p-10",
-                    div {
-                        class: "grid gap-8",
-                        div {
-                            class: "max-w-3xl",
-                            h2 {
-                                class: "text-3xl font-bold tracking-tight sm:text-4xl",
-                                "Why not build it yourself?"
-                            }
-                            p {
-                                class: "mt-4 text-lg leading-8 opacity-80",
-                                "You can. But most internal builds start by recreating the same generic layers before anyone can ship the differentiated work."
-                            }
-                        }
-                        div {
-                            class: "grid gap-4",
-                            div {
-                                class: "rounded-xl border border-neutral-content/20 bg-neutral-content/10 p-5",
-                                p { class: "text-sm font-bold uppercase tracking-wide opacity-80", "Typical internal build path" }
-                                p {
-                                    class: "mt-3 text-lg font-semibold leading-8",
-                                    "Chat UI → RAG → tools → SSO → permissions → audit → runtime → sandbox → scheduling → artifacts → observability → upgrades"
-                                }
-                            }
-                            div {
-                                class: "rounded-xl border border-primary bg-primary p-5 text-primary-content",
-                                p { class: "text-sm font-bold uppercase tracking-wide opacity-80", "With Bionic" }
-                                p {
-                                    class: "mt-3 text-2xl font-extrabold",
-                                    "Bionic → integrate → build use cases"
-                                }
-                            }
-                        }
-                        h3 {
-                            class: "text-2xl font-bold",
-                            "Keep control, but start several layers higher."
-                        }
-                    }
-                }
-
-                section {
-                    class: "grid gap-8 md:grid-cols-[1fr_0.9fr] md:items-center",
-                    div {
-                        p { class: "badge badge-outline", "Open source" }
-                        h2 {
-                            class: "mt-5 text-3xl font-bold tracking-tight sm:text-4xl",
-                            "Open source by design"
-                        }
-                        p {
-                            class: "mt-4 text-lg leading-8 opacity-80",
-                            "Deploy it yourself, inspect the code, extend it internally and choose your own models. Bionic lets your organisation own the infrastructure and avoid strategic dependence on a single model provider."
-                        }
-                        a {
-                            class: "btn btn-secondary mt-6",
-                            href: "https://github.com/bionic-gpt/bionic-gpt",
-                            "View the source"
-                        }
-                    }
-                    div {
-                        class: "grid gap-3",
-                        for item in [
-                            "Deploy it yourself",
-                            "Inspect the code",
-                            "Extend it internally",
-                            "Choose your own models",
-                            "Own the infrastructure",
-                            "Avoid single-provider dependence",
-                        ] {
-                            div {
-                                class: "rounded-lg border border-base-300 bg-base-100 p-4 font-semibold shadow-sm",
-                                "{item}"
-                            }
-                        }
-                    }
-                }
-
-                section {
-                    class: "grid gap-6",
-                    div {
-                        class: "max-w-3xl",
-                        h2 {
-                            class: "text-3xl font-bold tracking-tight sm:text-4xl",
-                            "Built for internal AI teams"
-                        }
-                        p {
-                            class: "mt-4 text-lg leading-8 opacity-80",
-                            "Bionic is designed for teams that have to deliver internal AI capabilities but do not want to spend a year rebuilding generic platform infrastructure."
-                        }
-                    }
-                    div {
-                        class: "grid gap-3 sm:grid-cols-2 lg:grid-cols-5",
-                        for audience in [
-                            "AI engineering teams",
-                            "Platform engineering teams",
-                            "Enterprise architects",
-                            "Innovation teams",
-                            "Regulated engineering organisations",
-                        ] {
-                            div {
-                                class: "rounded-lg bg-base-200 p-4 text-sm font-bold",
-                                "{audience}"
-                            }
-                        }
-                    }
-                }
-
-                section {
-                    class: "grid gap-8",
-                    div {
-                        class: "max-w-3xl",
-                        h2 {
-                            class: "text-3xl font-bold tracking-tight sm:text-4xl",
-                            "Run where your data has to live"
-                        }
-                        p {
-                            class: "mt-4 text-lg leading-8 opacity-80",
-                            "Use approved hosted models, private inference endpoints or fully local models. Bionic is built for customer-controlled deployment and infrastructure ownership."
-                        }
-                    }
-                    div {
-                        class: "grid gap-4 sm:grid-cols-2 lg:grid-cols-4",
-                        for deployment in ["customer cloud", "private cloud", "on-premise", "air-gapped"] {
-                            div {
-                                class: "card card-border bg-base-100",
-                                div {
-                                    class: "card-body",
-                                    h3 { class: "card-title capitalize", "{deployment}" }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                section {
-                    class: "grid gap-8",
-                    div {
-                        class: "max-w-3xl",
-                        h2 {
-                            class: "text-3xl font-bold tracking-tight sm:text-4xl",
-                            "Platform architecture"
-                        }
-                        p {
-                            class: "mt-4 text-lg leading-8 opacity-80",
-                            "Bionic sits between the user experience, your enterprise systems and the models you approve."
-                        }
-                    }
-                    div {
-                        class: "grid gap-4",
-                        for (layer, items) in [
-                            ("Experience", "Chat / workflows / artifacts"),
-                            ("Bionic Platform", "Identity / tools / RAG / runtime / audit / scheduling"),
-                            ("Enterprise Systems", "Documents / APIs / databases / internal tools / code"),
-                            ("Models", "Approved hosted models / private endpoints / local models"),
-                        ] {
-                            div {
-                                class: "rounded-xl border border-base-300 bg-base-100 p-5 shadow-sm",
-                                p { class: "text-sm font-bold uppercase tracking-wide opacity-60", "{layer}" }
-                                p { class: "mt-2 text-xl font-semibold", "{items}" }
-                            }
-                        }
-                    }
-                }
-
-                section {
-                    class: "card card-border bg-base-100",
-                    div {
-                        class: "card-body",
-                        h2 {
-                            class: "text-3xl font-bold tracking-tight",
-                            "Example: technical RFP response"
-                        }
-                        div {
-                            class: "my-6 grid gap-3 md:grid-cols-6",
-                            for step in [
-                                "RFP documents",
-                                "requirements extraction",
-                                "internal knowledge search",
-                                "compliance matrix",
-                                "draft response",
-                                "presentation or supporting artifacts",
-                            ] {
-                                div {
-                                    class: "rounded-lg bg-base-200 p-4 text-sm font-semibold",
-                                    "{step}"
-                                }
-                            }
-                        }
-                        p {
-                            class: "text-lg leading-8 opacity-80",
-                            "Your team can build this workflow on Bionic without first building the runtime underneath it."
                         }
                     }
                 }
