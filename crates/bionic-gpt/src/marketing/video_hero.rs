@@ -24,7 +24,7 @@ pub fn VideoHero(
                     class: "flex-1",
                     div {
                         h1 {
-                            class: "font-display text-2xl md:text-6xl font-bold",
+                            class: "font-display text-2xl md:text-5xl font-bold",
                             "{title}"
                         }
                     }
