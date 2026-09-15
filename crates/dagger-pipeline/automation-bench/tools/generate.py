@@ -37,12 +37,59 @@ def load_jsonc(path: Path) -> dict[str, Any]:
 
 def schema_ref(value: Any) -> dict[str, Any]:
     if isinstance(value, dict) and "$ref" in value:
-        return {"$ref": "#/components/schemas/" + value["$ref"]}
-    if isinstance(value, dict) and value.get("type") in {"object", "array", "string", "integer", "number", "boolean"}:
-        result = {k: v for k, v in value.items() if k in {"type", "format", "description", "enum", "items", "additionalProperties"}}
+        reference = value["$ref"]
+        if reference.startswith("#/"):
+            return {"$ref": reference}
+        return {"$ref": "#/components/schemas/" + reference}
+    if isinstance(value, dict) and any(
+        key in value
+        for key in (
+            "type",
+            "format",
+            "description",
+            "enum",
+            "items",
+            "additionalProperties",
+            "properties",
+            "required",
+        )
+    ):
+        result = {
+            k: v
+            for k, v in value.items()
+            if k in {
+                "type",
+                "format",
+                "description",
+                "enum",
+                "items",
+                "additionalProperties",
+                "properties",
+                "required",
+            }
+        }
         if "items" in result:
             result["items"] = schema_ref(result["items"])
+        if "properties" in result:
+            result["properties"] = {
+                name: schema_ref(property_schema)
+                for name, property_schema in result["properties"].items()
+            }
+        if isinstance(result.get("additionalProperties"), dict):
+            result["additionalProperties"] = schema_ref(result["additionalProperties"])
         return result
+    return {"type": "object", "additionalProperties": True}
+
+
+def request_schema(request: Any, schemas: dict[str, Any]) -> dict[str, Any]:
+    if isinstance(request, dict):
+        return schema_ref(request.get("schema", request))
+
+    if isinstance(request, str):
+        match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:", request)
+        if match and match.group(1) in schemas:
+            return {"$ref": f"#/components/schemas/{match.group(1)}"}
+
     return {"type": "object", "additionalProperties": True}
 
 def path_for(service: str, endpoint_path: str) -> str:
@@ -63,7 +110,7 @@ def service_metadata(service: str) -> dict[str, str]:
         "logo_url": metadata.get("logo_url", f"https://cdn.simpleicons.org/{logo_slug}"),
     }
 
-def operation(endpoint: dict[str, Any]) -> dict[str, Any]:
+def operation(endpoint: dict[str, Any], schemas: dict[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {
         "operationId": endpoint["id"],
         "summary": endpoint.get("description", endpoint["id"]),
@@ -79,7 +126,12 @@ def operation(endpoint: dict[str, Any]) -> dict[str, Any]:
     if parameters: result["parameters"] = parameters
     request = endpoint.get("request") or endpoint.get("requestBody")
     if request:
-        result["requestBody"] = {"required": True, "content": {"application/json": {"schema": {"type": "object", "additionalProperties": True}}}}
+        result["requestBody"] = {
+            "required": True,
+            "content": {
+                "application/json": {"schema": request_schema(request, schemas)}
+            },
+        }
     return result
 
 def generate(automationbench: Path, output: Path) -> list[Path]:
@@ -108,7 +160,8 @@ def generate(automationbench: Path, output: Path) -> list[Path]:
             "paths": {},
             "components": {"schemas": {}},
         }
-        for name, definition in (data.get("schemas") or {}).items(): document["components"]["schemas"][name] = schema_ref(definition)
+        schemas = data.get("schemas") or {}
+        for name, definition in schemas.items(): document["components"]["schemas"][name] = schema_ref(definition)
         used_routes: set[tuple[str, str]] = set()
         aliases: dict[str, str] = {}
         for endpoint in data.get("endpoints", []):
@@ -119,7 +172,7 @@ def generate(automationbench: Path, output: Path) -> list[Path]:
                 aliases[alias.lstrip("/")] = route.lstrip("/")
                 route = alias
             used_routes.add((endpoint["method"].lower(), route))
-            document["paths"].setdefault(route, {})[endpoint["method"].lower()] = operation(endpoint)
+            document["paths"].setdefault(route, {})[endpoint["method"].lower()] = operation(endpoint, schemas)
         target = openapi_dir / f"{service}.yaml"
         target.write_text(yaml.safe_dump(document, sort_keys=False, allow_unicode=True))
         generated.append(target)

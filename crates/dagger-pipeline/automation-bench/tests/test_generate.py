@@ -56,3 +56,80 @@ def test_generated_specs_use_fallback_metadata_for_unknown_services(tmp_path: Pa
     assert document["info"]["title"] == "Custom Service"
     assert "deterministic AutomationBench" in document["info"]["description"]
     assert document["info"]["x-logo"]["url"].endswith("/customservice")
+
+
+def test_generated_specs_preserve_nested_request_schemas(tmp_path: Path):
+    source = tmp_path / "AutomationBench" / "automationbench/tools/api/schemas"
+    source.mkdir(parents=True)
+    (source / "gmail.jsonc").write_text(
+        json.dumps(
+            {
+                "api": "gmail",
+                "schemas": {
+                    "Message": {
+                        "type": "object",
+                        "properties": {
+                            "raw": {"type": "string"},
+                            "payload": {
+                                "$ref": "MessagePart"
+                            },
+                        },
+                    },
+                    "MessagePart": {
+                        "type": "object",
+                        "properties": {
+                            "headers": {
+                                "type": "array",
+                                "items": {"$ref": "MessagePartHeader"},
+                            }
+                        },
+                    },
+                    "MessagePartHeader": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"},
+                            "value": {"type": "string"},
+                        },
+                    },
+                    "Draft": {
+                        "type": "object",
+                        "properties": {"message": {"$ref": "Message"}},
+                    },
+                },
+                "endpoints": [
+                    {
+                        "id": "gmail.users.drafts.create",
+                        "method": "POST",
+                        "path": "gmail/v1/users/{userId}/drafts",
+                        "parameters": {
+                            "userId": {
+                                "type": "string",
+                                "required": True,
+                                "location": "path",
+                            }
+                        },
+                        "request": "Draft: {message: Message with payload headers/body}",
+                    }
+                ],
+            }
+        )
+    )
+
+    output = tmp_path / "dist"
+    generate(tmp_path / "AutomationBench", output)
+    document = yaml.safe_load((output / "openapi/gmail.yaml").read_text())
+    operation = document["paths"]["/gmail/v1/users/{userId}/drafts"]["post"]
+
+    assert operation["parameters"][0]["name"] == "userId"
+    assert operation["requestBody"]["content"]["application/json"]["schema"] == {
+        "$ref": "#/components/schemas/Draft"
+    }
+    assert document["components"]["schemas"]["Draft"]["properties"]["message"] == {
+        "$ref": "#/components/schemas/Message"
+    }
+    assert document["components"]["schemas"]["Message"]["properties"]["payload"] == {
+        "$ref": "#/components/schemas/MessagePart"
+    }
+    assert document["components"]["schemas"]["MessagePart"]["properties"]["headers"]["items"] == {
+        "$ref": "#/components/schemas/MessagePartHeader"
+    }
