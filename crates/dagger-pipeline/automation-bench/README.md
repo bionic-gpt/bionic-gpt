@@ -3,18 +3,24 @@
 This adapter exposes AutomationBench's simulated APIs through ordinary OpenAPI
 documents and one HTTP service. It does not reimplement any SaaS behavior.
 
-The workflow checks out AutomationBench, generates the OpenAPI documents, runs
-validation/tests, and publishes the resulting image to GHCR.
+The Dagger pipeline checks out AutomationBench, generates the OpenAPI documents,
+runs validation/tests, and builds the resulting image. CI publishes the image
+to GHCR; local builds export it to the host image store.
 
 ## Local build
 
 ```bash
-python tools/generate.py --automationbench ../AutomationBench --output dist
-python tools/validate.py --automationbench ../AutomationBench --output dist
-cp -R ../AutomationBench/automationbench dist/automationbench
-docker build -t automationbench-api dist
-docker run --rm -p 8080:8080 automationbench-api
+cargo run -p dagger-pipeline -- \
+  automationbench \
+  --automationbench-ref main \
+  --tag bionic-gpt-automationbench:local
+
+docker run --rm -p 8080:8080 bionic-gpt-automationbench:local
 ```
+
+The generated OpenAPI documents are exported to `automationbench-openapi/`.
+The image contains the exact upstream revision in
+`/app/automationbench-commit.txt`.
 
 Initialize a world and call Gmail through the generated API:
 

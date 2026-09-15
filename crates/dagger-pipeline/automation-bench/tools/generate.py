@@ -11,6 +11,8 @@ from typing import Any
 
 import yaml
 
+METADATA_PATH = Path(__file__).resolve().parents[1] / "service_metadata.json"
+
 INTERNAL_PREFIX = {
     "gmail": "", "google_calendar": "", "google_sheets": "sheets/",
     "google_ads": "googleads/v19/", "airtable": "airtable/v0/", "asana": "asana/1.0/",
@@ -48,6 +50,19 @@ def path_for(service: str, endpoint_path: str) -> str:
     relative = endpoint_path.removeprefix(prefix)
     return "/api/" + service + "/" + relative.lstrip("/")
 
+def service_metadata(service: str) -> dict[str, str]:
+    metadata = json.loads(METADATA_PATH.read_text()).get(service, {})
+    title = metadata.get("title", service.replace("_", " ").title())
+    logo_slug = metadata.get("logo_slug", service.replace("_", ""))
+    return {
+        "title": title,
+        "description": metadata.get(
+            "description",
+            f"Simulated {title} API for deterministic AutomationBench workflow evaluation.",
+        ),
+        "logo_url": metadata.get("logo_url", f"https://cdn.simpleicons.org/{logo_slug}"),
+    }
+
 def operation(endpoint: dict[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {
         "operationId": endpoint["id"],
@@ -80,7 +95,19 @@ def generate(automationbench: Path, output: Path) -> list[Path]:
         data = load_jsonc(source)
         schema_data.append(data)
         service = data["api"]
-        document: dict[str, Any] = {"openapi": "3.1.0", "info": {"title": service, "version": str(data.get("version", "1.0.0"))}, "servers": [{"url": f"http://automationbench-api:8080/api/{service}"}], "paths": {}, "components": {"schemas": {}}}
+        metadata = service_metadata(service)
+        document: dict[str, Any] = {
+            "openapi": "3.1.0",
+            "info": {
+                "title": metadata["title"],
+                "version": str(data.get("version", "1.0.0")),
+                "description": metadata["description"],
+                "x-logo": {"url": metadata["logo_url"]},
+            },
+            "servers": [{"url": f"http://automationbench-api:8080/api/{service}"}],
+            "paths": {},
+            "components": {"schemas": {}},
+        }
         for name, definition in (data.get("schemas") or {}).items(): document["components"]["schemas"][name] = schema_ref(definition)
         used_routes: set[tuple[str, str]] = set()
         aliases: dict[str, str] = {}

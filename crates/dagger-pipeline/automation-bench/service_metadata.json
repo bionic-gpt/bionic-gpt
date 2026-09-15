@@ -1,0 +1,77 @@
+{
+  "gmail": {
+    "title": "Gmail",
+    "description": "Simulated Gmail API for deterministic email workflow evaluations.",
+    "logo_slug": "gmail"
+  },
+  "google_calendar": {
+    "title": "Google Calendar",
+    "description": "Simulated Google Calendar API for deterministic scheduling workflow evaluations.",
+    "logo_slug": "googlecalendar"
+  },
+  "google_drive": {
+    "title": "Google Drive",
+    "description": "Simulated Google Drive API for deterministic document workflow evaluations.",
+    "logo_slug": "googledrive"
+  },
+  "google_sheets": {
+    "title": "Google Sheets",
+    "description": "Simulated Google Sheets API for deterministic spreadsheet workflow evaluations.",
+    "logo_slug": "googlesheets"
+  },
+  "salesforce": {
+    "title": "Salesforce",
+    "description": "Simulated Salesforce API for deterministic CRM workflow evaluations.",
+    "logo_slug": "salesforce"
+  },
+  "hubspot": {
+    "title": "HubSpot",
+    "description": "Simulated HubSpot API for deterministic CRM and marketing workflow evaluations.",
+    "logo_slug": "hubspot"
+  },
+  "slack": {
+    "title": "Slack",
+    "description": "Simulated Slack API for deterministic messaging workflow evaluations.",
+    "logo_slug": "slack"
+  },
+  "notion": {
+    "title": "Notion",
+    "description": "Simulated Notion API for deterministic knowledge workflow evaluations.",
+    "logo_slug": "notion"
+  },
+  "asana": {
+    "title": "Asana",
+    "description": "Simulated Asana API for deterministic project management workflow evaluations.",
+    "logo_slug": "asana"
+  },
+  "jira": {
+    "title": "Jira",
+    "description": "Simulated Jira API for deterministic issue tracking workflow evaluations.",
+    "logo_slug": "jira"
+  },
+  "trello": {
+    "title": "Trello",
+    "description": "Simulated Trello API for deterministic task management workflow evaluations.",
+    "logo_slug": "trello"
+  },
+  "quickbooks": {
+    "title": "QuickBooks",
+    "description": "Simulated QuickBooks API for deterministic finance workflow evaluations.",
+    "logo_slug": "quickbooks"
+  },
+  "twilio": {
+    "title": "Twilio",
+    "description": "Simulated Twilio API for deterministic communications workflow evaluations.",
+    "logo_slug": "twilio"
+  },
+  "zoom": {
+    "title": "Zoom",
+    "description": "Simulated Zoom API for deterministic meeting workflow evaluations.",
+    "logo_slug": "zoom"
+  },
+  "openai": {
+    "title": "OpenAI",
+    "description": "Simulated OpenAI API for deterministic model workflow evaluations.",
+    "logo_slug": "openai"
+  }
+}

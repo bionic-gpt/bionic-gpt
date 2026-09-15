@@ -5,6 +5,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY server ./server
 COPY openapi ./openapi
 COPY routes.json .
+COPY automationbench-commit.txt .
 COPY automationbench /opt/automationbench/automationbench
 ENV AUTOMATIONBENCH_PATH=/opt/automationbench
 EXPOSE 8080

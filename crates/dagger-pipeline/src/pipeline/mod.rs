@@ -1,3 +1,4 @@
+mod automation_bench;
 mod ci;
 mod file_tools;
 use crate::args::{Args, Command};
@@ -65,6 +66,22 @@ async fn dispatch(client: Query, command: Command) -> Result<()> {
             tag,
             publish,
         } => file_tools::run(&client, &repo, &archipelago_ref, tag.as_deref(), publish).await?,
+        Command::AutomationBench {
+            automationbench_ref,
+            tag,
+            publish,
+            output,
+        } => {
+            automation_bench::run(
+                &client,
+                &repo,
+                &automationbench_ref,
+                tag.as_deref(),
+                publish,
+                &output,
+            )
+            .await?
+        }
     }
 
     Ok(())

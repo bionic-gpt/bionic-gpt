@@ -15,44 +15,21 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+      DAGGER_LOG_FORMAT: plain
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: zapier/AutomationBench
-          ref: ${{ inputs.automationbench_ref || 'main' }}
-          path: AutomationBench
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Install adapter dependencies
-        run: python -m pip install -r .github/automationbench-api/requirements.txt
-      - name: Generate and validate OpenAPI
+      - name: Build and publish AutomationBench with Dagger
         run: |
-          python .github/automationbench-api/tools/generate.py --automationbench AutomationBench --output .github/automationbench-api/dist
-          python .github/automationbench-api/tools/validate.py --automationbench AutomationBench --output .github/automationbench-api/dist
-      - name: Run adapter smoke tests
-        env:
-          AUTOMATIONBENCH_PATH: ${{ github.workspace }}/AutomationBench
-          AUTOMATIONBENCH_ROUTES: ${{ github.workspace }}/.github/automationbench-api/dist/routes.json
-          PYTHONPATH: ${{ github.workspace }}/.github/automationbench-api
-        run: pytest -q .github/automationbench-api/tests
-      - name: Record source revision and stage package
-        run: |
-          git -C AutomationBench rev-parse HEAD > .github/automationbench-api/dist/automationbench-commit.txt
-          cp -R AutomationBench/automationbench .github/automationbench-api/dist/automationbench
-      - name: Build and publish image
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
-          sha=$(cat .github/automationbench-api/dist/automationbench-commit.txt)
-          image="ghcr.io/${owner}/automationbench-api:${sha}"
-          echo "$GH_TOKEN" | docker login ghcr.io -u '${{ github.actor }}' --password-stdin
-          docker build -t "$image" .github/automationbench-api/dist
-          docker push "$image"
+          cargo run -p dagger-pipeline --release -- \
+            automationbench \
+            --automationbench-ref '${{ inputs.automationbench_ref || 'main' }}' \
+            --publish \
+            --output automationbench-openapi
       - name: Upload generated OpenAPI
         uses: actions/upload-artifact@v4
         with:
           name: automationbench-openapi
-          path: .github/automationbench-api/dist/openapi
+          path: automationbench-openapi
