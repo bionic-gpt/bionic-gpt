@@ -1,6 +1,6 @@
 use crate::store::World;
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Multipart, Path, Query, State},
     http::StatusCode,
     response::Json,
     routing::{get, post},
@@ -35,6 +35,11 @@ pub fn routes() -> Router<Arc<World>> {
             post(action),
         );
 
+    router = router.route(
+        "/services/data/v61.0/sobjects/ContentVersion",
+        post(upload_content_version),
+    );
+
     for object_type in [
         "Case",
         "Lead",
@@ -50,7 +55,6 @@ pub fn routes() -> Router<Arc<World>> {
         "ContentNote",
         "Opportunity",
         "CampaignMember",
-        "ContentVersion",
         "ContentDocumentLink",
     ] {
         router = router.route(
@@ -59,6 +63,41 @@ pub fn routes() -> Router<Arc<World>> {
         );
     }
     router
+}
+
+async fn upload_content_version(
+    State(world): State<Arc<World>>,
+    mut multipart: Multipart,
+) -> Result<Json<Value>, StatusCode> {
+    let mut record = serde_json::Map::new();
+    let mut has_version_data = false;
+    let mut has_path = false;
+    while let Some(field) = multipart
+        .next_field()
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?
+    {
+        let name = field.name().unwrap_or_default().to_string();
+        if name == "VersionData" {
+            let bytes = field.bytes().await.map_err(|_| StatusCode::BAD_REQUEST)?;
+            record.insert("VersionData".to_string(), json!({"size": bytes.len()}));
+            has_version_data = true;
+        } else {
+            let value = field.text().await.map_err(|_| StatusCode::BAD_REQUEST)?;
+            if name == "PathOnClient" {
+                has_path = true;
+            }
+            record.insert(name, Value::String(value));
+        }
+    }
+    if !has_version_data || !has_path {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+    Ok(Json(json!({
+        "id": world.write().await.salesforce.create("ContentVersion", Value::Object(record))["id"],
+        "success": true,
+        "errors": []
+    })))
 }
 
 #[derive(Deserialize, Default)]

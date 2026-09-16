@@ -938,23 +938,13 @@
                   "addLabelIds": {
                     "type": "array",
                     "items": {
-                      "type": "object",
-                      "properties": {
-                        "string": {
-                          "type": "string"
-                        }
-                      }
+                      "type": "string"
                     }
                   },
                   "removeLabelIds": {
                     "type": "array",
                     "items": {
-                      "type": "object",
-                      "properties": {
-                        "string": {
-                          "type": "string"
-                        }
-                      }
+                      "type": "string"
                     }
                   }
                 },
@@ -1012,23 +1002,13 @@
                   "addLabelIds": {
                     "type": "array",
                     "items": {
-                      "type": "object",
-                      "properties": {
-                        "string": {
-                          "type": "string"
-                        }
-                      }
+                      "type": "string"
                     }
                   },
                   "removeLabelIds": {
                     "type": "array",
                     "items": {
-                      "type": "object",
-                      "properties": {
-                        "string": {
-                          "type": "string"
-                        }
-                      }
+                      "type": "string"
                     }
                   }
                 },
@@ -1251,8 +1231,8 @@
             "description": "Identifier of the last history event that affected this message."
           },
           "internalDate": {
-            "type": "string",
-            "format": "date",
+            "type": "integer",
+            "format": "int64",
             "description": "Creation timestamp of the message stored internally (milliseconds since epoch)."
           },
           "sizeEstimate": {
