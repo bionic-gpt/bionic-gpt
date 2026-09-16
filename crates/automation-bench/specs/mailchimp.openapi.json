@@ -1,0 +1,1029 @@
+{
+  "info": {
+    "title": "Mailchimp",
+    "version": "3.0",
+    "description": "Simulated Mailchimp API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/3.0/lists": {
+      "get": {
+        "summary": "Enumerate all audiences in a Mailchimp account. Returns all mailing lists with their names and subscriber counts.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lists": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/List"
+                      }
+                    },
+                    "total_items": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Structured response"
+          }
+        },
+        "description": "Enumerate all audiences in a Mailchimp account. Returns all mailing lists with their names and subscriber counts.",
+        "operationId": "mailchimp.lists.list"
+      },
+      "post": {
+        "summary": "Set up a new audience in your Mailchimp account.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "List object"
+          }
+        },
+        "description": "Set up a new audience in your Mailchimp account.",
+        "operationId": "mailchimp.lists.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/3.0/campaigns": {
+      "post": {
+        "summary": "Set up a new email campaign in Mailchimp.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Campaign object"
+          }
+        },
+        "description": "Set up a new email campaign in Mailchimp.",
+        "operationId": "mailchimp.campaigns.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": {
+                  "enum": [
+                    "regular",
+                    "plaintext",
+                    "absplit",
+                    "rss",
+                    "variate"
+                  ],
+                  "type": "string",
+                  "required": true,
+                  "description": "The category of campaign to create."
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/3.0/lists/{list_id}/members": {
+      "get": {
+        "summary": "Return all subscribers in a Mailchimp audience, with optional filtering by status, opt-in date, and sort preferences.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "list_id": {
+                      "type": "string"
+                    },
+                    "members": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ListMember"
+                      }
+                    },
+                    "total_items": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Structured response"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "list_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target audience."
+          },
+          {
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-separated list of fields to include in the response."
+          },
+          {
+            "in": "query",
+            "name": "exclude_fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-separated list of fields to omit from the response."
+          },
+          {
+            "in": "query",
+            "name": "count",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Number of records to return per page (default 10, max 1000)."
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Number of records to skip before starting the page (default 0)."
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Subscription status to filter by."
+          },
+          {
+            "in": "query",
+            "name": "since_timestamp_opt",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Limit results to members who opted in after this timestamp."
+          },
+          {
+            "in": "query",
+            "name": "before_timestamp_opt",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Limit results to members who opted in before this timestamp."
+          },
+          {
+            "in": "query",
+            "name": "sort_field",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Field name to sort results by."
+          },
+          {
+            "in": "query",
+            "name": "sort_dir",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Direction to sort results (ascending or descending)."
+          }
+        ],
+        "description": "Return all subscribers in a Mailchimp audience, with optional filtering by status, opt-in date, and sort preferences.",
+        "operationId": "mailchimp.lists.members.list"
+      },
+      "post": {
+        "summary": "Subscribe a new member to the audience. Returns an error 400 if the member already exists, unless the status is 'pending'.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "ListMember object"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "list_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target audience."
+          }
+        ],
+        "description": "Subscribe a new member to the audience. Returns an error 400 if the member already exists, unless the status is 'pending'.",
+        "operationId": "mailchimp.lists.members.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/3.0/lists/{list_id}/tag-search": {
+      "get": {
+        "summary": "Look up tags on an audience by name. When no name is provided, all tags in the audience are returned.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MemberTag"
+                      }
+                    },
+                    "total_items": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Structured response"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "list_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target audience."
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Name or partial name to filter tags by."
+          }
+        ],
+        "description": "Look up tags on an audience by name. When no name is provided, all tags in the audience are returned.",
+        "operationId": "mailchimp.lists.tags.list"
+      }
+    },
+    "/3.0/campaigns/{campaign_id}/actions/send": {
+      "post": {
+        "summary": "Dispatch a campaign that is ready to send. RSS-type campaigns follow their defined schedule; all others are delivered immediately.",
+        "responses": {
+          "204": {
+            "description": "Empty response (HTTP 204)"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "campaign_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the campaign to send."
+          }
+        ],
+        "description": "Dispatch a campaign that is ready to send. RSS-type campaigns follow their defined schedule; all others are delivered immediately.",
+        "operationId": "mailchimp.campaigns.send"
+      }
+    },
+    "/3.0/lists/{list_id}/members/{subscriber_hash}": {
+      "get": {
+        "summary": "Fetch details for a single audience member using their subscriber hash. Works for subscribed, unsubscribed, and bounced records.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "ListMember object"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "list_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target audience."
+          },
+          {
+            "in": "path",
+            "name": "subscriber_hash",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "MD5 hash of the member's lowercased email address, or the email address itself."
+          },
+          {
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-separated list of fields to include in the response."
+          },
+          {
+            "in": "query",
+            "name": "exclude_fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-separated list of fields to omit from the response."
+          }
+        ],
+        "description": "Fetch details for a single audience member using their subscriber hash. Works for subscribed, unsubscribed, and bounced records.",
+        "operationId": "mailchimp.lists.members.get"
+      },
+      "patch": {
+        "summary": "Update attributes such as email address, subscription status, merge fields, or VIP flag for an existing list member.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "ListMember object"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "list_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target audience."
+          },
+          {
+            "in": "path",
+            "name": "subscriber_hash",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "MD5 hash of the member's lowercased email address, or the email address itself."
+          }
+        ],
+        "description": "Update attributes such as email address, subscription status, merge fields, or VIP flag for an existing list member.",
+        "operationId": "mailchimp.lists.members.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "summary": "Archive a member from the audience. The record is not permanently deleted and can be re-added later.",
+        "responses": {
+          "204": {
+            "description": "Empty response (HTTP 204)"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "list_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target audience."
+          },
+          {
+            "in": "path",
+            "name": "subscriber_hash",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "MD5 hash of the member's lowercased email address, or the email address itself."
+          }
+        ],
+        "description": "Archive a member from the audience. The record is not permanently deleted and can be re-added later.",
+        "operationId": "mailchimp.lists.members.delete"
+      }
+    },
+    "/3.0/lists/{list_id}/members/{subscriber_hash}/tags": {
+      "post": {
+        "summary": "Apply or remove tags on a list member. Tags that do not yet exist will be automatically created.",
+        "responses": {
+          "204": {
+            "description": "Empty response (HTTP 204)"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "list_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target audience."
+          },
+          {
+            "in": "path",
+            "name": "subscriber_hash",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "MD5 hash of the member's lowercased email address, or the email address itself."
+          }
+        ],
+        "description": "Apply or remove tags on a list member. Tags that do not yet exist will be automatically created.",
+        "operationId": "mailchimp.lists.members.tags",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/3.0/lists/{list_id}/members/{subscriber_hash}/notes": {
+      "post": {
+        "summary": "Add a text note to a subscriber's contact record in the audience.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "MemberNote object"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "list_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target audience."
+          },
+          {
+            "in": "path",
+            "name": "subscriber_hash",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "MD5 hash of the member's lowercased email address, or the email address itself."
+          }
+        ],
+        "description": "Add a text note to a subscriber's contact record in the audience.",
+        "operationId": "mailchimp.lists.members.notes.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://automationbench-api:8080/api/mailchimp"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "List": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for this audience."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the audience."
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "open_rate": {
+                "type": "number"
+              },
+              "click_rate": {
+                "type": "number"
+              },
+              "avg_sub_rate": {
+                "type": "number"
+              },
+              "member_count": {
+                "type": "integer"
+              },
+              "cleaned_count": {
+                "type": "integer"
+              },
+              "last_sub_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "avg_unsub_rate": {
+                "type": "number"
+              },
+              "campaign_count": {
+                "type": "integer"
+              },
+              "last_unsub_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "target_sub_rate": {
+                "type": "number"
+              },
+              "merge_field_count": {
+                "type": "integer"
+              },
+              "unsubscribe_count": {
+                "type": "integer"
+              },
+              "campaign_last_sent": {
+                "type": "string"
+              }
+            }
+          },
+          "web_id": {
+            "type": "integer"
+          },
+          "contact": {
+            "type": "object",
+            "properties": {
+              "zip": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              },
+              "company": {
+                "type": "string"
+              },
+              "country": {
+                "type": "string"
+              },
+              "address1": {
+                "type": "string"
+              },
+              "address2": {
+                "type": "string"
+              }
+            }
+          },
+          "list_rating": {
+            "type": "integer"
+          },
+          "date_created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "campaign_defaults": {
+            "type": "object",
+            "properties": {
+              "subject": {
+                "type": "string"
+              },
+              "language": {
+                "type": "string"
+              },
+              "from_name": {
+                "type": "string"
+              },
+              "from_email": {
+                "type": "string",
+                "format": "email"
+              }
+            }
+          },
+          "email_type_option": {
+            "type": "boolean"
+          },
+          "notify_on_subscribe": {
+            "type": "string"
+          },
+          "permission_reminder": {
+            "type": "string",
+            "description": "Opt-in reminder text shown to subscribers in this audience."
+          },
+          "notify_on_unsubscribe": {
+            "type": "string"
+          }
+        },
+        "description": "A Mailchimp audience (mailing list)."
+      },
+      "Campaign": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for this campaign."
+          },
+          "type": {
+            "enum": [
+              "regular",
+              "plaintext",
+              "absplit",
+              "rss",
+              "variate"
+            ],
+            "type": "string",
+            "description": "The kind of campaign."
+          },
+          "status": {
+            "enum": [
+              "save",
+              "paused",
+              "schedule",
+              "sending",
+              "sent",
+              "canceled"
+            ],
+            "type": "string",
+            "description": "The campaign's current lifecycle state."
+          },
+          "web_id": {
+            "type": "integer"
+          },
+          "settings": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "Internal title used to identify this campaign."
+              },
+              "reply_to": {
+                "type": "string",
+                "description": "Email address that receives replies to this campaign."
+              },
+              "from_name": {
+                "type": "string",
+                "description": "Sender name shown in the 'From' field."
+              },
+              "auto_tweet": {
+                "type": "boolean"
+              },
+              "inline_css": {
+                "type": "boolean"
+              },
+              "auto_footer": {
+                "type": "boolean"
+              },
+              "fb_comments": {
+                "type": "boolean"
+              },
+              "template_id": {
+                "type": "integer"
+              },
+              "preview_text": {
+                "type": "string"
+              },
+              "subject_line": {
+                "type": "string",
+                "description": "Subject line displayed in recipients' inboxes."
+              }
+            }
+          },
+          "tracking": {
+            "type": "object",
+            "properties": {
+              "opens": {
+                "type": "boolean"
+              },
+              "ecomm360": {
+                "type": "boolean"
+              },
+              "clicktale": {
+                "type": "string"
+              },
+              "html_clicks": {
+                "type": "boolean"
+              },
+              "text_clicks": {
+                "type": "boolean"
+              },
+              "goal_tracking": {
+                "type": "boolean"
+              },
+              "google_analytics": {
+                "type": "string"
+              }
+            }
+          },
+          "send_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recipients": {
+            "type": "object",
+            "properties": {
+              "list_id": {
+                "type": "string",
+                "description": "Identifier of the target audience."
+              },
+              "list_name": {
+                "type": "string"
+              },
+              "segment_text": {
+                "type": "string"
+              },
+              "list_is_active": {
+                "type": "boolean"
+              },
+              "recipient_count": {
+                "type": "integer"
+              }
+            }
+          },
+          "archive_url": {
+            "type": "string"
+          },
+          "create_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "emails_sent": {
+            "type": "integer",
+            "description": "Total count of emails dispatched for this campaign."
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "long_archive_url": {
+            "type": "string"
+          }
+        },
+        "description": "A Mailchimp email campaign."
+      },
+      "MemberTag": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Numeric identifier for the tag."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the tag."
+          }
+        },
+        "description": "A label applied to a list member."
+      },
+      "ListMember": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Subscriber identifier computed as the MD5 hash of their lowercased email address."
+          },
+          "vip": {
+            "type": "boolean",
+            "description": "Whether this subscriber has VIP status."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Tags currently assigned to this member."
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "avg_open_rate": {
+                "type": "number"
+              },
+              "avg_click_rate": {
+                "type": "number"
+              }
+            }
+          },
+          "ip_opt": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "subscribed",
+              "unsubscribed",
+              "cleaned",
+              "pending",
+              "transactional",
+              "archived"
+            ],
+            "type": "string",
+            "description": "Subscription state of this member."
+          },
+          "list_id": {
+            "type": "string",
+            "description": "Identifier of the audience list this member belongs to."
+          },
+          "language": {
+            "type": "string"
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "dstoff": {
+                "type": "integer"
+              },
+              "gmtoff": {
+                "type": "integer"
+              },
+              "latitude": {
+                "type": "number"
+              },
+              "timezone": {
+                "type": "string"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "country_code": {
+                "type": "string"
+              }
+            }
+          },
+          "ip_signup": {
+            "type": "string"
+          },
+          "email_type": {
+            "enum": [
+              "html",
+              "text"
+            ],
+            "type": "string",
+            "format": "email",
+            "description": "Preferred email format this subscriber requested ('html' or 'text')."
+          },
+          "tags_count": {
+            "type": "integer"
+          },
+          "email_client": {
+            "type": "string",
+            "format": "email"
+          },
+          "last_changed": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "merge_fields": {
+            "type": "object",
+            "description": "Key-value mapping of merge tags to their values (e.g. FNAME, LNAME)."
+          },
+          "email_address": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address belonging to this subscriber."
+          },
+          "member_rating": {
+            "type": "integer"
+          },
+          "timestamp_opt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "unique_email_id": {
+            "type": "string",
+            "format": "email",
+            "description": "Globally unique identifier for this email address across all accounts."
+          },
+          "timestamp_signup": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "A subscriber or contact record in a Mailchimp audience list."
+      },
+      "MemberNote": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Numeric identifier for the note."
+          },
+          "note": {
+            "type": "string",
+            "description": "Body text of the note."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "string"
+          }
+        },
+        "description": "A text note attached to a list member's record."
+      }
+    }
+  }
+}

@@ -1,0 +1,1193 @@
+{
+  "info": {
+    "title": "Docusign",
+    "version": "v2.1",
+    "description": "Simulated Docusign API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/v2.1/accounts/{accountId}/envelopes": {
+      "get": {
+        "summary": "Search envelopes and track status changes. Filter by date range, status, folder, or keyword. The from_date parameter is mandatory.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "EnvelopesInformation: {envelopes: [Envelope], resultSetSize: string, totalSetSize: string, startPosition: string, endPosition: string, nextUri: string, previousUri: string}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The DocuSign account ID."
+          },
+          {
+            "in": "query",
+            "name": "from_date",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": true,
+            "description": "Earliest date for the search window (ISO 8601). Required."
+          },
+          {
+            "in": "query",
+            "name": "to_date",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "description": "Latest date for the search window (ISO 8601). Defaults to current time."
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-separated statuses to filter by: completed, created, declined, deleted, delivered, processing, sent, signed, voided."
+          },
+          {
+            "in": "query",
+            "name": "from_to_status",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Qualifies the date range: Changed (default), Created, Delivered, Sent, Signed, Completed, Declined, Voided, Deleted, Processing, or TimedOut."
+          },
+          {
+            "in": "query",
+            "name": "order",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Sort direction: 'asc' or 'desc'."
+          },
+          {
+            "in": "query",
+            "name": "order_by",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Field to sort by: 'last_modified', 'created', 'sent', or 'status'."
+          },
+          {
+            "in": "query",
+            "name": "count",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Maximum number of envelopes to return (hard max 1000)."
+          },
+          {
+            "in": "query",
+            "name": "start_position",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Zero-based offset for pagination."
+          },
+          {
+            "in": "query",
+            "name": "search_text",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Keyword to match against envelope metadata."
+          },
+          {
+            "in": "query",
+            "name": "folder_ids",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-separated folder IDs to narrow the search scope."
+          },
+          {
+            "in": "query",
+            "name": "include",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Additional data to embed: 'custom_fields', 'documents', 'recipients', etc."
+          }
+        ],
+        "description": "Search envelopes and track status changes. Filter by date range, status, folder, or keyword. The from_date parameter is mandatory.",
+        "operationId": "docusign.envelopes.list"
+      },
+      "post": {
+        "summary": "Create and optionally dispatch an envelope. Builds a new envelope from a template or with inline documents. Set status to 'sent' to deliver immediately or 'created' to save as a draft.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "EnvelopeSummary: {envelopeId, uri, statusDateTime, status}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The external account number (int) or account ID GUID."
+          }
+        ],
+        "description": "Create and optionally dispatch an envelope. Builds a new envelope from a template or with inline documents. Set status to 'sent' to deliver immediately or 'created' to save as a draft. Request body: {emailSubject: string, emailBlurb: string, status: 'sent'|'created', templateId: string, templateRoles: [{email, name, roleName, tabs: {textTabs: [{tabLabel, value}]}}], documents: [{documentBase64, documentId, fileExtension, name}], recipients: {signers: [{email, name, recipientId, routingOrder}], carbonCopies: [{email, name, recipientId, routingOrder}]}, compositeTemplates: [...]}. Each templateRoles entry may carry a tabs object whose textTabs pre-fill the template's named fields (tabLabel) with the supplied value..",
+        "operationId": "docusign.envelopes.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "documents": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "documentId": {
+                          "type": "string"
+                        },
+                        "fileExtension": {
+                          "type": "string"
+                        },
+                        "documentBase64": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "emailBlurb": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "recipients": {
+                    "type": "object",
+                    "properties": {
+                      "signers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "email": {
+                              "type": "string",
+                              "format": "email"
+                            },
+                            "recipientId": {
+                              "type": "string"
+                            },
+                            "routingOrder": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "carbonCopies": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "email": {
+                              "type": "string",
+                              "format": "email"
+                            },
+                            "recipientId": {
+                              "type": "string"
+                            },
+                            "routingOrder": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "templateId": {
+                    "type": "string"
+                  },
+                  "emailSubject": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "templateRoles": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "tabs": {
+                          "type": "object",
+                          "properties": {
+                            "textTabs": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "value": {
+                                    "type": "string"
+                                  },
+                                  "tabLabel": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "roleName": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "compositeTemplates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "...": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "description": "{emailSubject: string, emailBlurb: string, status: 'sent'|'created', templateId: string, templateRoles: [{email, name, roleName, tabs: {textTabs: [{tabLabel, value}]}}], documents: [{documentBase64, documentId, fileExtension, name}], recipients: {signers: [{email, name, recipientId, routingOrder}], carbonCopies: [{email, name, recipientId, routingOrder}]}, compositeTemplates: [...]}. Each templateRoles entry may carry a tabs object whose textTabs pre-fill the template's named fields (tabLabel) with the supplied value."
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/v2.1/accounts/{accountId}/templates": {
+      "get": {
+        "summary": "Browse envelope templates available in the account, with optional filtering by template name.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "EnvelopeTemplateResults: {envelopeTemplates: [Template], resultSetSize: string, totalSetSize: string, startPosition: string, endPosition: string}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The DocuSign account ID."
+          },
+          {
+            "in": "query",
+            "name": "search_text",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Filter templates by matching name."
+          },
+          {
+            "in": "query",
+            "name": "count",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Number of templates to return per page."
+          },
+          {
+            "in": "query",
+            "name": "start_position",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Zero-based offset for pagination."
+          },
+          {
+            "in": "query",
+            "name": "order",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Sort direction: 'asc' or 'desc'."
+          },
+          {
+            "in": "query",
+            "name": "order_by",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Field to sort by: 'name', 'modified', or 'used'."
+          }
+        ],
+        "description": "Browse envelope templates available in the account, with optional filtering by template name.",
+        "operationId": "docusign.templates.list"
+      }
+    },
+    "/v2.1/accounts/{accountId}/workspaces": {
+      "get": {
+        "summary": "Retrieve all document collaboration workspaces associated with the specified DocuSign account.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "WorkspaceList: {workspaces: [Workspace]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The DocuSign account ID."
+          }
+        ],
+        "description": "Retrieve all document collaboration workspaces associated with the specified DocuSign account.",
+        "operationId": "docusign.workspaces.list"
+      },
+      "post": {
+        "summary": "Provision a new document collaboration workspace within the account.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Created Workspace resource."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The DocuSign account ID."
+          }
+        ],
+        "description": "Provision a new document collaboration workspace within the account. Request body: {name: string, description: string, ownerName: string, ownerEmail: string}.",
+        "operationId": "docusign.workspaces.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "ownerName": {
+                    "type": "string"
+                  },
+                  "ownerEmail": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "description": "{name: string, description: string, ownerName: string, ownerEmail: string}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/v2.1/accounts/{accountId}/envelopes/{envelopeId}": {
+      "get": {
+        "summary": "Retrieve details for a single envelope, including overall status, sender, recipients, documents, and key timestamps.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Envelope resource with full details."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The DocuSign account ID."
+          },
+          {
+            "in": "path",
+            "name": "envelopeId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "GUID of the envelope to retrieve."
+          },
+          {
+            "in": "query",
+            "name": "include",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-separated list of additional resources to embed in the response (e.g. 'recipients', 'documents')."
+          }
+        ],
+        "description": "Retrieve details for a single envelope, including overall status, sender, recipients, documents, and key timestamps.",
+        "operationId": "docusign.envelopes.get"
+      },
+      "put": {
+        "summary": "Modify an existing envelope. Transition a draft to sent by setting status to 'sent'. Cancel an in-flight envelope by setting status to 'voided' along with a voidedReason.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Updated Envelope resource."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The DocuSign account ID."
+          },
+          {
+            "in": "path",
+            "name": "envelopeId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the envelope to modify."
+          }
+        ],
+        "description": "Modify an existing envelope. Transition a draft to sent by setting status to 'sent'. Cancel an in-flight envelope by setting status to 'voided' along with a voidedReason. Request body: {status: 'sent'|'voided', voidedReason: string (required when voiding), emailSubject: string, emailBlurb: string}.",
+        "operationId": "docusign.envelopes.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "voidedReason"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "emailBlurb": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "emailSubject": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "voidedReason": {
+                    "type": "string"
+                  }
+                },
+                "description": "{status: 'sent'|'voided', voidedReason: string (required when voiding), emailSubject: string, emailBlurb: string}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/v2.1/accounts/{accountId}/templates/{templateId}": {
+      "get": {
+        "summary": "Fetch a template by ID. Returns full template details including attached documents, recipients, and custom fields.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Template resource with full details."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The DocuSign account ID."
+          },
+          {
+            "in": "path",
+            "name": "templateId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "GUID of the template to retrieve."
+          }
+        ],
+        "description": "Fetch a template by ID. Returns full template details including attached documents, recipients, and custom fields.",
+        "operationId": "docusign.templates.get"
+      }
+    },
+    "/v2.1/accounts/{accountId}/templates/{templateId}/documents": {
+      "get": {
+        "summary": "Retrieve the list of documents attached to a template.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "TemplateDocumentsResult: {templateId: string, templateDocuments: [Document]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The DocuSign account ID."
+          },
+          {
+            "in": "path",
+            "name": "templateId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the template whose documents to list."
+          }
+        ],
+        "description": "Retrieve the list of documents attached to a template.",
+        "operationId": "docusign.templates.documents"
+      }
+    },
+    "/v2.1/accounts/{accountId}/envelopes/{envelopeId}/recipients": {
+      "get": {
+        "summary": "Retrieve all recipients for an envelope, including every signer, CC recipient, and their current status.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Recipients: {signers: [Signer], carbonCopies: [CarbonCopy], recipientCount: string}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The DocuSign account ID."
+          },
+          {
+            "in": "path",
+            "name": "envelopeId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the envelope whose recipients to retrieve."
+          },
+          {
+            "in": "query",
+            "name": "include_tabs",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Set to 'true' to include field/tab details for each recipient."
+          },
+          {
+            "in": "query",
+            "name": "include_extended",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Set to 'true' to include extended recipient details."
+          }
+        ],
+        "description": "Retrieve all recipients for an envelope, including every signer, CC recipient, and their current status.",
+        "operationId": "docusign.envelopes.recipients.list"
+      },
+      "post": {
+        "summary": "Append signers or CC recipients to an existing envelope.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Updated Recipients resource."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The DocuSign account ID."
+          },
+          {
+            "in": "path",
+            "name": "envelopeId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the envelope to add recipients to."
+          }
+        ],
+        "description": "Append signers or CC recipients to an existing envelope. Request body: {signers: [{name: string, email: string, recipientId: string, routingOrder: string, roleName: string}], carbonCopies: [{name: string, email: string, recipientId: string, routingOrder: string}]}.",
+        "operationId": "docusign.envelopes.recipients.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "signers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "roleName": {
+                          "type": "string"
+                        },
+                        "recipientId": {
+                          "type": "string"
+                        },
+                        "routingOrder": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "carbonCopies": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "recipientId": {
+                          "type": "string"
+                        },
+                        "routingOrder": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "description": "{signers: [{name: string, email: string, recipientId: string, routingOrder: string, roleName: string}], carbonCopies: [{name: string, email: string, recipientId: string, routingOrder: string}]}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://automationbench-api:8080/api/docusign"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Sender": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          }
+        }
+      },
+      "Signer": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Full name of the person who must sign."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address where the signing invitation is delivered."
+          },
+          "status": {
+            "type": "string",
+            "description": "Current state of this recipient: autoresponded, completed, created, declined, delivered, faxPending, sent, or signed."
+          },
+          "roleName": {
+            "type": "string",
+            "description": "Template role name mapped to this recipient."
+          },
+          "recipientId": {
+            "type": "string",
+            "description": "Identifier that uniquely distinguishes this recipient within the envelope."
+          },
+          "routingOrder": {
+            "type": "string",
+            "description": "Position in the signing sequence that controls when this recipient receives the envelope."
+          },
+          "declinedReason": {
+            "type": "string"
+          },
+          "signedDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recipientIdGuid": {
+            "type": "string"
+          },
+          "declinedDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deliveredDateTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "uri": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the document."
+          },
+          "order": {
+            "type": "string",
+            "description": "Position of this document in the envelope's document list."
+          },
+          "documentId": {
+            "type": "string",
+            "description": "Numeric identifier for this document within the envelope."
+          }
+        }
+      },
+      "Envelope": {
+        "type": "object",
+        "properties": {
+          "uri": {
+            "type": "string",
+            "description": "API resource path for this envelope."
+          },
+          "sender": {
+            "$ref": "#/components/schemas/Sender"
+          },
+          "status": {
+            "enum": [
+              "created",
+              "sent",
+              "delivered",
+              "signed",
+              "completed",
+              "declined",
+              "voided",
+              "deleted",
+              "processing",
+              "timedout",
+              "template"
+            ],
+            "type": "string",
+            "description": "Current lifecycle state of the envelope."
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            }
+          },
+          "emailBlurb": {
+            "type": "string",
+            "format": "email",
+            "description": "Body text of the notification email sent to signers."
+          },
+          "envelopeId": {
+            "type": "string",
+            "description": "Globally unique identifier for this envelope."
+          },
+          "recipients": {
+            "$ref": "#/components/schemas/Recipients"
+          },
+          "envelopeUri": {
+            "type": "string"
+          },
+          "documentsUri": {
+            "type": "string"
+          },
+          "emailSubject": {
+            "type": "string",
+            "format": "email",
+            "description": "Subject line of the notification email sent to signers."
+          },
+          "sentDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the envelope was dispatched to recipients."
+          },
+          "voidedReason": {
+            "type": "string",
+            "description": "Explanation provided when the envelope was voided."
+          },
+          "recipientsUri": {
+            "type": "string"
+          },
+          "certificateUri": {
+            "type": "string"
+          },
+          "voidedDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deliveredDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModifiedDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "statusChangedDateTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Template": {
+        "type": "object",
+        "properties": {
+          "uri": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the template."
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            }
+          },
+          "emailBlurb": {
+            "type": "string",
+            "format": "email",
+            "description": "Pre-set email body text for envelopes created from this template."
+          },
+          "recipients": {
+            "$ref": "#/components/schemas/Recipients"
+          },
+          "templateId": {
+            "type": "string",
+            "description": "Globally unique identifier for this template."
+          },
+          "description": {
+            "type": "string",
+            "description": "Summary text describing the purpose of this template."
+          },
+          "emailSubject": {
+            "type": "string",
+            "format": "email",
+            "description": "Pre-set email subject line applied to envelopes created from this template."
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Workspace": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceMember"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string"
+          }
+        }
+      },
+      "CarbonCopy": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Full name of the CC recipient."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the CC recipient."
+          },
+          "status": {
+            "type": "string"
+          },
+          "recipientId": {
+            "type": "string"
+          },
+          "routingOrder": {
+            "type": "string",
+            "description": "Position in the routing sequence for this CC recipient."
+          }
+        }
+      },
+      "Recipients": {
+        "type": "object",
+        "properties": {
+          "signers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Signer"
+            },
+            "description": "All signers assigned to this envelope."
+          },
+          "carbonCopies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CarbonCopy"
+            },
+            "description": "All carbon copy (CC) recipients on this envelope."
+          },
+          "recipientCount": {
+            "type": "string",
+            "description": "Total count of all recipients across all types."
+          }
+        }
+      },
+      "TemplateRole": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Full name of the person assigned to this role."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the person assigned to this role."
+          },
+          "roleName": {
+            "type": "string",
+            "description": "Name of the role as configured in the template."
+          },
+          "routingOrder": {
+            "type": "string"
+          }
+        }
+      },
+      "EnvelopeSummary": {
+        "type": "object",
+        "properties": {
+          "uri": {
+            "type": "string",
+            "description": "API resource path for this envelope."
+          },
+          "status": {
+            "type": "string",
+            "description": "The envelope's current state."
+          },
+          "envelopeId": {
+            "type": "string",
+            "description": "Unique identifier for the envelope."
+          },
+          "statusDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the most recent status change on this envelope."
+          }
+        }
+      },
+      "WorkspaceMember": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

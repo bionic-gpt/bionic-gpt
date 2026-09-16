@@ -1,0 +1,815 @@
+{
+  "info": {
+    "title": "OpenAI",
+    "x-logo": {
+      "url": "https://cdn.simpleicons.org/openai"
+    },
+    "version": "v1",
+    "description": "Simulated OpenAI API for deterministic model workflow evaluations."
+  },
+  "paths": {
+    "/responses": {
+      "post": {
+        "summary": "Generate a response via the stateful Responses API for multi-turn conversations. Link responses using previous_response_id to maintain context. Supports tools, function calling, and file or image inputs.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "top_p": {
+                      "type": "string"
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "input_tokens": {
+                          "type": "string"
+                        },
+                        "total_tokens": {
+                          "type": "string"
+                        },
+                        "output_tokens": {
+                          "type": "string"
+                        },
+                        "output_tokens_details": {
+                          "type": "object",
+                          "properties": {
+                            "reasoning_tokens": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "object": {
+                      "type": "string"
+                    },
+                    "output": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "role": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "content": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "text": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                },
+                                "annotations": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "output_text": {
+                      "type": "string"
+                    },
+                    "temperature": {
+                      "type": "string"
+                    },
+                    "max_output_tokens": {
+                      "type": "string"
+                    },
+                    "previous_response_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id, created_at, model, object: 'response', output: [{id, type: 'message', role: 'assistant', content: [{type: 'output_text', text: string, annotations: []}], status}], output_text (string convenience field), temperature, top_p, max_output_tokens, previous_response_id, status: 'completed'|'in_progress'|'queued', usage: {input_tokens, output_tokens, output_tokens_details: {reasoning_tokens}, total_tokens}}"
+          }
+        },
+        "description": "Generate a response via the stateful Responses API for multi-turn conversations. Link responses using previous_response_id to maintain context. Supports tools, function calling, and file or image inputs. Request body: Body: {model (required, e.g. 'gpt-4o', 'gpt-4.1', 'o3'), input (required, string or array of message objects with role and content), instructions (optional, system prompt string), max_output_tokens (optional, integer), previous_response_id (optional, response ID to continue a conversation), tools (optional, array of tool definitions), temperature (optional, default 1.0), top_p (optional, default 1.0), stream (optional, bool), store (optional, bool, default true), text (optional, {format: {type: 'text'|'json_object'|'json_schema'}}), reasoning (optional: {effort: 'low'|'medium'|'high'})}.",
+        "operationId": "openai.responses.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "model",
+                  "input"
+                ],
+                "properties": {
+                  "input": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "store": {
+                    "type": "boolean"
+                  },
+                  "tools": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "top_p": {
+                    "type": "string"
+                  },
+                  "stream": {
+                    "type": "boolean"
+                  },
+                  "temperature": {
+                    "type": "string"
+                  },
+                  "instructions": {
+                    "type": "string"
+                  },
+                  "max_output_tokens": {
+                    "type": "integer"
+                  },
+                  "reasoning (optional": {
+                    "type": "object",
+                    "properties": {
+                      "effort": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "previous_response_id": {
+                    "type": "string"
+                  },
+                  "text (optional, {format": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {model (required, e.g. 'gpt-4o', 'gpt-4.1', 'o3'), input (required, string or array of message objects with role and content), instructions (optional, system prompt string), max_output_tokens (optional, integer), previous_response_id (optional, response ID to continue a conversation), tools (optional, array of tool definitions), temperature (optional, default 1.0), top_p (optional, default 1.0), stream (optional, bool), store (optional, bool, default true), text (optional, {format: {type: 'text'|'json_object'|'json_schema'}}), reasoning (optional: {effort: 'low'|'medium'|'high'})}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/completions": {
+      "post": {
+        "summary": "Generate a text completion using the legacy non-chat interface. Provide a prompt string and receive a generated continuation. Current models favor the chat/completions endpoint instead.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "total_tokens": {
+                          "type": "string"
+                        },
+                        "prompt_tokens": {
+                          "type": "string"
+                        },
+                        "completion_tokens": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "object": {
+                      "type": "string"
+                    },
+                    "choices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string"
+                          },
+                          "index": {
+                            "type": "string"
+                          },
+                          "logprobs": {
+                            "type": "string"
+                          },
+                          "finish_reason": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "created": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id, object: 'text_completion', created (unix timestamp), model, choices: [{text, index, logprobs, finish_reason: 'stop'|'length'}], usage: {prompt_tokens, completion_tokens, total_tokens}}"
+          }
+        },
+        "description": "Generate a text completion using the legacy non-chat interface. Provide a prompt string and receive a generated continuation. Current models favor the chat/completions endpoint instead. Request body: Body: {model (required), prompt (required, string or array), suffix (optional), max_tokens (optional), temperature (optional, 0–2, default 1), top_p (optional, default 1), n (optional, default 1), stream (optional, bool), logprobs (optional, integer), echo (optional, bool, default false), stop (optional, string or array), presence_penalty (optional, -2 to 2, default 0), frequency_penalty (optional, -2 to 2, default 0), best_of (optional, default 1), logit_bias (optional, object), user (optional)}.",
+        "operationId": "openai.completions.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "model",
+                  "prompt"
+                ],
+                "properties": {
+                  "n": {
+                    "type": "string"
+                  },
+                  "echo": {
+                    "type": "boolean"
+                  },
+                  "stop": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "user": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "top_p": {
+                    "type": "string"
+                  },
+                  "prompt": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "stream": {
+                    "type": "boolean"
+                  },
+                  "suffix": {
+                    "type": "string"
+                  },
+                  "best_of": {
+                    "type": "string"
+                  },
+                  "logprobs": {
+                    "type": "integer"
+                  },
+                  "logit_bias": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "max_tokens": {
+                    "type": "string"
+                  },
+                  "temperature": {
+                    "type": "string"
+                  },
+                  "presence_penalty": {
+                    "type": "string"
+                  },
+                  "frequency_penalty": {
+                    "type": "string"
+                  }
+                },
+                "description": "Body: {model (required), prompt (required, string or array), suffix (optional), max_tokens (optional), temperature (optional, 0–2, default 1), top_p (optional, default 1), n (optional, default 1), stream (optional, bool), logprobs (optional, integer), echo (optional, bool, default false), stop (optional, string or array), presence_penalty (optional, -2 to 2, default 0), frequency_penalty (optional, -2 to 2, default 0), best_of (optional, default 1), logit_bias (optional, object), user (optional)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/moderations": {
+      "post": {
+        "summary": "Screen text for policy violations. Produces per-category flags along with confidence scores. Use this to verify that content complies with OpenAI usage policies before passing it to a model.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "flagged": {
+                            "type": "boolean"
+                          },
+                          "categories": {
+                            "type": "object",
+                            "properties": {
+                              "hate": {
+                                "type": "string"
+                              },
+                              "sexual": {
+                                "type": "string"
+                              },
+                              "illicit": {
+                                "type": "string"
+                              },
+                              "violence": {
+                                "type": "string"
+                              },
+                              "self-harm": {
+                                "type": "string"
+                              },
+                              "harassment": {
+                                "type": "string"
+                              },
+                              "sexual/minors": {
+                                "type": "string"
+                              },
+                              "illicit/violent": {
+                                "type": "string"
+                              },
+                              "hate/threatening": {
+                                "type": "string"
+                              },
+                              "self-harm/intent": {
+                                "type": "string"
+                              },
+                              "violence/graphic": {
+                                "type": "string"
+                              },
+                              "harassment/threatening": {
+                                "type": "string"
+                              },
+                              "self-harm/instructions": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "category_scores": {
+                            "type": "object",
+                            "properties": {
+                              "same keys": {
+                                "type": "string"
+                              },
+                              "float 0.0–1.0": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id, model, results: [{flagged: boolean, categories: {sexual, hate, harassment, harassment/threatening, self-harm, self-harm/intent, self-harm/instructions, sexual/minors, hate/threatening, violence, violence/graphic, illicit, illicit/violent}, category_scores: {same keys, float 0.0–1.0}}]}"
+          }
+        },
+        "description": "Screen text for policy violations. Produces per-category flags along with confidence scores. Use this to verify that content complies with OpenAI usage policies before passing it to a model. Request body: Body: {input (required, string or array of strings to classify), model (optional, default 'omni-moderation-latest' — also supports 'text-moderation-latest', 'text-moderation-stable')}.",
+        "operationId": "openai.moderations.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "input"
+                ],
+                "properties": {
+                  "input": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "model": {
+                    "type": "string"
+                  }
+                },
+                "description": "Body: {input (required, string or array of strings to classify), model (optional, default 'omni-moderation-latest' — also supports 'text-moderation-latest', 'text-moderation-stable')}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/chat/completions": {
+      "post": {
+        "summary": "Generate a chat completion. Submit a conversation as an ordered list of messages using system, user, and assistant roles, and receive an AI-generated reply. This is the primary endpoint for ChatGPT-style exchanges.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "total_tokens": {
+                          "type": "string"
+                        },
+                        "prompt_tokens": {
+                          "type": "string"
+                        },
+                        "completion_tokens": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "object": {
+                      "type": "string"
+                    },
+                    "choices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "object",
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "content": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "finish_reason": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "created": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id, object: 'chat.completion', created (unix timestamp), model, choices: [{index, message: {role: 'assistant', content: string}, finish_reason: 'stop'|'length'|'content_filter'}], usage: {prompt_tokens, completion_tokens, total_tokens}}"
+          }
+        },
+        "description": "Generate a chat completion. Submit a conversation as an ordered list of messages using system, user, and assistant roles, and receive an AI-generated reply. This is the primary endpoint for ChatGPT-style exchanges. Request body: Body: {model (required, e.g. 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1', 'o3'), messages (required): [{role: 'system'|'developer'|'user'|'assistant', content: string, name?: string}], temperature (optional, 0–2, default 1), top_p (optional, default 1), n (optional, default 1, number of completions), stream (optional, bool, default false), stop (optional, string or array of up to 4 stop sequences), max_tokens (optional, integer), max_completion_tokens (optional, integer — preferred over max_tokens for newer models), presence_penalty (optional, -2 to 2, default 0), frequency_penalty (optional, -2 to 2, default 0), logit_bias (optional, object), user (optional, end-user identifier string), response_format (optional, {type: 'text'|'json_object'|'json_schema'}), seed (optional, integer), tools (optional, array of tool definitions), tool_choice (optional, 'none'|'auto'|'required' or object)}.",
+        "operationId": "openai.chat.completions.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "model",
+                  "tool_choice"
+                ],
+                "properties": {
+                  "n": {
+                    "type": "number"
+                  },
+                  "seed": {
+                    "type": "integer"
+                  },
+                  "stop": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "user": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "tools": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "top_p": {
+                    "type": "string"
+                  },
+                  "stream": {
+                    "type": "boolean"
+                  },
+                  "logit_bias": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "max_tokens": {
+                    "type": "integer"
+                  },
+                  "temperature": {
+                    "type": "string"
+                  },
+                  "tool_choice": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "presence_penalty": {
+                    "type": "string"
+                  },
+                  "frequency_penalty": {
+                    "type": "string"
+                  },
+                  "messages (required)": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": "string"
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "max_completion_tokens": {
+                    "type": "integer"
+                  },
+                  "response_format (optional, {type": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "description": "Body: {model (required, e.g. 'gpt-4o', 'gpt-4o-mini', 'gpt-4.1', 'o3'), messages (required): [{role: 'system'|'developer'|'user'|'assistant', content: string, name?: string}], temperature (optional, 0–2, default 1), top_p (optional, default 1), n (optional, default 1, number of completions), stream (optional, bool, default false), stop (optional, string or array of up to 4 stop sequences), max_tokens (optional, integer), max_completion_tokens (optional, integer — preferred over max_tokens for newer models), presence_penalty (optional, -2 to 2, default 0), frequency_penalty (optional, -2 to 2, default 0), logit_bias (optional, object), user (optional, end-user identifier string), response_format (optional, {type: 'text'|'json_object'|'json_schema'}), seed (optional, integer), tools (optional, array of tool definitions), tool_choice (optional, 'none'|'auto'|'required' or object)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://automationbench-api:8080/api/openai"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Usage": {
+        "type": "object",
+        "properties": {
+          "total_tokens": {
+            "type": "integer"
+          },
+          "prompt_tokens": {
+            "type": "integer"
+          },
+          "completion_tokens": {
+            "type": "integer"
+          }
+        }
+      },
+      "ChatMessage": {
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "An optional identifier for the participant sending this message."
+          },
+          "role": {
+            "enum": [
+              "system",
+              "developer",
+              "user",
+              "assistant",
+              "tool"
+            ],
+            "type": "string",
+            "description": "The role of the entity authoring this message. 'developer' is the updated alias for 'system'. 'tool' is used when supplying tool call results."
+          },
+          "content": {
+            "type": "string",
+            "description": "The text content of the message."
+          }
+        }
+      },
+      "ResponseOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "assistant"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "message",
+              "function_call"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "type": {
+                  "enum": [
+                    "output_text"
+                  ],
+                  "type": "string"
+                },
+                "annotations": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "A single output item produced by the Responses API."
+      },
+      "CompletionChoice": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "index": {
+            "type": "integer"
+          },
+          "logprobs": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "finish_reason": {
+            "enum": [
+              "stop",
+              "length"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "ModerationResult": {
+        "type": "object",
+        "properties": {
+          "flagged": {
+            "type": "boolean",
+            "description": "Indicates whether the input content was found to violate any policy category."
+          },
+          "categories": {
+            "type": "object",
+            "properties": {
+              "hate": {
+                "type": "boolean"
+              },
+              "sexual": {
+                "type": "boolean"
+              },
+              "illicit": {
+                "type": "boolean"
+              },
+              "violence": {
+                "type": "boolean"
+              },
+              "self-harm": {
+                "type": "boolean"
+              },
+              "harassment": {
+                "type": "boolean"
+              },
+              "sexual/minors": {
+                "type": "boolean"
+              },
+              "illicit/violent": {
+                "type": "boolean"
+              },
+              "hate/threatening": {
+                "type": "boolean"
+              },
+              "self-harm/intent": {
+                "type": "boolean"
+              },
+              "violence/graphic": {
+                "type": "boolean"
+              },
+              "harassment/threatening": {
+                "type": "boolean"
+              },
+              "self-harm/instructions": {
+                "type": "boolean"
+              }
+            }
+          },
+          "category_scores": {
+            "type": "object",
+            "description": "Confidence scores for each policy category, ranging from 0.0 to 1.0. Keys match those in the categories field."
+          }
+        }
+      },
+      "ChatCompletionChoice": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer"
+          },
+          "message": {
+            "$ref": "#/components/schemas/ChatMessage"
+          },
+          "finish_reason": {
+            "enum": [
+              "stop",
+              "length",
+              "content_filter",
+              "tool_calls",
+              "function_call"
+            ],
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

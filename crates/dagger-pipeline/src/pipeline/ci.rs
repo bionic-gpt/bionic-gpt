@@ -7,11 +7,12 @@ use eyre::{Result, WrapErr, eyre};
 use serde_yaml::{Mapping, Value};
 
 use super::{
-    AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, BASE_IMAGE,
-    CLI_GATEWAY_EXE_NAME, CLI_GATEWAY_IMAGE_REPO, CRON_EXE_NAME, CRON_IMAGE_REPO, DATABASE_URL,
-    DB_FOLDER, DB_PASSWORD, EVAL_MOCKS_IMAGE_REPO, MIGRATIONS_IMAGE_REPO, PIPELINE_FOLDER,
-    POSTGRES_IMAGE, POSTGRES_MCP_EXE_NAME, POSTGRES_MCP_IMAGE_REPO, RAG_ENGINE_EXE_NAME,
-    RAG_ENGINE_IMAGE_REPO, SUMMARY_PATH, TARGET_TRIPLE,
+    AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, AUTOMATION_BENCH_EXE_NAME,
+    AUTOMATION_BENCH_IMAGE_REPO, BASE_IMAGE, CLI_GATEWAY_EXE_NAME, CLI_GATEWAY_IMAGE_REPO,
+    CRON_EXE_NAME, CRON_IMAGE_REPO, DATABASE_URL, DB_FOLDER, DB_PASSWORD, EVAL_MOCKS_IMAGE_REPO,
+    MIGRATIONS_IMAGE_REPO, PIPELINE_FOLDER, POSTGRES_IMAGE, POSTGRES_MCP_EXE_NAME,
+    POSTGRES_MCP_IMAGE_REPO, RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_REPO, SUMMARY_PATH,
+    TARGET_TRIPLE,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -63,6 +64,7 @@ struct BuildOutputs {
     postgres_mcp_binary: File,
     cli_gateway_binary: File,
     cron_binary: File,
+    automation_bench_binary: File,
 }
 
 pub(super) struct PublishCredentials {
@@ -209,6 +211,8 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
     let postgres_mcp_binary = summary_container.file(release_binary_path(POSTGRES_MCP_EXE_NAME));
     let cli_gateway_binary = summary_container.file(release_binary_path(CLI_GATEWAY_EXE_NAME));
     let cron_binary = summary_container.file(release_binary_path(CRON_EXE_NAME));
+    let automation_bench_binary =
+        summary_container.file(release_binary_path(AUTOMATION_BENCH_EXE_NAME));
 
     Ok(BuildOutputs {
         container: summary_container,
@@ -219,7 +223,60 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
         postgres_mcp_binary,
         cli_gateway_binary,
         cron_binary,
+        automation_bench_binary,
     })
+}
+
+pub(super) async fn run_automation_bench(
+    client: &Query,
+    repo: &Directory,
+    local_tag: Option<&str>,
+    publish: bool,
+) -> Result<()> {
+    let outputs = build_workspace(client, repo).await?;
+    let image = automation_bench_container(client, &outputs);
+    ensure_built(&image, "AutomationBench server image").await?;
+
+    if publish {
+        let credentials = ghcr_credentials(true)?.expect("required GHCR credentials");
+        maybe_publish(
+            client,
+            &image,
+            AUTOMATION_BENCH_IMAGE_REPO,
+            Some(&credentials),
+            "ghcr.io",
+            "AutomationBench server image",
+            &collect_image_tags(),
+        )
+        .await?;
+    } else {
+        let tag = local_tag.unwrap_or("bionic-gpt-automationbench:local");
+        let image_id = image
+            .id()
+            .await
+            .wrap_err("failed to materialize AutomationBench server image")?;
+        client
+            .load_container_from_id(image_id)
+            .export_image(tag)
+            .await
+            .wrap_err_with(|| format!("failed to export AutomationBench server image as {tag}"))?;
+        println!("Exported AutomationBench server image as {tag}");
+    }
+
+    Ok(())
+}
+
+fn automation_bench_container(client: &Query, outputs: &BuildOutputs) -> Container {
+    client
+        .container()
+        .with_user("1001")
+        .with_file("/automation-bench", outputs.automation_bench_binary.clone())
+        .with_directory(
+            "/specs",
+            outputs.container.directory("crates/automation-bench/specs"),
+        )
+        .with_exposed_port(8080)
+        .with_entrypoint(vec!["/automation-bench"])
 }
 
 fn postgres_service(client: &Query) -> Service {
@@ -246,39 +303,7 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     let tags = collect_image_tags();
     println!("Container tags to publish: {}", tags.join(", "));
 
-    let username = env::var("GHCR_USERNAME").or_else(|_| env::var("GITHUB_ACTOR"));
-    let token = env::var("GHCR_TOKEN").or_else(|_| env::var("GITHUB_TOKEN"));
-
-    let credentials = match (username, token) {
-        (Ok(username), Ok(token)) => {
-            println!("Using GHCR username `{username}` for image publication");
-            Some(PublishCredentials { username, token })
-        }
-        (Err(user_err), Ok(_)) => {
-            println!(
-                "GHCR username not found locally (`GHCR_USERNAME` / `GITHUB_ACTOR`): {user_err}"
-            );
-            None
-        }
-        (Ok(_), Err(token_err)) => {
-            println!("GHCR token not found locally (`GHCR_TOKEN` / `GITHUB_TOKEN`): {token_err}");
-            None
-        }
-        (Err(user_err), Err(token_err)) => {
-            println!("GHCR username not found: {user_err}");
-            println!("GHCR token not found: {token_err}");
-            None
-        }
-    };
-
-    if credentials.is_none() {
-        if require_publish {
-            return Err(eyre!(
-                "publishing images requires GHCR credentials (`GHCR_USERNAME`/`GITHUB_ACTOR` and `GHCR_TOKEN`/`GITHUB_TOKEN`)"
-            ));
-        }
-        println!("GHCR credentials not provided; images will be built but not published.");
-    }
+    let credentials = ghcr_credentials(require_publish)?;
 
     println!("Collecting build artifacts for publication");
     let dist_dir = outputs
@@ -508,6 +533,44 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     .await?;
 
     Ok(())
+}
+
+fn ghcr_credentials(require_publish: bool) -> Result<Option<PublishCredentials>> {
+    let username = env::var("GHCR_USERNAME").or_else(|_| env::var("GITHUB_ACTOR"));
+    let token = env::var("GHCR_TOKEN").or_else(|_| env::var("GITHUB_TOKEN"));
+
+    let credentials = match (username, token) {
+        (Ok(username), Ok(token)) => {
+            println!("Using GHCR username `{username}` for image publication");
+            Some(PublishCredentials { username, token })
+        }
+        (Err(user_err), Ok(_)) => {
+            println!(
+                "GHCR username not found locally (`GHCR_USERNAME` / `GITHUB_ACTOR`): {user_err}"
+            );
+            None
+        }
+        (Ok(_), Err(token_err)) => {
+            println!("GHCR token not found locally (`GHCR_TOKEN` / `GITHUB_TOKEN`): {token_err}");
+            None
+        }
+        (Err(user_err), Err(token_err)) => {
+            println!("GHCR username not found: {user_err}");
+            println!("GHCR token not found: {token_err}");
+            None
+        }
+    };
+
+    if credentials.is_none() {
+        if require_publish {
+            return Err(eyre!(
+                "publishing images requires GHCR credentials (`GHCR_USERNAME`/`GITHUB_ACTOR` and `GHCR_TOKEN`/`GITHUB_TOKEN`)"
+            ));
+        }
+        println!("GHCR credentials not provided; images will be built but not published.");
+    }
+
+    Ok(credentials)
 }
 
 fn combined_eval_mocks_openapi() -> Result<String> {

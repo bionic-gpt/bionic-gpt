@@ -1,0 +1,333 @@
+{
+  "info": {
+    "title": "Instagram",
+    "version": "v25.0",
+    "description": "Simulated Instagram API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/{mediaId}": {
+      "get": {
+        "summary": "Retrieve fields from a published Instagram media object. Can also be used to poll container status by requesting status_code in the fields parameter.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "For media: {id, media_type, media_url, caption, permalink, thumbnail_url, timestamp, username, like_count, comments_count, shortcode, is_comment_enabled, is_shared_to_feed, alt_text}. For containers: {id, status_code: 'EXPIRED'|'ERROR'|'FINISHED'|'IN_PROGRESS'|'PUBLISHED', status}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mediaId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The media object ID or container ID to query."
+          },
+          {
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-separated fields to return. For published media: id, media_type, media_url, caption, permalink, thumbnail_url, timestamp, username, like_count, comments_count, shortcode, is_comment_enabled, is_shared_to_feed, alt_text. For containers: id, status_code, status."
+          }
+        ],
+        "description": "Retrieve fields from a published Instagram media object. Can also be used to poll container status by requesting status_code in the fields parameter.",
+        "operationId": "instagram.media.get"
+      }
+    },
+    "/{containerId}": {
+      "get": {
+        "summary": "Check the processing status of a media container created in step 1. Poll this endpoint until status_code returns FINISHED before proceeding to media_publish. This step is mandatory for video and reel containers, which require processing time.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "status_code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id, status_code: 'EXPIRED'|'ERROR'|'FINISHED'|'IN_PROGRESS'|'PUBLISHED', status (string — human-readable status message, present on ERROR)}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "containerId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The container ID returned by the createContainer operation."
+          },
+          {
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-separated field names to include in the response (e.g. 'id,status_code,status')."
+          }
+        ],
+        "description": "Check the processing status of a media container created in step 1. Poll this endpoint until status_code returns FINISHED before proceeding to media_publish. This step is mandatory for video and reel containers, which require processing time.",
+        "operationId": "instagram.media.getContainerStatus"
+      }
+    },
+    "/{accountId}/media": {
+      "post": {
+        "summary": "First step of the publishing flow: create a media container (image, reel, carousel, or story) that will be used when publishing the post. For a single photo, supply image_url. For a reel or video, supply video_url and media_type=REELS. For a story, set media_type=STORIES. For individual carousel items, set is_carousel_item=true. For the carousel wrapper, set media_type=CAROUSEL and include a children array of container IDs.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id (container ID)}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The Instagram Business Account ID to create the container under."
+          }
+        ],
+        "description": "First step of the publishing flow: create a media container (image, reel, carousel, or story) that will be used when publishing the post. For a single photo, supply image_url. For a reel or video, supply video_url and media_type=REELS. For a story, set media_type=STORIES. For individual carousel items, set is_carousel_item=true. For the carousel wrapper, set media_type=CAROUSEL and include a children array of container IDs. Request body: Body: {image_url (string — publicly accessible image URL, required for images), video_url (string — publicly accessible video URL, required for videos and reels), media_type (string — required for CAROUSEL/REELS/STORIES; enum: 'CAROUSEL'|'REELS'|'STORIES'), caption (optional, string — max 2200 chars, 30 hashtags, 20 @ tags; not supported on carousel items), alt_text (optional, string — alternative text for images, max 1000 chars; not supported on reels or stories), location_id (optional, string — Facebook Pages page ID to tag location; not supported on carousel items), user_tags (optional, array — [{username: string, x: float 0.0-1.0, y: float 0.0-1.0}]; x and y required for images, optional for stories), is_carousel_item (optional, boolean — set true when creating individual carousel item containers), children (optional, array of strings — container IDs for carousel items, required when media_type is CAROUSEL, 2-10 items), cover_url (optional, string — image URL for reel cover photo; for reels only), thumb_offset (optional, integer — millisecond offset for video thumbnail frame, default 0; for videos and reels), share_to_feed (optional, boolean — when true the reel can appear in both Feed and Reels tabs; for reels only), audio_name (optional, string — name for the reel audio; for reels only, can only be set once), collaborators (optional, array of strings — up to 3 Instagram usernames as collaborators; for feed images, reels, and carousels only)}.",
+        "operationId": "instagram.media.createContainer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "image_url",
+                  "video_url",
+                  "user_tags (optional, array — [{username",
+                  "children"
+                ],
+                "properties": {
+                  "caption": {
+                    "type": "string"
+                  },
+                  "alt_text": {
+                    "type": "string"
+                  },
+                  "children": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "cover_url": {
+                    "type": "string"
+                  },
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "video_url": {
+                    "type": "string"
+                  },
+                  "audio_name": {
+                    "type": "string"
+                  },
+                  "location_id": {
+                    "type": "string"
+                  },
+                  "thumb_offset": {
+                    "type": "integer"
+                  },
+                  "collaborators": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "share_to_feed": {
+                    "type": "boolean"
+                  },
+                  "is_carousel_item": {
+                    "type": "boolean"
+                  },
+                  "user_tags (optional, array — [{username": {
+                    "type": "number"
+                  },
+                  "media_type (string — required for CAROUSEL/REELS/STORIES; enum": {
+                    "type": "string"
+                  }
+                },
+                "description": "Body: {image_url (string — publicly accessible image URL, required for images), video_url (string — publicly accessible video URL, required for videos and reels), media_type (string — required for CAROUSEL/REELS/STORIES; enum: 'CAROUSEL'|'REELS'|'STORIES'), caption (optional, string — max 2200 chars, 30 hashtags, 20 @ tags; not supported on carousel items), alt_text (optional, string — alternative text for images, max 1000 chars; not supported on reels or stories), location_id (optional, string — Facebook Pages page ID to tag location; not supported on carousel items), user_tags (optional, array — [{username: string, x: float 0.0-1.0, y: float 0.0-1.0}]; x and y required for images, optional for stories), is_carousel_item (optional, boolean — set true when creating individual carousel item containers), children (optional, array of strings — container IDs for carousel items, required when media_type is CAROUSEL, 2-10 items), cover_url (optional, string — image URL for reel cover photo; for reels only), thumb_offset (optional, integer — millisecond offset for video thumbnail frame, default 0; for videos and reels), share_to_feed (optional, boolean — when true the reel can appear in both Feed and Reels tabs; for reels only), audio_name (optional, string — name for the reel audio; for reels only, can only be set once), collaborators (optional, array of strings — up to 3 Instagram usernames as collaborators; for feed images, reels, and carousels only)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/{accountId}/media_publish": {
+      "post": {
+        "summary": "Second step of the publishing flow: publish a container that was created in step 1. For single photos: create the container then call this endpoint. For carousels: create each item container, create the carousel wrapper with a children array, then call this endpoint.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id (published media ID)}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The Instagram Business Account ID to publish under."
+          }
+        ],
+        "description": "Second step of the publishing flow: publish a container that was created in step 1. For single photos: create the container then call this endpoint. For carousels: create each item container, create the carousel wrapper with a children array, then call this endpoint. Request body: Body: {creation_id (required, string — the container ID obtained from the media container creation step)}.",
+        "operationId": "instagram.media.publish",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "creation_id"
+                ],
+                "properties": {
+                  "creation_id": {
+                    "type": "string"
+                  }
+                },
+                "description": "Body: {creation_id (required, string — the container ID obtained from the media container creation step)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://automationbench-api:8080/api/instagram"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Media": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the media object."
+          },
+          "caption": {
+            "type": "string",
+            "description": "Text caption on the post (up to 2200 characters, 30 hashtags, 20 @ tags)."
+          },
+          "alt_text": {
+            "type": "string",
+            "description": "Accessibility text describing the image content."
+          },
+          "username": {
+            "type": "string",
+            "description": "The Instagram handle of the account that published this media."
+          },
+          "media_url": {
+            "type": "string",
+            "description": "Direct URL pointing to the media file."
+          },
+          "permalink": {
+            "type": "string",
+            "description": "Stable, permanent URL pointing to the published post."
+          },
+          "shortcode": {
+            "type": "string",
+            "description": "Short alphanumeric code that uniquely identifies the post."
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp in ISO 8601 format, expressed in UTC."
+          },
+          "like_count": {
+            "type": "integer",
+            "description": "Total number of likes on this media."
+          },
+          "media_type": {
+            "enum": [
+              "IMAGE",
+              "VIDEO",
+              "CAROUSEL_ALBUM"
+            ],
+            "type": "string",
+            "description": "The category of media this object represents."
+          },
+          "thumbnail_url": {
+            "type": "string",
+            "description": "Preview thumbnail URL. Applies only to VIDEO media."
+          },
+          "comments_count": {
+            "type": "integer",
+            "description": "Total number of comments on this media."
+          },
+          "is_shared_to_feed": {
+            "type": "boolean",
+            "description": "Reels only: whether this reel is eligible to surface in the Feed tab alongside the Reels tab."
+          },
+          "is_comment_enabled": {
+            "type": "boolean",
+            "description": "Indicates whether users can currently comment on this post."
+          }
+        },
+        "description": "A media object representing a post that has been published to Instagram."
+      }
+    }
+  }
+}

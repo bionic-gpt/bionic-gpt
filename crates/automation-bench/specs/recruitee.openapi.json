@@ -1,0 +1,4393 @@
+{
+  "info": {
+    "title": "Recruitee",
+    "version": "v1",
+    "description": "Simulated Recruitee API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/c/{company_id}/offers": {
+      "get": {
+        "summary": "Retrieve all offers (jobs and talent pools) for the company.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "offers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "...": {
+                            "type": "string"
+                          },
+                          "Offer": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{offers: [Offer, ...]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Company ID or subdomain."
+          },
+          {
+            "in": "query",
+            "name": "scope",
+            "schema": {
+              "enum": [
+                "active",
+                "archived",
+                "closed",
+                "draft",
+                "published"
+              ],
+              "type": "string"
+            },
+            "required": false,
+            "description": "Filter offers by their current status."
+          },
+          {
+            "in": "query",
+            "name": "view_mode",
+            "schema": {
+              "enum": [
+                "brief",
+                "full"
+              ],
+              "type": "string"
+            },
+            "required": false,
+            "description": "Level of detail in the response."
+          }
+        ],
+        "description": "Retrieve all offers (jobs and talent pools) for the company.",
+        "operationId": "recruitee.offers.list"
+      },
+      "post": {
+        "summary": "Create a new job posting or talent pool.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "offer": {
+                      "$ref": "#/components/schemas/Offer"
+                    },
+                    "stages": {
+                      "type": "string"
+                    },
+                    "followers": {
+                      "type": "string"
+                    },
+                    "pipeline_template": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{offer: Offer with id, pipeline_template, stages, followers}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Create a new job posting or talent pool. Request body: Body: {offer: {title (string, required), kind (string — 'job' or 'talent_pool', default 'job'), location_ids (array of integers, required), description (string, required), requirements (string, required for jobs), department_id (integer), on_site (boolean), hybrid (boolean), remote (boolean, default false), visibility_options (array), locations_question (string), locations_question_type ('single_choice' or 'multiple_choice'), locations_question_required (boolean)}}.",
+        "operationId": "recruitee.offers.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "offer"
+                ],
+                "properties": {
+                  "offer": {
+                    "type": "object",
+                    "required": [
+                      "title",
+                      "location_ids",
+                      "description",
+                      "requirements"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "hybrid": {
+                        "type": "boolean"
+                      },
+                      "remote": {
+                        "type": "boolean"
+                      },
+                      "on_site": {
+                        "type": "boolean"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "location_ids": {
+                        "type": "integer"
+                      },
+                      "requirements": {
+                        "type": "string"
+                      },
+                      "department_id": {
+                        "type": "integer"
+                      },
+                      "locations_question": {
+                        "type": "string"
+                      },
+                      "visibility_options": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "locations_question_type": {
+                        "type": "string"
+                      },
+                      "locations_question_required": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {offer: {title (string, required), kind (string — 'job' or 'talent_pool', default 'job'), location_ids (array of integers, required), description (string, required), requirements (string, required for jobs), department_id (integer), on_site (boolean), hybrid (boolean), remote (boolean, default false), visibility_options (array), locations_question (string), locations_question_type ('single_choice' or 'multiple_choice'), locations_question_required (boolean)}}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/c/{company_id}/locations": {
+      "get": {
+        "summary": "Retrieve all office locations configured for the company.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "locations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "...": {
+                            "type": "string"
+                          },
+                          "Location": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{locations: [Location, ...]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Number of results per page (default 60)."
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Page number (default 1)."
+          },
+          {
+            "in": "query",
+            "name": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Search locations by name."
+          },
+          {
+            "in": "query",
+            "name": "scope",
+            "schema": {
+              "enum": [
+                "active",
+                "archived",
+                "all"
+              ],
+              "type": "string"
+            },
+            "required": false,
+            "description": "Filter by location status (default all)."
+          },
+          {
+            "in": "query",
+            "name": "view_mode",
+            "schema": {
+              "enum": [
+                "brief",
+                "full"
+              ],
+              "type": "string"
+            },
+            "required": false,
+            "description": "Amount of detail returned (default brief)."
+          }
+        ],
+        "description": "Retrieve all office locations configured for the company.",
+        "operationId": "recruitee.locations.list"
+      }
+    },
+    "/c/{company_id}/candidates": {
+      "get": {
+        "summary": "Retrieve a list of candidates, with optional filtering by qualification status, offer, or search term.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "candidates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "...": {
+                            "type": "string"
+                          },
+                          "Candidate": {
+                            "type": "string",
+                            "format": "date"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{candidates: [Candidate, ...]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Maximum number of candidates to return."
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Number of records to skip for pagination."
+          },
+          {
+            "in": "query",
+            "name": "created_after",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "description": "Only return candidates created after this timestamp."
+          },
+          {
+            "in": "query",
+            "name": "disqualified",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false,
+            "description": "Filter to disqualified candidates only."
+          },
+          {
+            "in": "query",
+            "name": "qualified",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false,
+            "description": "Filter to qualified candidates only."
+          },
+          {
+            "in": "query",
+            "name": "ids",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-separated list of candidate IDs to retrieve."
+          },
+          {
+            "in": "query",
+            "name": "offer_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Restrict to candidates assigned to a specific offer."
+          },
+          {
+            "in": "query",
+            "name": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Free-text search across candidate name, email, and other fields."
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Sort order (default by_date)."
+          },
+          {
+            "in": "query",
+            "name": "with_messages",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false,
+            "description": "Include candidates who have mailbox messages."
+          },
+          {
+            "in": "query",
+            "name": "with_my_messages",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false,
+            "description": "Include only candidates with messages from the current user."
+          }
+        ],
+        "description": "Retrieve a list of candidates, with optional filtering by qualification status, offer, or search term.",
+        "operationId": "recruitee.candidates.list"
+      },
+      "post": {
+        "summary": "Manually add a new candidate to the system.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "201 Created: {candidate: Candidate}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Manually add a new candidate to the system. Request body: Body: {candidate: {name (string, required), emails (array of strings), phones (array of strings), social_links (array of strings), links (array of strings), cover_letter (string), remote_cv_url (string)}, offers (array of integers — offer IDs to assign the candidate to)}.",
+        "operationId": "recruitee.candidates.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "candidate"
+                ],
+                "properties": {
+                  "offers": {
+                    "type": "integer"
+                  },
+                  "candidate": {
+                    "type": "object",
+                    "required": [
+                      "name"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "links": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "emails": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "phones": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "cover_letter": {
+                        "type": "string"
+                      },
+                      "social_links": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "remote_cv_url": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {candidate: {name (string, required), emails (array of strings), phones (array of strings), social_links (array of strings), links (array of strings), cover_letter (string), remote_cv_url (string)}, offers (array of integers — offer IDs to assign the candidate to)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/c/{company_id}/placements": {
+      "post": {
+        "summary": "Assign a candidate to an offer, placing them at a specific pipeline stage.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "placement": {
+                      "$ref": "#/components/schemas/Placement"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{placement: Placement}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Assign a candidate to an offer, placing them at a specific pipeline stage. Request body: Body: {placement: {candidate_id (integer, required), offer_id (integer, required), stage_id (integer)}}.",
+        "operationId": "recruitee.placements.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "placement"
+                ],
+                "properties": {
+                  "placement": {
+                    "type": "object",
+                    "required": [
+                      "candidate_id",
+                      "offer_id"
+                    ],
+                    "properties": {
+                      "offer_id": {
+                        "type": "integer"
+                      },
+                      "stage_id": {
+                        "type": "integer"
+                      },
+                      "candidate_id": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {placement: {candidate_id (integer, required), offer_id (integer, required), stage_id (integer)}}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/c/{company_id}/attachments": {
+      "post": {
+        "summary": "Upload a file and attach it to a candidate or offer.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attachment": {
+                      "$ref": "#/components/schemas/Attachment"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{attachment: Attachment}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Upload a file and attach it to a candidate or offer. Request body: Body: {attachment: {remote_file_url (string — URL of the file to import), candidate_id (integer), offer_id (integer)}}.",
+        "operationId": "recruitee.attachments.create",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "attachment": {
+                    "type": "object",
+                    "properties": {
+                      "offer_id": {
+                        "type": "integer"
+                      },
+                      "candidate_id": {
+                        "type": "integer"
+                      },
+                      "remote_file_url": {
+                        "type": "string",
+                        "format": "binary"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {attachment: {remote_file_url (string — URL of the file to import), candidate_id (integer), offer_id (integer)}}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/c/{company_id}/departments": {
+      "get": {
+        "summary": "Retrieve all departments in the company.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "departments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "...": {
+                            "type": "string"
+                          },
+                          "Department": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{departments: [Department, ...]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Retrieve all departments in the company.",
+        "operationId": "recruitee.departments.list"
+      },
+      "post": {
+        "summary": "Add a new department.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "department": {
+                      "$ref": "#/components/schemas/Department"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{department: Department}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Add a new department. Request body: Body: {department: {name (string, required)}}.",
+        "operationId": "recruitee.departments.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "department"
+                ],
+                "properties": {
+                  "department": {
+                    "type": "object",
+                    "required": [
+                      "name"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {department: {name (string, required)}}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/c/{company_id}/offers/{id}": {
+      "get": {
+        "summary": "Retrieve details for a single offer by its ID.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "offer": {
+                      "$ref": "#/components/schemas/Offer"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{offer: Offer}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Offer ID or slug."
+          }
+        ],
+        "description": "Retrieve details for a single offer by its ID.",
+        "operationId": "recruitee.offers.get"
+      },
+      "patch": {
+        "summary": "Modify an existing offer's details.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "offer": {
+                      "$ref": "#/components/schemas/Offer"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{offer: Offer}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Offer ID."
+          }
+        ],
+        "description": "Modify an existing offer's details. Request body: Body: {offer: {title, description, requirements, department_id, location_ids, on_site, hybrid, remote, status, ...}}.",
+        "operationId": "recruitee.offers.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "offer": {
+                    "type": "object",
+                    "properties": {
+                      "...": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "hybrid": {
+                        "type": "string"
+                      },
+                      "remote": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "on_site": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "location_ids": {
+                        "type": "string"
+                      },
+                      "requirements": {
+                        "type": "string"
+                      },
+                      "department_id": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {offer: {title, description, requirements, department_id, location_ids, on_site, hybrid, remote, status, ...}}"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "summary": "Remove an offer from the system.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove an offer from the system.",
+        "operationId": "recruitee.offers.delete"
+      }
+    },
+    "/c/{company_id}/imports/{id}": {
+      "delete": {
+        "summary": "Remove a candidate import batch.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a candidate import batch.",
+        "operationId": "recruitee.imports.delete"
+      }
+    },
+    "/c/{company_id}/locations/{id}": {
+      "delete": {
+        "summary": "Remove a location.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a location.",
+        "operationId": "recruitee.locations.delete"
+      }
+    },
+    "/c/{company_id}/notes/{noteId}": {
+      "delete": {
+        "summary": "Remove a note from a candidate.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "noteId",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a note from a candidate.",
+        "operationId": "recruitee.candidates.notes.delete"
+      }
+    },
+    "/c/{company_id}/candidates/{id}": {
+      "get": {
+        "summary": "Retrieve full details for a specific candidate.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "candidate": {
+                      "$ref": "#/components/schemas/Candidate"
+                    },
+                    "admin_fields": {
+                      "type": "string"
+                    },
+                    "open_question_answers": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{candidate: Candidate with placements, admin_fields, open_question_answers}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Candidate ID."
+          }
+        ],
+        "description": "Retrieve full details for a specific candidate.",
+        "operationId": "recruitee.candidates.get"
+      },
+      "patch": {
+        "summary": "Update a candidate's profile information.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "candidate": {
+                      "$ref": "#/components/schemas/Candidate"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{candidate: Candidate}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Candidate ID."
+          }
+        ],
+        "description": "Update a candidate's profile information. Request body: Body: {candidate: {name, emails, phones, social_links, links, cover_letter, remote_cv_url}}.",
+        "operationId": "recruitee.candidates.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "candidate": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "links": {
+                        "type": "string"
+                      },
+                      "emails": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "phones": {
+                        "type": "string"
+                      },
+                      "cover_letter": {
+                        "type": "string"
+                      },
+                      "social_links": {
+                        "type": "string"
+                      },
+                      "remote_cv_url": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {candidate: {name, emails, phones, social_links, links, cover_letter, remote_cv_url}}"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "summary": "Permanently remove a candidate record.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "candidate": {
+                      "$ref": "#/components/schemas/Candidate"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{candidate: Candidate with deleted_at timestamp}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Permanently remove a candidate record.",
+        "operationId": "recruitee.candidates.delete"
+      }
+    },
+    "/c/{company_id}/placements/{id}": {
+      "patch": {
+        "summary": "Move a candidate to a different pipeline stage or update placement details.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "placement": {
+                      "$ref": "#/components/schemas/Placement"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{placement: Placement}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Placement ID."
+          }
+        ],
+        "description": "Move a candidate to a different pipeline stage or update placement details. Request body: Body: {placement: {stage_id (integer), disqualified (boolean), disqualify_reason_id (integer)}}.",
+        "operationId": "recruitee.placements.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "placement": {
+                    "type": "object",
+                    "properties": {
+                      "stage_id": {
+                        "type": "integer"
+                      },
+                      "disqualified": {
+                        "type": "boolean"
+                      },
+                      "disqualify_reason_id": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {placement: {stage_id (integer), disqualified (boolean), disqualify_reason_id (integer)}}"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "summary": "Remove a candidate's association with an offer.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a candidate's association with an offer.",
+        "operationId": "recruitee.placements.delete"
+      }
+    },
+    "/offers/{offer_slug}/candidates": {
+      "post": {
+        "summary": "Submit an application to a published offer (careers site endpoint).",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "201 Created: {candidate: {id, name, emails, phones, photo_url, cv_url, open_question_answers, created_at}}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "offer_slug",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Slug or ID of the offer being applied to."
+          }
+        ],
+        "description": "Submit an application to a published offer (careers site endpoint). Request body: Body: {candidate: {name (string, required), email (string, required), phone (string), remote_cv_url (string), referrer (string — recorded as the candidate's source), cover_letter (string)}, open_question_answers_attributes: [{open_question_id (integer), body (string)}]}.",
+        "operationId": "recruitee.candidates.apply",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "candidate"
+                ],
+                "properties": {
+                  "candidate": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "email"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "phone": {
+                        "type": "string"
+                      },
+                      "referrer": {
+                        "type": "string"
+                      },
+                      "cover_letter": {
+                        "type": "string"
+                      },
+                      "remote_cv_url": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "open_question_answers_attributes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "body": {
+                          "type": "string"
+                        },
+                        "open_question_id": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {candidate: {name (string, required), email (string, required), phone (string), remote_cv_url (string), referrer (string — recorded as the candidate's source), cover_letter (string)}, open_question_answers_attributes: [{open_question_id (integer), body (string)}]}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/c/{company_id}/departments/{id}": {
+      "delete": {
+        "summary": "Remove a department.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a department.",
+        "operationId": "recruitee.departments.delete"
+      }
+    },
+    "/c/{company_id}/interview/events": {
+      "get": {
+        "summary": "Retrieve scheduled interview events, optionally filtered by candidate or offer.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "...": {
+                            "type": "string"
+                          },
+                          "InterviewEvent": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{events: [InterviewEvent, ...]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "candidate_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Filter by candidate."
+          },
+          {
+            "in": "query",
+            "name": "offer_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Filter by offer."
+          }
+        ],
+        "description": "Retrieve scheduled interview events, optionally filtered by candidate or offer.",
+        "operationId": "recruitee.interview.events.list"
+      },
+      "post": {
+        "summary": "Schedule a new interview session.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "event": {
+                      "$ref": "#/components/schemas/InterviewEvent"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{event: InterviewEvent}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Schedule a new interview session. Request body: Body: {event: {candidate_id (integer, required), offer_id (integer), interviewer_ids (array of integers), start_time (datetime, required), end_time (datetime, required), timezone (string), location (string), meeting_room_id (integer), subject (string), description (string), template_id (integer), send_notifications (boolean)}}.",
+        "operationId": "recruitee.interview.events.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "event"
+                ],
+                "properties": {
+                  "event": {
+                    "type": "object",
+                    "required": [
+                      "candidate_id",
+                      "start_time",
+                      "end_time"
+                    ],
+                    "properties": {
+                      "subject": {
+                        "type": "string"
+                      },
+                      "end_time": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "location": {
+                        "type": "string"
+                      },
+                      "offer_id": {
+                        "type": "integer"
+                      },
+                      "timezone": {
+                        "type": "string"
+                      },
+                      "start_time": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "template_id": {
+                        "type": "integer"
+                      },
+                      "candidate_id": {
+                        "type": "integer"
+                      },
+                      "interviewer_ids": {
+                        "type": "integer"
+                      },
+                      "meeting_room_id": {
+                        "type": "integer"
+                      },
+                      "send_notifications": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {event: {candidate_id (integer, required), offer_id (integer), interviewer_ids (array of integers), start_time (datetime, required), end_time (datetime, required), timezone (string), location (string), meeting_room_id (integer), subject (string), description (string), template_id (integer), send_notifications (boolean)}}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/c/{company_id}/mailbox/messages": {
+      "get": {
+        "summary": "List email messages exchanged with candidates.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "...": {
+                            "type": "string"
+                          },
+                          "MailboxMessage": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{messages: [MailboxMessage, ...]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "candidate_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Filter to messages for a specific candidate."
+          }
+        ],
+        "description": "List email messages exchanged with candidates.",
+        "operationId": "recruitee.mailbox.messages.list"
+      },
+      "post": {
+        "summary": "Send an email to a candidate through the built-in mailbox.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "$ref": "#/components/schemas/MailboxMessage"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{message: MailboxMessage}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Send an email to a candidate through the built-in mailbox. Request body: Body: {message: {candidate_id (integer, required), subject (string, required), body_html (string, required), to_emails (array of strings)}}.",
+        "operationId": "recruitee.mailbox.messages.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "message"
+                ],
+                "properties": {
+                  "message": {
+                    "type": "object",
+                    "required": [
+                      "candidate_id",
+                      "subject",
+                      "body_html"
+                    ],
+                    "properties": {
+                      "subject": {
+                        "type": "string"
+                      },
+                      "body_html": {
+                        "type": "string"
+                      },
+                      "to_emails": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "candidate_id": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {message: {candidate_id (integer, required), subject (string, required), body_html (string, required), to_emails (array of strings)}}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/c/{company_id}/texting/messages": {
+      "delete": {
+        "summary": "Delete a failed or scheduled SMS message.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Delete a failed or scheduled SMS message.",
+        "operationId": "recruitee.texting.messages.delete"
+      }
+    },
+    "/c/{company_id}/share/guests/{id}": {
+      "delete": {
+        "summary": "Remove a guest collaborator's access.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a guest collaborator's access.",
+        "operationId": "recruitee.share.guests.delete"
+      }
+    },
+    "/c/{company_id}/disqualify_reasons": {
+      "get": {
+        "summary": "Retrieve all configured disqualification reasons.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "disqualify_reasons": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "...": {
+                            "type": "string"
+                          },
+                          "DisqualifyReason": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{disqualify_reasons: [DisqualifyReason, ...]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Retrieve all configured disqualification reasons.",
+        "operationId": "recruitee.disqualifyReasons.list"
+      }
+    },
+    "/c/{company_id}/pipeline_templates": {
+      "get": {
+        "summary": "Retrieve all pipeline templates available for offers.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pipeline_templates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "...": {
+                            "type": "string"
+                          },
+                          "PipelineTemplate": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{pipeline_templates: [PipelineTemplate, ...]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Retrieve all pipeline templates available for offers.",
+        "operationId": "recruitee.pipelineTemplates.list"
+      }
+    },
+    "/c/{company_id}/interview/templates": {
+      "get": {
+        "summary": "Retrieve all interview templates with their question sets.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "templates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "...": {
+                            "type": "string"
+                          },
+                          "InterviewTemplate": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{templates: [InterviewTemplate, ...]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Retrieve all interview templates with their question sets.",
+        "operationId": "recruitee.interview.templates.list"
+      }
+    },
+    "/c/{company_id}/candidates/{id}/notes": {
+      "get": {
+        "summary": "Retrieve all notes left on a candidate by team members.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "notes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "...": {
+                            "type": "string"
+                          },
+                          "Note": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{notes: [Note, ...]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Candidate ID."
+          }
+        ],
+        "description": "Retrieve all notes left on a candidate by team members.",
+        "operationId": "recruitee.candidates.notes.list"
+      },
+      "post": {
+        "summary": "Add a new note to a candidate's profile.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "note": {
+                      "$ref": "#/components/schemas/Note"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{note: Note}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Add a new note to a candidate's profile. Request body: Body: {note: {body (string, required)}}.",
+        "operationId": "recruitee.candidates.notes.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "note"
+                ],
+                "properties": {
+                  "note": {
+                    "type": "object",
+                    "required": [
+                      "body"
+                    ],
+                    "properties": {
+                      "body": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {note: {body (string, required)}}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/c/{company_id}/interview/events/{id}": {
+      "patch": {
+        "summary": "Reschedule or modify an existing interview event.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "event": {
+                      "$ref": "#/components/schemas/InterviewEvent"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{event: InterviewEvent}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Reschedule or modify an existing interview event. Request body: Body: {event: {start_time, end_time, timezone, location, meeting_room_id, subject, description, interviewer_ids, send_notifications}}.",
+        "operationId": "recruitee.interview.events.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "event": {
+                    "type": "object",
+                    "properties": {
+                      "subject": {
+                        "type": "string"
+                      },
+                      "end_time": {
+                        "type": "string"
+                      },
+                      "location": {
+                        "type": "string"
+                      },
+                      "timezone": {
+                        "type": "string"
+                      },
+                      "start_time": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "interviewer_ids": {
+                        "type": "string"
+                      },
+                      "meeting_room_id": {
+                        "type": "string"
+                      },
+                      "send_notifications": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {event: {start_time, end_time, timezone, location, meeting_room_id, subject, description, interviewer_ids, send_notifications}}"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "summary": "Cancel and remove a scheduled interview.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Cancel and remove a scheduled interview.",
+        "operationId": "recruitee.interview.events.delete"
+      }
+    },
+    "/c/{company_id}/mailbox/messages/{id}": {
+      "delete": {
+        "summary": "Delete a mailbox message.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Delete a mailbox message.",
+        "operationId": "recruitee.mailbox.messages.delete"
+      }
+    },
+    "/c/{company_id}/search/new/candidates": {
+      "get": {
+        "summary": "Advanced candidate search with structured filters and aggregations.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hits": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "...": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "tags": {
+                            "type": "string"
+                          },
+                          "emails": {
+                            "type": "string",
+                            "format": "email"
+                          },
+                          "phones": {
+                            "type": "string"
+                          },
+                          "rating": {
+                            "type": "string"
+                          },
+                          "created_at": {
+                            "type": "string"
+                          },
+                          "placements": {
+                            "type": "string"
+                          },
+                          "positive_ratings": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "string"
+                    },
+                    "aggregations": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{hits: [{id, name, emails, phones, rating, positive_ratings, placements, tags, created_at, ...}], total, aggregations}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Results per page (default 60, max 10000)."
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Page number (default 1)."
+          },
+          {
+            "in": "query",
+            "name": "filters_json",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": false,
+            "description": "JSON-encoded array of filter conditions."
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "schema": {
+              "enum": [
+                "relevance_asc",
+                "relevance_desc",
+                "created_at_asc",
+                "created_at_desc",
+                "candidate_name_asc",
+                "candidate_name_desc",
+                "candidate_rating_asc",
+                "candidate_rating_desc",
+                "candidate_positive_ratings_asc",
+                "candidate_positive_ratings_desc",
+                "candidate_job_title_asc",
+                "candidate_job_title_desc",
+                "candidate_stage_name_asc",
+                "candidate_stage_name_desc",
+                "gdpr_expires_at_asc",
+                "gdpr_expires_at_desc"
+              ],
+              "type": "string"
+            },
+            "required": false,
+            "description": "Field and direction to sort results by (default created_at_desc)."
+          }
+        ],
+        "description": "Advanced candidate search with structured filters and aggregations.",
+        "operationId": "recruitee.candidates.search"
+      }
+    },
+    "/c/{company_id}/share/containers/{id}": {
+      "delete": {
+        "summary": "Remove a candidate sharing container (used for external stakeholder review).",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a candidate sharing container (used for external stakeholder review).",
+        "operationId": "recruitee.share.containers.delete"
+      }
+    },
+    "/c/{company_id}/disqualify_reasons/{id}": {
+      "delete": {
+        "summary": "Remove a disqualification reason.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "fallback_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "ID of an alternative reason to reassign to existing disqualifications."
+          }
+        ],
+        "description": "Remove a disqualification reason.",
+        "operationId": "recruitee.disqualifyReasons.delete"
+      }
+    },
+    "/c/{company_id}/pipeline_templates/{id}": {
+      "delete": {
+        "summary": "Delete a pipeline template. The request is rejected when active offers still reference this template.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Delete a pipeline template. The request is rejected when active offers still reference this template.",
+        "operationId": "recruitee.pipelineTemplates.delete"
+      }
+    },
+    "/c/{company_id}/interview/calendars/{id}": {
+      "delete": {
+        "summary": "Disconnect an external calendar integration.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Disconnect an external calendar integration.",
+        "operationId": "recruitee.interview.calendars.delete"
+      }
+    },
+    "/c/{company_id}/interview/schedules/{id}": {
+      "delete": {
+        "summary": "Remove a self-scheduling interview link.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a self-scheduling interview link.",
+        "operationId": "recruitee.interview.schedules.delete"
+      }
+    },
+    "/c/{company_id}/interview/templates/{id}": {
+      "delete": {
+        "summary": "Remove an interview template.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove an interview template.",
+        "operationId": "recruitee.interview.templates.delete"
+      }
+    },
+    "/c/{company_id}/reactions/notes/{noteId}": {
+      "delete": {
+        "summary": "Remove an emoji reaction from a note.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "noteId",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove an emoji reaction from a note.",
+        "operationId": "recruitee.reactions.notes.delete"
+      }
+    },
+    "/c/{company_id}/auto_reply_templates/{id}": {
+      "delete": {
+        "summary": "Remove an automated reply template.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove an automated reply template.",
+        "operationId": "recruitee.autoReplyTemplates.delete"
+      }
+    },
+    "/c/{company_id}/candidates/{id}/delete_cv": {
+      "delete": {
+        "summary": "Remove a candidate's resume file.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "delete_parsed_data",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false,
+            "description": "Also remove data extracted from the resume."
+          }
+        ],
+        "description": "Remove a candidate's resume file.",
+        "operationId": "recruitee.candidates.deleteCv"
+      }
+    },
+    "/c/{company_id}/candidates/{id}/update_cv": {
+      "patch": {
+        "summary": "Replace a candidate's resume with a new file via URL.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "candidate": {
+                      "$ref": "#/components/schemas/Candidate"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{candidate: Candidate with updated cv_url}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Replace a candidate's resume with a new file via URL. Request body: Body: {candidate: {remote_cv_url (string, required)}}.",
+        "operationId": "recruitee.candidates.updateCv",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "candidate"
+                ],
+                "properties": {
+                  "candidate": {
+                    "type": "object",
+                    "required": [
+                      "remote_cv_url"
+                    ],
+                    "properties": {
+                      "remote_cv_url": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {candidate: {remote_cv_url (string, required)}}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/c/{company_id}/oauth/personal_tokens/{id}": {
+      "delete": {
+        "summary": "Revoke a personal API token.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Revoke a personal API token.",
+        "operationId": "recruitee.oauth.personalTokens.delete"
+      }
+    },
+    "/c/{company_id}/imports/{import_id}/cvs/{id}": {
+      "delete": {
+        "summary": "Remove a specific resume from an import batch.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "import_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a specific resume from an import batch.",
+        "operationId": "recruitee.imports.cvs.delete"
+      }
+    },
+    "/c/{company_id}/interview/meeting_rooms/{id}": {
+      "delete": {
+        "summary": "Remove a meeting room from the available rooms list.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a meeting room from the available rooms list.",
+        "operationId": "recruitee.interview.meetingRooms.delete"
+      }
+    },
+    "/c/{company_id}/interview/request_links/{id}": {
+      "delete": {
+        "summary": "Remove an interview request link.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove an interview request link.",
+        "operationId": "recruitee.interview.requestLinks.delete"
+      }
+    },
+    "/c/{company_id}/interview/result_requests/{id}": {
+      "delete": {
+        "summary": "Remove a pending interview evaluation request.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a pending interview evaluation request.",
+        "operationId": "recruitee.interview.resultRequests.delete"
+      }
+    },
+    "/c/{company_id}/event_invitation_templates/{id}": {
+      "delete": {
+        "summary": "Remove an event invitation email template.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove an event invitation email template.",
+        "operationId": "recruitee.eventInvitationTemplates.delete"
+      }
+    },
+    "/c/{company_id}/tracking/slack_integrations/{id}": {
+      "delete": {
+        "summary": "Remove a Slack notification integration.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a Slack notification integration.",
+        "operationId": "recruitee.tracking.slackIntegrations.delete"
+      }
+    },
+    "/c/{company_id}/candidates/{id}/delete_cover_letter": {
+      "delete": {
+        "summary": "Remove a candidate's cover letter file.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a candidate's cover letter file.",
+        "operationId": "recruitee.candidates.deleteCoverLetter"
+      }
+    },
+    "/c/{company_id}/custom_fields/candidates/{id}/fields": {
+      "post": {
+        "summary": "Set or add custom profile fields for a candidate.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "kind": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "values": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{field: {id, name, kind, values}}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Candidate ID."
+          }
+        ],
+        "description": "Set or add custom profile fields for a candidate. Request body: Body: {field: {name (string), kind (string), values (array)}}.",
+        "operationId": "recruitee.candidates.customFields.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "values": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {field: {name (string), kind (string), values (array)}}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/c/{company_id}/offers/{offer_id}/fieldsets/fields/{id}": {
+      "delete": {
+        "summary": "Remove a custom field from an offer's fieldset.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "offer_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a custom field from an offer's fieldset.",
+        "operationId": "recruitee.offers.fieldsets.fields.delete"
+      }
+    },
+    "/c/{company_id}/requisitions/settings/approval_flows/{approval_flow_id}": {
+      "delete": {
+        "summary": "Remove a requisition approval workflow.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "approval_flow_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a requisition approval workflow.",
+        "operationId": "recruitee.requisitions.approvalFlows.delete"
+      }
+    },
+    "/c/{company_id}/offers/{offer_id}/open_question_templates/open_questions/{id}": {
+      "delete": {
+        "summary": "Remove a screening question from an offer's application form.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "200 OK on success."
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "company_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "offer_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "description": "Remove a screening question from an offer's application form.",
+        "operationId": "recruitee.offers.openQuestions.delete"
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://automationbench-api:8080/api/recruitee"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Note": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique note identifier."
+          },
+          "body": {
+            "type": "string",
+            "description": "Content of the note."
+          },
+          "admin": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "photo_url": {
+                "type": "string"
+              }
+            },
+            "description": "The team member who authored the note."
+          },
+          "replies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/schemas/Note"
+            },
+            "description": "Threaded replies to this note."
+          },
+          "mentions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "admin_id": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "Team members mentioned in the note."
+          },
+          "body_html": {
+            "type": "string",
+            "description": "HTML-formatted version of the note content."
+          },
+          "reactions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "emoji": {
+                  "type": "string"
+                },
+                "admin_id": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "Emoji reactions from team members."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the note was written."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "filename": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Files attached to this note."
+          }
+        },
+        "description": "A comment or annotation left on a candidate by a team member."
+      },
+      "Admin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique admin identifier."
+          },
+          "name": {
+            "type": "string",
+            "description": "Full name of the team member."
+          },
+          "role": {
+            "type": "string",
+            "description": "Access role within the platform."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address."
+          },
+          "photo_url": {
+            "type": "string",
+            "description": "URL to the team member's avatar."
+          }
+        },
+        "description": "A team member with access to the recruiting platform."
+      },
+      "Offer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique numeric identifier for this offer."
+          },
+          "city": {
+            "type": "string",
+            "description": "City where the position is based."
+          },
+          "kind": {
+            "enum": [
+              "job",
+              "talent_pool"
+            ],
+            "type": "string",
+            "description": "Whether this represents an open position or a talent pipeline."
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-friendly identifier for the offer."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Labels used to categorize this offer."
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the position or talent pool."
+          },
+          "hybrid": {
+            "type": "boolean",
+            "description": "Whether a hybrid work arrangement is offered."
+          },
+          "remote": {
+            "type": "boolean",
+            "description": "Whether fully remote work is an option."
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "published",
+              "closed",
+              "archived"
+            ],
+            "type": "string",
+            "description": "Current publication state of the offer."
+          },
+          "country": {
+            "type": "string",
+            "description": "Country where the position is based."
+          },
+          "on_site": {
+            "type": "boolean",
+            "description": "Whether on-site work is available for this role."
+          },
+          "location": {
+            "type": "string",
+            "description": "Primary location name for the position."
+          },
+          "closed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the offer was closed."
+          },
+          "followers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "admin_id": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "Team members following activity on this offer."
+          },
+          "max_hours": {
+            "type": "integer",
+            "description": "Maximum weekly working hours."
+          },
+          "min_hours": {
+            "type": "integer",
+            "description": "Minimum weekly working hours."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the offer was created."
+          },
+          "department": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "description": "The department this offer belongs to."
+          },
+          "salary_max": {
+            "type": "number",
+            "description": "High end of the compensation range."
+          },
+          "salary_min": {
+            "type": "number",
+            "description": "Low end of the compensation range."
+          },
+          "careers_url": {
+            "type": "string",
+            "description": "Public-facing URL for the job posting on the careers site."
+          },
+          "description": {
+            "type": "string",
+            "description": "HTML content describing the role and responsibilities."
+          },
+          "location_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "IDs of locations associated with this offer."
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the offer was made public."
+          },
+          "requirements": {
+            "type": "string",
+            "description": "HTML content outlining qualifications and prerequisites."
+          },
+          "category_code": {
+            "type": "string",
+            "description": "Standardized job category classification code."
+          },
+          "salary_period": {
+            "enum": [
+              "hour",
+              "day",
+              "week",
+              "month",
+              "year"
+            ],
+            "type": "string",
+            "description": "Time unit for the salary figures."
+          },
+          "education_code": {
+            "enum": [
+              "high_school_coursework",
+              "certification",
+              "vocational",
+              "associate_degree",
+              "bachelors_degree",
+              "masters_degree",
+              "doctorate",
+              "professional"
+            ],
+            "type": "string",
+            "description": "Minimum education level for the position."
+          },
+          "open_questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "body": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "open_question_options": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "body": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Screening questions attached to the application form."
+          },
+          "experience_code": {
+            "enum": [
+              "student_high_school",
+              "student_college",
+              "entry_level",
+              "mid_level",
+              "experienced",
+              "manager",
+              "senior_manager",
+              "executive",
+              "senior_executive"
+            ],
+            "type": "string",
+            "description": "Level of experience required for the role."
+          },
+          "salary_currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code for the salary."
+          },
+          "careers_apply_url": {
+            "type": "string",
+            "description": "Direct link to the application form for this offer."
+          },
+          "pipeline_template": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "stages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/schemas/Stage"
+                }
+              }
+            },
+            "description": "The hiring pipeline used for this offer."
+          },
+          "employment_type_code": {
+            "type": "string",
+            "description": "Standardized code for the employment type (e.g., full_time, part_time)."
+          }
+        },
+        "description": "A job posting or talent pool within the company's recruiting pipeline."
+      },
+      "Stage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique stage identifier."
+          },
+          "kind": {
+            "enum": [
+              "apply",
+              "phone_screen",
+              "interview",
+              "evaluation",
+              "offer",
+              "hire",
+              "disqualified"
+            ],
+            "type": "string",
+            "description": "The stage category this step falls under."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the stage."
+          },
+          "position": {
+            "type": "integer",
+            "description": "Ordering position within the pipeline."
+          }
+        },
+        "description": "A step within a hiring pipeline (e.g., Applied, Phone Screen, Interview, Offer)."
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique location identifier."
+          },
+          "city": {
+            "type": "string",
+            "description": "City name."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the location."
+          },
+          "scope": {
+            "enum": [
+              "active",
+              "archived"
+            ],
+            "type": "string",
+            "description": "Whether the location is currently active or archived."
+          },
+          "state": {
+            "type": "string",
+            "description": "State or province."
+          },
+          "street": {
+            "type": "string",
+            "description": "Street address."
+          },
+          "country": {
+            "type": "string",
+            "description": "Country name."
+          },
+          "postal_code": {
+            "type": "string",
+            "description": "ZIP or postal code."
+          },
+          "country_code": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code."
+          }
+        },
+        "description": "A physical office or work site configured for the company."
+      },
+      "Candidate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique numeric identifier for this candidate."
+          },
+          "name": {
+            "type": "string",
+            "description": "Full name of the candidate."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Labels applied to the candidate for filtering and organization."
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Additional web links (portfolio, personal site, etc.)."
+          },
+          "cv_url": {
+            "type": "string",
+            "description": "URL to download the candidate's resume."
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Email addresses associated with the candidate."
+          },
+          "phones": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Phone numbers associated with the candidate."
+          },
+          "rating": {
+            "type": "number",
+            "description": "Overall rating score for the candidate."
+          },
+          "source": {
+            "type": "string",
+            "description": "How the candidate entered the system (e.g., career_site, manual, referral)."
+          },
+          "referrer": {
+            "type": "string",
+            "description": "Name or identifier of who referred the candidate."
+          },
+          "photo_url": {
+            "type": "string",
+            "description": "URL to the candidate's profile photo."
+          },
+          "qualified": {
+            "type": "boolean",
+            "description": "Whether the candidate is currently qualified (not disqualified)."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the candidate record was created."
+          },
+          "placements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/schemas/Placement"
+            },
+            "description": "Offers this candidate is associated with, including pipeline position."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the last modification to this record."
+          },
+          "gdpr_status": {
+            "type": "string",
+            "description": "Current GDPR consent or data processing status."
+          },
+          "admin_fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "values": {
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Custom profile fields set by recruiters."
+          },
+          "cover_letter": {
+            "type": "string",
+            "description": "Text of the candidate's cover letter."
+          },
+          "disqualified": {
+            "type": "boolean",
+            "description": "Whether the candidate has been disqualified."
+          },
+          "social_links": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "URLs for the candidate's social profiles (LinkedIn, GitHub, etc.)."
+          },
+          "gdpr_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the candidate's GDPR consent expires."
+          },
+          "photo_thumb_url": {
+            "type": "string",
+            "description": "URL to a thumbnail version of the profile photo."
+          },
+          "positive_ratings": {
+            "type": "integer",
+            "description": "Count of positive evaluations from the hiring team."
+          },
+          "disqualify_reason": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "body": {
+                "type": "string"
+              }
+            },
+            "description": "Reason for disqualification, if applicable."
+          },
+          "cv_original_filename": {
+            "type": "string",
+            "description": "Original filename of the uploaded resume."
+          },
+          "open_question_answers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "body": {
+                  "type": "string"
+                },
+                "open_question_id": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "Responses to screening questions submitted during application."
+          }
+        },
+        "description": "An individual who has applied or been sourced for one or more positions."
+      },
+      "Placement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique placement identifier."
+          },
+          "stage": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "description": "The pipeline stage the candidate currently occupies."
+          },
+          "offer_id": {
+            "type": "integer",
+            "description": "ID of the associated offer."
+          },
+          "stage_id": {
+            "type": "integer",
+            "description": "ID of the candidate's current pipeline stage."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the candidate was assigned to this offer."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "offer_title": {
+            "type": "string",
+            "description": "Title of the associated offer."
+          },
+          "candidate_id": {
+            "type": "integer",
+            "description": "ID of the candidate."
+          },
+          "disqualified": {
+            "type": "boolean",
+            "description": "Whether the candidate was disqualified for this offer."
+          },
+          "job_starts_at": {
+            "type": "string",
+            "format": "date",
+            "description": "Projected start date if the candidate is hired."
+          },
+          "disqualify_reason": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "body": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "description": "The association between a candidate and an offer, tracking their progress through the hiring pipeline."
+      },
+      "Attachment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique attachment identifier."
+          },
+          "url": {
+            "type": "string",
+            "description": "Download URL for the file."
+          },
+          "size": {
+            "type": "integer",
+            "description": "File size in bytes."
+          },
+          "filename": {
+            "type": "string",
+            "description": "Original name of the file."
+          },
+          "offer_id": {
+            "type": "integer",
+            "description": "ID of the offer this file is attached to."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "candidate_id": {
+            "type": "integer",
+            "description": "ID of the candidate this file is attached to."
+          },
+          "content_type": {
+            "type": "string",
+            "description": "MIME type of the file."
+          }
+        },
+        "description": "A file uploaded to a candidate or offer profile."
+      },
+      "Department": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique department identifier."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the department."
+          }
+        },
+        "description": "An organizational unit within the company."
+      },
+      "Requisition": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique requisition identifier."
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the requested position."
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "pending",
+              "approved",
+              "rejected"
+            ],
+            "type": "string",
+            "description": "Current approval status."
+          },
+          "offer_id": {
+            "type": "integer",
+            "description": "ID of the offer created after approval."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "department_id": {
+            "type": "integer",
+            "description": "Department the position would belong to."
+          },
+          "created_by_admin_id": {
+            "type": "integer",
+            "description": "ID of the team member who submitted the request."
+          }
+        },
+        "description": "A formal request to open a new position, subject to an approval workflow."
+      },
+      "WebhookEvent": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "enum": [
+              "new_candidate",
+              "candidate_assigned",
+              "candidate_moved",
+              "candidate_deleted",
+              "offer_published",
+              "offer_unpublished",
+              "offer_updated"
+            ],
+            "type": "string",
+            "description": "The type of change that occurred."
+          },
+          "payload": {
+            "type": "object",
+            "description": "Event-specific data including the affected candidate, offer, and company."
+          },
+          "subtype": {
+            "type": "string",
+            "description": "More specific classification (e.g., stage_changed, disqualified, requalified for candidate_moved)."
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the event occurred."
+          }
+        },
+        "description": "A real-time notification delivered when recruiting data changes."
+      },
+      "InterviewEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique event identifier."
+          },
+          "status": {
+            "enum": [
+              "scheduled",
+              "completed",
+              "cancelled"
+            ],
+            "type": "string",
+            "description": "Current state of the interview."
+          },
+          "subject": {
+            "type": "string",
+            "description": "Calendar event title."
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Scheduled end time."
+          },
+          "location": {
+            "type": "string",
+            "description": "Where the interview takes place (room name, address, or video link)."
+          },
+          "offer_id": {
+            "type": "integer",
+            "description": "ID of the associated offer."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone for the event (e.g., Europe/Berlin)."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Scheduled start time."
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional details or instructions for the interview."
+          },
+          "template_id": {
+            "type": "integer",
+            "description": "Interview template used for structuring questions."
+          },
+          "candidate_id": {
+            "type": "integer",
+            "description": "ID of the candidate being interviewed."
+          },
+          "interviewers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "admin_id": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "Team members conducting the interview."
+          },
+          "meeting_room_id": {
+            "type": "integer",
+            "description": "ID of the reserved meeting room, if applicable."
+          }
+        },
+        "description": "A scheduled interview session between the hiring team and a candidate."
+      },
+      "MailboxMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique message identifier."
+          },
+          "subject": {
+            "type": "string",
+            "description": "Email subject line."
+          },
+          "body_html": {
+            "type": "string",
+            "description": "HTML body of the message."
+          },
+          "direction": {
+            "enum": [
+              "inbound",
+              "outbound"
+            ],
+            "type": "string",
+            "description": "Whether the message was received or sent."
+          },
+          "to_emails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Recipient email addresses."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "from_email": {
+            "type": "string",
+            "format": "email",
+            "description": "Sender's email address."
+          },
+          "candidate_id": {
+            "type": "integer",
+            "description": "ID of the candidate this conversation is with."
+          }
+        },
+        "description": "An email message exchanged with a candidate through the built-in mailbox."
+      },
+      "InterviewResult": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique result identifier."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Free-form feedback from the interviewer."
+          },
+          "rating": {
+            "enum": [
+              "strong_yes",
+              "yes",
+              "neutral",
+              "no",
+              "strong_no"
+            ],
+            "type": "string",
+            "description": "Overall recommendation."
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "body": {
+                  "type": "string"
+                },
+                "rating": {
+                  "type": "string"
+                },
+                "question_id": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "Per-question evaluations."
+          },
+          "admin_id": {
+            "type": "integer",
+            "description": "ID of the team member who submitted the evaluation."
+          },
+          "event_id": {
+            "type": "integer",
+            "description": "ID of the associated interview event."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "candidate_id": {
+            "type": "integer",
+            "description": "ID of the evaluated candidate."
+          }
+        },
+        "description": "An interviewer's evaluation and feedback after conducting an interview."
+      },
+      "DisqualifyReason": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique reason identifier."
+          },
+          "body": {
+            "type": "string",
+            "description": "Text of the disqualification reason."
+          }
+        },
+        "description": "A predefined explanation for removing a candidate from consideration."
+      },
+      "PipelineTemplate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique pipeline template identifier."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the pipeline."
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/schemas/Stage"
+            },
+            "description": "Ordered list of stages in this pipeline."
+          }
+        },
+        "description": "A reusable hiring pipeline defining the stages candidates pass through."
+      },
+      "InterviewTemplate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique template identifier."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the interview template."
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "body": {
+                  "type": "string"
+                },
+                "position": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "Ordered list of questions for interviewers."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "A reusable template defining the structure and questions for interview sessions."
+      }
+    }
+  }
+}

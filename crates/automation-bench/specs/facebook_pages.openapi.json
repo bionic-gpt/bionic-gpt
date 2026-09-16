@@ -1,0 +1,309 @@
+{
+  "info": {
+    "title": "Facebook Pages",
+    "version": "v25.0",
+    "description": "Simulated Facebook Pages API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/{pageId}/feed": {
+      "get": {
+        "summary": "Fetch posts from a Facebook Page's feed. Returns published posts ordered from newest to oldest.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "story": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "created_time": {
+                            "type": "string"
+                          },
+                          "permalink_url": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "paging": {
+                      "type": "object",
+                      "properties": {
+                        "cursors": {
+                          "type": "object",
+                          "properties": {
+                            "after": {
+                              "type": "string"
+                            },
+                            "before": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{data: [{id, message, story, created_time, permalink_url}], paging: {cursors: {before, after}}}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pageId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target Facebook Page."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "How many posts to retrieve (default 10, maximum 100)."
+          }
+        ],
+        "description": "Fetch posts from a Facebook Page's feed. Returns published posts ordered from newest to oldest.",
+        "operationId": "facebook_pages.feed.list"
+      },
+      "post": {
+        "summary": "Publish a new post to a Facebook Page's feed. At least one of message or link must be provided.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id (post ID in format pageId_postId)}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pageId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target Facebook Page."
+          }
+        ],
+        "description": "Publish a new post to a Facebook Page's feed. At least one of message or link must be provided. Request body: Body: {message (string — post body text; either message or link is required), link (string — URL to attach as a link preview; either message or link is required), published (optional, boolean — default true; set false to create an unpublished/scheduled post), scheduled_publish_time (optional, integer — UNIX timestamp for when to publish; must be 10 minutes to 75 days from now; requires published=false), place (optional, string — Page ID of a location to associate with the post), tags (optional, string — comma-separated list of user IDs of people tagged in this post; requires place), call_to_action (optional, object — {type: string, value: {link: string}}), feed_targeting (optional, object — controls News Feed targeting), targeting (optional, object — limits audience for this content)}.",
+        "operationId": "facebook_pages.feed.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "message",
+                  "link"
+                ],
+                "properties": {
+                  "link": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "place": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "published": {
+                    "type": "boolean"
+                  },
+                  "targeting": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "feed_targeting": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "scheduled_publish_time": {
+                    "type": "integer"
+                  },
+                  "call_to_action (optional, object — {type": {
+                    "type": "object",
+                    "properties": {
+                      "link": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "description": "Body: {message (string — post body text; either message or link is required), link (string — URL to attach as a link preview; either message or link is required), published (optional, boolean — default true; set false to create an unpublished/scheduled post), scheduled_publish_time (optional, integer — UNIX timestamp for when to publish; must be 10 minutes to 75 days from now; requires published=false), place (optional, string — Page ID of a location to associate with the post), tags (optional, string — comma-separated list of user IDs of people tagged in this post; requires place), call_to_action (optional, object — {type: string, value: {link: string}}), feed_targeting (optional, object — controls News Feed targeting), targeting (optional, object — limits audience for this content)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/{pageId}/photos": {
+      "post": {
+        "summary": "Add a photo to a Facebook Page. Provide url for a hosted image or source for a direct file upload. Supports both published and unpublished photo posts.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "post_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id (photo ID), post_id (associated post ID)}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pageId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target Facebook Page."
+          }
+        ],
+        "description": "Add a photo to a Facebook Page. Provide url for a hosted image or source for a direct file upload. Supports both published and unpublished photo posts. Request body: Body: {url (string — publicly accessible photo URL; provide either url or source), source (binary — photo file via multipart/form-data; provide either url or source), caption (optional, string — description/caption text for the photo), published (optional, boolean — default true; set false to upload without publishing), scheduled_publish_time (optional, integer — UNIX timestamp to schedule the post; requires published=false), no_story (optional, boolean — if true, suppresses the News Feed story generated by the upload), place (optional, string — Page ID of a location to tag the photo with), alt_text_custom (optional, string — accessible alternative description for the image), temporary (optional, boolean — if true, stores photo temporarily ~24h for use in scheduled posts; requires published=false)}.",
+        "operationId": "facebook_pages.photos.create",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "place": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "caption": {
+                    "type": "string"
+                  },
+                  "no_story": {
+                    "type": "boolean"
+                  },
+                  "published": {
+                    "type": "boolean"
+                  },
+                  "temporary": {
+                    "type": "boolean"
+                  },
+                  "alt_text_custom": {
+                    "type": "string"
+                  },
+                  "scheduled_publish_time": {
+                    "type": "integer"
+                  }
+                },
+                "description": "Body: {url (string — publicly accessible photo URL; provide either url or source), source (binary — photo file via multipart/form-data; provide either url or source), caption (optional, string — description/caption text for the photo), published (optional, boolean — default true; set false to upload without publishing), scheduled_publish_time (optional, integer — UNIX timestamp to schedule the post; requires published=false), no_story (optional, boolean — if true, suppresses the News Feed story generated by the upload), place (optional, string — Page ID of a location to tag the photo with), alt_text_custom (optional, string — accessible alternative description for the image), temporary (optional, boolean — if true, stores photo temporarily ~24h for use in scheduled posts; requires published=false)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://automationbench-api:8080/api/facebook_pages"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Post": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique post identifier formatted as {page-id}_{post-id}."
+          },
+          "story": {
+            "type": "string",
+            "description": "Auto-generated narrative text attached to this post by the platform."
+          },
+          "message": {
+            "type": "string",
+            "description": "The body text of the post."
+          },
+          "created_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_published": {
+            "type": "boolean",
+            "description": "Indicates whether the post is live (false means it is scheduled or unpublished)."
+          },
+          "permalink_url": {
+            "type": "string",
+            "description": "Stable URL linking directly to this post."
+          }
+        },
+        "description": "A post published on a Facebook Page."
+      },
+      "Photo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the photo."
+          },
+          "post_id": {
+            "type": "string",
+            "description": "Identifier of the post linked to this photo."
+          }
+        },
+        "description": "An image uploaded to a Facebook Page."
+      }
+    }
+  }
+}

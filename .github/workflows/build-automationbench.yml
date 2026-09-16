@@ -2,12 +2,6 @@ name: Build AutomationBench API adapter
 
 on:
   workflow_dispatch:
-    inputs:
-      automationbench_ref:
-        description: AutomationBench git ref
-        required: false
-        default: main
-
 permissions:
   contents: read
   packages: write
@@ -21,15 +15,8 @@ jobs:
       DAGGER_LOG_FORMAT: plain
     steps:
       - uses: actions/checkout@v4
-      - name: Build and publish AutomationBench with Dagger
+      - name: Build and publish AutomationBench server with Dagger
         run: |
           cargo run -p dagger-pipeline --release -- \
             automationbench \
-            --automationbench-ref '${{ inputs.automationbench_ref || 'main' }}' \
             --publish \
-            --output automationbench-openapi
-      - name: Upload generated OpenAPI
-        uses: actions/upload-artifact@v4
-        with:
-          name: automationbench-openapi
-          path: automationbench-openapi

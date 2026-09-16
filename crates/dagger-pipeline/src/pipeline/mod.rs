@@ -1,4 +1,3 @@
-mod automation_bench;
 mod ci;
 mod file_tools;
 use crate::args::{Args, Command};
@@ -18,6 +17,7 @@ pub(crate) const AIRBYTE_EXE_NAME: &str = "airbyte-connector";
 pub(crate) const POSTGRES_MCP_EXE_NAME: &str = "postgres-mcp";
 pub(crate) const CLI_GATEWAY_EXE_NAME: &str = "cli-gateway";
 pub(crate) const CRON_EXE_NAME: &str = "cron";
+pub(crate) const AUTOMATION_BENCH_EXE_NAME: &str = "automation-bench";
 pub(crate) const TARGET_TRIPLE: &str = "x86_64-unknown-linux-musl";
 
 pub(crate) const APP_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt";
@@ -28,6 +28,7 @@ pub(crate) const POSTGRES_MCP_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-p
 pub(crate) const CLI_GATEWAY_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-cli-gateway";
 pub(crate) const CRON_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-cron";
 pub(crate) const EVAL_MOCKS_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-eval-mocks";
+pub(crate) const AUTOMATION_BENCH_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/automationbench-api";
 
 pub(crate) const SUMMARY_PATH: &str = "/build/SUMMARY.md";
 
@@ -66,21 +67,8 @@ async fn dispatch(client: Query, command: Command) -> Result<()> {
             tag,
             publish,
         } => file_tools::run(&client, &repo, &archipelago_ref, tag.as_deref(), publish).await?,
-        Command::AutomationBench {
-            automationbench_ref,
-            tag,
-            publish,
-            output,
-        } => {
-            automation_bench::run(
-                &client,
-                &repo,
-                &automationbench_ref,
-                tag.as_deref(),
-                publish,
-                &output,
-            )
-            .await?
+        Command::AutomationBench { tag, publish } => {
+            ci::run_automation_bench(&client, &repo, tag.as_deref(), publish).await?
         }
     }
 

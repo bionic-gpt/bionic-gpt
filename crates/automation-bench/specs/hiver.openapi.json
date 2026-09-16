@@ -1,0 +1,491 @@
+{
+  "info": {
+    "title": "Hiver",
+    "version": "v1",
+    "description": "Simulated Hiver API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/inboxes": {
+      "get": {
+        "summary": "Retrieve all Hiver inboxes available in the account.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "results": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Inbox"
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "next_page": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{data: {results: [Inbox], pagination: {next_page: string|null}}}"
+          }
+        },
+        "description": "Retrieve all Hiver inboxes available in the account.",
+        "operationId": "hiver.inboxes.list"
+      }
+    },
+    "/inboxes/{inbox_id}": {
+      "get": {
+        "summary": "Fetch details for a particular Hiver inbox by its ID.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "results": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Inbox"
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "next_page": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{data: {results: [Inbox], pagination: {next_page: null}}}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inbox_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Inbox ID."
+          }
+        ],
+        "description": "Fetch details for a particular Hiver inbox by its ID.",
+        "operationId": "hiver.inboxes.get"
+      }
+    },
+    "/inboxes/{inbox_id}/users": {
+      "get": {
+        "summary": "Retrieve a list of all agents and users belonging to a given Hiver inbox.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "results": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/User"
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "next_page": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{data: {results: [User], pagination: {next_page: string|null}}}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inbox_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Inbox ID."
+          }
+        ],
+        "description": "Retrieve a list of all agents and users belonging to a given Hiver inbox.",
+        "operationId": "hiver.users.list"
+      }
+    },
+    "/inboxes/{inbox_id}/conversations": {
+      "get": {
+        "summary": "Enumerate conversations within a given Hiver inbox.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "results": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Conversation"
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "next_page": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{data: {results: [Conversation], pagination: {next_page: string|null}}}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inbox_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the target inbox."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Number of results per page (10–100, default 10)."
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Field used to order the results."
+          },
+          {
+            "in": "query",
+            "name": "sort_order",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Direction of sorting: 'asc' or 'desc' (default 'asc')."
+          },
+          {
+            "in": "query",
+            "name": "next_page",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Token used to retrieve the next page of results."
+          }
+        ],
+        "description": "Enumerate conversations within a given Hiver inbox.",
+        "operationId": "hiver.conversations.list"
+      }
+    },
+    "/inboxes/{inbox_id}/conversations/{conversation_id}": {
+      "get": {
+        "summary": "Fetch a single Hiver conversation using its ID.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "results": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Conversation"
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "next_page": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{data: {results: [Conversation], pagination: {next_page: null}}}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inbox_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the inbox."
+          },
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the conversation."
+          }
+        ],
+        "description": "Fetch a single Hiver conversation using its ID.",
+        "operationId": "hiver.conversations.get"
+      },
+      "patch": {
+        "summary": "Modify a Hiver conversation. Update its assignee, status, or associated tags.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "results": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Conversation"
+                          }
+                        },
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "next_page": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{data: {results: [Conversation], pagination: {next_page: null}}}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inbox_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the inbox."
+          },
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the conversation."
+          }
+        ],
+        "description": "Modify a Hiver conversation. Update its assignee, status, or associated tags. Request body: Body: {status (optional, object — {name: 'open'|'closed'|'pending'}), assignee (optional, object — {email: string}), tags (optional, object — {to_apply: [string], to_remove: [string]})}.",
+        "operationId": "hiver.conversations.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status (optional, object — {name": {
+                    "type": "string"
+                  },
+                  "tags (optional, object — {to_apply": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "string], to_remove": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "string": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "assignee (optional, object — {email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "description": "Body: {status (optional, object — {name: 'open'|'closed'|'pending'}), assignee (optional, object — {email: string}), tags (optional, object — {to_apply: [string], to_remove: [string]})}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://automationbench-api:8080/api/hiver"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "display_name": {
+            "type": "string"
+          }
+        },
+        "description": "A Hiver agent or user account."
+      },
+      "Inbox": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "created_at": {
+            "type": "integer"
+          },
+          "inbox_type": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "integer"
+          },
+          "channel_type": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "is_authorised": {
+            "type": "boolean"
+          }
+        },
+        "description": "A Hiver collaborative shared inbox."
+      },
+      "Conversation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the conversation."
+          },
+          "status": {
+            "enum": [
+              "open",
+              "closed",
+              "pending"
+            ],
+            "type": "string"
+          },
+          "tag_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Collection of tag identifiers linked to this conversation."
+          },
+          "assignee": {
+            "type": "object",
+            "properties": {
+              "assignee_id": {
+                "type": "string"
+              },
+              "assignee_type": {
+                "enum": [
+                  "user"
+                ],
+                "type": "string"
+              }
+            }
+          }
+        },
+        "description": "A Hiver email thread housed within a shared inbox."
+      }
+    }
+  }
+}
