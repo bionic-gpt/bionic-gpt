@@ -15,7 +15,8 @@ def validate(automationbench: Path, output: Path) -> None:
         assert document["openapi"].startswith("3.")
         info = document["info"]
         assert info.get("description"), f"missing description in {document_path.name}"
-        assert info.get("x-logo", {}).get("url"), f"missing logo in {document_path.name}"
+        if "x-logo" in info:
+            assert info["x-logo"].get("url"), f"empty logo in {document_path.name}"
         expected_server = f"http://automationbench-api:8080/api/{document_path.stem}"
         assert all(server["url"] == expected_server for server in document["servers"])
         for methods in document["paths"].values():

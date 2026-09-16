@@ -6,6 +6,7 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "tools"))
 
+import generate as generate_module
 from generate import generate
 
 
@@ -37,7 +38,7 @@ def test_generated_specs_include_service_metadata(tmp_path: Path):
     assert document["info"]["x-logo"]["url"].endswith("/gmail")
 
 
-def test_generated_specs_use_fallback_metadata_for_unknown_services(tmp_path: Path):
+def test_generated_specs_omit_logo_for_unknown_services(tmp_path: Path):
     source = tmp_path / "AutomationBench" / "automationbench/tools/api/schemas"
     source.mkdir(parents=True)
     (source / "custom.jsonc").write_text(
@@ -55,7 +56,34 @@ def test_generated_specs_use_fallback_metadata_for_unknown_services(tmp_path: Pa
 
     assert document["info"]["title"] == "Custom Service"
     assert "deterministic AutomationBench" in document["info"]["description"]
-    assert document["info"]["x-logo"]["url"].endswith("/customservice")
+    assert "x-logo" not in document["info"]
+
+
+def test_generated_specs_use_explicit_logo_url(tmp_path: Path, monkeypatch):
+    metadata_path = tmp_path / "service_metadata.json"
+    metadata_path.write_text(
+        json.dumps(
+            {
+                "custom_service": {
+                    "title": "Custom Service",
+                    "logo_url": "https://example.com/custom.svg",
+                }
+            }
+        )
+    )
+    monkeypatch.setattr(generate_module, "METADATA_PATH", metadata_path)
+
+    source = tmp_path / "AutomationBench" / "automationbench/tools/api/schemas"
+    source.mkdir(parents=True)
+    (source / "custom.jsonc").write_text(
+        json.dumps({"api": "custom_service", "endpoints": []})
+    )
+
+    output = tmp_path / "dist"
+    generate(tmp_path / "AutomationBench", output)
+    document = yaml.safe_load((output / "openapi/custom_service.yaml").read_text())
+
+    assert document["info"]["x-logo"]["url"] == "https://example.com/custom.svg"
 
 
 def test_generated_specs_preserve_nested_request_schemas(tmp_path: Path):

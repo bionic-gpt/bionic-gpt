@@ -111,15 +111,19 @@ def path_for(service: str, endpoint_path: str) -> str:
 def service_metadata(service: str) -> dict[str, str]:
     metadata = json.loads(METADATA_PATH.read_text()).get(service, {})
     title = metadata.get("title", service.replace("_", " ").title())
-    logo_slug = metadata.get("logo_slug", service.replace("_", ""))
-    return {
+    result = {
         "title": title,
         "description": metadata.get(
             "description",
             f"Simulated {title} API for deterministic AutomationBench workflow evaluation.",
         ),
-        "logo_url": metadata.get("logo_url", f"https://cdn.simpleicons.org/{logo_slug}"),
     }
+    logo_url = metadata.get("logo_url")
+    if logo_url is None and metadata.get("logo_slug"):
+        logo_url = f"https://cdn.simpleicons.org/{metadata['logo_slug']}"
+    if logo_url:
+        result["logo_url"] = logo_url
+    return result
 
 def operation(endpoint: dict[str, Any], schemas: dict[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {
@@ -184,14 +188,16 @@ def generate(automationbench: Path, output: Path) -> list[Path]:
         schema_data.append(data)
         service = data["api"]
         metadata = service_metadata(service)
+        info: dict[str, Any] = {
+            "title": metadata["title"],
+            "version": str(data.get("version", "1.0.0")),
+            "description": metadata["description"],
+        }
+        if metadata.get("logo_url"):
+            info["x-logo"] = {"url": metadata["logo_url"]}
         document: dict[str, Any] = {
             "openapi": "3.1.0",
-            "info": {
-                "title": metadata["title"],
-                "version": str(data.get("version", "1.0.0")),
-                "description": metadata["description"],
-                "x-logo": {"url": metadata["logo_url"]},
-            },
+            "info": info,
             "servers": [{"url": f"http://automationbench-api:8080/api/{service}"}],
             "paths": {},
             "components": {"schemas": {}},
