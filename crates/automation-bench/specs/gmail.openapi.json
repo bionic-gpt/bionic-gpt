@@ -5,7 +5,7 @@
       "url": "https://cdn.simpleicons.org/gmail"
     },
     "version": "v1",
-    "description": "Simulated Gmail API for deterministic email workflow evaluations."
+    "description": "Gmail mailbox, message, draft, label, and thread operations."
   },
   "paths": {
     "/gmail/v1/users/{userId}/drafts": {
@@ -29,7 +29,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -82,7 +83,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           }
@@ -122,7 +124,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           }
@@ -150,7 +153,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           }
@@ -190,7 +194,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -257,7 +262,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true,
             "description": "The user's email address. Use 'me' to refer to the authenticated user."
@@ -327,7 +333,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           }
@@ -367,7 +374,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -418,7 +426,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -457,7 +466,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -495,7 +505,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -531,7 +542,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -571,7 +583,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -609,7 +622,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -651,7 +665,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -689,7 +704,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           }
@@ -735,7 +751,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -779,7 +796,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -817,7 +835,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -855,7 +874,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -893,7 +913,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -966,7 +987,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -1039,7 +1061,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -1077,7 +1100,8 @@
             "in": "path",
             "name": "userId",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "default": "me"
             },
             "required": true
           },
@@ -1098,7 +1122,7 @@
   "openapi": "3.1.0",
   "servers": [
     {
-      "url": "http://automationbench-api:8080/api/gmail"
+      "url": "https://gmail.googleapis.com"
     }
   ],
   "components": {
@@ -1291,6 +1315,26 @@
           }
         }
       }
+    },
+    "securitySchemes": {
+      "gmailOAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth",
+            "tokenUrl": "https://oauth2.googleapis.com/token",
+            "scopes": {
+              "https://www.googleapis.com/auth/gmail.modify": "Read and modify Gmail mailbox data",
+              "https://www.googleapis.com/auth/gmail.send": "Send Gmail messages"
+            }
+          }
+        }
+      }
     }
-  }
+  },
+  "security": [
+    {
+      "gmailOAuth2": []
+    }
+  ]
 }

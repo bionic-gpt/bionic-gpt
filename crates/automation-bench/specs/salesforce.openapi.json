@@ -5,7 +5,7 @@
       "url": "https://cdn.simpleicons.org/salesforce"
     },
     "version": "v61.0",
-    "description": "Simulated Salesforce API for deterministic CRM workflow evaluations."
+    "description": "Salesforce sObject, query, search, action, and report operations."
   },
   "paths": {
     "/services/data/v61.0/query": {
@@ -1823,7 +1823,7 @@
   "openapi": "3.1.0",
   "servers": [
     {
-      "url": "http://automationbench-api:8080/api/salesforce"
+      "url": "https://your-domain.my.salesforce.com"
     }
   ],
   "components": {
@@ -2299,6 +2299,25 @@
           }
         }
       }
+    },
+    "securitySchemes": {
+      "salesforceOAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://login.salesforce.com/services/oauth2/authorize",
+            "tokenUrl": "https://login.salesforce.com/services/oauth2/token",
+            "scopes": {
+              "api": "Access Salesforce REST API"
+            }
+          }
+        }
+      }
     }
-  }
+  },
+  "security": [
+    {
+      "salesforceOAuth2": []
+    }
+  ]
 }

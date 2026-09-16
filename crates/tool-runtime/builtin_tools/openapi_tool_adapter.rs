@@ -266,8 +266,9 @@ async fn execute_openapi_tool(
     let args: Value = arguments.clone();
 
     // Separate path, query, and request body parameters
-    let (path_params, query_params, request_body_params) = separate_parameters(&args, operation)
-        .map_err(|e| crate::json_error("Failed to separate parameters", e))?;
+    let (path_params, query_params, request_body_params) =
+        separate_parameters(&args, operation, &tool.spec)
+            .map_err(|e| crate::json_error("Failed to separate parameters", e))?;
 
     tracing::debug!(
         "Separated parameters - Path: {}, Query: {}, Request Body: {}",
@@ -470,6 +471,7 @@ impl ToolDyn for OpenApiTool {
 fn separate_parameters(
     args: &Value,
     operation: &Operation,
+    spec: &oas3::OpenApiV3Spec,
 ) -> Result<(Value, Value, Value), String> {
     let mut path_params = serde_json::Map::new();
     let mut query_params = serde_json::Map::new();
@@ -504,6 +506,41 @@ fn separate_parameters(
             query_params.insert(key.clone(), value.clone());
         } else {
             request_body_params.insert(key.clone(), value.clone());
+        }
+    }
+
+    // OpenAPI defaults are part of the operation contract. Apply them before
+    // URL construction so callers do not need to repeat protocol defaults such
+    // as Gmail's userId="me".
+    for param in &operation.parameters {
+        let ObjectOrReference::Object(Parameter {
+            name,
+            location,
+            schema,
+            ..
+        }) = param
+        else {
+            continue;
+        };
+        let target = match *location {
+            ParameterIn::Path => &mut path_params,
+            ParameterIn::Query => &mut query_params,
+            _ => continue,
+        };
+        if target.contains_key(name) {
+            continue;
+        }
+        let Some(schema) = schema else {
+            continue;
+        };
+        let Ok(schema) = schema.resolve(spec) else {
+            continue;
+        };
+        let Ok(schema) = serde_json::to_value(schema) else {
+            continue;
+        };
+        if let Some(default) = schema.get("default") {
+            target.insert(name.clone(), default.clone());
         }
     }
 
@@ -836,7 +873,7 @@ mod tests {
         let args = json!({"id": "123", "filter": "all", "name": "bob"});
 
         let (path_params, query_params, body_params) =
-            separate_parameters(&args, operation).expect("separate params");
+            separate_parameters(&args, operation, &spec).expect("separate params");
 
         assert_eq!(path_params, json!({"id": "123"}));
         assert_eq!(query_params, json!({"filter": "all"}));
@@ -872,6 +909,7 @@ mod tests {
         responses: Arc<tokio::sync::Mutex<VecDeque<HttpResponse>>>,
         captured_headers: Arc<tokio::sync::Mutex<Vec<Option<String>>>>,
         captured_bodies: Arc<tokio::sync::Mutex<Vec<Option<HttpRequestBody>>>>,
+        captured_urls: Arc<tokio::sync::Mutex<Vec<Url>>>,
     }
 
     impl MockHttpClient {
@@ -880,6 +918,7 @@ mod tests {
                 responses: Arc::new(tokio::sync::Mutex::new(VecDeque::from(responses))),
                 captured_headers: Arc::new(tokio::sync::Mutex::new(Vec::new())),
                 captured_bodies: Arc::new(tokio::sync::Mutex::new(Vec::new())),
+                captured_urls: Arc::new(tokio::sync::Mutex::new(Vec::new())),
             }
         }
 
@@ -890,6 +929,10 @@ mod tests {
         async fn captured_bodies(&self) -> Vec<Option<HttpRequestBody>> {
             self.captured_bodies.lock().await.clone()
         }
+
+        async fn captured_urls(&self) -> Vec<Url> {
+            self.captured_urls.lock().await.clone()
+        }
     }
 
     #[async_trait]
@@ -897,7 +940,7 @@ mod tests {
         async fn send(
             &self,
             _method: Method,
-            _url: Url,
+            url: Url,
             headers: Vec<(String, String)>,
             body: Option<HttpRequestBody>,
         ) -> Result<HttpResponse, String> {
@@ -910,6 +953,7 @@ mod tests {
             });
             self.captured_headers.lock().await.push(auth_header);
             self.captured_bodies.lock().await.push(body);
+            self.captured_urls.lock().await.push(url);
             let mut responses = self.responses.lock().await;
             responses
                 .pop_front()
@@ -998,6 +1042,46 @@ mod tests {
         assert_eq!(headers.len(), 2);
         assert_eq!(headers[0].as_deref(), Some("Bearer first"));
         assert_eq!(headers[1].as_deref(), Some("Bearer second"));
+    }
+
+    #[tokio::test]
+    async fn applies_openapi_parameter_defaults() {
+        let spec_json = json!({
+            "openapi": "3.0.0",
+            "info": {"title": "Gmail", "version": "1.0"},
+            "servers": [{"url": "https://gmail.googleapis.com"}],
+            "paths": {"/gmail/v1/users/{userId}/messages": {"get": {
+                "operationId": "gmail.users.messages.list",
+                "parameters": [{"in": "path", "name": "userId", "required": true,
+                    "schema": {"type": "string", "default": "me"}}],
+                "responses": {"200": {"description": "ok"}}
+            }}}
+        });
+        let spec: oas3::OpenApiV3Spec = serde_json::from_value(spec_json).unwrap();
+        let client = Arc::new(MockHttpClient::new(vec![HttpResponse {
+            status: StatusCode::OK,
+            body: br#"{"messages":[]}"#.to_vec(),
+            content_type: Some("application/json".to_string()),
+        }]));
+        let tool = OpenApiTool::with_http_client(
+            ToolDefinition {
+                name: "gmail.users.messages.list".to_string(),
+                description: "".to_string(),
+                parameters: json!({}),
+            },
+            "https://gmail.googleapis.com".to_string(),
+            spec,
+            "gmail.users.messages.list".to_string(),
+            "Authorization".to_string(),
+            None,
+            client.clone(),
+        );
+
+        tool.call("{}".to_string()).await.unwrap();
+        assert_eq!(
+            client.captured_urls().await[0].as_str(),
+            "https://gmail.googleapis.com/gmail/v1/users/me/messages"
+        );
     }
 
     fn multipart_test_spec() -> oas3::OpenApiV3Spec {
