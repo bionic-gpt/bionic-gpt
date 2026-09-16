@@ -281,6 +281,10 @@ def request_schema(request: Any, schemas: dict[str, Any]) -> dict[str, Any]:
                     )
                 return body_schema
 
+        match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:", request)
+        if match and match.group(1) in schemas:
+            return {"$ref": f"#/components/schemas/{match.group(1)}"}
+
         body_start = re.search(r"\{", request)
         if body_start:
             body_end = request.rfind("}")
@@ -290,10 +294,6 @@ def request_schema(request: Any, schemas: dict[str, Any]) -> dict[str, Any]:
                 )
                 body_schema["description"] = request.strip()
                 return body_schema
-
-        match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:", request)
-        if match and match.group(1) in schemas:
-            return {"$ref": f"#/components/schemas/{match.group(1)}"}
 
     return {
         "type": "object",

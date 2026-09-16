@@ -345,7 +345,7 @@ def test_generated_specs_parse_nested_typed_and_binary_request_fields(tmp_path: 
     generate(tmp_path / "AutomationBench", output)
     document = yaml.safe_load((output / "openapi/example.yaml").read_text())
 
-    create = document["paths"]["/create"]["post"]
+    create = document["paths"]["/example/create"]["post"]
     properties = create["requestBody"]["content"]["multipart/form-data"]["schema"]["properties"]
     assert create["requestBody"]["required"] is True
     assert properties["email"] == {"type": "string", "format": "email"}
@@ -353,7 +353,7 @@ def test_generated_specs_parse_nested_typed_and_binary_request_fields(tmp_path: 
     assert properties["updatedAt"] == {"type": "string", "format": "date-time"}
     assert properties["attachment"] == {"type": "string", "format": "binary"}
 
-    optional = document["paths"]["/optional"]["post"]
+    optional = document["paths"]["/example/optional"]["post"]
     optional_schema = optional["requestBody"]["content"]["application/json"]["schema"]
     assert optional["requestBody"]["required"] is False
     assert optional_schema["properties"]["inputs"]["type"] == "array"
