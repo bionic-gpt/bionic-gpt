@@ -400,3 +400,26 @@ def test_generated_specs_use_component_refs_and_structured_responses(tmp_path: P
 
     delete_operation = document["paths"]["/3.0/lists/{list_id}/members/{subscriber_hash}"]["delete"]
     assert delete_operation["responses"] == {"204": {"description": "Empty response (HTTP 204)"}}
+
+
+def test_binary_detection_handles_recursive_component_schemas():
+    schemas = {
+        "Node": {
+            "type": "object",
+            "properties": {"next": {"$ref": "#/components/schemas/Node"}},
+        },
+        "FileNode": {
+            "type": "object",
+            "properties": {
+                "next": {"$ref": "#/components/schemas/FileNode"},
+                "file": {"type": "string", "format": "binary"},
+            },
+        },
+    }
+
+    assert generate_module.contains_binary(
+        {"$ref": "#/components/schemas/Node"}, schemas
+    ) is False
+    assert generate_module.contains_binary(
+        {"$ref": "#/components/schemas/FileNode"}, schemas
+    ) is True

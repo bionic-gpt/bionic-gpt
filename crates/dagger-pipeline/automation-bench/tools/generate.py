@@ -205,7 +205,13 @@ def response_schema(response: Any, schemas: dict[str, Any]) -> dict[str, Any]:
     return {"type": "object", "additionalProperties": True}
 
 
-def contains_binary(value: Any, schemas: dict[str, Any] | None = None) -> bool:
+def contains_binary(
+    value: Any,
+    schemas: dict[str, Any] | None = None,
+    seen_refs: set[str] | None = None,
+) -> bool:
+    if seen_refs is None:
+        seen_refs = set()
     if isinstance(value, dict):
         if value.get("format") == "binary":
             return True
@@ -213,10 +219,15 @@ def contains_binary(value: Any, schemas: dict[str, Any] | None = None) -> bool:
         if schemas is not None and isinstance(reference, str):
             schema_name = reference.rsplit("/", 1)[-1]
             if schema_name in schemas:
-                return contains_binary(schemas[schema_name], schemas)
-        return any(contains_binary(item, schemas) for item in value.values())
+                if reference in seen_refs:
+                    return False
+                seen_refs.add(reference)
+                result = contains_binary(schemas[schema_name], schemas, seen_refs)
+                seen_refs.remove(reference)
+                return result
+        return any(contains_binary(item, schemas, seen_refs) for item in value.values())
     if isinstance(value, list):
-        return any(contains_binary(item, schemas) for item in value)
+        return any(contains_binary(item, schemas, seen_refs) for item in value)
     return False
 
 
