@@ -1,4 +1,4 @@
-use crate::store::World;
+use crate::store::{sync_gmail_threads, World};
 use axum::{
     extract::{Path, Query, State},
     http::StatusCode,
@@ -78,6 +78,8 @@ pub struct ListQuery {
     pub max_results: Option<usize>,
     #[serde(rename = "includeSpamTrash")]
     pub include_spam_trash: Option<bool>,
+    #[serde(rename = "pageToken")]
+    pub page_token: Option<String>,
 }
 
 fn user_ok(user_id: &str) -> bool {
@@ -93,7 +95,7 @@ async fn list_messages(
         return Err(StatusCode::BAD_REQUEST);
     }
     let state = world.read().await;
-    let mut messages: Vec<Value> = state
+    let messages: Vec<Value> = state
         .gmail
         .messages
         .values()
@@ -124,9 +126,18 @@ async fn list_messages(
         })
         .map(|message| json!({"id":message["id"],"threadId":message["threadId"]}))
         .collect();
-    messages.truncate(query.max_results.unwrap_or(100).min(500));
+    let offset = page_offset(query.page_token.as_deref());
+    let page_size = query.max_results.unwrap_or(100).min(500);
+    let result_size = messages.len();
+    let page = messages
+        .into_iter()
+        .skip(offset)
+        .take(page_size)
+        .collect::<Vec<_>>();
+    let next_page_token =
+        (offset + page.len() < result_size).then(|| format!("page-{}", offset + page.len()));
     Ok(Json(
-        json!({"messages":messages,"resultSizeEstimate":messages.len()}),
+        json!({"messages":page,"nextPageToken":next_page_token,"resultSizeEstimate":result_size}),
     ))
 }
 
@@ -171,13 +182,15 @@ async fn create_label(
     Path(_user_id): Path<String>,
     Json(body): Json<Value>,
 ) -> Json<Value> {
-    let id = format!("Label_{}", world.write().await.gmail.next_id);
+    let mut state = world.write().await;
+    let id = format!("Label_{}", state.gmail.next_id);
+    state.gmail.next_id += 1;
     let mut label = body;
     if let Value::Object(fields) = &mut label {
         fields.insert("id".into(), id.clone().into());
         fields.insert("type".into(), "user".into());
     }
-    world.write().await.gmail.labels.insert(id, label.clone());
+    state.gmail.labels.insert(id, label.clone());
     Json(label)
 }
 async fn get_label(
@@ -223,22 +236,65 @@ async fn delete_label(
 async fn list_threads(
     State(world): State<Arc<World>>,
     Path(user_id): Path<String>,
-    Query(_query): Query<ListQuery>,
+    Query(query): Query<ListQuery>,
 ) -> Result<Json<Value>, StatusCode> {
     if !user_ok(&user_id) {
         return Err(StatusCode::BAD_REQUEST);
     }
+    let mut state = world.write().await;
+    sync_gmail_threads(&mut state.gmail);
+    let mut threads = state
+        .gmail
+        .threads
+        .values()
+        .filter(|thread| {
+            let messages = thread["messages"].as_array().cloned().unwrap_or_default();
+            query.q.as_ref().is_none_or(|q| {
+                thread
+                    .to_string()
+                    .to_lowercase()
+                    .contains(&q.to_lowercase())
+            }) && query.label_ids.as_ref().is_none_or(|labels| {
+                labels.iter().all(|label| {
+                    messages.iter().any(|message| {
+                        message["labelIds"]
+                            .as_array()
+                            .is_some_and(|ids| ids.iter().any(|id| id == label))
+                    })
+                })
+            }) && (query.include_spam_trash == Some(true)
+                || !messages.iter().any(|message| {
+                    message["labelIds"]
+                        .as_array()
+                        .is_some_and(|ids| ids.iter().any(|id| id == "SPAM" || id == "TRASH"))
+                }))
+        })
+        .map(|thread| json!({"id":thread["id"],"snippet":thread["snippet"]}))
+        .collect::<Vec<_>>();
+    let result_size = threads.len();
+    let offset = page_offset(query.page_token.as_deref());
+    let page_size = query.max_results.unwrap_or(100).min(100);
+    threads = threads.into_iter().skip(offset).take(page_size).collect();
+    let next_page_token =
+        (offset + threads.len() < result_size).then(|| format!("page-{}", offset + threads.len()));
     Ok(Json(
-        json!({"threads":world.read().await.gmail.threads.values().map(|thread| json!({"id":thread["id"],"snippet":thread["snippet"]})).collect::<Vec<_>>()}),
+        json!({"threads":threads,"nextPageToken":next_page_token,"resultSizeEstimate":result_size}),
     ))
+}
+
+fn page_offset(token: Option<&str>) -> usize {
+    token
+        .and_then(|token| token.strip_prefix("page-"))
+        .and_then(|value| value.parse::<usize>().ok())
+        .unwrap_or(0)
 }
 async fn get_thread(
     State(world): State<Arc<World>>,
     Path((_user_id, id)): Path<(String, String)>,
 ) -> Result<Json<Value>, StatusCode> {
-    world
-        .read()
-        .await
+    let mut state = world.write().await;
+    sync_gmail_threads(&mut state.gmail);
+    state
         .gmail
         .threads
         .get(&id)
@@ -250,7 +306,14 @@ async fn delete_thread(
     State(world): State<Arc<World>>,
     Path((_user_id, id)): Path<(String, String)>,
 ) -> StatusCode {
-    if world.write().await.gmail.threads.remove(&id).is_some() {
+    let mut state = world.write().await;
+    sync_gmail_threads(&mut state.gmail);
+    if state.gmail.threads.contains_key(&id) {
+        state.gmail.threads.remove(&id);
+        state
+            .gmail
+            .messages
+            .retain(|_, message| message["threadId"] != id);
         StatusCode::NO_CONTENT
     } else {
         StatusCode::NOT_FOUND
@@ -287,7 +350,9 @@ async fn modify_message(
         return Err(StatusCode::NOT_FOUND);
     };
     change_labels(message, &body, None);
-    Ok(Json(message.clone()))
+    let result = message.clone();
+    sync_gmail_threads(&mut state.gmail);
+    Ok(Json(result))
 }
 async fn trash_message(
     State(world): State<Arc<World>>,
@@ -298,7 +363,9 @@ async fn trash_message(
         return Err(StatusCode::NOT_FOUND);
     };
     change_labels(message, &json!({}), Some(true));
-    Ok(Json(message.clone()))
+    let result = message.clone();
+    sync_gmail_threads(&mut state.gmail);
+    Ok(Json(result))
 }
 async fn untrash_message(
     State(world): State<Arc<World>>,
@@ -309,7 +376,9 @@ async fn untrash_message(
         return Err(StatusCode::NOT_FOUND);
     };
     change_labels(message, &json!({}), Some(false));
-    Ok(Json(message.clone()))
+    let result = message.clone();
+    sync_gmail_threads(&mut state.gmail);
+    Ok(Json(result))
 }
 async fn modify_thread(
     State(world): State<Arc<World>>,
@@ -317,14 +386,28 @@ async fn modify_thread(
     Json(body): Json<Value>,
 ) -> Result<Json<Value>, StatusCode> {
     let mut state = world.write().await;
-    let Some(thread) = state.gmail.threads.get_mut(&id) else {
-        return Err(StatusCode::NOT_FOUND);
-    };
-    if let Some(messages) = thread.get_mut("messages").and_then(Value::as_array_mut) {
-        for message in messages {
+    sync_gmail_threads(&mut state.gmail);
+    let message_ids = state
+        .gmail
+        .threads
+        .get(&id)
+        .and_then(|thread| thread["messages"].as_array())
+        .map(|messages| {
+            messages
+                .iter()
+                .filter_map(|message| message["id"].as_str().map(str::to_string))
+                .collect::<Vec<_>>()
+        })
+        .ok_or(StatusCode::NOT_FOUND)?;
+    for message_id in message_ids {
+        if let Some(message) = state.gmail.messages.get_mut(&message_id) {
             change_labels(message, &body, None);
         }
     }
+    sync_gmail_threads(&mut state.gmail);
+    let Some(thread) = state.gmail.threads.get(&id) else {
+        return Err(StatusCode::NOT_FOUND);
+    };
     Ok(Json(thread.clone()))
 }
 async fn trash_thread(
@@ -350,10 +433,36 @@ async fn untrash_thread(
     .await
 }
 
-async fn list_drafts(State(world): State<Arc<World>>, Path(_user_id): Path<String>) -> Json<Value> {
-    Json(
-        json!({"drafts":world.read().await.gmail.drafts.values().map(|draft| json!({"id":draft["id"],"message":draft["message"]})).collect::<Vec<_>>()}),
-    )
+async fn list_drafts(
+    State(world): State<Arc<World>>,
+    Path(_user_id): Path<String>,
+    Query(query): Query<ListQuery>,
+) -> Json<Value> {
+    let drafts = world
+        .read()
+        .await
+        .gmail
+        .drafts
+        .values()
+        .filter(|draft| {
+            query
+                .q
+                .as_ref()
+                .is_none_or(|q| draft.to_string().to_lowercase().contains(&q.to_lowercase()))
+        })
+        .map(|draft| json!({"id":draft["id"],"message":draft["message"]}))
+        .collect::<Vec<_>>();
+    let result_size = drafts.len();
+    let offset = page_offset(query.page_token.as_deref());
+    let page_size = query.max_results.unwrap_or(100).min(100);
+    let page = drafts
+        .into_iter()
+        .skip(offset)
+        .take(page_size)
+        .collect::<Vec<_>>();
+    let next_page_token =
+        (offset + page.len() < result_size).then(|| format!("page-{}", offset + page.len()));
+    Json(json!({"drafts":page,"nextPageToken":next_page_token,"resultSizeEstimate":result_size}))
 }
 async fn create_draft(
     State(world): State<Arc<World>>,
@@ -363,7 +472,17 @@ async fn create_draft(
     let mut state = world.write().await;
     let id = format!("draft-{}", state.gmail.next_id);
     state.gmail.next_id += 1;
-    let draft = json!({"id":id,"message":body.get("message").cloned().unwrap_or(body)});
+    let mut message = body.get("message").cloned().unwrap_or(body);
+    if let Value::Object(fields) = &mut message {
+        fields
+            .entry("id")
+            .or_insert_with(|| Value::String(format!("draft-message-{id}")));
+        fields
+            .entry("threadId")
+            .or_insert_with(|| Value::String(format!("thread-{id}")));
+        fields.entry("labelIds").or_insert_with(|| json!(["DRAFT"]));
+    }
+    let draft = json!({"id":id,"message":message});
     state.gmail.drafts.insert(id, draft.clone());
     Json(draft)
 }
@@ -403,10 +522,23 @@ async fn delete_draft(
         StatusCode::NOT_FOUND
     }
 }
-async fn send_message(Json(body): Json<Value>) -> Json<Value> {
-    Json(
-        json!({"id":"sent-message-001","threadId":body.get("threadId").cloned().unwrap_or(Value::String("thread-sent-001".into())),"labelIds":["SENT"],"payload":body}),
-    )
+async fn send_message(
+    State(world): State<Arc<World>>,
+    Path(_user_id): Path<String>,
+    Json(body): Json<Value>,
+) -> Json<Value> {
+    let mut state = world.write().await;
+    let id = format!("msg-sent-{:03}", state.gmail.next_id);
+    state.gmail.next_id += 1;
+    let thread_id = body
+        .get("threadId")
+        .and_then(Value::as_str)
+        .unwrap_or("thread-sent-001")
+        .to_string();
+    let message = json!({"id":id,"threadId":thread_id,"labelIds":["SENT"],"snippet":"Sent message","payload":body});
+    state.gmail.messages.insert(id, message.clone());
+    sync_gmail_threads(&mut state.gmail);
+    Json(message)
 }
 async fn send_draft(
     State(world): State<Arc<World>>,
@@ -416,7 +548,13 @@ async fn send_draft(
     let Some(draft) = state.gmail.drafts.remove(&id) else {
         return Err(StatusCode::NOT_FOUND);
     };
-    Ok(Json(
-        json!({"id":format!("sent-{id}"),"labelIds":["SENT"],"payload":draft["message"]}),
-    ))
+    let message_id = format!("msg-sent-{:03}", state.gmail.next_id);
+    state.gmail.next_id += 1;
+    let thread_id = draft["message"]["threadId"]
+        .as_str()
+        .unwrap_or("thread-sent-001");
+    let message = json!({"id":message_id,"threadId":thread_id,"labelIds":["SENT"],"snippet":"Sent draft","payload":draft["message"]});
+    state.gmail.messages.insert(message_id, message.clone());
+    sync_gmail_threads(&mut state.gmail);
+    Ok(Json(message))
 }

@@ -21,6 +21,33 @@ async fn reset_returns_no_content() {
 }
 
 #[tokio::test]
+async fn reset_accepts_known_task_and_rejects_unknown_task() {
+    let known = app()
+        .oneshot(
+            Request::post("/benchmark/reset")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{"task":"simple.email_sf_contact_phone_update"}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(known.status(), StatusCode::NO_CONTENT);
+
+    let unknown = app()
+        .oneshot(
+            Request::post("/benchmark/reset")
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"task":"unknown"}"#))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(unknown.status(), StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
 async fn gmail_list_returns_seeded_message() {
     let response = app()
         .oneshot(
@@ -37,6 +64,109 @@ async fn gmail_list_returns_seeded_message() {
         .unwrap();
     let body: Value = serde_json::from_slice(&body).unwrap();
     assert_eq!(body["messages"][0]["id"], "msg-jordan-001");
+}
+
+#[tokio::test]
+async fn gmail_send_and_label_modification_persist() {
+    let service = app();
+    let sent = service
+        .clone()
+        .oneshot(
+            Request::post("/api/gmail/gmail/v1/users/me/messages/send")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{"payload":{"headers":[{"name":"To","value":"jordan.lee@example.com"}]}}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(sent.status(), StatusCode::OK);
+    let sent_body = axum::body::to_bytes(sent.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let sent_body: Value = serde_json::from_slice(&sent_body).unwrap();
+    let message_id = sent_body["id"].as_str().unwrap();
+    let modify = service
+        .clone()
+        .oneshot(
+            Request::post(format!(
+                "/api/gmail/gmail/v1/users/me/messages/{message_id}/modify"
+            ))
+            .header("content-type", "application/json")
+            .body(Body::from(r#"{"addLabelIds":["INBOX"]}"#))
+            .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(modify.status(), StatusCode::OK);
+
+    let thread = service
+        .oneshot(
+            Request::get("/api/gmail/gmail/v1/users/me/threads/thread-sent-001")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(thread.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(body["messages"][0]["id"], message_id);
+    assert!(body["messages"][0]["labelIds"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|label| label == "INBOX"));
+}
+
+#[tokio::test]
+async fn gmail_list_and_sosl_support_pagination_and_case_insensitive_queries() {
+    let service = app();
+    for subject in ["First", "Second"] {
+        let response = service
+            .clone()
+            .oneshot(
+                Request::post("/api/gmail/gmail/v1/users/me/messages/send")
+                    .header("content-type", "application/json")
+                    .body(Body::from(format!(
+                        r#"{{"payload":{{"headers":[{{"name":"Subject","value":"{subject}"}}]}}}}"#
+                    )))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    let first_page = service
+        .clone()
+        .oneshot(
+            Request::get(
+                "/api/gmail/gmail/v1/users/me/messages?maxResults=1&includeSpamTrash=true",
+            )
+            .body(Body::empty())
+            .unwrap(),
+        )
+        .await
+        .unwrap();
+    let first_body = axum::body::to_bytes(first_page.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let first_body: Value = serde_json::from_slice(&first_body).unwrap();
+    assert_eq!(first_body["messages"].as_array().unwrap().len(), 1);
+    assert!(first_body["nextPageToken"].as_str().is_some());
+
+    let search = service
+        .oneshot(
+            Request::get("/api/salesforce/services/data/v61.0/search?q=FIND%20%7BjOrDaN%7D%20IN%20ALL%20FIELDS%20rEtUrNiNg%20Contact")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(search.status(), StatusCode::OK);
 }
 
 #[tokio::test]
@@ -106,6 +236,56 @@ async fn content_version_accepts_multipart_upload() {
     let body: Value = serde_json::from_slice(&body).unwrap();
     assert_eq!(body["success"], true);
     assert!(body["id"].as_str().is_some());
+}
+
+#[tokio::test]
+async fn salesforce_create_and_query_support_fields() {
+    let service = app();
+    let created = service
+        .clone()
+        .oneshot(
+            Request::post("/api/salesforce/services/data/v61.0/sobjects/Contact")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{"FirstName":"Avery","LastName":"Stone","Email":"avery@example.com"}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(created.status(), StatusCode::OK);
+
+    let query = service
+        .clone()
+        .oneshot(
+            Request::get("/api/salesforce/services/data/v61.0/query?q=SELECT%20Id%2C%20Email%20FROM%20Contact%20WHERE%20LastName%20%3D%20%27Stone%27%20LIMIT%201")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(query.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(query.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(body["records"][0]["Email"], "avery@example.com");
+    assert_eq!(body["results"][0]["Email"], "avery@example.com");
+
+    let search = service
+        .oneshot(
+            Request::get("/api/salesforce/services/data/v61.0/search?q=FIND%20%7BAvery%7D%20IN%20ALL%20FIELDS%20RETURNING%20Contact")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(search.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(search.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(body["searchRecords"][0]["LastName"], "Stone");
 }
 
 #[test]

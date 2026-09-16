@@ -58,6 +58,15 @@
             },
             "required": false,
             "description": "When true, also includes drafts from SPAM and TRASH."
+          },
+          {
+            "in": "query",
+            "name": "pageToken",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Page token returned by a previous list request."
           }
         ],
         "description": "List all saved drafts in the user's mailbox.",
@@ -235,6 +244,15 @@
             },
             "required": false,
             "description": "When true, also includes threads from SPAM and TRASH."
+          },
+          {
+            "in": "query",
+            "name": "pageToken",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Page token returned by a previous list request."
           }
         ],
         "description": "List conversation threads from the user's mailbox.",
@@ -249,8 +267,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/components/schemas/ListMessagesResponse"
                 }
               }
             },
@@ -306,6 +323,15 @@
             },
             "required": false,
             "description": "When true, also returns messages from the SPAM and TRASH folders."
+          },
+          {
+            "in": "query",
+            "name": "pageToken",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Page token returned by a previous list request."
           }
         ],
         "description": "Retrieve messages from the user's mailbox, optionally narrowed by label, sender, subject, or a search query.",
@@ -716,13 +742,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "data": {
-                    "type": "string"
-                  }
-                },
-                "description": "Message with raw (base64url-encoded RFC 2822) or payload with headers[] and body {data: base64url}"
+                "$ref": "#/components/schemas/Message"
               }
             }
           },
@@ -1292,6 +1312,39 @@
           },
           "value": {
             "type": "string"
+          }
+        }
+      },
+      "ListMessagesResponse": {
+        "type": "object",
+        "required": [
+          "messages",
+          "resultSizeEstimate"
+        ],
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "threadId"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "threadId": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "nextPageToken": {
+            "type": "string"
+          },
+          "resultSizeEstimate": {
+            "type": "integer"
           }
         }
       }

@@ -56,8 +56,14 @@ impl Default for SalesforceState {
 }
 
 impl World {
-    pub async fn reset(&self) {
+    pub async fn reset(&self, task: Option<&str>) -> bool {
+        if let Some(task) = task {
+            if task != "simple.email_sf_contact_phone_update" {
+                return false;
+            }
+        }
         *self.state.write().await = WorldState::seeded();
+        true
     }
 
     pub async fn read(&self) -> tokio::sync::RwLockReadGuard<'_, WorldState> {
@@ -67,6 +73,32 @@ impl World {
     pub async fn write(&self) -> tokio::sync::RwLockWriteGuard<'_, WorldState> {
         self.state.write().await
     }
+}
+
+pub fn sync_gmail_threads(gmail: &mut GmailState) {
+    let mut grouped: BTreeMap<String, Vec<Value>> = BTreeMap::new();
+    for message in gmail.messages.values() {
+        if let Some(thread_id) = message.get("threadId").and_then(Value::as_str) {
+            grouped
+                .entry(thread_id.to_string())
+                .or_default()
+                .push(message.clone());
+        }
+    }
+    gmail.threads = grouped
+        .into_iter()
+        .map(|(id, messages)| {
+            let snippet = messages
+                .last()
+                .and_then(|message| message.get("snippet"))
+                .cloned()
+                .unwrap_or(Value::Null);
+            (
+                id.clone(),
+                json!({"id": id, "snippet": snippet, "messages": messages}),
+            )
+        })
+        .collect();
 }
 
 impl WorldState {
@@ -94,7 +126,7 @@ impl WorldState {
             "threadId": "thread-jordan-001",
             "labelIds": ["INBOX"],
             "snippet": "Jordan Lee asked for an update on the contact record.",
-            "internalDate": "1788432000000",
+            "internalDate": 1788432000000i64,
             "payload": {"headers": [
                 {"name":"From","value":"jordan.lee@example.com"},
                 {"name":"To","value":"alex@example.com"},

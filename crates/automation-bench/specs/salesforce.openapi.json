@@ -28,22 +28,14 @@
                       "type": "array",
                       "items": {
                         "type": "object",
-                        "properties": {
-                          "record": {
-                            "type": "string"
-                          }
-                        }
+                        "additionalProperties": true
                       }
                     },
                     "results": {
                       "type": "array",
                       "items": {
                         "type": "object",
-                        "properties": {
-                          "record": {
-                            "type": "string"
-                          }
-                        }
+                        "additionalProperties": true
                       }
                     },
                     "totalSize": {
@@ -84,15 +76,11 @@
                     "query": {
                       "type": "string"
                     },
-                    "search_records": {
+                    "searchRecords": {
                       "type": "array",
                       "items": {
                         "type": "object",
-                        "properties": {
-                          "record": {
-                            "type": "string"
-                          }
-                        }
+                        "additionalProperties": true
                       }
                     }
                   }
@@ -1335,8 +1323,7 @@
                     "format": "binary"
                   },
                   "PathOnClient": {
-                    "type": "string",
-                    "format": "binary"
+                    "type": "string"
                   },
                   "FirstPublishLocationId": {
                     "type": "string"

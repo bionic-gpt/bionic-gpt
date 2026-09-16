@@ -3,11 +3,12 @@ mod salesforce;
 mod store;
 
 use axum::{
-    extract::State,
+    extract::{Json, State},
     http::StatusCode,
     routing::{get, post},
     Router,
 };
+use serde::Deserialize;
 use std::sync::Arc;
 use store::World;
 
@@ -28,7 +29,15 @@ async fn health() -> StatusCode {
     StatusCode::NO_CONTENT
 }
 
-async fn reset(State(world): State<Arc<World>>) -> StatusCode {
-    world.reset().await;
+#[derive(Deserialize)]
+struct ResetRequest {
+    task: Option<String>,
+}
+
+async fn reset(State(world): State<Arc<World>>, body: Option<Json<ResetRequest>>) -> StatusCode {
+    let task = body.and_then(|Json(request)| request.task);
+    if !world.reset(task.as_deref()).await {
+        return StatusCode::BAD_REQUEST;
+    }
     StatusCode::NO_CONTENT
 }
