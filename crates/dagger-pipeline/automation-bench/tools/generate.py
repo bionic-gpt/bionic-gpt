@@ -72,7 +72,7 @@ def schema_ref(value: Any) -> dict[str, Any]:
             result["items"] = schema_ref(result["items"])
         if "properties" in result:
             result["properties"] = {
-                name: schema_ref(property_schema)
+                name: schema_for_property(name, property_schema)
                 for name, property_schema in result["properties"].items()
             }
         if isinstance(result.get("additionalProperties"), dict):
@@ -81,16 +81,214 @@ def schema_ref(value: Any) -> dict[str, Any]:
     return {"type": "object", "additionalProperties": True}
 
 
+def schema_for_property(name: str, value: Any) -> dict[str, Any]:
+    result = schema_ref(value)
+    if result.get("type") == "string" and "format" not in result:
+        inferred = annotation_schema(name, "")
+        if "format" in inferred:
+            result["format"] = inferred["format"]
+    return result
+
+
+def split_fields(value: str) -> list[str]:
+    fields = []
+    start = 0
+    depth = 0
+    for index, character in enumerate(value):
+        if character in "[{(":
+            depth += 1
+        elif character in "]})":
+            depth -= 1
+        elif character == "," and depth == 0:
+            fields.append(value[start:index].strip())
+            start = index + 1
+    fields.append(value[start:].strip())
+    return [field for field in fields if field]
+
+
+def annotation_schema(name: str, annotation: str) -> dict[str, Any]:
+    lower = annotation.lower()
+    if "binary" in lower or "file" in lower:
+        return {"type": "string", "format": "binary"}
+    if "date-time" in lower or "datetime" in lower or "iso 8601" in lower:
+        return {"type": "string", "format": "date-time"}
+    if re.search(r"\bdate\b", lower) or name.lower().endswith("date"):
+        return {"type": "string", "format": "date"}
+    if re.search(r"\bemail\b", lower) or "email" in name.lower():
+        return {"type": "string", "format": "email"}
+    if "boolean" in lower or re.search(r"\bbool\b", lower):
+        return {"type": "boolean"}
+    if "integer" in lower or re.search(r"\bint\b", lower):
+        return {"type": "integer"}
+    if "number" in lower or "float" in lower:
+        return {"type": "number"}
+    if "array" in lower or "list" in lower:
+        return {"type": "array", "items": {"type": "string"}}
+    if "object" in lower or "json" in lower:
+        return {"type": "object", "additionalProperties": True}
+    return {"type": "string"}
+
+
+def parsed_field(name: str, detail: str, schemas: dict[str, Any]) -> dict[str, Any]:
+    name = name.strip().rstrip("?")
+    detail = detail.strip()
+    required = "required" in detail.lower()
+    nested = re.search(r"(?P<open>[\[{])(?P<body>.*)(?P<close>[\]}])", detail)
+    if nested:
+        nested_schema = parsed_object(nested.group("body"), schemas)
+        if nested.group("open") == "[":
+            result = {"type": "array", "items": nested_schema}
+        else:
+            result = nested_schema
+    else:
+        reference = re.search(r"\b([A-Z][A-Za-z0-9_]*)\b", detail)
+        if reference and reference.group(1) in schemas:
+            result = {"$ref": f"#/components/schemas/{reference.group(1)}"}
+        else:
+            result = annotation_schema(name, detail)
+    result["x-source-required"] = required
+    return result
+
+
+def parsed_object(value: str, schemas: dict[str, Any]) -> dict[str, Any]:
+    properties: dict[str, Any] = {}
+    required = []
+    for field in split_fields(value):
+        name, separator, detail = field.partition(":")
+        if not separator:
+            name, separator, detail = field.partition(" (")
+            detail = f"({detail}" if separator else ""
+        name = name.strip().rstrip("?")
+        if not name:
+            continue
+        property_schema = parsed_field(name, detail, schemas)
+        is_required = property_schema.pop("x-source-required", False)
+        properties[name] = property_schema
+        if is_required:
+            required.append(name)
+    result: dict[str, Any] = {"type": "object", "properties": properties}
+    if required:
+        result["required"] = required
+    return result
+
+
+def response_schema(response: Any, schemas: dict[str, Any]) -> dict[str, Any]:
+    if isinstance(response, dict):
+        properties = {}
+        for name, value in response.items():
+            if isinstance(value, list) and len(value) == 1:
+                item = value[0]
+                item_schema = (
+                    {"$ref": f"#/components/schemas/{item}"}
+                    if isinstance(item, str) and item in schemas
+                    else response_schema(item, schemas)
+                )
+                properties[name] = {
+                    "type": "array",
+                    "items": item_schema,
+                }
+            elif isinstance(value, str) and value in schemas:
+                properties[name] = {"$ref": f"#/components/schemas/{value}"}
+            elif isinstance(value, bool):
+                properties[name] = {"type": "boolean"}
+            elif isinstance(value, dict):
+                properties[name] = response_schema(value, schemas)
+            else:
+                properties[name] = annotation_schema(name, str(value))
+        return {"type": "object", "properties": properties}
+
+    text = str(response or "")
+    if re.search(r"\b204\b|no content|empty response", text, re.IGNORECASE):
+        return {}
+    if text.lstrip().startswith("{") and "}" in text:
+        return parsed_object(text[text.index("{") + 1 : text.rfind("}")], schemas)
+    return {"type": "object", "additionalProperties": True}
+
+
+def contains_binary(value: Any, schemas: dict[str, Any] | None = None) -> bool:
+    if isinstance(value, dict):
+        if value.get("format") == "binary":
+            return True
+        reference = value.get("$ref")
+        if schemas is not None and isinstance(reference, str):
+            schema_name = reference.rsplit("/", 1)[-1]
+            if schema_name in schemas:
+                return contains_binary(schemas[schema_name], schemas)
+        return any(contains_binary(item, schemas) for item in value.values())
+    if isinstance(value, list):
+        return any(contains_binary(item, schemas) for item in value)
+    return False
+
+
 def request_schema(request: Any, schemas: dict[str, Any]) -> dict[str, Any]:
     if isinstance(request, dict):
         return schema_ref(request.get("schema", request))
 
     if isinstance(request, str):
+        field_list = re.search(
+            r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s+fields(?:\s+to\s+update)?\s*:\s*\{(?P<fields>[^}]*)\}",
+            request,
+            re.IGNORECASE,
+        )
+        if field_list:
+            schema_name = field_list.group(1)
+            source_schema = schemas.get(schema_name)
+            fields = []
+            required = []
+            for item in field_list.group("fields").split(","):
+                item = item.strip()
+                if not item:
+                    continue
+                name, _, annotations = item.partition(" (")
+                name = name.strip()
+                if not name:
+                    continue
+                fields.append(name)
+                if "required" in annotations.lower():
+                    required.append(name)
+
+            if source_schema and fields:
+                source_properties = source_schema.get("properties", {})
+                properties = {
+                    name: schema_for_property(name, source_properties[name])
+                    for name in fields
+                    if name in source_properties
+                }
+                body_schema: dict[str, Any] = {
+                    "type": "object",
+                    "description": request.strip(),
+                    "properties": properties,
+                }
+                if required:
+                    body_schema["required"] = [name for name in required if name in properties]
+                if "additionalProperties" in source_schema:
+                    additional_properties = source_schema["additionalProperties"]
+                    body_schema["additionalProperties"] = (
+                        additional_properties
+                        if isinstance(additional_properties, bool)
+                        else schema_ref(additional_properties)
+                    )
+                return body_schema
+
+        body_start = re.search(r"\{", request)
+        if body_start:
+            body_end = request.rfind("}")
+            if body_end > body_start.start():
+                body_schema = parsed_object(
+                    request[body_start.end() : body_end], schemas
+                )
+                body_schema["description"] = request.strip()
+                return body_schema
+
         match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:", request)
         if match and match.group(1) in schemas:
             return {"$ref": f"#/components/schemas/{match.group(1)}"}
 
-    return {"type": "object", "additionalProperties": True}
+    return {
+        "type": "object",
+        "description": str(request).strip() if request else "JSON object body.",
+        "additionalProperties": True,
+    }
 
 
 def parameter_schema(info: dict[str, Any]) -> dict[str, Any]:
@@ -126,11 +324,25 @@ def service_metadata(service: str) -> dict[str, str]:
     return result
 
 def operation(endpoint: dict[str, Any], schemas: dict[str, Any]) -> dict[str, Any]:
+    response = endpoint.get("response", "Successful response")
+    response_description = (
+        response if isinstance(response, str) else "Structured response"
+    )
+    response_status = "204" if response_schema(response, schemas) == {} else "200"
+    responses: dict[str, Any] = {
+        response_status: {
+            "description": response_description or "Successful response",
+        }
+    }
+    if response_status != "204":
+        responses[response_status]["content"] = {
+            "application/json": {"schema": response_schema(response, schemas)}
+        }
     result: dict[str, Any] = {
         "operationId": endpoint["id"],
         "summary": endpoint.get("description", endpoint["id"]),
         "description": endpoint.get("description", ""),
-        "responses": {"200": {"description": endpoint.get("response", "Successful response"), "content": {"application/json": {"schema": {"type": "object", "additionalProperties": True}}}}},
+        "responses": responses,
     }
     parameters = []
     body_parameters = []
@@ -166,10 +378,27 @@ def operation(endpoint: dict[str, Any], schemas: dict[str, Any]) -> dict[str, An
             body_schema = {"type": "object", "properties": properties}
             if required:
                 body_schema["required"] = required
+        body_description = body_schema.get("description")
+        if body_description and body_description not in result["description"]:
+            result["description"] = (
+                f"{result['description']} Request body: {body_description}."
+            ).strip()
+        request_required = True
+        if isinstance(request, str) and re.search(r"\ball optional\b", request, re.IGNORECASE):
+            request_required = False
+        elif body_parameters:
+            request_required = any(info.get("required", False) for _, info in body_parameters)
+        elif isinstance(request, dict):
+            request_required = bool(request.get("required", True))
+        content_type = (
+            "multipart/form-data"
+            if contains_binary(body_schema, schemas)
+            else "application/json"
+        )
         result["requestBody"] = {
-            "required": True,
+            "required": request_required,
             "content": {
-                "application/json": {"schema": body_schema}
+                content_type: {"schema": body_schema}
             },
         }
     return result
