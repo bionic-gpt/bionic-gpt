@@ -135,11 +135,17 @@ def parsed_field(name: str, detail: str, schemas: dict[str, Any]) -> dict[str, A
     required = "required" in detail.lower()
     nested = re.search(r"(?P<open>[\[{])(?P<body>.*)(?P<close>[\]}])", detail)
     if nested:
-        nested_schema = parsed_object(nested.group("body"), schemas)
         if nested.group("open") == "[":
-            result = {"type": "array", "items": nested_schema}
+            item_text = nested.group("body").strip()
+            if item_text.startswith("{") and item_text.endswith("}"):
+                item_text = item_text[1:-1]
+            if item_text in schemas:
+                item_schema = {"$ref": f"#/components/schemas/{item_text}"}
+            else:
+                item_schema = parsed_object(item_text, schemas)
+            result = {"type": "array", "items": item_schema}
         else:
-            result = nested_schema
+            result = parsed_object(nested.group("body"), schemas)
     else:
         reference = re.search(r"\b([A-Z][A-Za-z0-9_]*)\b", detail)
         if reference and reference.group(1) in schemas:
