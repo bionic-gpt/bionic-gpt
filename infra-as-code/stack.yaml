@@ -17,8 +17,7 @@ spec:
           expose_db_port: 30001
           danger_override_password: testpassword
       services:
-        integration-simulator:1.12.24
-          image: ghcr.io/bionic-gpt/integration-simulator:latest
+          image: ghcr.io/bionic-gpt/integration-simulator:1.12.24
           port: 8080
     uat:
       components:
