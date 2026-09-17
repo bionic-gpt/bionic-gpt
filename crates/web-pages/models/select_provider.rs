@@ -126,6 +126,7 @@ fn provider_modal(
                 class: "flex flex-col gap-4",
                 h3 { class: "font-bold text-lg", "Create Model: {provider.name}" }
                 p { class: "text-sm text-base-content/70", "{provider.default_model_description}" }
+                p { class: "text-sm text-base-content/70", "If this is the first model configured, Bionic will also set up the system embeddings model using this provider's embedding default or the local Ollama fallback." }
 
                 input { "type": "hidden", name: "name", value: "{default_name}" }
                 input { "type": "hidden", name: "display_name", value: "{default_display_name}" }
