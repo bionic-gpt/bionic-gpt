@@ -1,0 +1,440 @@
+{
+  "info": {
+    "title": "Pipefy",
+    "version": "graphql",
+    "description": "Simulated Pipefy API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/cards": {
+      "post": {
+        "summary": "Add a new card to a Pipefy pipe, populating it with the specified field values.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "card": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "value": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "current_phase": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{card: {id, title, current_phase: {id, name}, fields: [{field: {id, label}, value}]}}"
+          }
+        },
+        "description": "Add a new card to a Pipefy pipe, populating it with the specified field values. Request body: Body: {pipe_id (required, integer — the pipe to create the card in), fields_attributes (required, array — list of {field_id: string, field_value: string|array} objects for each field to populate)}.",
+        "operationId": "pipefy.cards.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "pipe_id"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "integer"
+                  },
+                  "fields_attributes (required, array — list of {field_id": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "description": "Body: {pipe_id (required, integer — the pipe to create the card in), fields_attributes (required, array — list of {field_id: string, field_value: string|array} objects for each field to populate)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/cards/{cardId}/move": {
+      "post": {
+        "summary": "Relocate a Pipefy card to another phase (column) within a pipe.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "card": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "current_phase": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{card: {id, title, current_phase: {id, name}}}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "cardId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the card to move."
+          }
+        ],
+        "description": "Relocate a Pipefy card to another phase (column) within a pipe. Request body: Body: {destination_phase_id (required, string — ID of the target phase), pipe_id (optional, string — the pipe ID)}.",
+        "operationId": "pipefy.cards.move",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "destination_phase_id"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string"
+                  },
+                  "destination_phase_id": {
+                    "type": "string"
+                  }
+                },
+                "description": "Body: {destination_phase_id (required, string — ID of the target phase), pipe_id (optional, string — the pipe ID)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/cards/{cardId}/fields:update": {
+      "post": {
+        "summary": "Modify the value of a specific field on a Pipefy card.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "card": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "value": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{card: {id, title, fields: [{field: {id, label}, value}]}, success (bool)}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "cardId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the card to update."
+          }
+        ],
+        "description": "Modify the value of a specific field on a Pipefy card. Request body: Body: {field_id (required, string — field ID to update), value (required, string — new field value), pipe_id (optional, string), type (optional, string — field type hint)}.",
+        "operationId": "pipefy.cards.updateField",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "field_id",
+                  "value"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  },
+                  "pipe_id": {
+                    "type": "string"
+                  },
+                  "field_id": {
+                    "type": "string"
+                  }
+                },
+                "description": "Body: {field_id (required, string — field ID to update), value (required, string — new field value), pipe_id (optional, string), type (optional, string — field type hint)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/tables/{tableId}/records:find": {
+      "get": {
+        "summary": "Search for records within a Pipefy database table by title. Returns all matching entries along with their associated field values.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "records": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "record_fields": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "label": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "value": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{records: [{id, title, record_fields: [{field: {id, label}, value}]}]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tableId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier for the Pipefy table or database."
+          },
+          {
+            "in": "query",
+            "name": "title",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The title or name string to search for."
+          }
+        ],
+        "description": "Search for records within a Pipefy database table by title. Returns all matching entries along with their associated field values.",
+        "operationId": "pipefy.database.findRecords"
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://integration-simulator:8080/api/pipefy"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Card": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the card."
+          },
+          "title": {
+            "type": "string",
+            "description": "Display title of the card."
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "current_phase": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Identifier for the phase."
+              },
+              "name": {
+                "type": "string",
+                "description": "Name label of the phase."
+              }
+            }
+          }
+        }
+      },
+      "DatabaseRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "record_fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "info": {
+    "title": "Facebook Conversions",
+    "version": "v17.0",
+    "description": "Simulated Facebook Conversions API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/{pixelId}/events": {
+      "post": {
+        "summary": "Submit one or more server-side conversion events to Facebook through the Conversions API. Use this to report purchases, lead captures, and other conversions occurring outside the browser. Supported standard event names include: Purchase, Lead, ViewContent, AddToCart, InitiateCheckout, CompleteRegistration, AddPaymentInfo, Search, Contact, Subscribe.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "fbtrace_id": {
+                      "type": "string"
+                    },
+                    "events_received": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{events_received (integer), messages (array of strings), fbtrace_id (string)}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pixelId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The Facebook Pixel ID to associate events with."
+          },
+          {
+            "in": "query",
+            "name": "access_token",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Access token for a System User with appropriate permissions."
+          },
+          {
+            "in": "query",
+            "name": "test_event_code",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "A test code used to validate events in Events Manager without recording real data."
+          }
+        ],
+        "description": "Submit one or more server-side conversion events to Facebook through the Conversions API. Use this to report purchases, lead captures, and other conversions occurring outside the browser. Supported standard event names include: Purchase, Lead, ViewContent, AddToCart, InitiateCheckout, CompleteRegistration, AddPaymentInfo, Search, Contact, Subscribe. Request body: Body: {data (required, array of ConversionEvent — list of events to send; each event has: event_name (string), action_source (string), user_data (object with em, ph, fn, ln), custom_data (object with value, currency))}.",
+        "operationId": "facebook_conversions.events.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data (required, array of ConversionEvent — list of events to send; each event has": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "description": "Body: {data (required, array of ConversionEvent — list of events to send; each event has: event_name (string), action_source (string), user_data (object with em, ph, fn, ln), custom_data (object with value, currency))}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://integration-simulator:8080/api/facebook_conversions"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "ConversionEvent": {
+        "type": "object",
+        "properties": {
+          "user_data": {
+            "type": "object",
+            "description": "Hashed identifiers used to match the user: {em (email), ph (phone), fn (first name), ln (last name)}."
+          },
+          "event_name": {
+            "type": "string",
+            "description": "A recognized standard event name (e.g., Purchase, Lead) or a custom event label."
+          },
+          "event_time": {
+            "type": "integer",
+            "description": "Unix timestamp indicating when the event took place."
+          },
+          "custom_data": {
+            "type": "object",
+            "description": "Additional event-specific data: {value (float), currency (string, ISO 4217)}."
+          },
+          "action_source": {
+            "enum": [
+              "website",
+              "app",
+              "phone_call",
+              "chat",
+              "email",
+              "other",
+              "system_generated",
+              "physical_store"
+            ],
+            "type": "string",
+            "description": "The channel or surface where the conversion happened."
+          }
+        },
+        "description": "Represents a single event submitted via the Facebook Conversions API."
+      }
+    }
+  }
+}

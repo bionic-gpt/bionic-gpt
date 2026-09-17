@@ -7,27 +7,20 @@ This guide runs the simulated SaaS APIs as one local service. Bionic connects to
 ## Start the API container
 
 ```bash
-docker pull ghcr.io/bionic-gpt/automationbench-api:4a8e1061254004d9dac807054eed33fad7d1ff14
-docker run --rm --name automationbench-api -p 8880:8080 \
-  ghcr.io/bionic-gpt/automationbench-api:4a8e1061254004d9dac807054eed33fad7d1ff14
+docker pull ghcr.io/bionic-gpt/integration-simulator:latest
+docker run --rm --name integration-simulator -p 8880:8080 \
+  ghcr.io/bionic-gpt/integration-simulator:latest
 ```
 
 Check readiness with `curl http://localhost:8880/health`.
 
 ## Download the OpenAPI specifications
 
-The GitHub Actions build publishes all specifications as the `automationbench-openapi` artifact:
+The versioned simulator image includes the OpenAPI specifications used by the service:
 
 ```bash
-gh run list --workflow build-automationbench.yml --limit 1
-gh run download RUN_ID --name automationbench-openapi --dir automationbench-openapi
-```
-
-You can also extract them directly from the image:
-
-```bash
-container=$(docker create ghcr.io/bionic-gpt/automationbench-api:4a8e1061254004d9dac807054eed33fad7d1ff14)
-docker cp "$container:/app/openapi" ./automationbench-openapi
+container=$(docker create ghcr.io/bionic-gpt/integration-simulator:latest)
+docker cp "$container:/specs" ./integration-simulator-openapi
 docker rm "$container"
 ```
 

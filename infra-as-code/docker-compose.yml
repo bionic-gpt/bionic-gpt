@@ -54,6 +54,12 @@ services:
     # volumes:
     #   - ./eval-mocks/openapi/generated:/home/mockoon/data:ro
 
+  # Deterministic APIs for integration and agent evaluations.
+  integration-simulator:
+    image: ghcr.io/bionic-gpt/integration-simulator:latest
+    ports:
+      - "8880:8080"
+
   # Sets up our database tables
   migrations:
     image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.12.23

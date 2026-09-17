@@ -544,21 +544,37 @@ pub async fn upsert_action(
                             .one()
                             .await
                         {
+                            let fallback = if provider.default_embeddings_model_name.is_none() {
+                                queries::providers::ollama_provider()
+                                    .bind(&transaction)
+                                    .one()
+                                    .await
+                                    .ok()
+                            } else {
+                                None
+                            };
+
+                            let embedding_provider = fallback.as_ref().unwrap_or(&provider);
                             if let Some(embeddings_name) =
-                                provider.default_embeddings_model_name.clone()
+                                embedding_provider.default_embeddings_model_name.as_ref()
                             {
-                                let context_size = provider
+                                let context_size = embedding_provider
                                     .default_embeddings_model_context_size
-                                    .unwrap_or(provider.default_model_context_size);
+                                    .unwrap_or(embedding_provider.default_model_context_size);
+                                let api_key = if fallback.is_some() {
+                                    None
+                                } else {
+                                    model_form.api_key.clone()
+                                };
 
                                 queries::models::insert()
                                     .bind(
                                         &transaction,
-                                        &embeddings_name,
+                                        embeddings_name,
                                         &ModelType::Embeddings,
-                                        &provider.provider_type,
-                                        &provider.base_url,
-                                        &model_form.api_key,
+                                        &embedding_provider.provider_type,
+                                        &embedding_provider.base_url,
+                                        &api_key,
                                         &model_form.tpm_limit,
                                         &model_form.rpm_limit,
                                         &context_size,

@@ -41,10 +41,10 @@ INSERT INTO providers (
 ) VALUES (
     'Groq',
     '<svg fill="currentColor" fill-rule="evenodd" height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Groq</title><path d="M12.036 2c-3.853-.035-7 3-7.036 6.781-.035 3.782 3.055 6.872 6.908 6.907h2.42v-2.566h-2.292c-2.407.028-4.38-1.866-4.408-4.23-.029-2.362 1.901-4.298 4.308-4.326h.1c2.407 0 4.358 1.915 4.365 4.278v6.305c0 2.342-1.944 4.25-4.323 4.279a4.375 4.375 0 01-3.033-1.252l-1.851 1.818A7 7 0 0012.029 22h.092c3.803-.056 6.858-3.083 6.879-6.816v-6.5C18.907 4.963 15.817 2 12.036 2z"></path></svg>',
-    'meta-llama/llama-4-maverick-17b-128e-instruct',
-    'LLama 4 Maverick',
-    8192,
-    'Llama 4 Maverick is Metas natively multimodal model that a has 17 billion parameter mixture-of-experts architecture (128 experts).',
+    'qwen/qwen3.8-27b',
+    'Qwen 3.8 27B',
+    131000,
+    'Qwen 3.8 27B is a 27-billion-parameter multimodal model from Alibabas Qwen series, delivering frontier-level agentic coding, reasoning, and long-horizon task performance that rivals models many times its size.',
     'https://api.groq.com/openai/v1'
 );
 
@@ -95,10 +95,10 @@ INSERT INTO providers (
 ) VALUES (
     'Doubleword',
     '<svg width="85" height="100" viewBox="0 0 85 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M88.2298 76.547L44.1481 102.086L-0.000976562 76.5859L0.0664167 25.6249L44.1481 0.0859375L88.2972 25.5859L88.2298 76.547Z" fill="white"/><path d="M57.8348 19.9994C61.2589 21.9771 61.2332 25.1974 57.7973 27.182L52.955 29.9788C50.4831 31.3206 43.6122 31.7868 40.1881 29.8091L27.1516 22.2794L44.467 12.2782L57.8348 19.9994Z" fill="black"/><path fill-rule="evenodd" clip-rule="evenodd" d="M44.1468 100.353L86.7308 75.6814L86.7959 26.4507L44.1491 1.81836L1.5651 26.4896L1.5 75.7203L44.1468 100.353ZM44.0916 5.87305L16.0996 22.0409L35.1999 33.073C43.6997 37.9824 52.508 36.9023 59.1379 33.073L63.1544 30.7531C69.7805 26.926 69.8256 20.7367 63.1919 16.9052L44.0916 5.87305ZM62.7348 46.6766L57.1334 49.9158L57.1469 80.078C57.1497 85.256 60.4006 87.1313 64.8816 84.5399C66.8607 83.3954 68.5782 81.7115 69.9218 79.7259C71.2294 80.1783 72.9103 79.8969 74.852 78.774C79.3704 76.161 82.692 70.5711 82.6892 65.3068L82.673 35.1464L77.0743 38.384C77.0773 43.9072 77.0884 48.411 77.0994 52.9148C77.1105 57.4186 77.1216 61.9224 77.1246 67.4457C77.1257 69.4738 77.0144 71.0489 74.8486 72.3014C73.2055 73.2516 72.7942 72.4967 72.7187 71.0727L72.7052 40.9106L67.1039 44.1499L67.1174 74.312C67.0061 75.8871 66.5959 77.074 64.8781 78.0673C62.8243 79.255 62.7114 77.7233 62.7104 75.7815C62.7102 75.3716 62.7193 74.9562 62.7284 74.5408C62.7375 74.1255 62.7466 73.7102 62.7464 73.3003L62.7348 46.6766Z" fill="black"/></svg>',
-    'Qwen/Qwen3-VL-30B-A3B-Instruct-FP8',
-    'Qwen3 VL 30B',
-    262144,
-    'This highly capable mid-size model is suited for tasks that are constrained or require high token volumes. Excels at reasoning, coding, and structured output generation.',
+    'Qwen/Qwen3.8-27B-FP8',
+    'Qwen 3.8 27B',
+    131000,
+    'Qwen 3.8 27B is a 27-billion-parameter multimodal model from Alibabas Qwen series, delivering frontier-level agentic coding, reasoning, and long-horizon task performance that rivals models many times its size.',
     'https://api.doubleword.ai/v1'
 );
 

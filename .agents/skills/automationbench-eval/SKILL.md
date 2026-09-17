@@ -1,38 +1,69 @@
 ---
 name: automationbench-eval
-description: Set up and run the pinned AutomationBench API adapter, retrieve its OpenAPI services, and provision them as Bionic integrations for a selected local team.
+description: Load the repository's AutomationBench OpenAPI catalogue and run evaluations against the local simulator.
 ---
 
 # AutomationBench evaluation
 
-Use this skill when the user asks to inspect or provision the local
-AutomationBench evaluation environment.
+Use this skill when the user asks to load AutomationBench specs or run an
+AutomationBench evaluation.
 
-## Defaults
+## Source of truth
 
-- Image: `ghcr.io/bionic-gpt/automationbench-api:4a8e1061254004d9dac807054eed33fad7d1ff14`
-- OpenAPI files: `/app/openapi` in the image
+The OpenAPI source files are committed under:
 
-The adapter is deployed as the `automationbench-api` service by the local
-Stack `dev` profile. Bionic reaches it inside the cluster at
-`http://automationbench-api:8080`. It is intentionally not exposed on a host
-port by this skill.
+```text
+crates/integration-simulator/specs/*.openapi.json
+```
 
-The adapter has one shared world; use `/admin/world` to seed an AutomationBench
-`initial_state` and `/admin/reset` between evaluations when operational access
-is available through the local cluster tooling.
+The loader normalizes every imported spec to the local simulator at
+`http://integration-simulator:8080/api/<service>`. It also removes OpenAPI
+security declarations, security schemes, and explicit access-token parameters
+because the simulator is authentication-free. Business parameters are kept.
 
-## Provisioning integrations
+## Load the global spec catalogue
 
-The reusable importer is `scripts/import-integrations.sh`. It extracts every
-OpenAPI YAML from the pinned image and inserts authentication-free, team-visible
-OpenAPI integrations into Bionic PostgreSQL.
+Run the repository loader from the repository root:
 
-Before running it, identify the target team and user, inspect existing rows,
-and obtain explicit authorization immediately before replacement. The importer
-only deletes rows for the selected team and must never affect other teams.
+```bash
+bash .agents/skills/automationbench-eval/scripts/load-specs.sh
+```
 
-Required variables are `BIONIC_DATABASE_URL`, `BIONIC_TEAM_ID`, and
-`BIONIC_USER_ID`; `AUTOMATIONBENCH_IMAGE` may override the pinned image. After
-provisioning, verify the row count, names, visibility, and that no connections
-were created.
+The script uses `DATABASE_URL`, falling back to `APP_DATABASE_URL`. A custom
+spec directory can be supplied as its first argument:
+
+```bash
+bash .agents/skills/automationbench-eval/scripts/load-specs.sh \
+  crates/integration-simulator/specs
+```
+
+It upserts global rows in `integrations.openapi_specs` using each file's
+filename, `info.title`, `info.description`, and `info.x-logo.url`. Rows are
+active Application specs and are deliberately non-system so they appear in
+the existing integration selection screen. The loader does not need a team
+ID or user ID, does not create team integrations, and does not create API-key
+or OAuth connections.
+
+The loader is safe to rerun. It updates only rows with matching AutomationBench
+slugs and does not delete unrelated specs or integrations.
+
+After loading, open the Bionic integrations selection screen and select only
+the services required for the evaluation. The selection screen creates the
+team-specific integrations using the already-loaded global definitions.
+
+## Simulator
+
+The AutomationBench API is provided by the `integration-simulator`
+service by the local Stack `dev` profile. Bionic reaches it inside the cluster
+at `http://integration-simulator:8080`. It has one shared deterministic world.
+
+Reset the world before each evaluation:
+
+```bash
+curl -X POST http://localhost:8880/benchmark/reset \
+  -H 'Content-Type: application/json' \
+  -d '{"task":"simple.email_sf_contact_phone_update"}'
+```
+
+Use the host port exposed by the local deployment when it differs from
+`8880`. The reset replaces the shared simulator world for all callers.

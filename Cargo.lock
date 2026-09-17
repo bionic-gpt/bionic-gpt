@@ -399,18 +399,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
-name = "automation-bench"
-version = "0.1.0"
-dependencies = [
- "axum 0.8.8",
- "oas3",
- "serde",
- "serde_json",
- "tokio",
- "tower",
-]
-
-[[package]]
 name = "av-scenechange"
 version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3576,6 +3564,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "879f10e63c20629ecabbb64a8010319738c66a5cd0c29b02d63d272b03751d01"
 dependencies = [
  "generic-array",
+]
+
+[[package]]
+name = "integration-simulator"
+version = "0.1.0"
+dependencies = [
+ "axum 0.8.8",
+ "axum-extra",
+ "base64 0.22.1",
+ "chrono",
+ "oas3",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tower",
 ]
 
 [[package]]
