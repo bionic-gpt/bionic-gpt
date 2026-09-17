@@ -86,6 +86,121 @@ async fn gmail_list_accepts_repeated_label_ids() {
 }
 
 #[tokio::test]
+async fn gmail_search_supports_compound_queries() {
+    let service = app();
+    let reset = service
+        .clone()
+        .oneshot(
+            Request::post("/benchmark/reset")
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"task":"sales.create_important_draft"}"#))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(reset.status(), StatusCode::NO_CONTENT);
+
+    for (query, expected) in [
+        ("quarterly%20OR%20Q4%20OR%20financial", 3),
+        (
+            "subject%3Aguidelines%20OR%20subject%3A%22Q4%20Results%22",
+            3,
+        ),
+        (
+            "%28subject%3A%22Q4%20Results%22%20label%3AAPPROVED%29%20OR%20subject%3A%22Q3%20Results%22",
+            2,
+        ),
+        ("missing%20OR%20OR%20Q4", 3),
+    ] {
+        let response = service
+            .clone()
+            .oneshot(
+                Request::get(format!(
+                    "/api/gmail/gmail/v1/users/me/messages?q={query}"
+                ))
+                .body(Body::empty())
+                .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let body: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(body["resultSizeEstimate"], expected, "query: {query}");
+    }
+}
+
+#[tokio::test]
+async fn gmail_labels_are_derived_from_fixture_messages() {
+    let service = app();
+    let reset = service
+        .clone()
+        .oneshot(
+            Request::post("/benchmark/reset")
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"task":"sales.create_important_draft"}"#))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(reset.status(), StatusCode::NO_CONTENT);
+
+    let labels = service
+        .clone()
+        .oneshot(
+            Request::get("/api/gmail/gmail/v1/users/me/labels")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(labels.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    let labels = body["labels"].as_array().unwrap();
+    let label = |id: &str| labels.iter().find(|label| label["id"] == id).unwrap();
+    assert_eq!(label("INBOX")["type"], "system");
+    assert_eq!(label("INBOX")["messagesTotal"], 4);
+    assert_eq!(label("INBOX")["threadsTotal"], 2);
+    assert_eq!(label("FINANCE")["type"], "user");
+    assert_eq!(label("FINANCE")["messagesTotal"], 3);
+    assert_eq!(label("APPROVED")["messagesTotal"], 1);
+
+    let reset = service
+        .clone()
+        .oneshot(
+            Request::post("/benchmark/reset")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{"task":"simple.email_sf_contact_phone_update"}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(reset.status(), StatusCode::NO_CONTENT);
+    let labels = service
+        .oneshot(
+            Request::get("/api/gmail/gmail/v1/users/me/labels")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(labels.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    let labels = body["labels"].as_array().unwrap();
+    let unread = labels.iter().find(|label| label["id"] == "UNREAD").unwrap();
+    assert_eq!(unread["type"], "system");
+    assert_eq!(unread["messagesUnread"], 1);
+}
+
+#[tokio::test]
 async fn gmail_send_and_label_modification_persist() {
     let service = app();
     let sent = service
@@ -120,7 +235,56 @@ async fn gmail_send_and_label_modification_persist() {
         .unwrap();
     assert_eq!(modify.status(), StatusCode::OK);
 
+    let trash = service
+        .clone()
+        .oneshot(
+            Request::post(format!(
+                "/api/gmail/gmail/v1/users/me/messages/{message_id}/trash"
+            ))
+            .body(Body::empty())
+            .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(trash.status(), StatusCode::OK);
+    let labels = service
+        .clone()
+        .oneshot(
+            Request::get("/api/gmail/gmail/v1/users/me/labels")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(labels.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(
+        body["labels"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|label| label["id"] == "TRASH")
+            .unwrap()["messagesTotal"],
+        1
+    );
+
+    let untrash = service
+        .clone()
+        .oneshot(
+            Request::post(format!(
+                "/api/gmail/gmail/v1/users/me/messages/{message_id}/untrash"
+            ))
+            .body(Body::empty())
+            .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(untrash.status(), StatusCode::OK);
+
     let thread = service
+        .clone()
         .oneshot(
             Request::get("/api/gmail/gmail/v1/users/me/threads/thread-sent-001")
                 .body(Body::empty())
@@ -138,6 +302,28 @@ async fn gmail_send_and_label_modification_persist() {
         .unwrap()
         .iter()
         .any(|label| label == "INBOX"));
+
+    let labels = service
+        .oneshot(
+            Request::get("/api/gmail/gmail/v1/users/me/labels")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(labels.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    let labels = body["labels"].as_array().unwrap();
+    assert_eq!(
+        labels.iter().find(|label| label["id"] == "TRASH").unwrap()["messagesTotal"],
+        0
+    );
+    assert_eq!(
+        labels.iter().find(|label| label["id"] == "SENT").unwrap()["messagesTotal"],
+        1
+    );
 }
 
 #[tokio::test]

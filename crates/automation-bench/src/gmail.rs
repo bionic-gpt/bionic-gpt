@@ -1,4 +1,4 @@
-use crate::store::{sync_gmail_threads, World};
+use crate::store::{sync_gmail_labels, sync_gmail_threads, World};
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -141,44 +141,154 @@ async fn list_messages(
 }
 
 fn matches_message_query(message: &Value, query: &str) -> bool {
-    let query = query.trim();
-    for (prefix, header_name) in [("subject:", "Subject"), ("from:", "From"), ("to:", "To")] {
-        if let Some(value) = query
-            .get(..prefix.len())
-            .filter(|value| value.eq_ignore_ascii_case(prefix))
-            .and_then(|_| query.get(prefix.len()..))
-        {
-            let needle = value.trim().trim_matches(['\'', '"']).to_lowercase();
-            return message["payload"]["headers"]
+    let tokens = tokenize_query(query);
+    let mut position = 0;
+    evaluate_or(message, &tokens, &mut position).unwrap_or(true)
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum QueryToken {
+    Term(String),
+    Or,
+    LeftParen,
+    RightParen,
+}
+
+fn tokenize_query(query: &str) -> Vec<QueryToken> {
+    let mut tokens = Vec::new();
+    let mut current = String::new();
+    let mut quote = None;
+    for character in query.chars() {
+        if let Some(delimiter) = quote {
+            if character == delimiter {
+                quote = None;
+            } else {
+                current.push(character);
+            }
+            continue;
+        }
+        match character {
+            '\'' | '"' => quote = Some(character),
+            '(' => {
+                push_query_term(&mut tokens, &mut current);
+                tokens.push(QueryToken::LeftParen);
+            }
+            ')' => {
+                push_query_term(&mut tokens, &mut current);
+                tokens.push(QueryToken::RightParen);
+            }
+            character if character.is_whitespace() => {
+                push_query_term(&mut tokens, &mut current);
+            }
+            _ => current.push(character),
+        }
+    }
+    push_query_term(&mut tokens, &mut current);
+    tokens
+}
+
+fn push_query_term(tokens: &mut Vec<QueryToken>, current: &mut String) {
+    if current.is_empty() {
+        return;
+    }
+    if current.eq_ignore_ascii_case("OR") {
+        tokens.push(QueryToken::Or);
+    } else {
+        tokens.push(QueryToken::Term(std::mem::take(current)));
+        return;
+    }
+    current.clear();
+}
+
+fn evaluate_or(message: &Value, tokens: &[QueryToken], position: &mut usize) -> Option<bool> {
+    let mut result = None;
+    while *position < tokens.len() && tokens[*position] != QueryToken::RightParen {
+        if tokens[*position] == QueryToken::Or {
+            *position += 1;
+            continue;
+        }
+        if let Some(value) = evaluate_and(message, tokens, position) {
+            result = Some(result.unwrap_or(false) || value);
+        }
+        if tokens.get(*position) == Some(&QueryToken::Or) {
+            *position += 1;
+        }
+    }
+    result
+}
+
+fn evaluate_and(message: &Value, tokens: &[QueryToken], position: &mut usize) -> Option<bool> {
+    let mut result = None;
+    while *position < tokens.len()
+        && tokens[*position] != QueryToken::Or
+        && tokens[*position] != QueryToken::RightParen
+    {
+        let value = match &tokens[*position] {
+            QueryToken::LeftParen => {
+                *position += 1;
+                let value = evaluate_or(message, tokens, position).unwrap_or(true);
+                if tokens.get(*position) == Some(&QueryToken::RightParen) {
+                    *position += 1;
+                }
+                value
+            }
+            QueryToken::Term(term) => {
+                *position += 1;
+                matches_query_term(message, term)
+            }
+            QueryToken::Or | QueryToken::RightParen => break,
+        };
+        result = Some(result.unwrap_or(true) && value);
+    }
+    result
+}
+
+fn matches_query_term(message: &Value, term: &str) -> bool {
+    let (negated, term) = term
+        .strip_prefix('-')
+        .map_or((false, term), |term| (true, term));
+    let matched = term.split_once(':').map_or_else(
+        || {
+            message
+                .to_string()
+                .to_lowercase()
+                .contains(&term.to_lowercase())
+        },
+        |(operator, value)| match operator.to_ascii_lowercase().as_str() {
+            "subject" => header_contains(message, "Subject", value),
+            "from" => header_contains(message, "From", value),
+            "to" => header_contains(message, "To", value),
+            "label" => message["labelIds"]
                 .as_array()
                 .into_iter()
                 .flatten()
-                .any(|header| {
-                    header["name"]
+                .any(|label| {
+                    label
                         .as_str()
-                        .is_some_and(|name| name.eq_ignore_ascii_case(header_name))
-                        && header["value"]
-                            .as_str()
-                            .is_some_and(|value| value.to_lowercase().contains(&needle))
-                });
-        }
-    }
-    if let Some(label) = query
-        .strip_prefix("label:")
-        .or_else(|| query.strip_prefix("LABEL:"))
-    {
-        return message["labelIds"]
-            .as_array()
-            .into_iter()
-            .flatten()
-            .any(|value| {
-                value
+                        .is_some_and(|label| label.eq_ignore_ascii_case(value))
+                }),
+            _ => message
+                .to_string()
+                .to_lowercase()
+                .contains(&term.to_lowercase()),
+        },
+    );
+    matched != negated
+}
+
+fn header_contains(message: &Value, name: &str, needle: &str) -> bool {
+    message["payload"]["headers"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .any(|header| {
+            header["name"]
+                .as_str()
+                .is_some_and(|header_name| header_name.eq_ignore_ascii_case(name))
+                && header["value"]
                     .as_str()
-                    .is_some_and(|value| value.eq_ignore_ascii_case(label))
-            });
-    }
-    let needle = query.trim_matches(['\'', '"']).to_lowercase();
-    message.to_string().to_lowercase().contains(&needle)
+                    .is_some_and(|value| value.to_lowercase().contains(&needle.to_lowercase()))
+        })
 }
 
 async fn get_message(
@@ -199,7 +309,10 @@ async fn delete_message(
     State(world): State<Arc<World>>,
     Path((_user_id, id)): Path<(String, String)>,
 ) -> StatusCode {
-    if world.write().await.gmail.messages.remove(&id).is_some() {
+    let mut state = world.write().await;
+    if state.gmail.messages.remove(&id).is_some() {
+        sync_gmail_threads(&mut state.gmail);
+        sync_gmail_labels(&mut state.gmail);
         StatusCode::NO_CONTENT
     } else {
         StatusCode::NOT_FOUND
@@ -213,9 +326,11 @@ async fn list_labels(
     if !user_ok(&user_id) {
         return Err(StatusCode::BAD_REQUEST);
     }
-    Ok(Json(
-        json!({"labels":world.read().await.gmail.labels.values().cloned().collect::<Vec<_>>()}),
-    ))
+    let mut state = world.write().await;
+    sync_gmail_labels(&mut state.gmail);
+    Ok(Json(json!({
+        "labels": state.gmail.labels.values().cloned().collect::<Vec<_>>()
+    })))
 }
 async fn create_label(
     State(world): State<Arc<World>>,
@@ -229,6 +344,10 @@ async fn create_label(
     if let Value::Object(fields) = &mut label {
         fields.insert("id".into(), id.clone().into());
         fields.insert("type".into(), "user".into());
+        fields.insert("messagesTotal".into(), 0.into());
+        fields.insert("messagesUnread".into(), 0.into());
+        fields.insert("threadsTotal".into(), 0.into());
+        fields.insert("threadsUnread".into(), 0.into());
     }
     state.gmail.labels.insert(id, label.clone());
     Json(label)
@@ -266,7 +385,24 @@ async fn delete_label(
     if matches!(id.as_str(), "INBOX" | "SENT" | "DRAFT" | "TRASH") {
         return StatusCode::BAD_REQUEST;
     }
-    if world.write().await.gmail.labels.remove(&id).is_some() {
+    let mut state = world.write().await;
+    if state.gmail.labels.remove(&id).is_some() {
+        for message in state.gmail.messages.values_mut() {
+            if let Some(labels) = message.get_mut("labelIds").and_then(Value::as_array_mut) {
+                labels.retain(|label| label != &id);
+            }
+        }
+        for message in state
+            .gmail
+            .drafts
+            .values_mut()
+            .filter_map(|draft| draft.get_mut("message"))
+        {
+            if let Some(labels) = message.get_mut("labelIds").and_then(Value::as_array_mut) {
+                labels.retain(|label| label != &id);
+            }
+        }
+        sync_gmail_labels(&mut state.gmail);
         StatusCode::NO_CONTENT
     } else {
         StatusCode::NOT_FOUND
@@ -290,10 +426,9 @@ async fn list_threads(
         .filter(|thread| {
             let messages = thread["messages"].as_array().cloned().unwrap_or_default();
             query.q.as_ref().is_none_or(|q| {
-                thread
-                    .to_string()
-                    .to_lowercase()
-                    .contains(&q.to_lowercase())
+                messages
+                    .iter()
+                    .any(|message| matches_message_query(message, q))
             }) && query.label_ids.as_ref().is_none_or(|labels| {
                 labels.iter().all(|label| {
                     messages.iter().any(|message| {
@@ -354,6 +489,8 @@ async fn delete_thread(
             .gmail
             .messages
             .retain(|_, message| message["threadId"] != id);
+        sync_gmail_threads(&mut state.gmail);
+        sync_gmail_labels(&mut state.gmail);
         StatusCode::NO_CONTENT
     } else {
         StatusCode::NOT_FOUND
@@ -392,6 +529,7 @@ async fn modify_message(
     change_labels(message, &body, None);
     let result = message.clone();
     sync_gmail_threads(&mut state.gmail);
+    sync_gmail_labels(&mut state.gmail);
     Ok(Json(result))
 }
 async fn trash_message(
@@ -405,6 +543,7 @@ async fn trash_message(
     change_labels(message, &json!({}), Some(true));
     let result = message.clone();
     sync_gmail_threads(&mut state.gmail);
+    sync_gmail_labels(&mut state.gmail);
     Ok(Json(result))
 }
 async fn untrash_message(
@@ -418,6 +557,7 @@ async fn untrash_message(
     change_labels(message, &json!({}), Some(false));
     let result = message.clone();
     sync_gmail_threads(&mut state.gmail);
+    sync_gmail_labels(&mut state.gmail);
     Ok(Json(result))
 }
 async fn modify_thread(
@@ -445,6 +585,7 @@ async fn modify_thread(
         }
     }
     sync_gmail_threads(&mut state.gmail);
+    sync_gmail_labels(&mut state.gmail);
     let Some(thread) = state.gmail.threads.get(&id) else {
         return Err(StatusCode::NOT_FOUND);
     };
@@ -485,10 +626,11 @@ async fn list_drafts(
         .drafts
         .values()
         .filter(|draft| {
-            query
-                .q
-                .as_ref()
-                .is_none_or(|q| draft.to_string().to_lowercase().contains(&q.to_lowercase()))
+            query.q.as_ref().is_none_or(|q| {
+                draft
+                    .get("message")
+                    .is_some_and(|message| matches_message_query(message, q))
+            })
         })
         .map(|draft| json!({"id":draft["id"],"message":draft["message"]}))
         .collect::<Vec<_>>();
@@ -524,6 +666,7 @@ async fn create_draft(
     }
     let draft = json!({"id":id,"message":message});
     state.gmail.drafts.insert(id, draft.clone());
+    sync_gmail_labels(&mut state.gmail);
     Json(draft)
 }
 async fn get_draft(
@@ -550,13 +693,17 @@ async fn update_draft(
         return Err(StatusCode::NOT_FOUND);
     };
     draft["message"] = body.get("message").cloned().unwrap_or(body);
-    Ok(Json(draft.clone()))
+    let result = draft.clone();
+    sync_gmail_labels(&mut state.gmail);
+    Ok(Json(result))
 }
 async fn delete_draft(
     State(world): State<Arc<World>>,
     Path((_user_id, id)): Path<(String, String)>,
 ) -> StatusCode {
-    if world.write().await.gmail.drafts.remove(&id).is_some() {
+    let mut state = world.write().await;
+    if state.gmail.drafts.remove(&id).is_some() {
+        sync_gmail_labels(&mut state.gmail);
         StatusCode::NO_CONTENT
     } else {
         StatusCode::NOT_FOUND
@@ -578,6 +725,7 @@ async fn send_message(
     let message = json!({"id":id,"threadId":thread_id,"labelIds":["SENT"],"snippet":"Sent message","payload":body});
     state.gmail.messages.insert(id, message.clone());
     sync_gmail_threads(&mut state.gmail);
+    sync_gmail_labels(&mut state.gmail);
     Json(message)
 }
 async fn send_draft(
@@ -596,5 +744,6 @@ async fn send_draft(
     let message = json!({"id":message_id,"threadId":thread_id,"labelIds":["SENT"],"snippet":"Sent draft","payload":draft["message"]});
     state.gmail.messages.insert(message_id, message.clone());
     sync_gmail_threads(&mut state.gmail);
+    sync_gmail_labels(&mut state.gmail);
     Ok(Json(message))
 }

@@ -1,7 +1,7 @@
 use base64::{engine::general_purpose, Engine as _};
 use chrono::DateTime;
 use serde_json::{json, Map, Value};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use tokio::sync::RwLock;
 
 use crate::tasks;
@@ -268,6 +268,81 @@ pub fn sync_gmail_threads(gmail: &mut GmailState) {
         .collect();
 }
 
+#[derive(Default)]
+struct LabelStats {
+    messages: usize,
+    unread_messages: usize,
+    threads: BTreeSet<String>,
+    unread_threads: BTreeSet<String>,
+}
+
+pub fn sync_gmail_labels(gmail: &mut GmailState) {
+    let mut stats: BTreeMap<String, LabelStats> = BTreeMap::new();
+    for message in gmail.messages.values().chain(
+        gmail
+            .drafts
+            .values()
+            .filter_map(|draft| draft.get("message")),
+    ) {
+        let thread_id = message
+            .get("threadId")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let labels = message
+            .get("labelIds")
+            .and_then(Value::as_array)
+            .cloned()
+            .unwrap_or_default();
+        let unread = labels.iter().any(|label| label == "UNREAD");
+        for label_id in labels.iter().filter_map(Value::as_str) {
+            let entry = stats.entry(label_id.to_string()).or_default();
+            entry.messages += 1;
+            if !thread_id.is_empty() {
+                entry.threads.insert(thread_id.to_string());
+            }
+            if unread {
+                entry.unread_messages += 1;
+                if !thread_id.is_empty() {
+                    entry.unread_threads.insert(thread_id.to_string());
+                }
+            }
+        }
+    }
+
+    for label in gmail.labels.values_mut() {
+        set_label_counts(label, &LabelStats::default());
+    }
+    for (id, counts) in stats {
+        let label = gmail.labels.entry(id.clone()).or_insert_with(|| {
+            json!({
+                "id": id,
+                "name": id,
+                "type": if is_system_label(&id) { "system" } else { "user" },
+            })
+        });
+        set_label_counts(label, &counts);
+    }
+}
+
+fn set_label_counts(label: &mut Value, counts: &LabelStats) {
+    if let Value::Object(fields) = label {
+        fields.insert("messagesTotal".to_string(), json!(counts.messages));
+        fields.insert("messagesUnread".to_string(), json!(counts.unread_messages));
+        fields.insert("threadsTotal".to_string(), json!(counts.threads.len()));
+        fields.insert(
+            "threadsUnread".to_string(),
+            json!(counts.unread_threads.len()),
+        );
+    }
+}
+
+fn is_system_label(id: &str) -> bool {
+    matches!(
+        id,
+        "CHAT" | "DRAFT" | "IMPORTANT" | "INBOX" | "SENT" | "SPAM" | "STARRED" | "TRASH" | "UNREAD"
+    )
+}
+
 impl WorldState {
     fn from_fixture(fixture: &Value) -> Result<Self, String> {
         let initial_state = fixture
@@ -292,6 +367,7 @@ impl WorldState {
         }
         gmail.next_id = 1;
         sync_gmail_threads(&mut gmail);
+        sync_gmail_labels(&mut gmail);
 
         let mut salesforce = SalesforceState::default();
         if let Some(collections) = initial_state.get("salesforce").and_then(Value::as_object) {
@@ -382,10 +458,21 @@ fn gmail_message(message: &Value) -> Result<Value, String> {
         _ => return Err("Gmail message has no date".to_string()),
     };
 
+    let mut labels = message
+        .get("label_ids")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    if message.get("is_read").and_then(Value::as_bool) == Some(false)
+        && !labels.iter().any(|label| label == "UNREAD")
+    {
+        labels.push(json!("UNREAD"));
+    }
+
     Ok(json!({
         "id": required_string(message, "id", "Gmail message")?,
         "threadId": required_string(message, "thread_id", "Gmail message")?,
-        "labelIds": message.get("label_ids").cloned().unwrap_or_else(|| json!([])),
+        "labelIds": labels,
         "snippet": body,
         "internalDate": date,
         "payload": {
