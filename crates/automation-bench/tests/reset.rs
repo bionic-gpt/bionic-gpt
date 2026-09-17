@@ -67,6 +67,25 @@ async fn gmail_list_returns_seeded_message() {
 }
 
 #[tokio::test]
+async fn gmail_list_accepts_repeated_label_ids() {
+    let response = app()
+        .oneshot(
+            Request::get("/api/gmail/gmail/v1/users/me/messages?labelIds=INBOX&labelIds=INBOX")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(body["messages"][0]["id"], "msg-jordan-001");
+}
+
+#[tokio::test]
 async fn gmail_send_and_label_modification_persist() {
     let service = app();
     let sent = service

@@ -284,20 +284,7 @@ async fn execute_openapi_tool(
     // Construct the final URL and append query parameters
     let mut url = Url::parse(&format!("{}{}", tool.base_url, path_with_params))
         .map_err(|e| crate::json_error("Invalid URL", e))?;
-    if let Some(obj) = query_params.as_object() {
-        if !obj.is_empty() {
-            let mut pairs = url.query_pairs_mut();
-            for (k, v) in obj {
-                let value = match v {
-                    Value::String(s) => s.clone(),
-                    Value::Number(n) => n.to_string(),
-                    Value::Bool(b) => b.to_string(),
-                    _ => v.to_string(),
-                };
-                pairs.append_pair(k, &value);
-            }
-        }
-    }
+    append_query_parameters(&mut url, &query_params);
     tracing::debug!("Making request to URL: {} using method: {}", url, method);
 
     // Determine if we should send a request body
@@ -398,6 +385,49 @@ async fn execute_openapi_tool(
     }
 
     parse_http_response(response)
+}
+
+fn append_query_parameters(url: &mut Url, query_params: &Value) {
+    let Some(parameters) = query_params.as_object() else {
+        return;
+    };
+
+    let mut values = Vec::new();
+    for (name, value) in parameters {
+        match value {
+            Value::Array(items) => {
+                for item in items {
+                    if let Some(value) = query_parameter_value(item) {
+                        values.push((name, value));
+                    }
+                }
+            }
+            value => {
+                if let Some(value) = query_parameter_value(value) {
+                    values.push((name, value));
+                }
+            }
+        }
+    }
+
+    if values.is_empty() {
+        return;
+    }
+
+    let mut pairs = url.query_pairs_mut();
+    for (name, value) in values {
+        pairs.append_pair(name, &value);
+    }
+}
+
+fn query_parameter_value(value: &Value) -> Option<String> {
+    match value {
+        Value::Null => None,
+        Value::String(value) => Some(value.clone()),
+        Value::Number(value) => Some(value.to_string()),
+        Value::Bool(value) => Some(value.to_string()),
+        value => Some(value.to_string()),
+    }
 }
 
 fn error_response_details(body: &[u8]) -> Value {
@@ -1082,6 +1112,69 @@ mod tests {
             client.captured_urls().await[0].as_str(),
             "https://gmail.googleapis.com/gmail/v1/users/me/messages"
         );
+    }
+
+    #[tokio::test]
+    async fn serializes_array_query_parameters_as_repeated_values() {
+        let spec_json = json!({
+            "openapi": "3.0.0",
+            "info": {"title": "Gmail", "version": "1.0"},
+            "paths": {"/messages": {"get": {
+                "operationId": "listMessages",
+                "parameters": [
+                    {"in": "query", "name": "labelIds", "schema": {
+                        "type": "array", "items": {"type": "string"}
+                    }},
+                    {"in": "query", "name": "maxResults", "schema": {"type": "integer"}}
+                ],
+                "responses": {"200": {"description": "ok"}}
+            }}}
+        });
+        let spec: oas3::OpenApiV3Spec = serde_json::from_value(spec_json).unwrap();
+        let client = Arc::new(MockHttpClient::new(vec![HttpResponse {
+            status: StatusCode::OK,
+            body: br#"{"messages":[]}"#.to_vec(),
+            content_type: Some("application/json".to_string()),
+        }]));
+        let tool = OpenApiTool::with_http_client(
+            ToolDefinition {
+                name: "listMessages".to_string(),
+                description: "".to_string(),
+                parameters: json!({}),
+            },
+            "https://gmail.googleapis.com".to_string(),
+            spec,
+            "listMessages".to_string(),
+            "Authorization".to_string(),
+            None,
+            client.clone(),
+        );
+
+        tool.call(json!({"labelIds": ["INBOX", "UNREAD"], "maxResults": 50}).to_string())
+            .await
+            .unwrap();
+
+        let url = client.captured_urls().await.remove(0);
+        let query: Vec<_> = url.query_pairs().collect();
+        assert_eq!(
+            query,
+            vec![
+                ("labelIds".into(), "INBOX".into()),
+                ("labelIds".into(), "UNREAD".into()),
+                ("maxResults".into(), "50".into()),
+            ]
+        );
+    }
+
+    #[test]
+    fn omits_null_and_empty_array_query_values() {
+        let mut url = Url::parse("https://example.test/items").unwrap();
+        append_query_parameters(
+            &mut url,
+            &json!({"labels": [], "cursor": null, "limit": 10}),
+        );
+
+        assert_eq!(url.as_str(), "https://example.test/items?limit=10");
     }
 
     fn multipart_test_spec() -> oas3::OpenApiV3Spec {

@@ -62,6 +62,10 @@ for service in "$@"; do
     binary="$service"
     mkdir -p "$service_dir"
 
+    if [ "$service" = "automationbench-api" ]; then
+        binary="automation-bench"
+    fi
+
     if [ "$service" = "web" ]; then
         binary="web-server"
         deployment="bionic-gpt"

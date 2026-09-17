@@ -1,11 +1,12 @@
 use crate::store::{sync_gmail_threads, World};
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
     response::Json,
     routing::{get, post},
     Router,
 };
+use axum_extra::extract::Query;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::sync::Arc;
