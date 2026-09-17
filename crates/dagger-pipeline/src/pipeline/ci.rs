@@ -7,12 +7,12 @@ use eyre::{Result, WrapErr, eyre};
 use serde_yaml::{Mapping, Value};
 
 use super::{
-    AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, AUTOMATION_BENCH_EXE_NAME,
-    AUTOMATION_BENCH_IMAGE_REPO, BASE_IMAGE, CLI_GATEWAY_EXE_NAME, CLI_GATEWAY_IMAGE_REPO,
-    CRON_EXE_NAME, CRON_IMAGE_REPO, DATABASE_URL, DB_FOLDER, DB_PASSWORD, EVAL_MOCKS_IMAGE_REPO,
-    MIGRATIONS_IMAGE_REPO, PIPELINE_FOLDER, POSTGRES_IMAGE, POSTGRES_MCP_EXE_NAME,
-    POSTGRES_MCP_IMAGE_REPO, RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_REPO, SUMMARY_PATH,
-    TARGET_TRIPLE,
+    AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, BASE_IMAGE,
+    CLI_GATEWAY_EXE_NAME, CLI_GATEWAY_IMAGE_REPO, CRON_EXE_NAME, CRON_IMAGE_REPO, DATABASE_URL,
+    DB_FOLDER, DB_PASSWORD, EVAL_MOCKS_IMAGE_REPO, INTEGRATION_SIMULATOR_EXE_NAME,
+    INTEGRATION_SIMULATOR_IMAGE_REPO, MIGRATIONS_IMAGE_REPO, PIPELINE_FOLDER, POSTGRES_IMAGE,
+    POSTGRES_MCP_EXE_NAME, POSTGRES_MCP_IMAGE_REPO, RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_REPO,
+    SUMMARY_PATH, TARGET_TRIPLE,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -64,7 +64,7 @@ struct BuildOutputs {
     postgres_mcp_binary: File,
     cli_gateway_binary: File,
     cron_binary: File,
-    automation_bench_binary: File,
+    integration_simulator_binary: File,
 }
 
 pub(super) struct PublishCredentials {
@@ -211,8 +211,8 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
     let postgres_mcp_binary = summary_container.file(release_binary_path(POSTGRES_MCP_EXE_NAME));
     let cli_gateway_binary = summary_container.file(release_binary_path(CLI_GATEWAY_EXE_NAME));
     let cron_binary = summary_container.file(release_binary_path(CRON_EXE_NAME));
-    let automation_bench_binary =
-        summary_container.file(release_binary_path(AUTOMATION_BENCH_EXE_NAME));
+    let integration_simulator_binary =
+        summary_container.file(release_binary_path(INTEGRATION_SIMULATOR_EXE_NAME));
 
     Ok(BuildOutputs {
         container: summary_container,
@@ -223,60 +223,26 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
         postgres_mcp_binary,
         cli_gateway_binary,
         cron_binary,
-        automation_bench_binary,
+        integration_simulator_binary,
     })
 }
 
-pub(super) async fn run_automation_bench(
-    client: &Query,
-    repo: &Directory,
-    local_tag: Option<&str>,
-    publish: bool,
-) -> Result<()> {
-    let outputs = build_workspace(client, repo).await?;
-    let image = automation_bench_container(client, &outputs);
-    ensure_built(&image, "AutomationBench server image").await?;
-
-    if publish {
-        let credentials = ghcr_credentials(true)?.expect("required GHCR credentials");
-        maybe_publish(
-            client,
-            &image,
-            AUTOMATION_BENCH_IMAGE_REPO,
-            Some(&credentials),
-            "ghcr.io",
-            "AutomationBench server image",
-            &collect_image_tags(),
-        )
-        .await?;
-    } else {
-        let tag = local_tag.unwrap_or("bionic-gpt-automationbench:local");
-        let image_id = image
-            .id()
-            .await
-            .wrap_err("failed to materialize AutomationBench server image")?;
-        client
-            .load_container_from_id(image_id)
-            .export_image(tag)
-            .await
-            .wrap_err_with(|| format!("failed to export AutomationBench server image as {tag}"))?;
-        println!("Exported AutomationBench server image as {tag}");
-    }
-
-    Ok(())
-}
-
-fn automation_bench_container(client: &Query, outputs: &BuildOutputs) -> Container {
+fn integration_simulator_container(client: &Query, outputs: &BuildOutputs) -> Container {
     client
         .container()
         .with_user("1001")
-        .with_file("/automation-bench", outputs.automation_bench_binary.clone())
+        .with_file(
+            "/integration-simulator",
+            outputs.integration_simulator_binary.clone(),
+        )
         .with_directory(
             "/specs",
-            outputs.container.directory("crates/automation-bench/specs"),
+            outputs
+                .container
+                .directory("crates/integration-simulator/specs"),
         )
         .with_exposed_port(8080)
-        .with_entrypoint(vec!["/automation-bench"])
+        .with_entrypoint(vec!["/integration-simulator"])
 }
 
 fn postgres_service(client: &Query) -> Service {
@@ -367,6 +333,19 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         credentials.as_ref(),
         registry,
         "scheduled task worker image",
+        &tags,
+    )
+    .await?;
+
+    let integration_simulator = integration_simulator_container(client, outputs);
+    ensure_built(&integration_simulator, "integration simulator image").await?;
+    maybe_publish(
+        client,
+        &integration_simulator,
+        INTEGRATION_SIMULATOR_IMAGE_REPO,
+        credentials.as_ref(),
+        registry,
+        "integration simulator image",
         &tags,
     )
     .await?;

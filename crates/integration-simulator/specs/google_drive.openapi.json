@@ -1,0 +1,483 @@
+{
+  "info": {
+    "title": "Google Drive",
+    "x-logo": {
+      "url": "https://cdn.simpleicons.org/googledrive"
+    },
+    "version": "v3",
+    "description": "Simulated Google Drive API for deterministic document workflow evaluations."
+  },
+  "paths": {
+    "/drive/v3/files": {
+      "get": {
+        "summary": "Enumerate files in Google Drive. Filter results with the q parameter using Drive query language (e.g., \"name contains 'report'\" or \"'folderId' in parents\").",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "parents": {
+                            "type": "string"
+                          },
+                          "mimeType": {
+                            "type": "string"
+                          },
+                          "webViewLink": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "nextPageToken": {
+                      "type": "string"
+                    },
+                    "incompleteSearch": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{kind: 'drive#fileList', files: [{id, name, mimeType, parents, webViewLink}], nextPageToken, incompleteSearch}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Filter expression using the Drive query language. Examples: \"name contains 'budget'\", \"'folderID' in parents\", \"mimeType = 'application/vnd.google-apps.folder'\"."
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Upper bound on the number of files returned per page (default 10, max 1000)."
+          },
+          {
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-delimited list of fields to include in the response."
+          },
+          {
+            "in": "query",
+            "name": "orderBy",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Specifies sort order. Common values: name, modifiedTime, createdTime. Append ' desc' for descending order."
+          },
+          {
+            "in": "query",
+            "name": "pageToken",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Continuation token for the next page of results."
+          }
+        ],
+        "description": "Enumerate files in Google Drive. Filter results with the q parameter using Drive query language (e.g., \"name contains 'report'\" or \"'folderId' in parents\").",
+        "operationId": "google_drive.files.list"
+      },
+      "post": {
+        "summary": "Generate a new file or folder. Set mimeType to 'application/vnd.google-apps.folder' to create a folder.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parents": {
+                      "type": "string"
+                    },
+                    "mimeType": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{kind: 'drive#file', id, name, mimeType, parents}"
+          }
+        },
+        "description": "Generate a new file or folder. Set mimeType to 'application/vnd.google-apps.folder' to create a folder. Request body: Body: {name (required, string — name of the new file or folder), mimeType (optional, string — MIME type; use 'application/vnd.google-apps.folder' to create a folder), parents (optional, array of strings — parent folder IDs)}.",
+        "operationId": "google_drive.files.create",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "parents": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "mimeType": {
+                    "type": "string"
+                  }
+                },
+                "description": "Body: {name (required, string — name of the new file or folder), mimeType (optional, string — MIME type; use 'application/vnd.google-apps.folder' to create a folder), parents (optional, array of strings — parent folder IDs)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/drive/v3/files/{fileId}": {
+      "get": {
+        "summary": "Fetch metadata for a specific file or folder using its ID.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parents": {
+                      "type": "string"
+                    },
+                    "mimeType": {
+                      "type": "string"
+                    },
+                    "webViewLink": {
+                      "type": "string"
+                    },
+                    "alternateLink": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{kind: 'drive#file', id, name, mimeType, parents, webViewLink, alternateLink}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fileId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the file to fetch."
+          },
+          {
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-delimited list of fields to include in the response."
+          }
+        ],
+        "description": "Fetch metadata for a specific file or folder using its ID.",
+        "operationId": "google_drive.files.get"
+      },
+      "patch": {
+        "summary": "Modify file metadata. Use addParents/removeParents to relocate a file between folders. Use name to give a file a new name.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parents": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{kind: 'drive#file', id, name, parents, success}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fileId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the file to modify."
+          },
+          {
+            "in": "query",
+            "name": "addParents",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-delimited list of parent folder IDs to add."
+          },
+          {
+            "in": "query",
+            "name": "removeParents",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-delimited list of parent folder IDs to remove."
+          },
+          {
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Comma-delimited list of fields to include in the response."
+          }
+        ],
+        "description": "Modify file metadata. Use addParents/removeParents to relocate a file between folders. Use name to give a file a new name. Request body: Body: {name (optional, string — new name for the file)}.",
+        "operationId": "google_drive.files.update",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "description": "Body: {name (optional, string — new name for the file)}"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "summary": "Irreversibly remove a file. The file is destroyed immediately with no recovery option.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deleted": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{success, deleted}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fileId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the file to remove."
+          }
+        ],
+        "description": "Irreversibly remove a file. The file is destroyed immediately with no recovery option.",
+        "operationId": "google_drive.files.delete"
+      }
+    },
+    "/drive/v3/files/{fileId}/copy": {
+      "post": {
+        "summary": "Duplicate a file and return metadata for the newly created copy.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parents": {
+                      "type": "string"
+                    },
+                    "mimeType": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{kind: 'drive#file', id, name, mimeType, parents}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fileId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the file to duplicate."
+          }
+        ],
+        "description": "Duplicate a file and return metadata for the newly created copy. Request body: Body: {name (optional, string — name for the copy), parents (optional, array of strings — destination folder IDs)}.",
+        "operationId": "google_drive.files.copy",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "parents": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "description": "Body: {name (optional, string — name for the copy), parents (optional, array of strings — destination folder IDs)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://integration-simulator:8080/api/google_drive"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "File": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for this file."
+          },
+          "kind": {
+            "type": "string",
+            "description": "Always 'drive#file'."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the file."
+          },
+          "parents": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "IDs of the folders containing this file."
+          },
+          "mimeType": {
+            "type": "string",
+            "description": "MIME type identifying the file format. Use 'application/vnd.google-apps.folder' for folders."
+          },
+          "webViewLink": {
+            "type": "string",
+            "description": "URL to open this file in a Google editor or viewer in the browser."
+          },
+          "alternateLink": {
+            "type": "string",
+            "description": "Secondary link to access the file."
+          }
+        },
+        "description": "A file or folder resource stored in Google Drive."
+      }
+    }
+  }
+}

@@ -13,11 +13,11 @@ AutomationBench evaluation.
 The OpenAPI source files are committed under:
 
 ```text
-crates/automation-bench/specs/*.openapi.json
+crates/integration-simulator/specs/*.openapi.json
 ```
 
 The loader normalizes every imported spec to the local simulator at
-`http://automationbench-api:8080/api/<service>`. It also removes OpenAPI
+`http://integration-simulator:8080/api/<service>`. It also removes OpenAPI
 security declarations, security schemes, and explicit access-token parameters
 because the simulator is authentication-free. Business parameters are kept.
 
@@ -34,7 +34,7 @@ spec directory can be supplied as its first argument:
 
 ```bash
 bash .agents/skills/automationbench-eval/scripts/load-specs.sh \
-  crates/automation-bench/specs
+  crates/integration-simulator/specs
 ```
 
 It upserts global rows in `integrations.openapi_specs` using each file's
@@ -53,9 +53,9 @@ team-specific integrations using the already-loaded global definitions.
 
 ## Simulator
 
-The AutomationBench API is deployed separately as the `automationbench-api`
+The AutomationBench API is provided by the `integration-simulator`
 service by the local Stack `dev` profile. Bionic reaches it inside the cluster
-at `http://automationbench-api:8080`. It has one shared deterministic world.
+at `http://integration-simulator:8080`. It has one shared deterministic world.
 
 Reset the world before each evaluation:
 

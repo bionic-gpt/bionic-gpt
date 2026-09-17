@@ -1,0 +1,313 @@
+{
+  "info": {
+    "title": "Monday",
+    "version": "v2",
+    "description": "Simulated Monday API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/items:find": {
+      "post": {
+        "summary": "Search for an item by name on a Monday.com board. Returns the item ID required for subsequent column update operations.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "board": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "column_values": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "value": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{items: [{id, name, board: {id, name}, column_values: [{id, title, text, value}]}]}"
+          }
+        },
+        "description": "Search for an item by name on a Monday.com board. Returns the item ID required for subsequent column update operations. Request body: Body: {board_id (required, string — board ID), name (required, string — item name to search for)}.",
+        "operationId": "monday.items.find",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "board_id",
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "board_id": {
+                    "type": "string"
+                  }
+                },
+                "description": "Body: {board_id (required, string — board ID), name (required, string — item name to search for)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/items:create": {
+      "post": {
+        "summary": "Add a new row (item) to a Monday.com board.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "board": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id, name, board: {id, name}}"
+          }
+        },
+        "description": "Add a new row (item) to a Monday.com board. Request body: Body: {board_id (required, string — board ID), item_name (required, string — name for the new item), group_id (optional, string — group/section ID to place the item in), column_values (optional, JSON string — initial column values as a JSON object mapping column IDs to values, e.g. '{\"status\":\"Done\",\"date4\":\"2024-01-15\"}')}.",
+        "operationId": "monday.items.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "board_id",
+                  "item_name"
+                ],
+                "properties": {
+                  "board_id": {
+                    "type": "string"
+                  },
+                  "group_id": {
+                    "type": "string"
+                  },
+                  "item_name": {
+                    "type": "string"
+                  },
+                  "column_values (optional, JSON string — initial column values as a JSON object mapping column IDs to values, e.g. '{\"status\"": {
+                    "type": "string"
+                  }
+                },
+                "description": "Body: {board_id (required, string — board ID), item_name (required, string — name for the new item), group_id (optional, string — group/section ID to place the item in), column_values (optional, JSON string — initial column values as a JSON object mapping column IDs to values, e.g. '{\"status\":\"Done\",\"date4\":\"2024-01-15\"}')}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/items/{itemId}/columns:update": {
+      "post": {
+        "summary": "Set a column value for an item. Use column_type to indicate the kind of column: 'status' for status/dropdown columns, 'date' for date columns (value: YYYY-MM-DD), 'number' for numeric columns, 'text' for text columns.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "column_values": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id, name, column_values: [{id, title, text, value}]}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "itemId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The item ID."
+          }
+        ],
+        "description": "Set a column value for an item. Use column_type to indicate the kind of column: 'status' for status/dropdown columns, 'date' for date columns (value: YYYY-MM-DD), 'number' for numeric columns, 'text' for text columns. Request body: Body: {board_id (required, string — board ID), column_id (required, string — column internal ID), value (required, string — new value; for status use the label text, for date use YYYY-MM-DD, for number use a numeric string), column_type (optional, string: 'status'|'date'|'number'|'text' — helps route to the correct update function)}.",
+        "operationId": "monday.items.updateColumn",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "board_id",
+                  "column_id",
+                  "value"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "board_id": {
+                    "type": "string"
+                  },
+                  "column_id": {
+                    "type": "string"
+                  },
+                  "column_type (optional, string": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                },
+                "description": "Body: {board_id (required, string — board ID), column_id (required, string — column internal ID), value (required, string — new value; for status use the label text, for date use YYYY-MM-DD, for number use a numeric string), column_type (optional, string: 'status'|'date'|'number'|'text' — helps route to the correct update function)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://integration-simulator:8080/api/monday"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Item": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the item."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the item."
+          },
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "column_values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Internal identifier for the column."
+                },
+                "text": {
+                  "type": "string",
+                  "description": "The value formatted for display."
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Human-readable label for the column."
+                },
+                "value": {
+                  "type": "string",
+                  "description": "Underlying raw JSON value for the column."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

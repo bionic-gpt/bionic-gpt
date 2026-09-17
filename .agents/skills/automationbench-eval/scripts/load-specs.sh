@@ -8,7 +8,7 @@ if [[ -z "$database_url" ]]; then
 fi
 
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)
-spec_dir="${1:-$repo_root/crates/automation-bench/specs}"
+spec_dir="${1:-$repo_root/crates/integration-simulator/specs}"
 
 command -v psql >/dev/null || { echo "psql is required" >&2; exit 1; }
 command -v python3 >/dev/null || { echo "python3 is required" >&2; exit 1; }
@@ -77,7 +77,7 @@ for path_item in (document.get("paths") or {}).values():
             not in {"authorization", "access_token", "api_key", "apikey"}
         ]
 
-document["servers"] = [{"url": f"http://automationbench-api:8080/api/{slug}"}]
+document["servers"] = [{"url": f"http://integration-simulator:8080/api/{slug}"}]
 title = info.get("title") or slug
 description = info.get("description")
 logo_url = (info.get("x-logo") or {}).get("url")

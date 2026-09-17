@@ -36,14 +36,4 @@ pub enum Command {
         #[arg(long)]
         publish: bool,
     },
-    /// Build the AutomationBench API image locally, optionally publishing it to GHCR.
-    #[command(name = "automationbench")]
-    AutomationBench {
-        /// Local image tag. Defaults to bionic-gpt-automationbench:local.
-        #[arg(long)]
-        tag: Option<String>,
-        /// Publish immutable upstream-SHA and latest tags instead of exporting locally.
-        #[arg(long)]
-        publish: bool,
-    },
 }

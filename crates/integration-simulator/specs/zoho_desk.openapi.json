@@ -1,0 +1,430 @@
+{
+  "info": {
+    "title": "Zoho Desk",
+    "version": "v1",
+    "description": "Simulated Zoho Desk API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/tickets": {
+      "get": {
+        "summary": "Browse or search Zoho Desk support tickets. Retrieve all tickets, cases, or locate a specific one by query or ID.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Array of ticket objects"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Search expression to locate a particular ticket."
+          }
+        ],
+        "description": "Browse or search Zoho Desk support tickets. Retrieve all tickets, cases, or locate a specific one by query or ID.",
+        "operationId": "zoho_desk.tickets.list"
+      },
+      "post": {
+        "summary": "Open a new Zoho Desk support ticket, case, or issue.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Created ticket object with id"
+          }
+        },
+        "description": "Open a new Zoho Desk support ticket, case, or issue. Request body: {subject: string (required), departmentId: string (required), description?, status?, priority?, channel?, contactId?, accountId?, assigneeId?, classification?, category?}.",
+        "operationId": "zoho_desk.tickets.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "subject",
+                  "departmentId"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "channel": {
+                    "type": "string"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "type": "string"
+                  },
+                  "accountId": {
+                    "type": "string"
+                  },
+                  "contactId": {
+                    "type": "string"
+                  },
+                  "assigneeId": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "departmentId": {
+                    "type": "string"
+                  },
+                  "classification": {
+                    "type": "string"
+                  }
+                },
+                "description": "{subject: string (required), departmentId: string (required), description?, status?, priority?, channel?, contactId?, accountId?, assigneeId?, classification?, category?}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/accounts": {
+      "get": {
+        "summary": "Look up a Zoho Desk account, company, or organization by name or account ID.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Array of account objects"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "accountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "The account ID to look up."
+          },
+          {
+            "in": "query",
+            "name": "accountName",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "The company or account name to search for."
+          }
+        ],
+        "description": "Look up a Zoho Desk account, company, or organization by name or account ID.",
+        "operationId": "zoho_desk.accounts.find"
+      },
+      "post": {
+        "summary": "Add a new Zoho Desk account, company, or organization record.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Created account object with id"
+          }
+        },
+        "description": "Add a new Zoho Desk account, company, or organization record. Request body: {accountName: string, website?, industry?, description?}.",
+        "operationId": "zoho_desk.accounts.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "website": {
+                    "type": "string"
+                  },
+                  "industry": {
+                    "type": "string"
+                  },
+                  "accountName": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "description": "{accountName: string, website?, industry?, description?}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/contacts": {
+      "get": {
+        "summary": "Browse or search Zoho Desk contacts and customers. Look up contacts by email, search query, or ID.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Array of contact objects"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Search expression to find matching contacts."
+          },
+          {
+            "in": "query",
+            "name": "email",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Find contacts with this exact email address."
+          }
+        ],
+        "description": "Browse or search Zoho Desk contacts and customers. Look up contacts by email, search query, or ID.",
+        "operationId": "zoho_desk.contacts.list"
+      },
+      "post": {
+        "summary": "Add a new Zoho Desk contact or customer record.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Created contact object with id"
+          }
+        },
+        "description": "Add a new Zoho Desk contact or customer record. Request body: {lastName: string (required), email?, firstName?, phone?, mobile?, accountId?, description?}.",
+        "operationId": "zoho_desk.contacts.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "lastName"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "mobile": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "accountId": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "description": "{lastName: string (required), email?, firstName?, phone?, mobile?, accountId?, description?}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/tickets/{ticketId}": {
+      "put": {
+        "summary": "Modify a Zoho Desk ticket. Update its status, priority, assigned agent, or classification.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Updated ticket object"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticketId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the ticket to update."
+          }
+        ],
+        "description": "Modify a Zoho Desk ticket. Update its status, priority, assigned agent, or classification. Request body: {subject?, description?, status?, priority?, assigneeId?, classification?, departmentId?}.",
+        "operationId": "zoho_desk.tickets.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "type": "string"
+                  },
+                  "assigneeId": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "departmentId": {
+                    "type": "string"
+                  },
+                  "classification": {
+                    "type": "string"
+                  }
+                },
+                "description": "{subject?, description?, status?, priority?, assigneeId?, classification?, departmentId?}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/tickets/{ticketId}/comments": {
+      "post": {
+        "summary": "Attach a comment, reply, or internal note to an existing Zoho Desk ticket.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "content": {
+                      "type": "string"
+                    },
+                    "isPublic": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, content: string, isPublic: bool, createdAt: string}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticketId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Identifier of the ticket to comment on."
+          }
+        ],
+        "description": "Attach a comment, reply, or internal note to an existing Zoho Desk ticket. Request body: {content: string, isPublic?, commenterId?, contentType?: 'html'|'plainText'}.",
+        "operationId": "zoho_desk.tickets.comment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "isPublic": {
+                    "type": "string"
+                  },
+                  "commenterId": {
+                    "type": "string"
+                  },
+                  "contentType": {
+                    "type": "string"
+                  }
+                },
+                "description": "{content: string, isPublic?, commenterId?, contentType?: 'html'|'plainText'}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://integration-simulator:8080/api/zoho_desk"
+    }
+  ],
+  "components": {
+    "schemas": {}
+  }
+}

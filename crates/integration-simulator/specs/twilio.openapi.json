@@ -1,0 +1,334 @@
+{
+  "info": {
+    "title": "Twilio",
+    "x-logo": {
+      "url": "https://cdn.simpleicons.org/twilio"
+    },
+    "version": "2010-04-01",
+    "description": "Simulated Twilio API for deterministic communications workflow evaluations."
+  },
+  "paths": {
+    "/Accounts/{AccountSid}/Calls.json": {
+      "post": {
+        "summary": "Place an outbound phone call through Twilio. A TwiML URL must be supplied to handle call flow.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "to": {
+                      "type": "string"
+                    },
+                    "sid": {
+                      "type": "string"
+                    },
+                    "from": {
+                      "type": "string"
+                    },
+                    "price": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "price_unit": {
+                      "type": "string"
+                    },
+                    "date_created": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{sid, from, to, status, date_created, price, price_unit}"
+          }
+        },
+        "description": "Place an outbound phone call through Twilio. A TwiML URL must be supplied to handle call flow. Request body: Body (form-encoded): {To (required, string — destination phone number in E.164 format), From (required, string — Twilio phone number in E.164 format), Url (required, string — TwiML URL for call flow control)}.",
+        "operationId": "twilio.calls.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "To",
+                  "From",
+                  "Url"
+                ],
+                "properties": {
+                  "To": {
+                    "type": "number"
+                  },
+                  "Url": {
+                    "type": "string"
+                  },
+                  "From": {
+                    "type": "number"
+                  }
+                },
+                "description": "Body (form-encoded): {To (required, string — destination phone number in E.164 format), From (required, string — Twilio phone number in E.164 format), Url (required, string — TwiML URL for call flow control)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/Accounts/{AccountSid}/Messages.json": {
+      "post": {
+        "summary": "Dispatch an SMS message using Twilio.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "to": {
+                      "type": "string"
+                    },
+                    "sid": {
+                      "type": "string"
+                    },
+                    "body": {
+                      "type": "string"
+                    },
+                    "from": {
+                      "type": "string"
+                    },
+                    "price": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "date_sent": {
+                      "type": "string"
+                    },
+                    "price_unit": {
+                      "type": "string"
+                    },
+                    "date_created": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{sid, from, to, body, status, date_created, date_sent, price, price_unit}"
+          }
+        },
+        "description": "Dispatch an SMS message using Twilio. Request body: Body (form-encoded): {To (required, string — recipient phone number in E.164 format), From (required unless using MessagingServiceSid, string — Twilio phone number or short code in E.164 format), MessagingServiceSid (optional, string — SID of Messaging Service; use instead of From when sending from a pool), Body (required unless sending MMS with MediaUrl only, string — SMS text body max 1600 chars), MediaUrl (optional, string — URL of media file to send as MMS)}.",
+        "operationId": "twilio.messages.create",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "To",
+                  "From",
+                  "Body"
+                ],
+                "properties": {
+                  "To": {
+                    "type": "number"
+                  },
+                  "Body": {
+                    "type": "string"
+                  },
+                  "From": {
+                    "type": "number"
+                  },
+                  "MediaUrl": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "MessagingServiceSid": {
+                    "type": "string"
+                  }
+                },
+                "description": "Body (form-encoded): {To (required, string — recipient phone number in E.164 format), From (required unless using MessagingServiceSid, string — Twilio phone number or short code in E.164 format), MessagingServiceSid (optional, string — SID of Messaging Service; use instead of From when sending from a pool), Body (required unless sending MMS with MediaUrl only, string — SMS text body max 1600 chars), MediaUrl (optional, string — URL of media file to send as MMS)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://integration-simulator:8080/api/twilio"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Call": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "Destination phone number in E.164 format."
+          },
+          "sid": {
+            "type": "string",
+            "description": "Unique call identifier (CA...)."
+          },
+          "uri": {
+            "type": "string",
+            "description": "Path to this resource in the API."
+          },
+          "from": {
+            "type": "string",
+            "description": "Originating phone number in E.164 format."
+          },
+          "price": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "ringing",
+              "in-progress",
+              "completed",
+              "busy",
+              "failed",
+              "no-answer",
+              "canceled"
+            ],
+            "type": "string"
+          },
+          "duration": {
+            "type": "string",
+            "description": "Length of the call measured in seconds."
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the call concluded."
+          },
+          "direction": {
+            "type": "string",
+            "description": "Flow direction of the call: inbound, outbound-api, or outbound-dial."
+          },
+          "price_unit": {
+            "type": "string"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the call began."
+          },
+          "account_sid": {
+            "type": "string",
+            "description": "Identifier of the account that owns this call."
+          },
+          "caller_name": {
+            "type": "string",
+            "description": "Caller's name as provided by the carrier, if available."
+          },
+          "date_created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "forwarded_from": {
+            "type": "string",
+            "description": "The originating number this call was forwarded from."
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "Phone number of the recipient in E.164 format."
+          },
+          "sid": {
+            "type": "string",
+            "description": "Unique message identifier (SM...)."
+          },
+          "body": {
+            "type": "string",
+            "description": "Text content of the message."
+          },
+          "from": {
+            "type": "string",
+            "description": "Phone number of the sender in E.164 format."
+          },
+          "price": {
+            "type": "string",
+            "description": "Charge for this message (negative value, e.g. '-0.00750')."
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "sending",
+              "sent",
+              "delivered",
+              "undelivered",
+              "failed",
+              "canceled",
+              "accepted",
+              "scheduled",
+              "receiving",
+              "received",
+              "read"
+            ],
+            "type": "string"
+          },
+          "date_sent": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "direction": {
+            "type": "string",
+            "description": "Flow direction of the message: inbound, outbound-api, outbound-call, or outbound-reply."
+          },
+          "num_media": {
+            "type": "string",
+            "description": "Count of media attachments included with the message."
+          },
+          "error_code": {
+            "type": "integer",
+            "description": "Numeric error code if delivery failed."
+          },
+          "price_unit": {
+            "type": "string",
+            "description": "Currency of the charge, e.g. 'USD'."
+          },
+          "account_sid": {
+            "type": "string",
+            "description": "Identifier of the account that owns this message."
+          },
+          "date_created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "date_updated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the most recent update to this resource."
+          },
+          "num_segments": {
+            "type": "string",
+            "description": "Count of segments the message was broken into."
+          },
+          "error_message": {
+            "type": "string",
+            "description": "Human-readable explanation of the failure."
+          },
+          "messaging_service_sid": {
+            "type": "string",
+            "description": "The SID of the Messaging Service through which the message was sent."
+          }
+        }
+      }
+    }
+  }
+}

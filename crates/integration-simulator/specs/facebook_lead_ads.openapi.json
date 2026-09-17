@@ -1,0 +1,332 @@
+{
+  "info": {
+    "title": "Facebook Lead Ads",
+    "version": "v25.0",
+    "description": "Simulated Facebook Lead Ads API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/{formId}/leads": {
+      "get": {
+        "summary": "Fetch all leads submitted to a particular Lead Ad form. Returns every submission along with the corresponding form field data.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ad_id": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "string"
+                    },
+                    "leads": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "ad_id": {
+                            "type": "string"
+                          },
+                          "field_data": {
+                            "type": "string"
+                          },
+                          "created_time": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "ad_name": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{success, ad_id, ad_name, leads: [{id, ad_id, created_time, field_data}], count}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "formId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The ID of the Lead Ad form whose submissions you want to retrieve."
+          }
+        ],
+        "description": "Fetch all leads submitted to a particular Lead Ad form. Returns every submission along with the corresponding form field data.",
+        "operationId": "facebook_lead_ads.leads.list"
+      }
+    },
+    "/act_{adAccountId}/ads": {
+      "get": {
+        "summary": "Locate a Lead Ad by name within a given ad account. Pass the name query parameter to perform a search by ad name.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ad": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "ad_name": {
+                          "type": "string"
+                        },
+                        "adset_id": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "found": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{success, found, ad: {id, ad_name, status, adset_id}}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "adAccountId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The ad account ID (excluding the act_ prefix)."
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "The exact ad name to search for."
+          }
+        ],
+        "description": "Locate a Lead Ad by name within a given ad account. Pass the name query parameter to perform a search by ad name.",
+        "operationId": "facebook_lead_ads.ads.find"
+      }
+    },
+    "/{pageId}/leadgen_forms": {
+      "post": {
+        "summary": "Set up a new Lead Ad (instant form) on a Facebook Page. The form collects contact details from users who engage with the ad. Returns the ID of the newly created ad.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ad": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "ad_name": {
+                          "type": "string"
+                        },
+                        "form_id": {
+                          "type": "string"
+                        },
+                        "adset_id": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "ad_id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{success, ad: {id, ad_name, status, adset_id, form_id}, ad_id}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pageId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The Facebook Page ID on which the lead ad will be created."
+          }
+        ],
+        "description": "Set up a new Lead Ad (instant form) on a Facebook Page. The form collects contact details from users who engage with the ad. Returns the ID of the newly created ad. Request body: Body: {ad_name (required, string — name of the lead ad), adset_id (required, string — the ad set ID to attach the ad to), creative_name (required, string — name for the ad creative), message (required, string — ad body text), link (required, string — destination URL), form (required, string — form/template ID for lead capture), action_type (required, string — call to action; enum: APPLY_NOW|DOWNLOAD|GET_QUOTE|LEARN_MORE|SIGN_UP|SUBSCRIBE), status (required, string — ACTIVE or PAUSED), description (optional, string — ad description), campaign_name (optional, string — campaign to associate)}.",
+        "operationId": "facebook_lead_ads.leadgen_forms.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "ad_name",
+                  "adset_id",
+                  "creative_name",
+                  "message",
+                  "link",
+                  "form",
+                  "status"
+                ],
+                "properties": {
+                  "form": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "ad_name": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "adset_id": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "campaign_name": {
+                    "type": "string"
+                  },
+                  "creative_name": {
+                    "type": "string"
+                  },
+                  "action_type (required, string — call to action; enum": {
+                    "type": "string"
+                  }
+                },
+                "description": "Body: {ad_name (required, string — name of the lead ad), adset_id (required, string — the ad set ID to attach the ad to), creative_name (required, string — name for the ad creative), message (required, string — ad body text), link (required, string — destination URL), form (required, string — form/template ID for lead capture), action_type (required, string — call to action; enum: APPLY_NOW|DOWNLOAD|GET_QUOTE|LEARN_MORE|SIGN_UP|SUBSCRIBE), status (required, string — ACTIVE or PAUSED), description (optional, string — ad description), campaign_name (optional, string — campaign to associate)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://integration-simulator:8080/api/facebook_lead_ads"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Ad": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the ad."
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "PAUSED"
+            ],
+            "type": "string",
+            "description": "Current delivery state of the ad."
+          },
+          "ad_name": {
+            "type": "string",
+            "description": "Display name of the ad."
+          },
+          "adset_id": {
+            "type": "string",
+            "description": "Identifier of the ad set this ad is grouped under."
+          }
+        },
+        "description": "A Facebook Ad creative object."
+      },
+      "Lead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the lead submission."
+          },
+          "ad_id": {
+            "type": "string",
+            "description": "Identifier of the ad that captured this lead."
+          },
+          "field_data": {
+            "type": "array",
+            "description": "Collection of {name, values} objects representing the form field responses."
+          },
+          "created_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the lead was submitted."
+          }
+        },
+        "description": "A contact submission captured through a Facebook Lead Ad form."
+      },
+      "LeadForm": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the form."
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "PAUSED"
+            ],
+            "type": "string",
+            "description": "Current running state of the ad."
+          },
+          "ad_name": {
+            "type": "string",
+            "description": "Display name of the lead ad."
+          },
+          "form_id": {
+            "type": "string",
+            "description": "Identifier of the instant form used to collect lead information."
+          }
+        },
+        "description": "A Facebook Lead Ad instant form used for contact capture."
+      }
+    }
+  }
+}

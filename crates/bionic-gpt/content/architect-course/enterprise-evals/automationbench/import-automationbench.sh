@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-IMAGE="${AUTOMATIONBENCH_IMAGE:-ghcr.io/bionic-gpt/automationbench-api:4a8e1061254004d9dac807054eed33fad7d1ff14}"
+IMAGE="${INTEGRATION_SIMULATOR_IMAGE:-ghcr.io/bionic-gpt/integration-simulator:latest}"
 : "${BIONIC_DATABASE_URL:?Set BIONIC_DATABASE_URL}"
 : "${BIONIC_TEAM_ID:?Set BIONIC_TEAM_ID}"
 : "${BIONIC_USER_ID:?Set BIONIC_USER_ID}"
@@ -11,16 +11,16 @@ for command_name in docker psql yq; do
 done
 
 tmp_dir=$(mktemp -d)
-container="automationbench-import-$$"
+container="integration-simulator-import-$$"
 cleanup() { docker rm "$container" >/dev/null 2>&1 || true; rm -rf "$tmp_dir"; }
 trap cleanup EXIT
 
 docker pull "$IMAGE" >/dev/null
 docker create --name "$container" "$IMAGE" >/dev/null
-docker cp "$container:/app/openapi" "$tmp_dir/openapi" >/dev/null
+docker cp "$container:/specs" "$tmp_dir/openapi" >/dev/null
 
-for spec in "$tmp_dir"/openapi/*.yaml; do
-  name=$(basename "$spec" .yaml)
+for spec in "$tmp_dir"/openapi/*.openapi.json; do
+  name=$(basename "$spec" .openapi.json)
   definition=$(yq -o=json '.' "$spec")
   psql "$BIONIC_DATABASE_URL" -v ON_ERROR_STOP=1 \
     -v team_id="$BIONIC_TEAM_ID" -v user_id="$BIONIC_USER_ID" \

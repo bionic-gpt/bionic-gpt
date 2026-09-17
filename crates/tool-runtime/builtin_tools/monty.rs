@@ -638,7 +638,7 @@ fn function_markdown(integration: &IntegrationInfo) -> String {
     );
 
     for operation in &integration.operations {
-        let parameters = parameter_names(&operation.parameters);
+        let parameters = parameter_hints(&operation.parameters);
         let parameter_hint = if parameters.is_empty() {
             "no parameters".to_string()
         } else {
@@ -890,14 +890,80 @@ fn file_path_parameter_name(parameters: &Value) -> Option<&str> {
         .and_then(|properties| properties.contains_key("file_path").then_some("file_path"))
 }
 
-fn parameter_names(parameters: &Value) -> Vec<String> {
-    let mut names = parameters
+fn parameter_hints(parameters: &Value) -> Vec<String> {
+    let required = parameters
+        .get("required")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(Value::as_str)
+        .collect::<std::collections::HashSet<_>>();
+    let mut hints = parameters
         .get("properties")
         .and_then(Value::as_object)
-        .map(|properties| properties.keys().cloned().collect::<Vec<_>>())
+        .map(|properties| {
+            properties
+                .iter()
+                .map(|(name, schema)| {
+                    let type_hint = schema_type_hint(schema);
+                    let presence = if let Some(default) = schema.get("default") {
+                        format!("default={default}")
+                    } else if required.contains(name.as_str()) {
+                        "required".to_string()
+                    } else {
+                        "optional".to_string()
+                    };
+                    format!("{name}: {type_hint} {presence}")
+                })
+                .collect::<Vec<_>>()
+        })
         .unwrap_or_default();
-    names.sort();
-    names
+    hints.sort();
+    hints
+}
+
+fn schema_type_hint(schema: &Value) -> String {
+    for union in ["oneOf", "anyOf"] {
+        if let Some(options) = schema.get(union).and_then(Value::as_array) {
+            let types = options.iter().map(schema_type_hint).collect::<Vec<_>>();
+            if !types.is_empty() {
+                return types.join(" | ");
+            }
+        }
+    }
+
+    let mut type_hint = match schema.get("type") {
+        Some(Value::String(value)) if value == "array" => {
+            let item_type = schema
+                .get("items")
+                .map(schema_type_hint)
+                .unwrap_or_else(|| "value".to_string());
+            format!("list[{item_type}]")
+        }
+        Some(Value::String(value)) => value.clone(),
+        Some(Value::Array(values)) => values
+            .iter()
+            .filter_map(Value::as_str)
+            .collect::<Vec<_>>()
+            .join(" | "),
+        _ if schema.get("properties").is_some() || schema.get("$ref").is_some() => {
+            "object".to_string()
+        }
+        _ => "value".to_string(),
+    };
+
+    if let Some(values) = schema.get("enum").and_then(Value::as_array) {
+        let choices = values.iter().map(Value::to_string).collect::<Vec<_>>();
+        if !choices.is_empty() {
+            type_hint.push_str(&format!(" enum[{}]", choices.join(", ")));
+        }
+    }
+    if schema.get("nullable").and_then(Value::as_bool) == Some(true)
+        && !type_hint.split(" | ").any(|value| value == "null")
+    {
+        type_hint.push_str(" | null");
+    }
+    type_hint
 }
 
 fn token_provider_for_connected_integration(
@@ -1167,6 +1233,64 @@ mod tests {
     }
 
     #[test]
+    fn function_catalogue_documents_parameter_types_and_presence() {
+        let operation = RuntimeOperation {
+            function_name: "gmail_gmail_users_drafts_create".to_string(),
+            description: "Create a draft".to_string(),
+            parameters: json!({
+                "type": "object",
+                "properties": {
+                    "to": {"type": "array", "items": {"type": "string", "format": "email"}},
+                    "subject": {"type": "string"},
+                    "body": {"type": "string"},
+                    "cc": {"type": "array", "items": {"type": "string"}},
+                    "userId": {"type": "string", "default": "me"},
+                    "priority": {"type": "string", "enum": ["normal", "high"]},
+                    "metadata": {"type": "object"}
+                },
+                "required": ["to", "subject", "body", "userId"]
+            }),
+            byte_parameters: Vec::new(),
+            executor: OperationExecutor::OpenUrl,
+        };
+        let markdown = function_markdown(&IntegrationInfo {
+            name: "Gmail".to_string(),
+            slug: "gmail".to_string(),
+            operations: vec![operation],
+            is_builtin: false,
+        });
+
+        assert!(markdown.contains("to: list[string] required"));
+        assert!(markdown.contains("subject: string required"));
+        assert!(markdown.contains("body: string required"));
+        assert!(markdown.contains("cc: list[string] optional"));
+        assert!(markdown.contains("userId: string default=\"me\""));
+        assert!(markdown.contains("priority: string enum[\"normal\", \"high\"] optional"));
+        assert!(markdown.contains("metadata: object optional"));
+    }
+
+    #[test]
+    fn parameter_type_hints_cover_numeric_boolean_nullable_and_union_types() {
+        let hints = parameter_hints(&json!({
+            "type": "object",
+            "properties": {
+                "count": {"type": "integer"},
+                "ratio": {"type": "number"},
+                "enabled": {"type": "boolean", "default": true},
+                "note": {"type": "string", "nullable": true},
+                "target": {"oneOf": [{"type": "string"}, {"type": "integer"}]}
+            },
+            "required": ["count", "ratio", "note", "target"]
+        }));
+
+        assert!(hints.contains(&"count: integer required".to_string()));
+        assert!(hints.contains(&"ratio: number required".to_string()));
+        assert!(hints.contains(&"enabled: boolean default=true".to_string()));
+        assert!(hints.contains(&"note: string | null required".to_string()));
+        assert!(hints.contains(&"target: string | integer required".to_string()));
+    }
+
+    #[test]
     fn function_catalogue_documents_base64_file_calls() {
         let operation = RuntimeOperation {
             function_name: "document_conversion_api_extractdocument".to_string(),
@@ -1175,7 +1299,8 @@ mod tests {
                 "type": "object",
                 "properties": {
                     "file_path": {"type": "string"}
-                }
+                },
+                "required": ["file_path"]
             }),
             byte_parameters: vec![FileParameterMapping {
                 api_parameter: "files".to_string(),
@@ -1203,6 +1328,7 @@ mod tests {
         let markdown = String::from_utf8(file.contents).unwrap();
         assert!(markdown.contains("document_conversion_api_extractdocument"));
         assert!(markdown.contains("file_path': '/home/user/attachments/<document>'"));
+        assert!(markdown.contains("file_path: string required"));
     }
 
     #[test]

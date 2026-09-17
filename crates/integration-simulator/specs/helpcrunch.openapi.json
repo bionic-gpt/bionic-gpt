@@ -1,0 +1,417 @@
+{
+  "info": {
+    "title": "Helpcrunch",
+    "version": "v1",
+    "description": "Simulated Helpcrunch API for deterministic AutomationBench workflow evaluation."
+  },
+  "paths": {
+    "/events": {
+      "post": {
+        "summary": "Record a custom event against a HelpCrunch customer. Log a specific action or behavioral occurrence for a user.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "event": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "event_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{success: bool, event: EventObject, event_id: string}"
+          }
+        },
+        "description": "Record a custom event against a HelpCrunch customer. Log a specific action or behavioral occurrence for a user. Request body: {name: string, customer: integer, data?: object}.",
+        "operationId": "helpcrunch.events.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "customer": {
+                    "type": "integer"
+                  }
+                },
+                "description": "{name: string, customer: integer, data?: object}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/customers": {
+      "get": {
+        "summary": "Retrieve all customers from HelpCrunch. Fetch a full listing of contacts or users in the system.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "CustomerObject": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{data: [CustomerObject], total: int}"
+          }
+        },
+        "description": "Retrieve all customers from HelpCrunch. Fetch a full listing of contacts or users in the system.",
+        "operationId": "helpcrunch.customers.list"
+      },
+      "post": {
+        "summary": "Register a new customer or contact in HelpCrunch. Add a user record with details such as email, name, phone, and company.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "CustomerObject (201 Created)"
+          }
+        },
+        "description": "Register a new customer or contact in HelpCrunch. Add a user record with details such as email, name, phone, and company. Request body: {email?, name?, userId?, phone?, company?, tags?}.",
+        "operationId": "helpcrunch.customers.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "userId": {
+                    "type": "string"
+                  },
+                  "company": {
+                    "type": "string"
+                  }
+                },
+                "description": "{email?, name?, userId?, phone?, company?, tags?}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/customers/search": {
+      "post": {
+        "summary": "Look up a HelpCrunch customer using email, userId, or a free-text search query.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "CustomerObject": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{data: [CustomerObject], total: int}"
+          }
+        },
+        "description": "Look up a HelpCrunch customer using email, userId, or a free-text search query. Request body: {filter: [{field: string, operator: string, value: string}], comparison?: 'AND'|'OR', limit?: integer, offset?: integer, sort?: string, order?: 'asc'|'desc'}.",
+        "operationId": "helpcrunch.customers.search",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sort": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer"
+                  },
+                  "order": {
+                    "type": "string"
+                  },
+                  "filter": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        },
+                        "operator": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "offset": {
+                    "type": "integer"
+                  },
+                  "comparison": {
+                    "type": "string"
+                  }
+                },
+                "description": "{filter: [{field: string, operator: string, value: string}], comparison?: 'AND'|'OR', limit?: integer, offset?: integer, sort?: string, order?: 'asc'|'desc'}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/customers/{customer_id}": {
+      "patch": {
+        "summary": "Edit an existing HelpCrunch customer record. Change the customer's email, name, phone number, or company affiliation.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "CustomerObject (200 OK)"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "customer_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "HelpCrunch customer ID."
+          }
+        ],
+        "description": "Edit an existing HelpCrunch customer record. Change the customer's email, name, phone number, or company affiliation. Request body: {email?, name?, phone?, company?}.",
+        "operationId": "helpcrunch.customers.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "company": {
+                    "type": "string"
+                  }
+                },
+                "description": "{email?, name?, phone?, company?}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/customers/{customer_id}/tags": {
+      "put": {
+        "summary": "Apply a tag to a HelpCrunch customer. Assign a label or category marker to a contact.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "CustomerObject (200 OK)"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "customer_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "HelpCrunch customer ID."
+          }
+        ],
+        "description": "Apply a tag to a HelpCrunch customer. Assign a label or category marker to a contact. Request body: {tags: [{name (required, string), color (optional, string — hex color code)}]}.",
+        "operationId": "helpcrunch.customers.tag",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "tags"
+                ],
+                "properties": {
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "name"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "color": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "description": "{tags: [{name (required, string), color (optional, string — hex color code)}]}"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "summary": "Strip a tag from a HelpCrunch customer. Withdraw or clear a label previously assigned to a contact.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "CustomerObject (200 OK)"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "customer_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "HelpCrunch customer ID."
+          }
+        ],
+        "description": "Strip a tag from a HelpCrunch customer. Withdraw or clear a label previously assigned to a contact. Request body: {tags: [{name (required, string)}]}.",
+        "operationId": "helpcrunch.customers.untag",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "tags"
+                ],
+                "properties": {
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "name"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "description": "{tags: [{name (required, string)}]}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://integration-simulator:8080/api/helpcrunch"
+    }
+  ],
+  "components": {
+    "schemas": {}
+  }
+}
