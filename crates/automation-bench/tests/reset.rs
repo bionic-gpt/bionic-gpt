@@ -209,7 +209,7 @@ async fn gmail_send_and_label_modification_persist() {
             Request::post("/api/gmail/gmail/v1/users/me/messages/send")
                 .header("content-type", "application/json")
                 .body(Body::from(
-                    r#"{"payload":{"headers":[{"name":"To","value":"jordan.lee@example.com"}]}}"#,
+                    r#"{"to":["jordan.lee@example.com"],"subject":"Hello","body":"Test message"}"#,
                 ))
                 .unwrap(),
         )
@@ -220,6 +220,14 @@ async fn gmail_send_and_label_modification_persist() {
         .await
         .unwrap();
     let sent_body: Value = serde_json::from_slice(&sent_body).unwrap();
+    assert_eq!(sent_body["payload"]["body"]["data"], "Test message");
+    assert_eq!(sent_body["payload"]["headers"][0]["name"], "To");
+    assert_eq!(
+        sent_body["payload"]["headers"][0]["value"],
+        "jordan.lee@example.com"
+    );
+    assert_eq!(sent_body["payload"]["headers"][1]["name"], "Subject");
+    assert_eq!(sent_body["payload"]["headers"][1]["value"], "Hello");
     let message_id = sent_body["id"].as_str().unwrap();
     let modify = service
         .clone()
@@ -336,7 +344,7 @@ async fn gmail_list_and_sosl_support_pagination_and_case_insensitive_queries() {
                 Request::post("/api/gmail/gmail/v1/users/me/messages/send")
                     .header("content-type", "application/json")
                     .body(Body::from(format!(
-                        r#"{{"payload":{{"headers":[{{"name":"Subject","value":"{subject}"}}]}}}}"#
+                        r#"{{"to":["finance@example.com"],"subject":"{subject}","body":"Test message"}}"#
                     )))
                     .unwrap(),
             )
@@ -675,17 +683,9 @@ async fn important_draft_task_uses_cross_service_context_and_evaluates() {
                 .header("content-type", "application/json")
                 .body(Body::from(
                     r#"{
-                        "message": {
-                            "payload": {
-                                "headers": [
-                                    {"name":"To","value":"board@example.com"},
-                                    {"name":"Subject","value":"Q4 2025 Results Summary"}
-                                ],
-                                "body": {
-                                    "data":"Financial Summary: Revenue YoY: 37%. Above target: $1.4M. Risk assessment: no Negotiation deals close within 30 days. Source: Q4 Results FINAL - Approved."
-                                }
-                            }
-                        }
+                        "to": ["board@example.com"],
+                        "subject": "Q4 2025 Results Summary",
+                        "body": "Financial Summary: Revenue YoY: 37%. Above target: $1.4M. Risk assessment: no Negotiation deals close within 30 days. Source: Q4 Results FINAL - Approved."
                     }"#,
                 ))
                 .unwrap(),
@@ -760,17 +760,9 @@ async fn important_draft_evaluation_rejects_superseded_figures() {
                 .header("content-type", "application/json")
                 .body(Body::from(
                     r#"{
-                        "message": {
-                            "payload": {
-                                "headers": [
-                                    {"name":"To","value":"board@example.com"},
-                                    {"name":"Subject","value":"Q4 2025 Results Summary"}
-                                ],
-                                "body": {
-                                    "data":"Revenue YoY: 37%. Above target: $1.4M. There are no deals at risk. Source: FINAL. Superseded estimate: 33%."
-                                }
-                            }
-                        }
+                        "to": ["board@example.com"],
+                        "subject": "Q4 2025 Results Summary",
+                        "body": "Revenue YoY: 37%. Above target: $1.4M. There are no deals at risk. Source: FINAL. Superseded estimate: 33%."
                     }"#,
                 ))
                 .unwrap(),
@@ -931,6 +923,34 @@ fn specs_preserve_protocol_types_and_defaults() {
     let message = &gmail["components"]["schemas"]["Message"]["properties"];
     assert_eq!(message["internalDate"]["type"], "integer");
     assert_eq!(message["internalDate"]["format"], "int64");
+    let compose = &gmail["components"]["schemas"]["EmailComposeRequest"];
+    assert_eq!(
+        compose["required"],
+        serde_json::json!(["to", "subject", "body"])
+    );
+    assert_eq!(compose["properties"]["to"]["type"], "array");
+    assert_eq!(compose["properties"]["to"]["items"]["format"], "email");
+    assert_eq!(compose["properties"]["body"]["type"], "string");
+    assert!(compose["properties"]["body"]["description"]
+        .as_str()
+        .unwrap()
+        .contains("No base64"));
+    for path in [
+        "/gmail/v1/users/{userId}/drafts",
+        "/gmail/v1/users/{userId}/drafts/{id}",
+        "/gmail/v1/users/{userId}/messages/send",
+    ] {
+        let method = if path.ends_with("{id}") {
+            "put"
+        } else {
+            "post"
+        };
+        assert_eq!(
+            gmail["paths"][path][method]["requestBody"]["content"]["application/json"]["schema"]
+                ["$ref"],
+            "#/components/schemas/EmailComposeRequest"
+        );
+    }
     assert_eq!(
         gmail["paths"]["/gmail/v1/users/{userId}/messages"]["get"]["parameters"][0]["schema"]
             ["default"],

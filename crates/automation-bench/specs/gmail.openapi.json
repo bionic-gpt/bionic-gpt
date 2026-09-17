@@ -104,7 +104,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Draft"
+                "$ref": "#/components/schemas/EmailComposeRequest"
               }
             }
           },
@@ -473,7 +473,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Draft"
+                "$ref": "#/components/schemas/EmailComposeRequest"
               }
             }
           },
@@ -736,13 +736,13 @@
             "required": true
           }
         ],
-        "description": "Compose and deliver an email to one or more recipients. Request body: Message with raw (base64url-encoded RFC 2822) or payload with headers[] and body {data: base64url}.",
+        "description": "Compose and deliver an email using plain-text recipients, subject, and body. No MIME or base64 encoding is required.",
         "operationId": "gmail.users.messages.send",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Message"
+                "$ref": "#/components/schemas/EmailComposeRequest"
               }
             }
           },
@@ -1127,6 +1127,54 @@
   ],
   "components": {
     "schemas": {
+      "EmailComposeRequest": {
+        "type": "object",
+        "required": [
+          "to",
+          "subject",
+          "body"
+        ],
+        "properties": {
+          "to": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "description": "Primary recipient email addresses."
+          },
+          "cc": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "description": "Optional carbon-copy recipient email addresses."
+          },
+          "bcc": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "description": "Optional blind-carbon-copy recipient email addresses."
+          },
+          "subject": {
+            "type": "string",
+            "description": "Email subject line."
+          },
+          "body": {
+            "type": "string",
+            "description": "Plain-text email body. No base64 encoding is required."
+          },
+          "threadId": {
+            "type": "string",
+            "description": "Optional existing Gmail thread identifier."
+          }
+        },
+        "additionalProperties": false
+      },
       "Draft": {
         "type": "object",
         "properties": {

@@ -83,6 +83,43 @@ pub struct ListQuery {
     pub page_token: Option<String>,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct EmailComposeRequest {
+    to: Vec<String>,
+    #[serde(default)]
+    cc: Vec<String>,
+    #[serde(default)]
+    bcc: Vec<String>,
+    subject: String,
+    body: String,
+    thread_id: Option<String>,
+}
+
+fn composed_message(request: EmailComposeRequest) -> Value {
+    let mut headers = vec![
+        json!({"name": "To", "value": request.to.join(", ")}),
+        json!({"name": "Subject", "value": request.subject}),
+    ];
+    if !request.cc.is_empty() {
+        headers.push(json!({"name": "Cc", "value": request.cc.join(", ")}));
+    }
+    if !request.bcc.is_empty() {
+        headers.push(json!({"name": "Bcc", "value": request.bcc.join(", ")}));
+    }
+    let mut message = json!({
+        "payload": {
+            "mimeType": "text/plain",
+            "headers": headers,
+            "body": {"data": request.body},
+        }
+    });
+    if let Some(thread_id) = request.thread_id {
+        message["threadId"] = Value::String(thread_id);
+    }
+    message
+}
+
 fn user_ok(user_id: &str) -> bool {
     user_id == "me" || !user_id.is_empty()
 }
@@ -649,12 +686,12 @@ async fn list_drafts(
 async fn create_draft(
     State(world): State<Arc<World>>,
     Path(_user_id): Path<String>,
-    Json(body): Json<Value>,
+    Json(request): Json<EmailComposeRequest>,
 ) -> Json<Value> {
     let mut state = world.write().await;
     let id = format!("draft-{}", state.gmail.next_id);
     state.gmail.next_id += 1;
-    let mut message = body.get("message").cloned().unwrap_or(body);
+    let mut message = composed_message(request);
     if let Value::Object(fields) = &mut message {
         fields
             .entry("id")
@@ -686,13 +723,17 @@ async fn get_draft(
 async fn update_draft(
     State(world): State<Arc<World>>,
     Path((_user_id, id)): Path<(String, String)>,
-    Json(body): Json<Value>,
+    Json(request): Json<EmailComposeRequest>,
 ) -> Result<Json<Value>, StatusCode> {
     let mut state = world.write().await;
     let Some(draft) = state.gmail.drafts.get_mut(&id) else {
         return Err(StatusCode::NOT_FOUND);
     };
-    draft["message"] = body.get("message").cloned().unwrap_or(body);
+    let mut message = composed_message(request);
+    message["id"] = draft["message"]["id"].clone();
+    message["threadId"] = draft["message"]["threadId"].clone();
+    message["labelIds"] = json!(["DRAFT"]);
+    draft["message"] = message;
     let result = draft.clone();
     sync_gmail_labels(&mut state.gmail);
     Ok(Json(result))
@@ -712,17 +753,25 @@ async fn delete_draft(
 async fn send_message(
     State(world): State<Arc<World>>,
     Path(_user_id): Path<String>,
-    Json(body): Json<Value>,
+    Json(request): Json<EmailComposeRequest>,
 ) -> Json<Value> {
     let mut state = world.write().await;
     let id = format!("msg-sent-{:03}", state.gmail.next_id);
     state.gmail.next_id += 1;
-    let thread_id = body
+    let mut payload = composed_message(request);
+    let thread_id = payload
         .get("threadId")
         .and_then(Value::as_str)
         .unwrap_or("thread-sent-001")
         .to_string();
-    let message = json!({"id":id,"threadId":thread_id,"labelIds":["SENT"],"snippet":"Sent message","payload":body});
+    if let Some(value) = payload.as_object_mut() {
+        value.remove("threadId");
+    }
+    let snippet = payload
+        .pointer("/payload/body/data")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    let message = json!({"id":id,"threadId":thread_id,"labelIds":["SENT"],"snippet":snippet,"payload":payload["payload"]});
     state.gmail.messages.insert(id, message.clone());
     sync_gmail_threads(&mut state.gmail);
     sync_gmail_labels(&mut state.gmail);
@@ -738,10 +787,16 @@ async fn send_draft(
     };
     let message_id = format!("msg-sent-{:03}", state.gmail.next_id);
     state.gmail.next_id += 1;
-    let thread_id = draft["message"]["threadId"]
-        .as_str()
-        .unwrap_or("thread-sent-001");
-    let message = json!({"id":message_id,"threadId":thread_id,"labelIds":["SENT"],"snippet":"Sent draft","payload":draft["message"]});
+    let mut message = draft["message"].clone();
+    message["id"] = Value::String(message_id.clone());
+    message["labelIds"] = json!(["SENT"]);
+    message["snippet"] = Value::String(
+        message
+            .pointer("/payload/body/data")
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+            .to_string(),
+    );
     state.gmail.messages.insert(message_id, message.clone());
     sync_gmail_threads(&mut state.gmail);
     sync_gmail_labels(&mut state.gmail);
