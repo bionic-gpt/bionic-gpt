@@ -1,6 +1,7 @@
 mod gmail;
 mod salesforce;
 mod store;
+mod tasks;
 
 use axum::{
     extract::{Json, State},
@@ -20,6 +21,7 @@ pub fn app_with_state(world: Arc<World>) -> Router {
     Router::new()
         .route("/health", get(health))
         .route("/benchmark/reset", post(reset))
+        .route("/benchmark/evaluate", post(evaluate))
         .nest("/api/gmail", gmail::routes())
         .nest("/api/salesforce", salesforce::routes())
         .with_state(world)
@@ -40,4 +42,22 @@ async fn reset(State(world): State<Arc<World>>, body: Option<Json<ResetRequest>>
         return StatusCode::BAD_REQUEST;
     }
     StatusCode::NO_CONTENT
+}
+
+async fn evaluate(
+    State(world): State<Arc<World>>,
+    body: Option<Json<ResetRequest>>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let Some(Json(request)) = body else {
+        return Err(StatusCode::BAD_REQUEST);
+    };
+    let Some(task) = request.task else {
+        return Err(StatusCode::BAD_REQUEST);
+    };
+
+    world
+        .evaluate(&task)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::BAD_REQUEST)
 }

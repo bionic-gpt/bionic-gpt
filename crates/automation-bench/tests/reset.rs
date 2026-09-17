@@ -63,7 +63,7 @@ async fn gmail_list_returns_seeded_message() {
         .await
         .unwrap();
     let body: Value = serde_json::from_slice(&body).unwrap();
-    assert_eq!(body["messages"][0]["id"], "msg-jordan-001");
+    assert_eq!(body["messages"][0]["id"], "msg_3001");
 }
 
 #[tokio::test]
@@ -82,7 +82,7 @@ async fn gmail_list_accepts_repeated_label_ids() {
         .await
         .unwrap();
     let body: Value = serde_json::from_slice(&body).unwrap();
-    assert_eq!(body["messages"][0]["id"], "msg-jordan-001");
+    assert_eq!(body["messages"][0]["id"], "msg_3001");
 }
 
 #[tokio::test]
@@ -194,7 +194,7 @@ async fn reset_restores_salesforce_contact() {
     let update = service
         .clone()
         .oneshot(
-            Request::patch("/api/salesforce/services/data/v61.0/sobjects/Contact/003JORDANLEE")
+            Request::patch("/api/salesforce/services/data/v61.0/sobjects/Contact/003001")
                 .header("content-type", "application/json")
                 .body(Body::from(r#"{"Phone":"changed"}"#))
                 .unwrap(),
@@ -216,7 +216,7 @@ async fn reset_restores_salesforce_contact() {
 
     let contact = service
         .oneshot(
-            Request::get("/api/salesforce/services/data/v61.0/sobjects/Contact/003JORDANLEE")
+            Request::get("/api/salesforce/services/data/v61.0/sobjects/Contact/003001")
                 .body(Body::empty())
                 .unwrap(),
         )
@@ -226,7 +226,136 @@ async fn reset_restores_salesforce_contact() {
         .await
         .unwrap();
     let body: Value = serde_json::from_slice(&body).unwrap();
-    assert_eq!(body["Phone"], "+1 555 0100");
+    assert_eq!(body["Phone"], "+1-555-0000");
+}
+
+#[tokio::test]
+async fn jordan_task_can_be_evaluated_and_reset() {
+    let service = app();
+    let reset = service
+        .clone()
+        .oneshot(
+            Request::post("/benchmark/reset")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{"task":"simple.email_sf_contact_phone_update"}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(reset.status(), StatusCode::NO_CONTENT);
+
+    let messages = service
+        .clone()
+        .oneshot(
+            Request::get("/api/gmail/gmail/v1/users/me/messages?q=Jordan")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let messages = axum::body::to_bytes(messages.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let messages: Value = serde_json::from_slice(&messages).unwrap();
+    assert_eq!(messages["messages"][0]["id"], "msg_3001");
+
+    let message = service
+        .clone()
+        .oneshot(
+            Request::get("/api/gmail/gmail/v1/users/me/messages/msg_3001")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let message = axum::body::to_bytes(message.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let message: Value = serde_json::from_slice(&message).unwrap();
+    assert_eq!(message["threadId"], "thr_3001");
+    assert_eq!(
+        message["payload"]["headers"][0]["value"],
+        "jordan.lee@acmecorp.example.com"
+    );
+    assert!(message.to_string().contains("+1-555-0101"));
+
+    let contact = service
+        .clone()
+        .oneshot(
+            Request::get("/api/salesforce/services/data/v61.0/sobjects/Contact/003001")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let contact = axum::body::to_bytes(contact.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let contact: Value = serde_json::from_slice(&contact).unwrap();
+    assert_eq!(contact["Phone"], "+1-555-0000");
+    assert_eq!(contact["Title"], "Account Manager");
+    assert_eq!(contact["AccountId"], "001001");
+
+    let update = service
+        .clone()
+        .oneshot(
+            Request::patch("/api/salesforce/services/data/v61.0/sobjects/Contact/003001")
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"Phone":"+1-555-0101"}"#))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(update.status(), StatusCode::NO_CONTENT);
+
+    let evaluation = service
+        .clone()
+        .oneshot(
+            Request::post("/benchmark/evaluate")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{"task":"simple.email_sf_contact_phone_update"}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(evaluation.status(), StatusCode::OK);
+    let evaluation = axum::body::to_bytes(evaluation.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let evaluation: Value = serde_json::from_slice(&evaluation).unwrap();
+    assert_eq!(evaluation["passed"], true);
+
+    let reset = service
+        .clone()
+        .oneshot(
+            Request::post("/benchmark/reset")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{"task":"simple.email_sf_contact_phone_update"}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(reset.status(), StatusCode::NO_CONTENT);
+
+    let contact = service
+        .oneshot(
+            Request::get("/api/salesforce/services/data/v61.0/sobjects/Contact/003001")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let contact = axum::body::to_bytes(contact.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let contact: Value = serde_json::from_slice(&contact).unwrap();
+    assert_eq!(contact["Phone"], "+1-555-0000");
 }
 
 #[tokio::test]

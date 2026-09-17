@@ -1,6 +1,9 @@
+use chrono::DateTime;
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 use tokio::sync::RwLock;
+
+use crate::tasks;
 
 #[derive(Default)]
 pub struct World {
@@ -30,7 +33,8 @@ pub struct SalesforceState {
 
 impl Default for WorldState {
     fn default() -> Self {
-        Self::seeded()
+        let fixture = tasks::load(tasks::JORDAN_TASK).expect("canonical task fixture is valid");
+        Self::from_fixture(&fixture).expect("canonical task fixture has valid state")
     }
 }
 
@@ -57,12 +61,14 @@ impl Default for SalesforceState {
 
 impl World {
     pub async fn reset(&self, task: Option<&str>) -> bool {
-        if let Some(task) = task {
-            if task != "simple.email_sf_contact_phone_update" {
-                return false;
-            }
-        }
-        *self.state.write().await = WorldState::seeded();
+        let task = task.unwrap_or(tasks::JORDAN_TASK);
+        let Ok(fixture) = tasks::load(task) else {
+            return false;
+        };
+        let Ok(state) = WorldState::from_fixture(&fixture) else {
+            return false;
+        };
+        *self.state.write().await = state;
         true
     }
 
@@ -72,6 +78,51 @@ impl World {
 
     pub async fn write(&self) -> tokio::sync::RwLockWriteGuard<'_, WorldState> {
         self.state.write().await
+    }
+
+    pub async fn evaluate(&self, task: &str) -> Result<Value, String> {
+        let fixture = tasks::load(task)?;
+        let assertion = fixture
+            .pointer("/info/assertions/0")
+            .ok_or("task has no assertion")?;
+        let record_id = assertion["record_id"]
+            .as_str()
+            .ok_or("assertion has no record_id")?;
+        let field = assertion["field"]
+            .as_str()
+            .ok_or("assertion has no field")?;
+        let expected = assertion["value"]
+            .as_str()
+            .ok_or("assertion has no expected value")?;
+        let api_field = match field {
+            "phone" => "Phone",
+            other => other,
+        };
+        let actual = self
+            .read()
+            .await
+            .salesforce
+            .records
+            .get("Contact")
+            .and_then(|records| records.get(record_id))
+            .and_then(|record| record.get(api_field))
+            .cloned()
+            .unwrap_or(Value::Null);
+        let passed = actual.as_str() == Some(expected);
+
+        Ok(json!({
+            "task": task,
+            "passed": passed,
+            "assertions": [{
+                "type": assertion["type"],
+                "collection": assertion["collection"],
+                "record_id": record_id,
+                "field": field,
+                "expected": expected,
+                "actual": actual,
+                "passed": passed
+            }]
+        }))
     }
 }
 
@@ -102,58 +153,114 @@ pub fn sync_gmail_threads(gmail: &mut GmailState) {
 }
 
 impl WorldState {
-    fn seeded() -> Self {
-        let mut gmail = GmailState::default();
-        gmail.labels.insert(
-            "INBOX".to_string(),
-            json!({"id":"INBOX","name":"INBOX","type":"system"}),
-        );
-        gmail.labels.insert(
-            "SENT".to_string(),
-            json!({"id":"SENT","name":"SENT","type":"system"}),
-        );
-        gmail.labels.insert(
-            "DRAFT".to_string(),
-            json!({"id":"DRAFT","name":"DRAFT","type":"system"}),
-        );
-        gmail.labels.insert(
-            "TRASH".to_string(),
-            json!({"id":"TRASH","name":"TRASH","type":"system"}),
-        );
+    fn from_fixture(fixture: &Value) -> Result<Self, String> {
+        let initial_state = fixture
+            .pointer("/info/initial_state")
+            .ok_or("task fixture has no initial_state")?;
+        let gmail_state = initial_state
+            .get("gmail")
+            .ok_or("task fixture has no Gmail state")?;
+        let salesforce_state = initial_state
+            .get("salesforce")
+            .ok_or("task fixture has no Salesforce state")?;
 
-        let message = json!({
-            "id": "msg-jordan-001",
-            "threadId": "thread-jordan-001",
-            "labelIds": ["INBOX"],
-            "snippet": "Jordan Lee asked for an update on the contact record.",
-            "internalDate": 1788432000000i64,
-            "payload": {"headers": [
-                {"name":"From","value":"jordan.lee@example.com"},
-                {"name":"To","value":"alex@example.com"},
-                {"name":"Subject","value":"Contact details update"}
-            ], "body": {"data":"Jordan asked to update the phone number for the Salesforce contact."}}
-        });
-        gmail
-            .messages
-            .insert("msg-jordan-001".to_string(), message.clone());
-        gmail.threads.insert(
-            "thread-jordan-001".to_string(),
-            json!({"id":"thread-jordan-001","snippet":"Jordan Lee asked for an update on the contact record.","messages":[message]}),
-        );
+        let mut gmail = GmailState::default();
+        for message in gmail_state
+            .get("messages")
+            .and_then(Value::as_array)
+            .ok_or("Gmail state has no messages")?
+        {
+            let api_message = gmail_message(message)?;
+            let id = api_message["id"]
+                .as_str()
+                .ok_or("Gmail message has no id")?
+                .to_string();
+            gmail.messages.insert(id, api_message);
+        }
 
         let mut salesforce = SalesforceState::default();
-        salesforce.insert("Contact", "003JORDANLEE", json!({
-            "attributes":{"type":"Contact","url":"/services/data/v61.0/sobjects/Contact/003JORDANLEE"},
-            "Id":"003JORDANLEE","FirstName":"Jordan","LastName":"Lee",
-            "Email":"jordan.lee@example.com","Phone":"+1 555 0100","Title":"Operations Director"
-        }));
-        salesforce.insert("Account", "001EXAMPLE", json!({
-            "attributes":{"type":"Account","url":"/services/data/v61.0/sobjects/Account/001EXAMPLE"},
-            "Id":"001EXAMPLE","Name":"Example Industries"
-        }));
+        for contact in salesforce_state
+            .get("contacts")
+            .and_then(Value::as_array)
+            .ok_or("Salesforce state has no contacts")?
+        {
+            let record = salesforce_contact(contact)?;
+            let id = record["Id"]
+                .as_str()
+                .ok_or("Salesforce contact has no id")?
+                .to_string();
+            salesforce.insert("Contact", &id, record);
+        }
 
-        Self { gmail, salesforce }
+        sync_gmail_threads(&mut gmail);
+        Ok(Self { gmail, salesforce })
     }
+}
+
+fn gmail_message(message: &Value) -> Result<Value, String> {
+    let string = |name: &str| {
+        message
+            .get(name)
+            .and_then(Value::as_str)
+            .ok_or_else(|| format!("Gmail message has no {name}"))
+    };
+    let recipients = message
+        .get("to")
+        .and_then(Value::as_array)
+        .ok_or("Gmail message has no recipients")?
+        .iter()
+        .filter_map(Value::as_str)
+        .collect::<Vec<_>>()
+        .join(", ");
+    let body = string("body_plain")?;
+    let date = DateTime::parse_from_rfc3339(string("date")?)
+        .map_err(|error| format!("invalid Gmail date: {error}"))?
+        .timestamp_millis();
+
+    Ok(json!({
+        "id": string("id")?,
+        "threadId": string("thread_id")?,
+        "labelIds": message.get("label_ids").cloned().unwrap_or_else(|| json!([])),
+        "snippet": body,
+        "internalDate": date,
+        "payload": {
+            "headers": [
+                {"name": "From", "value": string("from_")?},
+                {"name": "To", "value": recipients},
+                {"name": "Subject", "value": string("subject")?}
+            ],
+            "body": {"data": body}
+        }
+    }))
+}
+
+fn salesforce_contact(contact: &Value) -> Result<Value, String> {
+    let fields = contact
+        .as_object()
+        .ok_or("Salesforce contact is not an object")?;
+    let mut record = serde_json::Map::new();
+    for (name, value) in fields {
+        let api_name = match name.as_str() {
+            "id" => "Id",
+            "first_name" => "FirstName",
+            "last_name" => "LastName",
+            "email" => "Email",
+            "phone" => "Phone",
+            "title" => "Title",
+            "account_id" => "AccountId",
+            other => other,
+        };
+        record.insert(api_name.to_string(), value.clone());
+    }
+    let id = record
+        .get("Id")
+        .and_then(Value::as_str)
+        .ok_or("Salesforce contact has no id")?;
+    record.insert(
+        "attributes".to_string(),
+        json!({"type":"Contact","url":format!("/services/data/v61.0/sobjects/Contact/{id}")}),
+    );
+    Ok(Value::Object(record))
 }
 
 impl SalesforceState {
