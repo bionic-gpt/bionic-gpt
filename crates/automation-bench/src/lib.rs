@@ -1,4 +1,6 @@
 mod gmail;
+mod google_drive;
+mod google_sheets;
 mod salesforce;
 mod store;
 mod tasks;
@@ -23,6 +25,8 @@ pub fn app_with_state(world: Arc<World>) -> Router {
         .route("/benchmark/reset", post(reset))
         .route("/benchmark/evaluate", post(evaluate))
         .nest("/api/gmail", gmail::routes())
+        .nest("/api/google_drive", google_drive::routes())
+        .nest("/api/google_sheets", google_sheets::routes())
         .nest("/api/salesforce", salesforce::routes())
         .with_state(world)
 }

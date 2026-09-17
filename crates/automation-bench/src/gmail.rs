@@ -118,12 +118,10 @@ async fn list_messages(
                     return false;
                 }
             }
-            query.q.as_ref().is_none_or(|q| {
-                message
-                    .to_string()
-                    .to_lowercase()
-                    .contains(&q.to_lowercase())
-            })
+            query
+                .q
+                .as_ref()
+                .is_none_or(|q| matches_message_query(message, q))
         })
         .map(|message| json!({"id":message["id"],"threadId":message["threadId"]}))
         .collect();
@@ -140,6 +138,47 @@ async fn list_messages(
     Ok(Json(
         json!({"messages":page,"nextPageToken":next_page_token,"resultSizeEstimate":result_size}),
     ))
+}
+
+fn matches_message_query(message: &Value, query: &str) -> bool {
+    let query = query.trim();
+    for (prefix, header_name) in [("subject:", "Subject"), ("from:", "From"), ("to:", "To")] {
+        if let Some(value) = query
+            .get(..prefix.len())
+            .filter(|value| value.eq_ignore_ascii_case(prefix))
+            .and_then(|_| query.get(prefix.len()..))
+        {
+            let needle = value.trim().trim_matches(['\'', '"']).to_lowercase();
+            return message["payload"]["headers"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .any(|header| {
+                    header["name"]
+                        .as_str()
+                        .is_some_and(|name| name.eq_ignore_ascii_case(header_name))
+                        && header["value"]
+                            .as_str()
+                            .is_some_and(|value| value.to_lowercase().contains(&needle))
+                });
+        }
+    }
+    if let Some(label) = query
+        .strip_prefix("label:")
+        .or_else(|| query.strip_prefix("LABEL:"))
+    {
+        return message["labelIds"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .any(|value| {
+                value
+                    .as_str()
+                    .is_some_and(|value| value.eq_ignore_ascii_case(label))
+            });
+    }
+    let needle = query.trim_matches(['\'', '"']).to_lowercase();
+    message.to_string().to_lowercase().contains(&needle)
 }
 
 async fn get_message(

@@ -242,9 +242,24 @@ async fn search(
 struct ParsedSoql {
     object_type: String,
     fields: Vec<String>,
-    filters: Vec<(String, String)>,
+    filters: Vec<Filter>,
     order_by: Option<(String, bool)>,
     limit: Option<usize>,
+}
+
+struct Filter {
+    field: String,
+    operator: Comparison,
+    expected: String,
+}
+
+enum Comparison {
+    Equal,
+    NotEqual,
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
 }
 
 fn parse_soql(query: &str) -> Option<ParsedSoql> {
@@ -285,14 +300,7 @@ fn parse_soql(query: &str) -> Option<ParsedSoql> {
                 .unwrap_or(rest.len());
             rest[start + 7..end]
                 .split(" AND ")
-                .filter_map(|filter| {
-                    filter.split_once('=').map(|(field, value)| {
-                        (
-                            field.trim().to_string(),
-                            value.trim().trim_matches('\'').to_string(),
-                        )
-                    })
-                })
+                .filter_map(parse_filter)
                 .collect::<Vec<_>>()
         })
         .unwrap_or_default();
@@ -320,13 +328,51 @@ fn parse_soql(query: &str) -> Option<ParsedSoql> {
     })
 }
 
-fn matches_filters(record: &Value, filters: &[(String, String)]) -> bool {
-    filters.iter().all(|(field, expected)| {
-        record[field]
-            .as_str()
-            .is_some_and(|actual| actual == expected)
-            || record[field].to_string().trim_matches('"') == expected
+fn parse_filter(filter: &str) -> Option<Filter> {
+    for (token, operator) in [
+        ("<=", Comparison::LessThanOrEqual),
+        (">=", Comparison::GreaterThanOrEqual),
+        ("!=", Comparison::NotEqual),
+        ("=", Comparison::Equal),
+        ("<", Comparison::LessThan),
+        (">", Comparison::GreaterThan),
+    ] {
+        if let Some((field, expected)) = filter.split_once(token) {
+            return Some(Filter {
+                field: field.trim().to_string(),
+                operator,
+                expected: expected.trim().trim_matches('\'').to_string(),
+            });
+        }
+    }
+    None
+}
+
+fn matches_filters(record: &Value, filters: &[Filter]) -> bool {
+    filters.iter().all(|filter| {
+        let Some(actual) = record.get(&filter.field) else {
+            return false;
+        };
+        let ordering = match (actual.as_f64(), filter.expected.parse::<f64>().ok()) {
+            (Some(actual), Some(expected)) => actual.partial_cmp(&expected),
+            _ => Some(value_text(actual).cmp(&filter.expected)),
+        };
+        match filter.operator {
+            Comparison::Equal => ordering.is_some_and(|value| value.is_eq()),
+            Comparison::NotEqual => ordering.is_some_and(|value| !value.is_eq()),
+            Comparison::LessThan => ordering.is_some_and(|value| value.is_lt()),
+            Comparison::LessThanOrEqual => ordering.is_some_and(|value| value.is_le()),
+            Comparison::GreaterThan => ordering.is_some_and(|value| value.is_gt()),
+            Comparison::GreaterThanOrEqual => ordering.is_some_and(|value| value.is_ge()),
+        }
     })
+}
+
+fn value_text(value: &Value) -> String {
+    value
+        .as_str()
+        .map(str::to_string)
+        .unwrap_or_else(|| value.to_string())
 }
 
 fn project_record(record: &Value, fields: &[String]) -> Value {

