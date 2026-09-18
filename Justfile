@@ -9,6 +9,9 @@ dev-setup:
 dev-secrets:
     stack secrets --manifest infra-as-code/stack.yaml --db-host host.docker.internal --db-port 30001 >> .env
 
+load-specs:
+    .agents/skills/automationbench-eval/scripts/load-specs.sh
+
 ci:
     cargo run --bin dagger-pipeline -- pull-request
 
