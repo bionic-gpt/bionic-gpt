@@ -1,7 +1,13 @@
 set dotenv-load := true
 
-list:
-    just --list
+dev-init:
+    .agents/skills/k3d-environment/dev-init.sh
+
+dev-setup:
+    .agents/skills/k3d-environment/dev-setup.sh
+
+dev-secrets:
+    stack secrets --manifest infra-as-code/stack.yaml --db-host host.docker.internal --db-port 30001 >> .env
 
 ci:
     cargo run --bin dagger-pipeline -- pull-request
