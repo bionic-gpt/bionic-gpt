@@ -10,11 +10,11 @@ Potentially **hundreds of systems exposing thousands of API operations**.
 
 How do we make all of that available to AI without turning every connection into its own engineering project?
 
-![Enterprise systems](https://placehold.co/1024x576?text=Enterprise+Systems+%E2%86%92+Agentic+AI)
+![Enterprise systems](enterprise-systems.png "Enterprise systems")
 
 ---
 
-## OpenAPI has been around forever
+## Machine Readable API Specifications
 
 About a million years ago, we invented ways for computer systems to describe their APIs.
 
@@ -45,24 +45,9 @@ Here's a deliberately tiny example:
 
 The real specifications are obviously much larger.
 
-But the important thing is that we now have a machine-readable definition saying:
+But the important thing is that we now have a machine-readable way to specify our systems:
 
 > **Here is something this system can do, and here is how you call it.**
-
-### Authentication and governance
-
-The API definition is only part of the story.
-
-We also need to know:
-
-- How do I authenticate?
-- Who is allowed to call this?
-- Which environment am I connecting to?
-- What data can this operation access?
-
-This is where we can start introducing **governance** rather than leaving every AI application to solve these problems independently.
-
-![Authentication and governance](https://placehold.co/1024x576?text=Authentication+%2B+Governance)
 
 ---
 
@@ -96,7 +81,7 @@ And that gives us an interesting bridge between the **AI world** and the systems
 
 ---
 
-## We already have API management
+## API Catalogs and Gateways
 
 None of this is particularly new from an enterprise architecture perspective.
 
@@ -104,7 +89,7 @@ Companies have been **cataloguing, securing, documenting and governing APIs for 
 
 Some enterprises may already have a large part of the answer sitting inside an API catalogue or API management platform.
 
-![Existing API management](https://placehold.co/1024x576?text=Existing+Enterprise+API+Management)
+![Existing API management](api-manager-screenshot.png)
 
 So my first question would be:
 
