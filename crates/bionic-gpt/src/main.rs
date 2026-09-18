@@ -36,46 +36,24 @@ async fn main() {
         footer_links: footer_links(),
         site_meta: bionic_gpt::ui_links::site_meta(),
         site_header: Some(site_header),
-        features: SiteFeatures::default(),
+        features: SiteFeatures {
+            content_lightbox: true,
+            ..SiteFeatures::default()
+        },
         site_assets: SiteAssets {
             stylesheets: vec![
                 tailwind_stylesheet,
-                "/content-lightbox.css".into(),
                 "https://cdn.jsdelivr.net/npm/daisyui@5".into(),
             ],
-            head_scripts: vec![
-                ScriptAsset {
-                    src: "/goat-counter.js".to_string(),
-                    script_type: None,
-                    async_load: true,
-                    integrity: None,
-                    data_goatcounter: Some(
-                        "https://bionicgpt.goatcounter.com/count".to_string(),
-                    ),
-                },
-                ScriptAsset {
-                    src: "/copy-paste.js".to_string(),
-                    script_type: None,
-                    async_load: true,
-                    integrity: None,
-                    data_goatcounter: None,
-                },
-                ScriptAsset {
-                    src: "/content-lightbox.js".to_string(),
-                    script_type: None,
-                    async_load: true,
-                    integrity: None,
-                    data_goatcounter: None,
-                },
-                ScriptAsset {
-                    src: "https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"
+            head_scripts: vec![ScriptAsset {
+                src:
+                    "https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"
                         .to_string(),
-                    script_type: Some("module".to_string()),
-                    async_load: false,
-                    integrity: None,
-                    data_goatcounter: None,
-                },
-            ],
+                script_type: Some("module".to_string()),
+                async_load: false,
+                integrity: None,
+                data_goatcounter: None,
+            }],
             body_scripts: vec![ScriptAsset {
                 src: "https://instant.page/5.2.0".to_string(),
                 script_type: Some("module".to_string()),

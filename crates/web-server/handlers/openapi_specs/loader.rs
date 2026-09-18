@@ -30,7 +30,7 @@ pub async fn index_loader(
         .all()
         .await?;
 
-    let html = web_pages::openapi_specs::page::page(team_id, rbac, specs);
+    let html = web_pages::openapi_specs::page::page(team_id, rbac, specs, None);
     Ok(Html(html))
 }
 

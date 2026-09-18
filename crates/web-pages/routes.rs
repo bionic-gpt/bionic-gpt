@@ -699,6 +699,12 @@ pub mod openapi_specs {
     }
 
     #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/openapi-specs/import")]
+    pub struct Import {
+        pub team_id: String,
+    }
+
+    #[derive(TypedPath, Deserialize)]
     #[typed_path("/o/{team_id}/openapi-specs/delete/{id}")]
     pub struct Delete {
         pub team_id: String,
