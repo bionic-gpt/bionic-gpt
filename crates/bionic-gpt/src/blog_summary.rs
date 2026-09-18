@@ -9,7 +9,7 @@ pub fn summary() -> Summary {
                 PageSummary {
                     date: "2026-09-18",
                     title: "Agentic AI: A Faster Path to Enterprise Integration",
-                    description: "",
+                    description: "Learn how OpenAPI specifications and a governed API catalogue can connect AI to enterprise systems and make integrations reusable.",
                     folder: "blog/enterprise-integrations/",
                     markdown: include_str!("../content/blog/enterprise-integrations/index.md"),
                     image: Some("/blog/enterprise-integrations/enterprise-mcp.png"),
