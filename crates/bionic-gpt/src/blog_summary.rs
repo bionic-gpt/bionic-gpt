@@ -7,15 +7,15 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 PageSummary {
-                    date: "2026-09-18",
+                    date: "2026-09-19",
                     title: "Agentic AI: A Faster Path to Enterprise Integration",
                     description: "Learn how OpenAPI specifications and a governed API catalogue can connect AI to enterprise systems and make integrations reusable.",
                     folder: "blog/enterprise-integrations/",
                     markdown: include_str!("../content/blog/enterprise-integrations/index.md"),
                     image: Some("/blog/enterprise-integrations/enterprise-mcp.png"),
-                    open_graph_image: None,
-                    author_image: None,
-                    author: None
+                    open_graph_image: Some("/blog/enterprise-integrations/open-graph.png"),
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
                 },
                 PageSummary {
                     date: "2026-09-01",
