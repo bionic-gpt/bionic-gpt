@@ -202,7 +202,7 @@ MCP is useful.
 
 But I think we need to be careful about *which layer becomes our source of truth*.
 
-![MCP versus OpenAPI](https://placehold.co/1024x576?text=OpenAPI+vs+MCP)
+![MCP versus OpenAPI](openapi-vs-mcp.png)
 
 The enterprise already has APIs.
 
