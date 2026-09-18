@@ -12,29 +12,34 @@ pub fn Upload(team_id: String) -> Element {
             Modal {
                 trigger_id: "upload-openapi-specs",
                 ModalBody {
+                    class: "w-[calc(100vw-2rem)] max-w-lg overflow-x-hidden",
                     h3 {
                         class: "font-bold text-lg mb-4",
                         "Upload OpenAPI Specs"
                     }
                     div {
-                        class: "flex flex-col gap-4",
+                        class: "flex w-full min-w-0 max-w-full flex-col gap-4",
                         Fieldset {
+                            class: "w-full min-w-0 max-w-full",
                             legend: "Spec file",
-                            help_text: "Upload one JSON or YAML spec, or a ZIP containing multiple specs in any folder structure.",
                             FileInput {
-                                class: "w-full",
+                                class: "box-border block w-full min-w-0 max-w-full overflow-hidden text-ellipsis",
                                 name: "payload",
                                 accept: ".json,.yaml,.yml,.zip,application/json,application/yaml,application/zip",
                                 required: true,
                                 multiple: false,
                             }
+                            p {
+                                class: "label block w-full min-w-0 whitespace-normal break-words",
+                                "Upload one JSON or YAML spec, or a ZIP containing multiple specs in any folder structure."
+                            }
                         }
                         Fieldset {
+                            class: "w-full min-w-0 max-w-full",
                             legend: "Category",
-                            help_text: "Applied to every spec in the upload.",
                             select {
                                 name: "category",
-                                class: "select select-bordered w-full",
+                                class: "select select-bordered min-w-0 max-w-full w-full",
                                 SelectOption {
                                     value: "Application",
                                     selected_value: "Application",
@@ -46,10 +51,14 @@ pub fn Upload(team_id: String) -> Element {
                                     "Web Search"
                                 },
                             }
+                            p {
+                                class: "label block w-full min-w-0 whitespace-normal break-words",
+                                "Applied to every spec in the upload."
+                            }
                         }
                         Fieldset {
+                            class: "w-full min-w-0 max-w-full",
                             legend: "Status",
-                            help_text: "Applied to every spec in the upload.",
                             label {
                                 class: "flex items-center gap-2 min-h-12",
                                 input {
@@ -61,13 +70,19 @@ pub fn Upload(team_id: String) -> Element {
                                 }
                                 span { "Active" }
                             }
+                            p {
+                                class: "label block w-full min-w-0 whitespace-normal break-words",
+                                "Applied to every spec in the upload."
+                            }
                         }
                         Alert {
+                            class: "w-full min-w-0 max-w-full break-words",
                             alert_color: AlertColor::Default,
                             "Maximum upload: 50 MiB. Existing specs are never overwritten."
                         }
                     }
                     ModalAction {
+                        class: "flex flex-wrap",
                         Button {
                             class: "cancel-modal",
                             button_scheme: ButtonScheme::Warning,
@@ -100,5 +115,10 @@ mod tests {
         assert!(html.contains("multipart/form-data"));
         assert!(html.contains(".json,.yaml,.yml,.zip"));
         assert!(html.contains("Upload OpenAPI Specs"));
+        assert!(html.contains("w-[calc(100vw-2rem)] max-w-lg overflow-x-hidden"));
+        assert!(html
+            .contains("box-border block w-full min-w-0 max-w-full overflow-hidden text-ellipsis"));
+        assert!(html.contains("label block w-full min-w-0 whitespace-normal break-words"));
+        assert!(html.contains("modal-action flex flex-wrap"));
     }
 }

@@ -30,17 +30,20 @@ pub fn page(
                     }]
                 }
                 if rbac.is_sys_admin {
-                    Button {
-                        popover_target: "upload-openapi-specs",
-                        button_scheme: ButtonScheme::Neutral,
-                        "Upload Specs"
-                    }
-                    Button {
-                        button_type: ButtonType::Link,
-                        prefix_image_src: "{button_plus_svg.name}",
-                        button_scheme: ButtonScheme::Primary,
-                        href: routes::openapi_specs::New { team_id: team_id.clone() }.to_string(),
-                        "Add OpenAPI Spec"
+                    div {
+                        class: "ml-auto flex flex-wrap items-center justify-end gap-2",
+                        Button {
+                            popover_target: "upload-openapi-specs",
+                            button_scheme: ButtonScheme::Neutral,
+                            "Upload Specs"
+                        }
+                        Button {
+                            button_type: ButtonType::Link,
+                            prefix_image_src: "{button_plus_svg.name}",
+                            button_scheme: ButtonScheme::Primary,
+                            href: routes::openapi_specs::New { team_id: team_id.clone() }.to_string(),
+                            "Add OpenAPI Spec"
+                        }
                     }
                 }
             ),
