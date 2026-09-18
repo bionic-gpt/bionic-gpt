@@ -1,65 +1,363 @@
-## Intro
+# Agentic AI: A Faster Path to Enterprise Integration
 
-This article will show you potentially the fastest to connext 100's of enterpise system that map 1000's of API calls to make them AI ready.
+## The integration problem
 
-## Prerequisites 
+This article looks at **one part of Agentic AI transformation**: connecting AI to the hundreds of systems that already exist inside a large enterprise.
 
-### 1. Open API Specifications
+Salesforce, SAP, ServiceNow, Microsoft 365, internal systems, legacy applications...
 
-About a million years ago a way to represent APIs was invented. There are many but one that gained a ot of tractions is Open API formally known as swagger.
+Potentially **hundreds of systems exposing thousands of API operations**.
 
-Snippet of a Salesforce spec.
+How do we make all of that available to AI without turning every connection into its own engineering project?
+
+![Enterprise systems](https://placehold.co/1024x576?text=Enterprise+Systems+%E2%86%92+Agentic+AI)
+
+---
+
+## OpenAPI has been around forever
+
+About a million years ago, we invented ways for computer systems to describe their APIs.
+
+One standard that gained a *lot* of traction was **Swagger**, now known as **OpenAPI**.
+
+An OpenAPI specification gives us a machine-readable description of what a system can do.
+
+Here's a deliberately tiny example:
 
 ```json
-
+{
+  "paths": {
+    "/contacts/{contactId}": {
+      "patch": {
+        "operationId": "updateContact",
+        "parameters": [
+          {
+            "name": "contactId",
+            "in": "path",
+            "required": true
+          }
+        ]
+      }
+    }
+  }
+}
 ```
 
-#### Authenticatrion
+The real specifications are obviously much larger.
 
-Tiny example, but we start to introduce governance.
+But the important thing is that we now have a machine-readable definition saying:
 
-### 2. LLM tool calls
+> **Here is something this system can do, and here is how you call it.**
 
-Models can call out to system and they do that in a way that looks very similar to 
+### Authentication and governance
 
-Diagram of web chat calling salesforce with tool calls that look a bit like json
+The API definition is only part of the story.
 
-### 3. API management systems
+We also need to know:
 
-These have been around for a while and some companies have them already (link to use cases)
+- How do I authenticate?
+- Who is allowed to call this?
+- Which environment am I connecting to?
+- What data can this operation access?
 
-Diagram showing the API thingy etc.
+This is where we can start introducing **governance** rather than leaving every AI application to solve these problems independently.
 
-## How can we map the terrain
+![Authentication and governance](https://placehold.co/1024x576?text=Authentication+%2B+Governance)
 
-1. Do we have an existing API ctalog / gateway
-1. Do we wantr to create one.
-1. Collect existing cloud services (easy win)
-1. Collect back end system (looking at you sap)
+---
 
-### Flowchart?
+## LLMs can already call tools
 
-### Pilot, salesfoce and email.
+Modern LLMs don't just generate text.
 
-Show an eval form automation bench
+They can decide they need to call a tool and produce something conceptually like this:
 
+```json
+{
+  "name": "updateContact",
+  "arguments": {
+    "contactId": "0038X00001ABC",
+    "phone": "+49 89 123456"
+  }
+}
+```
 
-## Imagine a zip file of open api specs
+That looks *remarkably similar* to something we've already described in our OpenAPI specification.
 
-Thats your whole engterprise mapped ready for agentic AI.
+```mermaid
+sequenceDiagram
+    User->>AI: Update Jordan's phone number
+    AI->>Salesforce: updateContact(...)
+    Salesforce-->>AI: Contact updated
+    AI-->>User: Done
+```
 
-Diagram of how some specs are open api native, some might require an adapter.
+And that gives us an interesting bridge between the **AI world** and the systems we already have.
 
-## Load the zip file into bionic.
+---
 
-Screenshot of all the system on the bionic integrations screen
+## We already have API management
 
-## Show the Jordan eval.
+None of this is particularly new from an enterprise architecture perspective.
 
-Screenhsot of bionic running the email/salesforce thing.
+Companies have been **cataloguing, securing, documenting and governing APIs for years**.
 
-## why not MCP?
+Some enterprises may already have a large part of the answer sitting inside an API catalogue or API management platform.
 
-## conclusion
+![Existing API management](https://placehold.co/1024x576?text=Existing+Enterprise+API+Management)
 
-I hope this gave you a way to think about Agemntic Ai adoption and a possible route to accelearating that.
+So my first question would be:
+
+> **What do we already have?**
+
+---
+
+## Mapping the enterprise
+
+I'd start by finding out:
+
+1. Do we already have an **API catalogue**?
+2. Do we have an **API gateway**?
+3. Are teams already maintaining **OpenAPI specifications**?
+
+Then I'd go after the *easy wins*.
+
+### Start with cloud services
+
+Cloud services are an obvious place to start because many already expose mature APIs.
+
+- Salesforce
+- Microsoft 365
+- ServiceNow
+- Jira
+- Slack
+
+![Start with cloud systems](https://placehold.co/1024x576?text=Salesforce+%7C+Microsoft+365+%7C+ServiceNow+%7C+Jira+%7C+Slack)
+
+Then progressively move further into the enterprise.
+
+**Internal services → backend systems → legacy applications → and, eventually, I'm looking at you SAP.**
+
+![Expand into the enterprise](https://placehold.co/1024x576?text=Cloud+%E2%86%92+Internal+APIs+%E2%86%92+SAP+%E2%86%92+Legacy)
+
+I'm *not* suggesting we spend two years mapping every system before anyone is allowed to build anything with AI.
+
+**Start small and grow the catalogue while people are already using it.**
+
+---
+
+## Let's start with two systems
+
+Let's make this concrete.
+
+We'll start with **email and Salesforce**.
+
+Here's our task:
+
+> *Find the latest email from Jordan Lee, extract his new phone number and update his contact in Salesforce.*
+
+![Jordan Lee evaluation](https://placehold.co/1024x576?text=Jordan+Lee+Evaluation)
+
+The AI needs to:
+
+1. Search email.
+2. Find the right message.
+3. Extract the new phone number.
+4. Find Jordan in Salesforce.
+5. Update his contact.
+
+```mermaid
+sequenceDiagram
+    User->>AI: Update Jordan's phone from his email
+    AI->>Email: Search for Jordan Lee
+    Email-->>AI: Latest email
+    AI->>Salesforce: Find Jordan Lee
+    Salesforce-->>AI: Contact 003...
+    AI->>Salesforce: Update phone
+    Salesforce-->>AI: Updated
+    AI-->>User: Done
+```
+
+Two completely different enterprise systems.
+
+One task.
+
+---
+
+## Let's actually run it
+
+I've been building a simulator for exactly this kind of testing.
+
+It exposes realistic enterprise APIs so I can test whether an AI system can actually complete these tasks rather than just demonstrate them in a slide deck.
+
+![AutomationBench](https://placehold.co/1024x576?text=AutomationBench+Screenshot)
+
+I can load those OpenAPI specifications into **Bionic**.
+
+![Bionic integrations](https://placehold.co/1024x576?text=Bionic+Integrations+Screenshot)
+
+And run the task.
+
+![Bionic running the evaluation](https://placehold.co/1024x576?text=Bionic+Running+Jordan+Lee+Evaluation)
+
+Great.
+
+We've connected **two systems**.
+
+But now let's scale the idea.
+
+---
+
+## Imagine a ZIP file of OpenAPI specs
+
+Imagine someone handed me this:
+
+```text
+enterprise-apis.zip
+
+├── salesforce.yaml
+├── microsoft-365.yaml
+├── servicenow.yaml
+├── jira.yaml
+├── sap.yaml
+├── workday.yaml
+├── confluence.yaml
+├── internal-finance.yaml
+└── ...
+```
+
+Inside are good OpenAPI specifications for **100 enterprise systems**.
+
+![ZIP file containing enterprise APIs](https://placehold.co/1024x576?text=enterprise-apis.zip+%E2%86%92+100+Enterprise+Systems)
+
+Potentially thousands of operations describing what those systems can actually *do*.
+
+We've created something interesting:
+
+> **A machine-readable map of a significant part of the enterprise.**
+
+And importantly, we don't have to reach 100 before it's useful.
+
+**5 is useful.**
+
+**20 is more useful.**
+
+**50 is better again.**
+
+The capability surface grows over time.
+
+---
+
+## Not everything will have OpenAPI
+
+Of course, the real world is messy.
+
+Some systems will already have excellent OpenAPI specifications.
+
+Some will have APIs but poor specifications.
+
+Some will need an adapter.
+
+And some legacy systems will require considerably more work.
+
+```mermaid
+flowchart LR
+    A[Cloud API] --> D[OpenAPI Catalogue]
+    B[Internal API] --> D
+    C[Legacy System] --> E[Adapter]
+    E --> D
+    D --> F[Agentic AI]
+```
+
+![Native APIs and adapters](https://placehold.co/1024x576?text=Native+APIs+%2B+Adapters+%E2%86%92+OpenAPI)
+
+The important thing is that we can **progressively bring those capabilities into the same model**.
+
+---
+
+## A governed enterprise capability catalogue
+
+Now we're getting somewhere interesting.
+
+Instead of every AI project independently figuring out how to talk to Salesforce, SAP or ServiceNow, we have a **reusable catalogue of enterprise capabilities**.
+
+![Enterprise capability catalogue](https://placehold.co/1024x576?text=Governed+Enterprise+Capability+Catalogue)
+
+Now:
+
+- Authentication can be managed.
+- Access can be governed.
+- Specifications can be versioned.
+- Operations can be tested.
+- Capabilities can be reused.
+- Multiple AI platforms can consume them.
+
+Most importantly:
+
+> **Every system we add makes the next AI use case easier.**
+
+---
+
+## Why not MCP?
+
+At this point there's an obvious question.
+
+**Why not just create MCP servers for everything?**
+
+MCP is useful.
+
+But I think we need to be careful about *which layer becomes our source of truth*.
+
+![MCP versus OpenAPI](https://placehold.co/1024x576?text=OpenAPI+vs+MCP)
+
+The enterprise already has APIs.
+
+Those APIs aren't only there for AI. They're used by applications, integrations, developers and other systems.
+
+My preference is therefore to keep the **API definition as the durable enterprise asset**.
+
+> **OpenAPI describes the enterprise capability.**
+
+MCP, tool calling or whatever comes next can be ways of exposing that capability to AI.
+
+What I don't want to create is **another parallel integration estate that exists only for AI**.
+
+---
+
+## Start with the easy stuff
+
+This doesn't need to begin as a huge transformation programme.
+
+![Growing capability surface](https://placehold.co/1024x576?text=5+Systems+%E2%86%92+20+%E2%86%92+50+%E2%86%92+100%2B)
+
+Start with the systems that are easiest to connect.
+
+**Make them available. Start using them. Keep adding more.**
+
+Five systems become twenty.
+
+Twenty become fifty.
+
+Fifty become a hundred.
+
+Over time we build a **governed, machine-readable map of what our enterprise systems can do**.
+
+And every system we add becomes available to the *next agent, the next use case and the next AI platform*.
+
+---
+
+## Conclusion
+
+Connecting enterprise systems is only **one part of an Agentic AI transformation**.
+
+But it's an important one.
+
+If every new AI use case requires another team to hand-build integrations into the same enterprise systems, we're going to move slowly.
+
+A reusable, governed catalogue of enterprise capabilities gives us another route.
+
+**Start with what's easy.**
+
+**Grow it continuously.**
+
+And make the enterprise progressively more accessible to AI.
