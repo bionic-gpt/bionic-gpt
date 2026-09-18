@@ -7,6 +7,17 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 PageSummary {
+                    date: "2026-09-18",
+                    title: "Agentic AI: Accelerating Connections to Enterprise Systems",
+                    description: "",
+                    folder: "blog/agentic-ai-accelerating-connections-to-enterprise-systems/",
+                    markdown: include_str!("../content/blog/agentic-ai-accelerating-connections-to-enterprise-systems/index.md"),
+                    image: Some("/blog/agentic-ai-accelerating-connections-to-enterprise-systems/enterprise-mcp.png"),
+                    open_graph_image: None,
+                    author_image: None,
+                    author: None
+                },
+                PageSummary {
                     date: "2026-09-01",
                     title: "Stop building Agents",
                     description: "A practical look at when to use existing agentic capabilities and when to build a platform.",
