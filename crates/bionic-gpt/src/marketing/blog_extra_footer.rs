@@ -9,23 +9,23 @@ pub fn blog_extra_footer() -> Element {
                 div {
                     h2 {
                         class: "text-3xl font-bold leading-tight md:text-4xl",
-                        "See what your users could solve themselves"
+                        "Your sovereign AI agent for enterprise tasks"
                     }
                     p {
                         class: "mt-4 text-lg opacity-80",
-                        "Try the examples from this article in Bionic’s Zero to Agentic AI Hero course."
+                        "Bionic connects AI to your organisation’s knowledge and tools, so it can research, analyse, create and take action. Deploy on-premise, in your private cloud or air-gapped, with full control over your data and models."
                     }
                     div {
                         class: "mt-6 flex flex-wrap gap-3",
                         a {
                             class: "btn btn-primary",
-                            href: "/architect-course/",
-                            "Take the course →"
+                            href: "/docs/running-locally/docker-compose/",
+                            "Deploy Bionic"
                         }
                         a {
                             class: "btn btn-ghost",
-                            href: "/",
-                            "Explore Bionic →"
+                            href: crate::routes::marketing::Contact {}.to_string(),
+                            "Talk to us about the Accelerator"
                         }
                     }
                 }

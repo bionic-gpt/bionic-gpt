@@ -8,7 +8,7 @@ pub fn summary() -> Summary {
             pages: vec![
                 PageSummary {
                     date: "2026-09-19",
-                    title: "Agentic AI: A Faster Path to Enterprise Integration",
+                    title: "How to Make Enterprise Systems Available to AI at Scale",
                     description: "Learn how OpenAPI specifications and a governed API catalogue can connect AI to enterprise systems and make integrations reusable.",
                     folder: "blog/enterprise-integrations/",
                     markdown: include_str!("../content/blog/enterprise-integrations/index.md"),
