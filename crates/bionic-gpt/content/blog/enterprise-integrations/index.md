@@ -181,6 +181,16 @@ The capability surface grows over time.
 
 ---
 
+## What this looks like
+
+In practice, the flow is simple: upload the API specifications, make the integrations available to users, and let the AI use them in chat.
+
+| Upload API specs | Select integrations | Use them in chat |
+| --- | --- | --- |
+| ![Uploading a ZIP file of OpenAPI specifications into an AI platform](screenshots/01-upload-zip.png) | ![Selecting the uploaded API integrations for use in the AI platform](screenshots/02-user-selection.png) | ![Using the selected API integrations to complete a task in an AI chat](screenshots/03-the-chat.png) |
+
+---
+
 ## A governed enterprise capability catalogue
 
 Now we're getting somewhere interesting.
