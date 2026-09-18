@@ -8,11 +8,11 @@ pub fn summary() -> Summary {
             pages: vec![
                 PageSummary {
                     date: "2026-09-18",
-                    title: "Agentic AI: Accelerating Connections to Enterprise Systems",
+                    title: "Agentic AI: A Faster Path to Enterprise Integration",
                     description: "",
-                    folder: "blog/agentic-ai-accelerating-connections-to-enterprise-systems/",
-                    markdown: include_str!("../content/blog/agentic-ai-accelerating-connections-to-enterprise-systems/index.md"),
-                    image: Some("/blog/agentic-ai-accelerating-connections-to-enterprise-systems/enterprise-mcp.png"),
+                    folder: "blog/enterprise-integrations/",
+                    markdown: include_str!("../content/blog/enterprise-integrations/index.md"),
+                    image: Some("/blog/enterprise-integrations/enterprise-mcp.png"),
                     open_graph_image: None,
                     author_image: None,
                     author: None
