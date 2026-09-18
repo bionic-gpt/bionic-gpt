@@ -1,4 +1,5 @@
 pub mod page;
+pub mod upload;
 pub mod upsert;
 
 use db::OpenapiSpecCategory;

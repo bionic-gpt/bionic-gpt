@@ -9,7 +9,12 @@ use db::authz::Rbac;
 use db::OpenapiSpec;
 use dioxus::prelude::*;
 
-pub fn page(team_id: String, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
+pub fn page(
+    team_id: String,
+    rbac: Rbac,
+    specs: Vec<OpenapiSpec>,
+    upload_error: Option<String>,
+) -> String {
     let page = rsx! {
         AdminLayout {
             section_class: "p-4",
@@ -26,6 +31,11 @@ pub fn page(team_id: String, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                 }
                 if rbac.is_sys_admin {
                     Button {
+                        popover_target: "upload-openapi-specs",
+                        button_scheme: ButtonScheme::Neutral,
+                        "Upload Specs"
+                    }
+                    Button {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
                         button_scheme: ButtonScheme::Primary,
@@ -41,6 +51,14 @@ pub fn page(team_id: String, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                     subtitle: "Manage the prebuilt OpenAPI specifications available to teams.".to_string(),
                     is_empty: specs.is_empty(),
                     empty_text: "No OpenAPI specs available yet. Add one to get started.".to_string(),
+                }
+
+                if let Some(error) = upload_error {
+                    Alert {
+                        alert_color: AlertColor::Error,
+                        class: "whitespace-pre-line",
+                        "{error}"
+                    }
                 }
 
                 p {
@@ -140,6 +158,10 @@ pub fn page(team_id: String, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                             }
                         }
                     }
+                }
+
+                if rbac.is_sys_admin {
+                    super::upload::Upload { team_id: team_id.clone() }
                 }
             }
         }

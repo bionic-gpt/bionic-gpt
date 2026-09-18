@@ -51,7 +51,27 @@ But the important thing is that we now have a machine-readable way to specify ou
 
 ## LLMs can already call tools
 
-Modern LLMs don't just generate text.
+In LLM API calls we can pass a tool defintion. This is very similar to the API defintion above.
+
+So there's gnerally a mapping between what we specify in Open API and what the model can use.
+
+```json
+{
+  "type": "function",
+  "function": {
+    "name": "updateContact",
+    "description": "Update a Salesforce contact",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "contactId": { "type": "string" },
+        "phone": { "type": "string" }
+      },
+      "required": ["contactId", "phone"]
+    }
+  }
+}
+```
 
 They can decide they need to call a tool and produce something conceptually like this:
 
@@ -67,13 +87,7 @@ They can decide they need to call a tool and produce something conceptually like
 
 That looks *remarkably similar* to something we've already described in our OpenAPI specification.
 
-```mermaid
-sequenceDiagram
-    User->>AI: Update Jordan's phone number
-    AI->>Salesforce: updateContact(...)
-    Salesforce-->>AI: Contact updated
-    AI-->>User: Done
-```
+![Enterprise systems](models-to-tools.png "Enterprise systems")
 
 And that gives us an interesting bridge between the **AI world** and the systems we already have.
 
