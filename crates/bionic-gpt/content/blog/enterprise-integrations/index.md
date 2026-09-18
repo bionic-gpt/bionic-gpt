@@ -1,5 +1,3 @@
-# Agentic AI: A Faster Path to Enterprise Integration
-
 ## The integration problem
 
 This article looks at **one part of Agentic AI transformation**: connecting AI to the hundreds of systems that already exist inside a large enterprise.
