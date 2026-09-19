@@ -54,15 +54,40 @@ jobs:
           RELEASE_VERSION: ${{ steps.rc.outputs.base }}
         run: |
           set -euo pipefail
-          containers=("ghcr.io/bionic-gpt/bionicgpt" "ghcr.io/bionic-gpt/bionicgpt-postgres-mcp" "ghcr.io/bionic-gpt/bionicgpt-cli-gateway" "ghcr.io/bionic-gpt/bionicgpt-rabbitmq" "ghcr.io/bionic-gpt/bionicgpt-rag-engine" "ghcr.io/bionic-gpt/bionicgpt-db-migrations" "ghcr.io/bionic-gpt/bionicgpt-eval-mocks" "ghcr.io/bionic-gpt/bionicgpt-cron" "ghcr.io/bionic-gpt/integration-simulator")
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import re
 
-          for i in "${containers[@]}"; do
-            CONFIG_NAME=$(echo "$i" | cut -c 20-)
-            echo "Name $CONFIG_NAME"
-            sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:${RELEASE_VERSION}/}" infra-as-code/docker-compose.yml
-            sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:${RELEASE_VERSION}/}" infra-as-code/stack.yaml
-            sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:${RELEASE_VERSION}/}" infra-as-code/stack-selenium.yaml
-          done
+          version = os.environ["RELEASE_VERSION"]
+          if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version):
+              raise ValueError("Release version must be X.Y.Z")
+
+          repositories = (
+              "bionicgpt", "bionicgpt-postgres-mcp", "bionicgpt-cli-gateway",
+              "bionicgpt-rabbitmq", "bionicgpt-rag-engine", "bionicgpt-db-migrations",
+              "bionicgpt-eval-mocks", "bionicgpt-cron", "integration-simulator",
+          )
+          # Match complete image references, never service keys or partial names.
+          image = re.compile(
+              r"^(?P<prefix>[ \t]*image:[ \t]*)(?P<quote>['\"]?)"
+              r"(?P<repository>"
+              + "|".join(re.escape("ghcr.io/bionic-gpt/" + name) for name in repositories)
+              + r"):[A-Za-z0-9_][A-Za-z0-9_.-]*"
+              r"(?P=quote)(?P<suffix>[ \t]*(?:[ \t]#[^\r\n]*)?\r?)$",
+              re.MULTILINE,
+          )
+          for name in ("docker-compose.yml", "stack.yaml", "stack-selenium.yaml"):
+              path = Path("infra-as-code") / name
+              content = path.read_bytes().decode("utf-8")
+              updated = image.sub(
+                  lambda m: m['prefix'] + m['quote'] + m['repository'] + ':'
+                  + version + m['quote'] + m['suffix'],
+                  content,
+              )
+              if updated != content:
+                  path.write_bytes(updated.encode("utf-8"))
+          PY
 
       - name: Configure git author
         run: |

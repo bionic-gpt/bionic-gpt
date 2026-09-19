@@ -55,8 +55,8 @@ services:
     #   - ./eval-mocks/openapi/generated:/home/mockoon/data:ro
 
   # Deterministic APIs for integration and agent evaluations.
-  integration-simulator:1.12.25
-    image: ghcr.io/bionic-gpt/integration-simulator:latest
+  integration-simulator:
+    image: ghcr.io/bionic-gpt/integration-simulator:1.12.25
     ports:
       - "8880:8080"
 
