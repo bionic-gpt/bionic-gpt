@@ -14,11 +14,11 @@ pub fn page(team_id: String, rbac: Rbac, oauth_clients: Vec<db::OauthClient>) ->
             selected_item: SideBar::OauthClients,
             team_id: team_id.clone(),
             rbac: rbac.clone(),
-            title: "OAuth Clients",
+            title: "Authentication",
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
-                        text: "OAuth Clients".into(),
+                        text: "Authentication".into(),
                         href: Some(routes::oauth_clients::Index { team_id: team_id.clone() }.to_string())
                     }]
                 }
@@ -36,7 +36,7 @@ pub fn page(team_id: String, rbac: Rbac, oauth_clients: Vec<db::OauthClient>) ->
             div {
                 class: "p-4 max-w-3xl w-full mx-auto",
                 SectionIntroduction {
-                    header: "OAuth Clients".to_string(),
+                    header: "Authentication".to_string(),
                     subtitle: "Configure OAuth client credentials for external service integrations.".to_string(),
                     is_empty: oauth_clients.is_empty(),
                     empty_text: "No OAuth clients configured yet. Add your first OAuth client to enable external service integrations.".to_string(),

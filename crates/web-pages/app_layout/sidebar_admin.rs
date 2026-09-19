@@ -53,23 +53,15 @@ pub fn render(params: &SidebarParams, _labels: &SidebarLabels) -> Element {
         }
         if rbac.can_setup_models() || rbac.is_sys_admin {
             NavGroup {
-                heading: "Model Gateway",
+                heading: "LLM Gateway",
                 content:  rsx!(
                     NavItem {
                         id: SideBar::Models.to_string(),
                         selected_item_id: selected_item.clone(),
                         href: crate::routes::models::Index { team_id: team_id.clone() },
                         icon: nav_phonebook_svg.name,
-                        title: "Model Setup",
+                        title: "Models",
                         disabled: false
-                    }
-                    NavItem {
-                        id: SideBar::RateLimits.to_string(),
-                        selected_item_id: selected_item.clone(),
-                        href: crate::routes::rate_limits::Index { team_id: team_id.clone() },
-                        icon: limits_svg.name,
-                        title: "Rate Limits",
-                        disabled: setup_required
                     }
                     if rbac.is_sys_admin {
                         NavItem {
@@ -81,12 +73,43 @@ pub fn render(params: &SidebarParams, _labels: &SidebarLabels) -> Element {
                             disabled: setup_required
                         }
                     }
+                    NavItem {
+                        id: SideBar::RateLimits.to_string(),
+                        selected_item_id: selected_item.clone(),
+                        href: crate::routes::rate_limits::Index { team_id: team_id.clone() },
+                        icon: limits_svg.name,
+                        title: "Rate Limits",
+                        disabled: setup_required
+                    }
+                )
+            }
+        }
+        if rbac.is_sys_admin {
+            NavGroup {
+                heading: "API Gateway",
+                content: rsx!(
+                    NavItem {
+                        id: SideBar::OpenapiSpecs.to_string(),
+                        selected_item_id: selected_item.clone(),
+                        href: crate::routes::openapi_specs::Index { team_id: team_id.clone() },
+                        icon: nav_audit_svg.name,
+                        title: "APIs",
+                        disabled: setup_required
+                    }
+                    NavItem {
+                        id: SideBar::OauthClients.to_string(),
+                        selected_item_id: selected_item.clone(),
+                        href: crate::routes::oauth_clients::Index { team_id: team_id.clone() },
+                        icon: nav_api_keys_svg.name,
+                        title: "Authentication",
+                        disabled: setup_required
+                    }
                 )
             }
         }
         if rbac.can_view_audit_trail() || rbac.can_setup_models() {
             NavGroup {
-                heading: "System Admin",
+                heading: "System",
                 content:  rsx!(
                     NavItem {
                         id: SideBar::AuditTrail.to_string(),
@@ -97,22 +120,6 @@ pub fn render(params: &SidebarParams, _labels: &SidebarLabels) -> Element {
                         disabled: setup_required
                     }
                     if rbac.is_sys_admin {
-                        NavItem {
-                            id: SideBar::OauthClients.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::oauth_clients::Index { team_id: team_id.clone() },
-                            icon: nav_api_keys_svg.name,
-                            title: "OAuth Clients",
-                            disabled: setup_required
-                        }
-                        NavItem {
-                            id: SideBar::OpenapiSpecs.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::openapi_specs::Index { team_id: team_id.clone() },
-                            icon: nav_audit_svg.name,
-                            title: "OpenAPI Specs",
-                            disabled: setup_required
-                        }
                         NavItem {
                             id: SideBar::WebSearch.to_string(),
                             selected_item_id: selected_item.clone(),

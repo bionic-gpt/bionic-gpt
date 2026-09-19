@@ -20,12 +20,12 @@ pub fn page(
             section_class: "p-4",
             selected_item: SideBar::OpenapiSpecs,
             team_id: team_id.clone(),
-            title: "OpenAPI Specs",
+            title: "APIs",
             rbac: rbac.clone(),
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
-                        text: "OpenAPI Specs".into(),
+                        text: "APIs".into(),
                         href: Some(routes::openapi_specs::Index { team_id: team_id.clone() }.to_string()),
                     }]
                 }
@@ -50,7 +50,7 @@ pub fn page(
             div {
                 class: "p-4 max-w-5xl w-full mx-auto flex flex-col gap-6",
                 SectionIntroduction {
-                    header: "OpenAPI Specs".to_string(),
+                    header: "APIs".to_string(),
                     subtitle: "Manage the prebuilt OpenAPI specifications available to teams.".to_string(),
                     is_empty: specs.is_empty(),
                     empty_text: "No OpenAPI specs available yet. Add one to get started.".to_string(),
