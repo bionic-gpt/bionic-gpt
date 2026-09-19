@@ -27,12 +27,12 @@ pub fn page(team_id: String, rbac: Rbac, oauth_client: OauthClientForm) -> Strin
             selected_item: SideBar::OauthClients,
             team_id: team_id.clone(),
             rbac: rbac,
-            title: "OAuth Clients",
+            title: "Authentication",
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: "OAuth Clients".into(),
+                            text: "Authentication".into(),
                             href: Some(crate::routes::oauth_clients::Index { team_id: team_id.clone() }.to_string())
                         },
                         BreadcrumbItem {

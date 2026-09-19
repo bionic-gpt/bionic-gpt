@@ -58,12 +58,12 @@ pub fn page(team_id: String, rbac: Rbac, form: OpenapiSpecForm) -> String {
             selected_item: SideBar::OpenapiSpecs,
             team_id: team_id.clone(),
             rbac: rbac.clone(),
-            title: "OpenAPI Specs",
+            title: "APIs",
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: "OpenAPI Specs".into(),
+                            text: "APIs".into(),
                             href: Some(routes::openapi_specs::Index { team_id: team_id.clone() }.to_string()),
                         },
                         BreadcrumbItem {
