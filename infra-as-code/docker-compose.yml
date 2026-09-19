@@ -21,13 +21,13 @@ services:
 
   # Use by the Zero to Hero course.
   postgres-mcp:
-    image: ghcr.io/bionic-gpt/bionicgpt-postgres-mcp:1.12.25
+    image: ghcr.io/bionic-gpt/bionicgpt-postgres-mcp:1.12.26
     ports:
       - "3080:8080"
 
   # Use by the Zero to Hero course for CLI-backed workflows.
   cli-gateway:
-    image: ghcr.io/bionic-gpt/bionicgpt-cli-gateway:1.12.25
+    image: ghcr.io/bionic-gpt/bionicgpt-cli-gateway:1.12.26
     ports:
       - "3200:8080"
 
@@ -45,7 +45,7 @@ services:
 
   # Use by the Zero to Hero course to simulate enterprise APIs.
   eval-mocks:
-    image: ghcr.io/bionic-gpt/bionicgpt-eval-mocks:1.12.25
+    image: ghcr.io/bionic-gpt/bionicgpt-eval-mocks:1.12.26
     ports:
       - "3100:3100"
     # For local eval mock development, run `just eval-mocks-spec`, then
@@ -56,13 +56,13 @@ services:
 
   # Deterministic APIs for integration and agent evaluations.
   integration-simulator:
-    image: ghcr.io/bionic-gpt/integration-simulator:1.12.25
+    image: ghcr.io/bionic-gpt/integration-simulator:1.12.26
     ports:
       - "8880:8080"
 
   # Sets up our database tables
   migrations:
-    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.12.25
+    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.12.26
     platform: linux/amd64
     environment:
       DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable
@@ -72,7 +72,7 @@ services:
   
   # Parses documents into chunks and creates embeddings.
   rag-engine:
-    image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.25
+    image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.26
     platform: linux/amd64
     environment:
       APP_DATABASE_URL: postgresql://application_user:testpassword@postgres:5432/bionic-gpt?sslmode=disable
@@ -84,7 +84,7 @@ services:
   
   # Our axum server delivering our user interface
   app:
-    image: ghcr.io/bionic-gpt/bionicgpt:1.12.25
+    image: ghcr.io/bionic-gpt/bionicgpt:1.12.26
     platform: linux/amd64
     environment:
       DANGER_JWT_OVERRIDE: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc
@@ -101,7 +101,7 @@ services:
 
   # Executes persisted scheduled tasks using the normal agent runtime.
   cron:
-    image: ghcr.io/bionic-gpt/bionicgpt-cron:1.12.25
+    image: ghcr.io/bionic-gpt/bionicgpt-cron:1.12.26
     platform: linux/amd64
     environment:
       APP_DATABASE_URL: postgresql://application_user:testpassword@postgres:5432/bionic-gpt?sslmode=disable
