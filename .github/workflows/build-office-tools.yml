@@ -28,7 +28,7 @@ jobs:
             --archipelago-ref '${{ inputs.archipelago_ref || 'main' }}' \
             --publish
       - name: Upload generated OpenAPI
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: office-tools-openapi
           path: office-tools-openapi
