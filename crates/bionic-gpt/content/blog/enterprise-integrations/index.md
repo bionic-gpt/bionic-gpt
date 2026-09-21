@@ -1,14 +1,41 @@
+> **TL;DR:** Enterprises are approaching AI integration one use case at a time. Each new agent or application gets connected to the systems it needs, creating duplicated integration work and making governance increasingly difficult.
+>
+> A more scalable approach is to make enterprise systems available to AI once, through a governed catalogue of APIs that can be reused across models, agents and applications.
+>
+> **Connect systems once; enable many use cases.**
+
 ## The integration problem
 
-This article looks at **one part of Agentic AI transformation**: connecting AI to the hundreds of systems that already exist inside a large enterprise.
+This article looks at one part of Agentic AI transformation: **connecting AI to the hundreds of systems that already exist inside a large enterprise.**
 
 Salesforce, SAP, ServiceNow, Microsoft 365, internal systems, legacy applications...
 
-Potentially **hundreds of systems exposing thousands of API operations**.
+Potentially **hundreds of systems exposing thousands of operations**.
 
-How do we make all of that available to AI without turning every connection into its own engineering project?
+The obvious approach is to tackle this one use case at a time: build an AI application, connect it to the systems it needs, then repeat for the next use case.
 
-![Enterprise systems](enterprise-systems.png "Enterprise systems")
+That works for a pilot. **It doesn't scale particularly well.**
+
+[AWS describes the problem in similar terms](https://aws.amazon.com/blogs/machine-learning/building-a-serverless-a2a-gateway-for-agent-discovery-routing-and-access-control/): *“each new agent integration adds point-to-point connections, separate credentials, and custom routing logic.”*
+
+[Deloitte makes the corresponding case for reuse](https://www.deloitte.com/content/dam/assets-zone3/us/en/docs/services/consulting/2026/api-governance-agentic-ai.pdf): standardized, shared APIs can provide AI systems with **reusable and consistent access** while reducing duplication and centralising governance.
+
+So the question is:
+
+> **How do we make enterprise systems available to AI without turning every new use case into another integration project?**
+
+### Connect once, enable many use cases
+
+The interesting thing is that enterprises already have much of the technology required to do this.
+
+The rest of this article looks at how the pieces fit together:
+
+1. **Machine-readable API specifications** describe what enterprise systems can do.
+2. **LLM tool calling** gives AI models a way to use those capabilities.
+3. **API catalogues and gateways** provide a place to discover and govern them.
+4. Together, these can become a **reusable enterprise capability catalogue for AI**.
+
+Let's start with the APIs enterprises already have.
 
 ---
 
@@ -16,7 +43,7 @@ How do we make all of that available to AI without turning every connection into
 
 About a million years ago, we invented ways for computer systems to describe their APIs.
 
-One standard that gained a *lot* of traction was **Swagger**, now known as **OpenAPI**.
+One standard that gained a lot of traction was **Swagger, now known as [OpenAPI](https://www.openapis.org/)**.
 
 An OpenAPI specification gives us a machine-readable description of what a system can do.
 
