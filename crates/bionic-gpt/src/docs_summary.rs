@@ -107,6 +107,17 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                    PageSummary {
+                        date: "",
+                        title: "Connecting to llmman",
+                        description: "Connecting to llmman",
+                        folder: "docs/running-locally/llmman/",
+                        markdown: include_str!("../content/docs/running-locally/llmman/index.md"),
+                        image: None,
+                        open_graph_image: None,
+                        author_image: None,
+                        author: None,
+                    },
                 ],
             },
             Category {
