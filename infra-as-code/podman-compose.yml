@@ -1,0 +1,94 @@
+version: "3.8"
+
+services:
+
+  llm-api:
+    image: ghcr.io/bionic-gpt/llama-3-8b-chat:1.1.1
+    platform: linux/amd64
+    networks:
+      - bionic-net
+    # Note: Currently running on CPU. To enable Strix Halo GPU acceleration later,
+    # you will need to map /dev/kfd and /dev/dri here.
+
+  embeddings-api:
+    image: ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
+    platform: linux/amd64
+    networks:
+      - bionic-net
+
+  chunking-engine:
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
+    platform: linux/amd64
+    networks:
+      - bionic-net
+
+  postgres:
+    # FIX: Explicitly use docker.io to avoid Fedora registry errors
+    image: docker.io/ankane/pgvector
+    platform: linux/amd64
+    # CRITICAL: Increased shared memory for vector operations
+    shm_size: 1gb
+    environment:
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_USER: postgres
+      POSTGRES_DB: keycloak
+    volumes:
+      # Native podman volume for rootless persistence
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bionic-net
+
+  migrations:
+    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.11.59
+    platform: linux/amd64
+    environment:
+      DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bionic-net
+  
+  rag-engine:
+    image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.11.59
+    platform: linux/amd64
+    environment:
+      APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    networks:
+      - bionic-net
+  
+  app:
+    image: ghcr.io/bionic-gpt/bionicgpt:1.11.59
+    platform: linux/amd64
+    environment:
+      DANGER_JWT_OVERRIDE: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc
+      APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    ports:
+      - "3000:7703"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "host.containers.internal:host-gateway"
+    networks:
+      - bionic-net
+
+volumes:
+  postgres_data:
+
+networks:
+  bionic-net:
+    driver: bridge
