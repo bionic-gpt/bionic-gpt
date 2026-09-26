@@ -20,7 +20,7 @@ jobs:
       FORCE_COLOR: 1
       DAGGER_LOG_FORMAT: plain
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Build and publish Office tools with Dagger
         run: |
           cargo run -p dagger-pipeline --release -- \
