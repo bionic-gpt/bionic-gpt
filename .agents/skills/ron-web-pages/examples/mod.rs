@@ -1,0 +1,9 @@
+#[path = "blank-page/page.rs"]
+pub mod blank_page;
+#[path = "crud/page.rs"]
+pub mod crud;
+#[path = "form/page.rs"]
+pub mod form;
+#[path = "list/page.rs"]
+pub mod list;
+pub mod support;
