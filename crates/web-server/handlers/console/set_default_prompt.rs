@@ -1,4 +1,4 @@
-use agent_runtime::user_config::{create_user_config_cookie, UserConfig};
+use agent_harness::user_config::{create_user_config_cookie, UserConfig};
 use axum::http::HeaderMap;
 use axum::response::Redirect;
 use axum::Form;

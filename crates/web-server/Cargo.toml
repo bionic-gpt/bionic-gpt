@@ -14,7 +14,7 @@ path = "main.rs"
 
 [dependencies]
 db = { path = "../db" }
-agent-runtime = { path = "../agent-runtime" }
+agent-harness = { path = "../agent-harness" }
 tool-runtime = { path = "../tool-runtime" }
 builtin-skills = { path = "../builtin-skills" }
 object-storage = { path = "../object-storage" }

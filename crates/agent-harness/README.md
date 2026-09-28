@@ -1,6 +1,6 @@
-# agent-runtime
+# agent-harness
 
-This crate implements the server-side agent orchestration runtime for Large Language Model (LLM)
+This crate implements the server-side agent harness for Large Language Model (LLM)
 requests in the Bionic application. It handles two main use cases:
 
 - UI-driven chat and synthesis calls from the web app.
@@ -70,7 +70,7 @@ just test
 Or run only this crate:
 
 ```
-cargo test -p agent-runtime
+cargo test -p agent-harness
 ```
 
 ## Notes and assumptions

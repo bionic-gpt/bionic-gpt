@@ -1,5 +1,5 @@
 [package]
-name = "agent-runtime"
+name = "agent-harness"
 version = "0.1.0"
 edition = "2021"
 

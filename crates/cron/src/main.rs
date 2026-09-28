@@ -1,4 +1,4 @@
-use agent_runtime::Jwt;
+use agent_harness::Jwt;
 use chrono::Utc;
 use db::queries::scheduled_tasks;
 use db::{Pool, ScheduledTask};
@@ -189,7 +189,7 @@ async fn execute_task_inner(
         .map_err(|error| error.to_string())?;
     tx.commit().await.map_err(|error| error.to_string())?;
 
-    agent_runtime::ui_chat_orchestrator::run_scheduled_chat(
+    agent_harness::ui_chat_orchestrator::run_scheduled_chat(
         pool.clone(),
         Jwt {
             sub,

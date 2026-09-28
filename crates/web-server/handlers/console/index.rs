@@ -1,4 +1,4 @@
-use agent_runtime::user_config::UserConfig;
+use agent_harness::user_config::UserConfig;
 
 use crate::{CustomError, Jwt};
 use axum::extract::Extension;
