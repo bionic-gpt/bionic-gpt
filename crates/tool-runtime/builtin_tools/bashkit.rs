@@ -1,16 +1,16 @@
 use crate::skills;
 use crate::types::ToolDefinition;
 use crate::{ToolDyn, ToolError};
-use bashkit::{
-    async_trait, Bash, Builtin, BuiltinContext, ExecResult, ExecutionLimits, FileSystem, FileType,
-    InMemoryFs, PythonLimits, SqliteLimits,
-};
+use bashkit::{Bash, ExecutionLimits, FileSystem, FileType, InMemoryFs};
+#[cfg(test)]
+use bashkit::{PythonLimits, SqliteLimits};
 use db::{queries, Pool, Transaction};
 use object_storage::StorageConfig;
 use rig::client::EmbeddingsClient;
 use rig::embeddings::EmbeddingModel;
 use rig::providers::{ollama, openai};
 use rig::wasm_compat::WasmBoxedFuture;
+use sandbox::Sandbox;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -19,9 +19,6 @@ use std::time::{Duration, Instant};
 
 const DEFAULT_TIMEOUT_MS: u64 = 5_000;
 const MAX_TIMEOUT_MS: u64 = 30_000;
-const MAX_COMMANDS: usize = 1_000;
-const MAX_STDOUT_BYTES: usize = 2 * 1024 * 1024;
-const MAX_STDERR_BYTES: usize = 512 * 1024;
 const CHUNKS_PER_DOCUMENT_LIMIT: i64 = 1_000;
 const HOME_DIR: &str = "/home/user";
 const SKILLS_DIR: &str = "/home/user/skills";
@@ -325,7 +322,7 @@ async fn execute_run_bash(
         .unwrap_or(DEFAULT_TIMEOUT_MS)
         .clamp(100, MAX_TIMEOUT_MS);
 
-    let fs: std::sync::Arc<dyn FileSystem> = std::sync::Arc::new(InMemoryFs::new());
+    let fs = seeded_filesystem(&tool.pool, &tool.sub, tool.conversation_id, tool.model_id).await?;
     let function_registry = std::sync::Arc::new(
         crate::builtin_tools::monty::RuntimeFunctionRegistry::load_for_conversation(
             &tool.pool,
@@ -335,79 +332,45 @@ async fn execute_run_bash(
         .await
         .map_err(|e| json!({"error": "Failed to get function registry", "details": e}))?,
     );
-    let function_catalogue = function_registry.function_catalogue();
-    let external_function_names = function_registry.external_function_names();
-    let external_function_handler = function_registry.python_external_handler_with_fs(fs.clone());
-
     let started = Instant::now();
-    let mut bash = Bash::builder()
-        .fs(fs)
-        .username("user")
-        .hostname("bashkit")
-        .cwd(HOME_DIR)
-        .env("BASHKIT_ALLOW_INPROCESS_PYTHON", "1")
-        .env("BASHKIT_ALLOW_INPROCESS_SQLITE", "1")
-        .limits(
-            ExecutionLimits::new()
-                .timeout(Duration::from_millis(timeout))
-                .max_commands(MAX_COMMANDS)
-                .max_stdout_bytes(MAX_STDOUT_BYTES)
-                .max_stderr_bytes(MAX_STDERR_BYTES),
-        )
-        .builtin(
-            "rag-search",
-            Box::new(RagSearchBuiltin {
-                pool: tool.pool.clone(),
-                sub: tool.sub.clone(),
-                conversation_id: tool.conversation_id,
-                model_id: tool.model_id,
-            }),
-        )
-        .builtin("rag-read", Box::new(RagReadBuiltin))
-        .python_with_external_handler(
-            PythonLimits::default().max_duration(Duration::from_millis(timeout)),
-            external_function_names,
-            external_function_handler,
-        )
-        .sqlite_with_limits(SqliteLimits::default().max_duration(Duration::from_millis(timeout)))
-        .build();
+    let mut tools = function_registry.sandbox_tools();
+    tools.push(std::sync::Arc::new(RagSearchSandboxTool {
+        pool: tool.pool.clone(),
+        sub: tool.sub.clone(),
+        conversation_id: tool.conversation_id,
+        model_id: tool.model_id,
+    }));
+    tools.push(std::sync::Arc::new(RagReadSandboxTool));
+    let result = sandbox::BashkitSandbox
+        .run(sandbox::RunRequest {
+            command: sandbox::Command::Shell {
+                script: arguments.commands,
+                timeout: Duration::from_millis(timeout),
+            },
+            skills: Vec::new(),
+            openapi_specs: Vec::new(),
+            credentials: sandbox::CredentialSet::default(),
+            workspace: sandbox::WorkspaceSnapshot {
+                key: tool.conversation_id.to_string(),
+                revision: String::new(),
+                files: snapshot_files(fs.as_ref(), Path::new(HOME_DIR)).await?,
+            },
+            tools,
+        })
+        .await
+        .map_err(|err| json!({"error": "bash execution failed", "details": err.to_string()}))?;
+    apply_workspace_delta(fs.as_ref(), &result.workspace_changes).await?;
 
-    seed_custom_skills(&tool.pool, &tool.sub, &bash).await?;
-    seed_function_catalogue(&bash, function_catalogue).await?;
-    seed_datasets(
-        &tool.pool,
-        &tool.sub,
-        tool.model_id,
-        tool.conversation_id,
-        &bash,
-    )
-    .await?;
-    seed_attachments(&tool.pool, &tool.sub, tool.conversation_id, &bash).await?;
-    seed_persistent_files(&tool.pool, &tool.sub, tool.conversation_id, &bash).await?;
-
-    let result = tokio::time::timeout(
-        Duration::from_millis(timeout),
-        bash.exec(&arguments.commands),
-    )
-    .await
-    .map_err(|_| json!({"error": "bash execution timed out"}))?
-    .map_err(|err| json!({"error": "bash execution failed", "details": err.to_string()}))?;
-
-    let output_sync_result = persist_outputs(
-        &tool.pool,
-        &tool.sub,
-        tool.conversation_id,
-        bash.fs().as_ref(),
-    )
-    .await;
+    let output_sync_result =
+        persist_outputs(&tool.pool, &tool.sub, tool.conversation_id, fs.as_ref()).await;
 
     let mut response = json!({
-        "stdout": result.stdout,
-        "stderr": result.stderr,
-        "exit_code": result.exit_code,
+        "stdout": result.execution.stdout,
+        "stderr": result.execution.stderr,
+        "exit_code": result.execution.exit_code,
         "duration_ms": started.elapsed().as_millis(),
-        "stdout_truncated": result.stdout_truncated,
-        "stderr_truncated": result.stderr_truncated
+        "stdout_truncated": result.execution.stdout_truncated,
+        "stderr_truncated": result.execution.stderr_truncated
     });
 
     match output_sync_result {
@@ -1058,6 +1021,54 @@ async fn write_vfs_file(
         .map_err(|e| json!({"error": "Failed to write VFS file", "details": e.to_string()}))
 }
 
+async fn snapshot_files(
+    fs: &dyn FileSystem,
+    root: &Path,
+) -> Result<Vec<sandbox::SandboxFile>, serde_json::Value> {
+    let mut pending = vec![root.to_path_buf()];
+    let mut files = Vec::new();
+    while let Some(directory) = pending.pop() {
+        for entry in fs.read_dir(&directory).await.map_err(|error| {
+            json!({"error":"Failed to snapshot sandbox filesystem","details":error.to_string()})
+        })? {
+            let path = directory.join(entry.name);
+            if entry.metadata.file_type == FileType::Directory {
+                pending.push(path);
+            } else if entry.metadata.file_type == FileType::File {
+                let contents = fs.read_file(&path).await.map_err(|error| {
+                    json!({"error":"Failed to snapshot sandbox file","path":path,"details":error.to_string()})
+                })?;
+                files.push(sandbox::SandboxFile {
+                    path: path.to_string_lossy().to_string(),
+                    contents,
+                });
+            }
+        }
+    }
+    files.sort_by(|left, right| left.path.cmp(&right.path));
+    Ok(files)
+}
+
+async fn apply_workspace_delta(
+    fs: &dyn FileSystem,
+    delta: &sandbox::WorkspaceDelta,
+) -> Result<(), serde_json::Value> {
+    for path in &delta.deleted {
+        let path = Path::new(path);
+        if fs.exists(path).await.map_err(|error| {
+            json!({"error":"Failed to inspect deleted sandbox file","details":error.to_string()})
+        })? {
+            fs.remove(path, false).await.map_err(|error| {
+                json!({"error":"Failed to delete sandbox file","details":error.to_string()})
+            })?;
+        }
+    }
+    for file in &delta.upserted {
+        write_vfs_file(fs, &file.path, &file.contents).await?;
+    }
+    Ok(())
+}
+
 fn is_output_path(path: &str) -> bool {
     path == OUTPUT_DIR || path.starts_with(&format!("{OUTPUT_DIR}/"))
 }
@@ -1194,52 +1205,80 @@ async fn document_chunks(
         .collect())
 }
 
-struct RagReadBuiltin;
+struct RagReadSandboxTool;
 
-#[async_trait]
-impl Builtin for RagReadBuiltin {
-    async fn execute(&self, ctx: BuiltinContext<'_>) -> bashkit::Result<ExecResult> {
-        let Some(path) = ctx.args.first() else {
-            return Ok(ExecResult::err(
-                "usage: rag-read /home/user/datasets/.../chunks/<id>.txt\n",
-                2,
-            ));
-        };
-
-        if parse_chunk_path(path).is_none() {
-            return Ok(ExecResult::err(
-                "rag-read only accepts /home/user/datasets/{dataset_id}/files/{document_id}/chunks/{chunk_id}.txt\n",
-                2,
-            ));
-        }
-
-        match ctx.fs.read_file(Path::new(path)).await {
-            Ok(bytes) => Ok(ExecResult::ok(String::from_utf8_lossy(&bytes).to_string())),
-            Err(err) => Ok(ExecResult::err(format!("{err}\n"), 1)),
+#[async_trait::async_trait]
+impl sandbox::SandboxTool for RagReadSandboxTool {
+    fn definition(&self) -> sandbox::SandboxToolDefinition {
+        sandbox::SandboxToolDefinition {
+            name: "rag-read".to_string(),
+            description: "Read a dataset chunk returned by rag-search.".to_string(),
+            parameters: json!({"type":"object","properties":{"args":{"type":"array"}}}),
+            exposure: sandbox::ToolExposure::Shell,
+            credential: None,
         }
     }
 
-    fn llm_hint(&self) -> Option<&'static str> {
-        Some("rag-read PATH: read a dataset chunk file from /home/user/datasets after rag-search returns paths.")
+    async fn call(
+        &self,
+        arguments: Value,
+        context: sandbox::ToolCallContext<'_>,
+    ) -> Result<Value, sandbox::SandboxToolError> {
+        let path = arguments
+            .get("args")
+            .and_then(Value::as_array)
+            .and_then(|args| args.first())
+            .and_then(Value::as_str)
+            .ok_or_else(|| sandbox::SandboxToolError("usage: rag-read PATH".to_string()))?;
+        if parse_chunk_path(path).is_none() {
+            return Err(sandbox::SandboxToolError(
+                "rag-read only accepts dataset chunk paths".to_string(),
+            ));
+        }
+        let bytes = context.files.read(path).await?;
+        Ok(Value::String(String::from_utf8_lossy(&bytes).to_string()))
     }
 }
 
-struct RagSearchBuiltin {
+struct RagSearchSandboxTool {
     pool: Pool,
     sub: String,
     conversation_id: i64,
     model_id: i32,
 }
 
-#[async_trait]
-impl Builtin for RagSearchBuiltin {
-    async fn execute(&self, ctx: BuiltinContext<'_>) -> bashkit::Result<ExecResult> {
-        let (query, limit) = parse_rag_search_args(ctx.args);
-        if query.trim().is_empty() {
-            return Ok(ExecResult::err("usage: rag-search QUERY [--limit N]\n", 2));
+#[async_trait::async_trait]
+impl sandbox::SandboxTool for RagSearchSandboxTool {
+    fn definition(&self) -> sandbox::SandboxToolDefinition {
+        sandbox::SandboxToolDefinition {
+            name: "rag-search".to_string(),
+            description: "Search connected datasets.".to_string(),
+            parameters: json!({"type":"object","properties":{"args":{"type":"array"}}}),
+            exposure: sandbox::ToolExposure::Shell,
+            credential: None,
         }
+    }
 
-        match execute_rag_search(
+    async fn call(
+        &self,
+        arguments: Value,
+        _context: sandbox::ToolCallContext<'_>,
+    ) -> Result<Value, sandbox::SandboxToolError> {
+        let args = arguments
+            .get("args")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter_map(Value::as_str)
+            .map(str::to_string)
+            .collect::<Vec<_>>();
+        let (query, limit) = parse_rag_search_args(&args);
+        if query.trim().is_empty() {
+            return Err(sandbox::SandboxToolError(
+                "usage: rag-search QUERY [--limit N]".to_string(),
+            ));
+        }
+        execute_rag_search(
             &self.pool,
             &self.sub,
             self.conversation_id,
@@ -1248,14 +1287,7 @@ impl Builtin for RagSearchBuiltin {
             limit,
         )
         .await
-        {
-            Ok(value) => Ok(ExecResult::ok(format!("{value}\n"))),
-            Err(err) => Ok(ExecResult::err(format!("{err}\n"), 1)),
-        }
-    }
-
-    fn llm_hint(&self) -> Option<&'static str> {
-        Some("rag-search QUERY [--limit N]: search connected datasets and return matching chunk paths as JSON.")
+        .map_err(|error| sandbox::SandboxToolError(error.to_string()))
     }
 }
 

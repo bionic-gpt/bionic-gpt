@@ -2,9 +2,10 @@ use crate::builtin_tools::bashkit::{
     persist_outputs, seeded_filesystem, OutputEntry, MAX_FILE_TOOL_BYTES,
 };
 use crate::{ToolDyn, ToolError};
-use bashkit::{Bash, ExecutionLimits, FileSystem, PythonLimits};
+use bashkit::FileSystem;
 use db::Pool;
 use rig::wasm_compat::WasmBoxedFuture;
+use sandbox::Sandbox;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::path::{Component, Path, PathBuf};
@@ -12,7 +13,6 @@ use std::sync::Arc;
 use std::time::Duration;
 
 const HOME_DIR: &str = "/home/user";
-const SCRIPT_PATH: &str = "/home/user/.runtime/run_python.py";
 const MAX_PATH_BYTES: usize = 4096;
 
 #[derive(Clone, Copy)]
@@ -215,7 +215,16 @@ async fn execute_operation(
         Operation::Read => {
             let arguments: ReadArgs = serde_json::from_str(args)?;
             let path = checked_path(&arguments.path)?;
-            let bytes = fs.read_file(&path).await?;
+            let result = run_sandbox_command(
+                tool,
+                fs.as_ref(),
+                sandbox::Command::ReadFile {
+                    path: path.to_string_lossy().to_string(),
+                },
+                Vec::new(),
+            )
+            .await?;
+            let bytes = result.execution.data.unwrap_or_default();
             if bytes.len() > MAX_FILE_TOOL_BYTES {
                 return Err(format!("file exceeds {MAX_FILE_TOOL_BYTES} bytes").into());
             }
@@ -236,7 +245,16 @@ async fn execute_operation(
             let arguments: WriteArgs = serde_json::from_str(args)?;
             let path = checked_path(&arguments.path)?;
             ensure_size(arguments.content.as_bytes())?;
-            write_file(&fs, &path, arguments.content.as_bytes()).await?;
+            run_sandbox_command(
+                tool,
+                fs.as_ref(),
+                sandbox::Command::WriteFile {
+                    path: path.to_string_lossy().to_string(),
+                    contents: arguments.content.into_bytes(),
+                },
+                Vec::new(),
+            )
+            .await?;
             let outputs = persist_output_if_needed(tool, &fs).await?;
             Ok(json!({"path": path, "written": true, "outputs": outputs}).to_string())
         }
@@ -245,19 +263,23 @@ async fn execute_operation(
             let path = checked_path(&arguments.path)?;
             ensure_size(arguments.find.as_bytes())?;
             ensure_size(arguments.replace.as_bytes())?;
-            let original = fs.read_file(&path).await?;
-            let content = String::from_utf8(original)?;
-            let updated = replace_once(&content, &arguments.find, &arguments.replace)?;
-            ensure_size(updated.as_bytes())?;
-            write_file(&fs, &path, updated.as_bytes()).await?;
+            run_sandbox_command(
+                tool,
+                fs.as_ref(),
+                sandbox::Command::EditFile {
+                    path: path.to_string_lossy().to_string(),
+                    find: arguments.find.into_bytes(),
+                    replace: arguments.replace.into_bytes(),
+                },
+                Vec::new(),
+            )
+            .await?;
             let outputs = persist_output_if_needed(tool, &fs).await?;
             Ok(json!({"path": path, "edited": true, "outputs": outputs}).to_string())
         }
         Operation::Python => {
             let arguments: PythonArgs = serde_json::from_str(args)?;
             ensure_size(arguments.code.as_bytes())?;
-            let script_path = Path::new(SCRIPT_PATH);
-            write_file(&fs, script_path, arguments.code.as_bytes()).await?;
             let registry = std::sync::Arc::new(
                 crate::builtin_tools::monty::RuntimeFunctionRegistry::load_for_conversation(
                     &tool.pool,
@@ -266,27 +288,30 @@ async fn execute_operation(
                 )
                 .await?,
             );
-            let mut bash = Bash::builder()
-                .fs(fs.clone())
-                .username("user")
-                .hostname("bashkit")
-                .cwd(HOME_DIR)
-                .env("BASHKIT_ALLOW_INPROCESS_PYTHON", "1")
-                .limits(ExecutionLimits::default())
-                .python_with_external_handler(
-                    PythonLimits::default().max_duration(Duration::from_secs(30)),
-                    registry.external_function_names(),
-                    registry.python_external_handler_with_fs(fs.clone()),
-                )
-                .build();
-            let result = bash
-                .exec("python3 /home/user/.runtime/run_python.py")
+            let workspace = sandbox::WorkspaceSnapshot {
+                key: tool.conversation_id.to_string(),
+                revision: String::new(),
+                files: snapshot_files(fs.as_ref(), Path::new(HOME_DIR)).await?,
+            };
+            let result = sandbox::BashkitSandbox
+                .run(sandbox::RunRequest {
+                    command: sandbox::Command::Python {
+                        code: arguments.code,
+                        timeout: Duration::from_secs(30),
+                    },
+                    skills: Vec::new(),
+                    openapi_specs: Vec::new(),
+                    credentials: sandbox::CredentialSet::default(),
+                    workspace,
+                    tools: registry.sandbox_tools(),
+                })
                 .await?;
+            apply_workspace_delta(fs.as_ref(), &result.workspace_changes).await?;
             let outputs = persist_output_if_needed(tool, &fs).await?;
             Ok(json!({
-                "stdout": result.stdout,
-                "stderr": result.stderr,
-                "exit_code": result.exit_code,
+                "stdout": result.execution.stdout,
+                "stderr": result.execution.stderr,
+                "exit_code": result.execution.exit_code,
                 "outputs": outputs
             })
             .to_string())
@@ -294,6 +319,73 @@ async fn execute_operation(
     }
 }
 
+async fn run_sandbox_command(
+    tool: &FileTool,
+    fs: &dyn FileSystem,
+    command: sandbox::Command,
+    tools: Vec<Arc<dyn sandbox::SandboxTool>>,
+) -> Result<sandbox::RunResult, Box<dyn std::error::Error + Send + Sync>> {
+    let result = sandbox::BashkitSandbox
+        .run(sandbox::RunRequest {
+            command,
+            skills: Vec::new(),
+            openapi_specs: Vec::new(),
+            credentials: sandbox::CredentialSet::default(),
+            workspace: sandbox::WorkspaceSnapshot {
+                key: tool.conversation_id.to_string(),
+                revision: String::new(),
+                files: snapshot_files(fs, Path::new(HOME_DIR)).await?,
+            },
+            tools,
+        })
+        .await?;
+    apply_workspace_delta(fs, &result.workspace_changes).await?;
+    Ok(result)
+}
+
+async fn snapshot_files(
+    fs: &dyn FileSystem,
+    root: &Path,
+) -> Result<Vec<sandbox::SandboxFile>, Box<dyn std::error::Error + Send + Sync>> {
+    let mut pending = vec![root.to_path_buf()];
+    let mut files = Vec::new();
+    while let Some(directory) = pending.pop() {
+        for entry in fs.read_dir(&directory).await? {
+            let path = directory.join(entry.name);
+            if entry.metadata.file_type == bashkit::FileType::Directory {
+                pending.push(path);
+            } else if entry.metadata.file_type == bashkit::FileType::File {
+                files.push(sandbox::SandboxFile {
+                    path: path.to_string_lossy().to_string(),
+                    contents: fs.read_file(&path).await?,
+                });
+            }
+        }
+    }
+    files.sort_by(|left, right| left.path.cmp(&right.path));
+    Ok(files)
+}
+
+async fn apply_workspace_delta(
+    fs: &dyn FileSystem,
+    delta: &sandbox::WorkspaceDelta,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    for path in &delta.deleted {
+        if fs.exists(Path::new(path)).await? {
+            fs.remove(Path::new(path), false).await?;
+        }
+    }
+    for file in &delta.upserted {
+        let path = Path::new(&file.path);
+        if let Some(parent) = path.parent() {
+            fs.mkdir(parent, true).await?;
+        }
+        fs.write_file(path, &file.contents).await?;
+    }
+    Ok(())
+}
+
+#[cfg(test)]
 fn replace_once(
     content: &str,
     find: &str,
@@ -327,18 +419,6 @@ fn ensure_size(bytes: &[u8]) -> Result<(), Box<dyn std::error::Error + Send + Sy
     if bytes.len() > MAX_FILE_TOOL_BYTES {
         return Err(format!("content exceeds {MAX_FILE_TOOL_BYTES} bytes").into());
     }
-    Ok(())
-}
-
-async fn write_file(
-    fs: &Arc<dyn FileSystem>,
-    path: &Path,
-    contents: &[u8],
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    if let Some(parent) = path.parent() {
-        fs.mkdir(parent, true).await?;
-    }
-    fs.write_file(path, contents).await?;
     Ok(())
 }
 

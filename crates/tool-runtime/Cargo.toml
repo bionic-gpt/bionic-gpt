@@ -36,3 +36,4 @@ md5 = "0.7.0"
 mime_guess = "2.0.5"
 object-storage = { path = "../object-storage" }
 builtin-skills = { path = "../builtin-skills" }
+sandbox = { path = "../sandbox" }

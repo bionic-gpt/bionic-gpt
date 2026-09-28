@@ -27,7 +27,7 @@ codex:
 # If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
 wa:
     mold -run cargo watch --workdir /workspace/ \
-        -w crates/web-pages -w crates/agent-runtime -w crates/tool-runtime \
+        -w crates/web-pages -w crates/agent-harness -w crates/tool-runtime -w crates/sandbox \
         -w crates/web-server -w crates/db -w crates/web-assets/dist \
         -w crates/web-assets/images -w crates/web-assets/typescript \
         -w crates/web-assets/index.ts \

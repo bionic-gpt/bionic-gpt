@@ -54,7 +54,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "agent-runtime"
+name = "agent-harness"
 version = "0.1.0"
 dependencies = [
  "async-trait",
@@ -1377,7 +1377,7 @@ checksum = "790eea4361631c5e7d22598ecd5723ff611904e3344ce8720784c93e3d83d40b"
 name = "cron"
 version = "0.1.0"
 dependencies = [
- "agent-runtime",
+ "agent-harness",
  "chrono",
  "db",
  "tokio",
@@ -5889,6 +5889,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "sandbox"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "bashkit",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "schannel"
 version = "0.1.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7131,6 +7142,7 @@ dependencies = [
  "object-storage",
  "reqwest 0.13.1",
  "rig-core",
+ "sandbox",
  "serde",
  "serde_json",
  "tiktoken-rs",
@@ -7917,7 +7929,7 @@ dependencies = [
 name = "web-server"
 version = "0.1.0"
 dependencies = [
- "agent-runtime",
+ "agent-harness",
  "assets",
  "async-trait",
  "axum 0.8.8",

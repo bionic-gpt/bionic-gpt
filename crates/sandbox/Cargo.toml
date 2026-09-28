@@ -1,0 +1,15 @@
+[package]
+name = "sandbox"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+async-trait.workspace = true
+bashkit = { version = "0.14.5", features = ["python", "sqlite"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+tokio = { workspace = true, features = ["time"] }
+

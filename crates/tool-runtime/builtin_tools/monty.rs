@@ -7,6 +7,32 @@ use serde_json::{json, Map, Value};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
+struct BashkitToolFiles(Arc<dyn FileSystem>);
+
+#[async_trait::async_trait]
+impl sandbox::ToolFiles for BashkitToolFiles {
+    async fn read(&self, path: &str) -> Result<Vec<u8>, sandbox::SandboxToolError> {
+        self.0
+            .read_file(std::path::Path::new(path))
+            .await
+            .map_err(|error| sandbox::SandboxToolError(error.to_string()))
+    }
+
+    async fn write(&self, path: &str, contents: &[u8]) -> Result<(), sandbox::SandboxToolError> {
+        let path = std::path::Path::new(path);
+        if let Some(parent) = path.parent() {
+            self.0
+                .mkdir(parent, true)
+                .await
+                .map_err(|error| sandbox::SandboxToolError(error.to_string()))?;
+        }
+        self.0
+            .write_file(path, contents)
+            .await
+            .map_err(|error| sandbox::SandboxToolError(error.to_string()))
+    }
+}
+
 const FUNCTIONS_DIR: &str = "/home/user/functions";
 const WEB_FUNCTION_NAME: &str = "web_open_url";
 
@@ -346,6 +372,26 @@ impl RuntimeFunctionRegistry {
         names
     }
 
+    /// Exposes the resolved function registry through the provider-neutral
+    /// sandbox callback contract. The registry remains authorization-scoped to
+    /// the conversation/team used to construct it.
+    pub fn sandbox_tools(self: &Arc<Self>) -> Vec<Arc<dyn sandbox::SandboxTool>> {
+        let mut tools = self
+            .functions
+            .values()
+            .map(|operation| {
+                Arc::new(RegistrySandboxTool {
+                    registry: Arc::clone(self),
+                    name: operation.function_name.clone(),
+                    description: operation.description.clone(),
+                    parameters: operation.parameters.clone(),
+                }) as Arc<dyn sandbox::SandboxTool>
+            })
+            .collect::<Vec<_>>();
+        tools.sort_by_key(|tool| tool.definition().name);
+        tools
+    }
+
     pub fn python_external_handler(self: Arc<Self>) -> PythonExternalFnHandler {
         self.python_external_handler_with_optional_fs(None)
     }
@@ -365,8 +411,14 @@ impl RuntimeFunctionRegistry {
             let registry = Arc::clone(&self);
             let fs = fs.clone();
             Box::pin(async move {
+                let files = fs.map(BashkitToolFiles);
                 registry
-                    .execute_external_function(&name, &args, &kwargs, fs)
+                    .execute_external_function(
+                        &name,
+                        &args,
+                        &kwargs,
+                        files.as_ref().map(|files| files as &dyn sandbox::ToolFiles),
+                    )
                     .await
             })
         })
@@ -432,7 +484,7 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
         name: &str,
         args: &[MontyObject],
         kwargs: &[(MontyObject, MontyObject)],
-        fs: Option<Arc<dyn FileSystem>>,
+        files: Option<&dyn sandbox::ToolFiles>,
     ) -> ExtFunctionResult {
         let Some(operation) = self.functions.get(name) else {
             return ExtFunctionResult::Error(value_error(format!("Unknown function: {name}")));
@@ -444,7 +496,7 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
         };
 
         if !operation.byte_parameters.is_empty() {
-            let Some(ref fs) = fs else {
+            let Some(files) = files else {
                 return ExtFunctionResult::Error(value_error(
                     "file-backed functions require a Bashkit filesystem".to_string(),
                 ));
@@ -484,7 +536,7 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
                     vec![path.to_string()]
                 };
 
-                let mut files = Vec::with_capacity(paths.len());
+                let mut uploads = Vec::with_capacity(paths.len());
                 for path in paths {
                     if !is_allowed_file_path(&path) {
                         return ExtFunctionResult::Error(value_error(format!(
@@ -492,7 +544,7 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
                             mapping.path_parameter
                         )));
                     }
-                    let bytes = match fs.read_file(std::path::Path::new(&path)).await {
+                    let bytes = match files.read(&path).await {
                         Ok(bytes) => bytes,
                         Err(err) => {
                             return ExtFunctionResult::Error(value_error(format!(
@@ -508,16 +560,16 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
                             "failed to determine a filename for {path}"
                         )));
                     };
-                    files.push(json!({
+                    uploads.push(json!({
                         "__bionic_file": true,
                         "content_base64": base64::engine::general_purpose::STANDARD.encode(bytes),
                         "filename": filename,
                     }));
                 }
                 arguments[&mapping.api_parameter] = if mapping.multiple {
-                    Value::Array(files)
+                    Value::Array(uploads)
                 } else {
-                    files.into_iter().next().unwrap_or(Value::Null)
+                    uploads.into_iter().next().unwrap_or(Value::Null)
                 };
                 arguments
                     .as_object_mut()
@@ -530,9 +582,9 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
             OperationExecutor::OpenApiTool(tool) => match tool.call(arguments.to_string()).await {
                 Ok(result) => match serde_json::from_str::<Value>(&result) {
                     Ok(mut value) => {
-                        if let Some(fs) = fs.as_ref() {
+                        if let Some(files) = files {
                             match persist_binary_result(
-                                fs,
+                                files,
                                 &value,
                                 &arguments,
                                 &operation.function_name,
@@ -579,6 +631,61 @@ Use read_file or run_bash to inspect `/home/user/functions`, then read the relev
                     Err(error) => ExtFunctionResult::Error(value_error(error)),
                 }
             }
+        }
+    }
+}
+
+struct RegistrySandboxTool {
+    registry: Arc<RuntimeFunctionRegistry>,
+    name: String,
+    description: String,
+    parameters: Value,
+}
+
+#[async_trait::async_trait]
+impl sandbox::SandboxTool for RegistrySandboxTool {
+    fn definition(&self) -> sandbox::SandboxToolDefinition {
+        sandbox::SandboxToolDefinition {
+            name: self.name.clone(),
+            description: self.description.clone(),
+            parameters: self.parameters.clone(),
+            exposure: sandbox::ToolExposure::Python,
+            credential: None,
+        }
+    }
+
+    async fn call(
+        &self,
+        arguments: Value,
+        context: sandbox::ToolCallContext<'_>,
+    ) -> Result<Value, sandbox::SandboxToolError> {
+        let (args, kwargs) = match arguments {
+            Value::Array(values) => (values.iter().map(json_to_monty).collect(), Vec::new()),
+            Value::Object(values) => (
+                Vec::new(),
+                values
+                    .iter()
+                    .map(|(key, value)| (MontyObject::String(key.clone()), json_to_monty(value)))
+                    .collect(),
+            ),
+            value => (vec![json_to_monty(&value)], Vec::new()),
+        };
+
+        match self
+            .registry
+            .execute_external_function(&self.name, &args, &kwargs, Some(context.files))
+            .await
+        {
+            ExtFunctionResult::Return(value) => {
+                monty_to_json(&value).map_err(sandbox::SandboxToolError)
+            }
+            ExtFunctionResult::Error(error) => Err(sandbox::SandboxToolError(error.to_string())),
+            ExtFunctionResult::Future(_) => Err(sandbox::SandboxToolError(
+                "sandbox callback returned an unresolved future".to_string(),
+            )),
+            ExtFunctionResult::NotFound(name) => Err(sandbox::SandboxToolError(format!(
+                "unknown sandbox callback: {name}"
+            ))),
         }
     }
 }
@@ -741,7 +848,7 @@ fn is_allowed_file_path(path: &str) -> bool {
 }
 
 async fn persist_binary_result(
-    fs: &Arc<dyn FileSystem>,
+    files: &dyn sandbox::ToolFiles,
     value: &Value,
     arguments: &Value,
     function_name: &str,
@@ -764,10 +871,8 @@ async fn persist_binary_result(
     let filename = binary_output_filename(arguments, content_type);
     let output_dir = binary_output_directory(arguments, function_name);
     let output_path = format!("{output_dir}/{filename}");
-    fs.mkdir(std::path::Path::new(&output_dir), true)
-        .await
-        .map_err(|error| format!("failed to create binary output directory: {error}"))?;
-    fs.write_file(std::path::Path::new(&output_path), &bytes)
+    files
+        .write(&output_path, &bytes)
         .await
         .map_err(|error| format!("failed to persist binary tool response: {error}"))?;
     Ok(Some(output_path))
@@ -1474,7 +1579,8 @@ mod tests {
             "file_paths": ["/home/user/output/daily-task-list/main.typ"]
         });
 
-        let path = persist_binary_result(&fs, &value, &arguments, "typst_compiledocument")
+        let files = BashkitToolFiles(fs.clone());
+        let path = persist_binary_result(&files, &value, &arguments, "typst_compiledocument")
             .await
             .unwrap();
 
