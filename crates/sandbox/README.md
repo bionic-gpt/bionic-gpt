@@ -1,6 +1,6 @@
 # Bionic Sandbox
 
-This create implements the following interface
+This crate implements the following interface
 
 ```rust
 Sandbox::run(RunRequest)
