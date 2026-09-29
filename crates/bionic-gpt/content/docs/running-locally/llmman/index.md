@@ -7,7 +7,7 @@ Because llmman speaks the Ollama API, Bionic connects to it with the built in `O
 ## Install and start llmman
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/llmmanorg/llmman/main/install.sh | sh
+curl -fsSL https://llmmanorg.github.io/install.sh | sh
 llmman serve
 ```
 
