@@ -7,6 +7,17 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 PageSummary {
+                    date: "2026-09-29",
+                    title: "Citizen Agent Development",
+                    description: "Learn how non-technical employees are using no-code platforms to create and deploy AI agents for their own work.",
+                    folder: "blog/citizen-agent-development/",
+                    markdown: include_str!("../content/blog/citizen-agent-development/index.md"),
+                    image: Some("/blog/citizen-agent-development/citizen-agent-development.png"),
+                    open_graph_image: None,
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
+                },
+                PageSummary {
                     date: "2026-09-19",
                     title: "How to Make Enterprise Systems Available to AI at Scale",
                     description: "Learn how OpenAPI specifications and a governed API catalogue can connect AI to enterprise systems and make integrations reusable.",
