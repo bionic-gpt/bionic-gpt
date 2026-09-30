@@ -13,7 +13,7 @@ pub fn summary() -> Summary {
                     folder: "blog/citizen-agent-development/",
                     markdown: include_str!("../content/blog/citizen-agent-development/index.md"),
                     image: Some("/blog/citizen-agent-development/citizen-agent-development.png"),
-                    open_graph_image: Some("/blog/citizen-agent-development/open-graph.png"),
+                    open_graph_image: Some("/blog/citizen-agent-development/open-graph.jpg"),
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },

@@ -20,6 +20,18 @@ Preserve the existing `ssg_whiz` summary and layout conventions. Keep visible
 images, Open Graph images, metadata, canonical links, navigation, and footer
 behavior distinct where the code supports those concepts.
 
+## Blog Articles
+
+For a new blog article, read [references/new-blog-article.md](references/new-blog-article.md) before editing. It defines the content, summary metadata, hero-image, and Open Graph workflow.
+
+Use the bundled Open Graph helper to create the social-preview image from the article hero:
+
+```bash
+cargo run --quiet --manifest-path .agents/skills/static-sites/scripts/prepare-open-graph/Cargo.toml -- <hero-image> <article-folder>/open-graph.jpg
+```
+
+The helper creates an exact 1200x630 JPEG and adapts quality until the file is below the site's 490,000-byte limit.
+
 ## Assets and Commands
 
 Static application assets are maintained in `crates/web-assets`; its Tailwind
