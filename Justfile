@@ -49,6 +49,9 @@ wts:
 spell:
     docker run --rm -ti -v $HOST_PROJECT_PATH/crates/bionic-gpt/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"
 
+playbook-pdf:
+    typst compile crates/bionic-gpt/content/playbook-pdf/playbook.typ crates/bionic-gpt/content/playbook-pdf/playbook.pdf
+
 md:
     mirrord exec target/debug/web-server --steal -n bionic-gpt --target deployment/bionic-gpt
 

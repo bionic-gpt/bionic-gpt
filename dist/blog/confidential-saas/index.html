@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang='en'><head><title>Building SaaS applications for highly regulated industries using Confidential Computing</title><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content="Learn how to build secure SaaS applications for regulated industries using confidential computing and privacy-preserving tech."/><meta property="og:title" content="Building SaaS applications for highly regulated industries using Confidential Computing"/><meta property="og:description" content="Learn how to build secure SaaS applications for regulated industries using confidential computing and privacy-preserving tech."/><meta property="og:type" content="article"/><meta property="og:site_name" content="Bionic GPT"/><meta property="og:url" content="https://bionic-gpt.com/blog/confidential-saas/"/><meta property="og:image" content="https://bionic-gpt.com/blog/confidential-saas/kubernetes.png"/><meta property="twitter:image" content="https://bionic-gpt.com/blog/confidential-saas/kubernetes.png"/><link rel="stylesheet" href="/content-lightbox.css" type="text/css"/><link rel="stylesheet" href="/tailwind.css" type="text/css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5" type="text/css"/><link rel="icon" type="image/svg+xml" href="/favicon.svg"/><script async=true data-goatcounter="" integrity="" type="" src="/content-lightbox.js"></script><script async=true data-goatcounter="https://bionicgpt.goatcounter.com/count" integrity="" type="" src="/goat-counter.js"></script><script async=true data-goatcounter="" integrity="" type="" src="/copy-paste.js"></script><script data-goatcounter="" integrity="" type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script></head><body><header class="sticky top-0 z-50 backdrop-filter backdrop-blur-lg bg-opacity-30"><div class="bg-primary text-primary-content text-xs sm:text-sm px-3 sm:px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-center"><span class="font-semibold">🎉 Zero to Agentic AI Hero</span><a class="inline-flex items-center gap-1 underline font-semibold hover:text-base-200" href="/architect-course/">Take the course<span>→</span></a></div><div class="navbar justify-between pl-4 pr-4"><div class="flex items-center gap-4"><div class="dropdown lg:hidden"><div tabindex="0" role="button" class="btn btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" stroke="currentColor" viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M4 6h16M4 12h8m-8 6h16" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"></path></svg></div><ul class="menu menu-sm dropdown-content mt-3 z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/">Home</a></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li><li><a hx-boost="true" href="/partners/">Partners</a></li><li><a hx-boost="true" href="/contact/">Book a Call</a></li><li><a class="shrink-0 flex gap-1 items-center underline pl-4" hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt">Star us on GitHub</a></li></ul></div><ul class="flex flex-row items-center gap-4"><li class="lg:mr-2"><a href="/"><span class="flex flex-row gap-2 items-center"><strong>Bionic</strong></span></a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Product<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/product/chat/">Chat</a></li><li><a hx-boost="true" href="/product/projects/">Projects</a></li><li><a hx-boost="true" href="/product/datasets/">Datasets</a></li><li><a hx-boost="true" href="/product/skills/">Skills</a></li><li><a hx-boost="true" href="/product/integrations/">Integrations</a></li><li><a hx-boost="true" href="/product/developers/">Developers</a></li></ul></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Resources<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li></ul></li><li><a hx-boost="true" href="/partners/">Partners</a></li></ul></div><div class="hidden lg:flex items-center gap-3"><a hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt"><img src="https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" alt="Github"/></a><a hx-boost="true" href="https://app.bionic-gpt.com">Login</a><a class="btn btn-primary btn-sm" hx-boost="true" href="/contact/">Book a Call</a></div></div></header><article class="mt-24 mb-16 mx-auto max-w-prose px-5 lg:max-w-[81.25ch]"><div class=""><h1 class="text-4xl font-extrabold leading-tight md:text-5xl">Building SaaS applications for highly regulated industries using Confidential Computing</h1><div class="my-8 flex items-center gap-3"><img class="h-11 w-11 shrink-0 rounded-full object-cover" width="44" height="44" src="/blog-authors/ian-purton.jpeg" alt="Author"/><div class="min-w-0 leading-tight"><strong class="block text-base font-semibold">Ian Purton</strong><small class="block text-base opacity-70">Thursday 11th July 2024</small></div></div><div class="mb-4 flex items-center justify-between border-y border-base-300 py-2"><small class="block text-sm font-medium uppercase tracking-wide opacity-70">Share</small><div class="flex flex-row gap-1"><a class="btn btn-ghost btn-sm btn-square" href="https://twitter.com/intent/tweet?url=https://bionic-gpt.com/blog/confidential-saas/"><img width="16" height="16" src="/social-sharing/x-twitter.svg"/></a><a class="btn btn-ghost btn-sm btn-square" href="https://www.linkedin.com/sharing/share-offsite/?url=https://bionic-gpt.com/blog/confidential-saas/"><img width="16" height="16" src="/social-sharing/linkedin.svg"/></a></div></div><img class="mb-8 block aspect-video w-full rounded-box object-cover shadow-md" src="/blog/confidential-saas/kubernetes.png" alt="Building SaaS applications for highly regulated industries using Confidential Computing"/><div class="prose prose-slate max-w-none prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-slate-100 prose-code:font-mono prose-img:max-w-full"><p>Enterprises prefer B2B SaaS solutions over on premise solutions because they offer:</p>
+<ul>
+<li>A <strong>cost-effective</strong> way to streamline business operations</li>
+<li><strong>Scalability</strong> to meet changing business needs</li>
+<li><strong>Flexibility</strong> to adapt to evolving business requirements</li>
+<li>Avoidance of upfront <strong>capital expenditures</strong></li>
+<li>Reduced IT burdens</li>
+<li>Automatic software updates, freeing up resources for <strong>core business activities</strong></li>
+</ul>
+<p>Despite the advantages of SaaS, <strong>not all enterprise software has transitioned to the cloud</strong>. Legacy systems, complex integrations, and <strong>sensitive data concerns</strong> can make migration challenging. Some industries, such as finance and healthcare, have strict regulations and security requirements that may necessitate on-premise solutions.</p>
+<h2>Defence in Depth for Regulated Data</h2>
+<p>In this article we'll cover some <a href="https://en.wikipedia.org/wiki/Defense_in_depth_(computing)">Defence in Depth</a> best practices along with the emerging availability of <a href="https://www.ibm.com/topics/confidential-computing">Confidential Computing</a> to show how even more Enterprise Applications can move to a SaaS model.</p>
+<p><img src="cloud-encryption.png" alt="alt text" title="Encrypting Regulated Data" /></p>
+<p>We'll cover the following</p>
+<ul>
+<li><strong>Multi tenancy</strong> best practices and implementation options.</li>
+<li><strong>Bring Your Own Key BYOK</strong> and encryption at rest.</li>
+<li><strong>What is Confidential Computing</strong> and how can we use it.</li>
+<li><strong>Attestation</strong> of cloud infrastructure</li>
+<li>How <strong>Deterministic builds</strong> promote trust.</li>
+<li>Attestation of deployed software and security.</li>
+</ul>
+<h2>Multi Tenancy</h2>
+<p>What is Multi-Tenancy?</p>
+<p>Multi-tenancy is a software architecture that allows a single instance of a software application to serve multiple customers, or "tenants", simultaneously. Each tenant's data is isolated from others, and the application provides a separate and secure environment for each tenant.</p>
+<p><img src="multi-tenancy.png" alt="alt text" title="Multi Tenancy" /></p>
+<p>Why is Multi-Tenancy Important for SaaS Applications?</p>
+<p>In a SaaS (Software as a Service) model, multiple customers (tenants) use the same application, and multi-tenancy is crucial to ensure:</p>
+<ul>
+<li><strong>Data Isolation</strong>: Each tenant's data is separated from others, ensuring confidentiality, integrity, and compliance with regulatory requirements.</li>
+<li><strong>Scalability</strong>: A single instance of the application can serve multiple tenants, making it more efficient and cost-effective.</li>
+<li><strong>Customization</strong>: Tenants can have their own configurations, branding, and feature sets without affecting other tenants.</li>
+<li><strong>Security</strong>: Multi-tenancy ensures that a security breach in one tenant's environment does not compromise others.</li>
+</ul>
+<h3>Types of Multi-Tenancy</h3>
+<p>There are three main types of multi-tenancy:</p>
+<p><img src="multi-tenant.jpg" alt="alt text" title="Bring Your Own Keys" /></p>
+<ul>
+<li><strong>Separate Databases</strong>: Each tenant has its own database, which provides maximum isolation but can be resource-intensive.</li>
+<li><strong>Shared Database, Separate Schemas</strong>: Tenants share a database but have separate schemas, which provides a balance between isolation and resource efficiency.</li>
+<li><strong>Shared Database, Shared Schema</strong>: Tenants share a database and schema, which is the most resource-efficient but may compromise data isolation.</li>
+</ul>
+<h3>How we implement Multi Tenancy</h3>
+<p>We actually use a shared database for our cloud customers on the free plan. For paying customers we have the option to use <strong>namespaces</strong> in our kubernetes cluster or customers can create their own clusters on premise or in their own private cloud.</p>
+<p>The implementation is helped by the way Kubernetes works</p>
+<ol>
+<li>We have a <strong>Kubernetes Operator</strong> that given a config file will create a Bionic GPT deployment in a namespace.</li>
+<li>Each namespace has its <strong>own Postgres database</strong> using <a href="https://cloudnative-pg.io/">Cloud Native PG</a></li>
+<li>We apply a <strong>network security policy</strong> in the cluster to lock down each namespace.</li>
+</ol>
+<p>The Kubernetes Operator handles upgrades of the application. The code for the operator is <a href="https://github.com/bionic-gpt/bionic-gpt/tree/main/crates/k8s-operator">available on Github</a></p>
+<h2>Bring Your Own Key and Encryption at Rest</h2>
+<p>BYOK (Bring Your Own Key) is a cloud security model that allows customers to manage and maintain control over their own encryption keys, rather than relying on the cloud provider's keys, to protect their data in the cloud.</p>
+<p><img src="byok.png" alt="alt text" title="Bring Your Own Keys" /></p>
+<p>BYOK stands for <a href="https://en.wikipedia.org/wiki/Bring_your_own_encryption">Bring Your Own Key</a> which is an important concept in cloud computing and data encryption. Here's why BYOK is important:</p>
+<ol>
+<li>Data Security: BYOK allows organizations to maintain <strong>control over their encryption keys</strong>, which are used to protect sensitive data in the cloud. This ensures that even the cloud provider doesn't have access to the encrypted data, reducing the risk of unauthorized access.</li>
+<li>Compliance: Many regulatory requirements, such as <strong>HIPAA, PCI-DSS, and GDPR</strong>, mandate that organizations maintain control over their encryption keys. BYOK helps organizations comply with these regulations and avoid potential penalties.</li>
+<li>Key Management: BYOK enables organizations to <strong>manage their encryption keys centrally</strong>, which is essential for key rotation, revocation, and auditing. This ensures that encryption keys are properly managed and secured.</li>
+<li>Multi-Cloud Strategy: With BYOK, organizations can use the same encryption keys across <strong>multiple cloud providers</strong>, making it easier to adopt a multi-cloud strategy without worrying about key management inconsistencies.</li>
+<li>Reduced Risk of Insider Threats: BYOK reduces the risk of insider threats, as even cloud provider personnel <strong>won't have access</strong> to the encryption keys.</li>
+<li>Customizable Security: BYOK allows organizations to <strong>choose their own encryption algorithms</strong>, key lengths, and management practices, giving them more control over their data security.</li>
+<li><strong>Vendor Lock-In Prevention</strong>: BYOK prevents cloud providers from locking organizations into their proprietary encryption schemes, making it easier to switch providers if needed.</li>
+<li>Improved Data Sovereignty: BYOK ensures that organizations <strong>maintain control over their data</strong>, even when it's stored in the cloud, which is essential for organizations with sensitive data.</li>
+</ol>
+<p>In summary, BYOK is important because it allows organizations to maintain control over their data, ensuring data security, compliance, and peace of mind in the cloud.</p>
+<h3>How we handle BYOK and Encryption at Rest</h3>
+<p>First we identified the columns in our database that hold information that is confidential. For a Generative AI solution like ours that tends to be chat history, prompts and model responses.</p>
+<p>We then use a <strong>Postgres Proxy</strong> that intercepts these fields on the fly and encrypts/decrypts data using customer keys.</p>
+<p>In the case of the free cloud version we use our own keys.</p>
+<p>Postgres proxies that handle encryption can be found below</p>
+<ul>
+<li><a href="https://github.com/extragoodlabs/jumpwire-db-gateway">Jumpwire - The easiest way to secure your database infrastructure. </a></li>
+<li><a href="https://baffle.io/">Baffle is the only security platform that cryptographically protects the data itself across cloud-native data stores.</a></li>
+<li><a href="https://docs.cossacklabs.com/acra/acra-in-depth/architecture/acraserver/">AcraServer, an SQL database proxy</a></li>
+</ul>
+<h2>Confidential Computing</h2>
+<p><strong>Confidential computing</strong> is a technology that enables secure data processing and analysis on sensitive data while it remains encrypted. This means that even the party performing the computation (e.g., a cloud provider) cannot access or view the data in plaintext, ensuring the confidentiality and integrity of the data.</p>
+<p><img src="confidential-compute.jpeg" alt="alt text" title="Confidential Compute" /></p>
+<h3>Key Features:</h3>
+<ul>
+<li><strong>Encryption in use</strong>: Data remains encrypted throughout the entire processing cycle, including when it's being computed on.</li>
+<li><strong>Private computation</strong>: Computation is performed on encrypted data, without decrypting it first.</li>
+<li><strong>Secure enclaves</strong>: Computation takes place within a secure, isolated environment (e.g., Trusted Execution Environment (TEE) or Secure Enclave) that protects the data and the computation process.</li>
+</ul>
+<h3>Benefits:</h3>
+<ul>
+<li><strong>Enhanced data security</strong>: Protects sensitive data from unauthorized access, even from cloud providers or insiders.</li>
+<li><strong>Increased trust</strong>: Enables organizations to share sensitive data with third-party service providers or collaborators while maintaining control and confidentiality.</li>
+<li><strong>Compliance</strong>: Helps organizations meet regulatory requirements and industry standards for data protection.</li>
+</ul>
+<h3>Technologies:</h3>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Software_Guard_Extensions">Intel SGX</a> (Software Guard Extensions): Provides a hardware-based secure enclave for confidential computing.</li>
+<li><a href="https://www.amd.com/en/developer/sev.html">AMD SEV</a> (Secure Encrypted Virtualisation): Offers a secure environment for confidential computing.</li>
+<li><a href="https://cloud.google.com/security/products/confidential-computing">Google Cloud Confidential Computing</a>: A cloud-based confidential computing platform.</li>
+</ul>
+<h3>Confidential Computing Availability</h3>
+<p>Confidential Compute is available on most cloud providers and is also available for bare metal installations. More details can be found with the <a href="https://confidentialcomputing.io/">Confidential Computing Consortium – Linux Foundation Project</a></p>
+<p><img src="confidential-compute-consortium.jpeg" alt="alt text" title="Confidential Compute" /></p>
+<h3>How we implemented Confidential Computing</h3>
+<p>For our cloud solution we are running on Google Cloud <a href="https://cloud.google.com/kubernetes-engine?hl=en">GKE</a>.</p>
+<p>To turn on Confidential Compute is as easy as passing one parameter to the CLI when creating a cluster.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#8fa1b3;">gcloud</span><span style="color:#c0c5ce;"> container clusters create bionic 
+</span><span style="color:#c0c5ce;">    </span><span style="color:#8fa1b3;">--zone</span><span style="color:#c0c5ce;"> us-west1-b</span><span style="color:#bf616a;"> --machine-type</span><span style="color:#c0c5ce;"> n2d-standard-2 
+</span><span style="color:#c0c5ce;">    </span><span style="color:#8fa1b3;">--enable-confidential-nodes
+</span></pre>
+<p>It's a little more complicated when using GPU and providing end 2 end confidential computing for AI. However most cloud providers are making moves in this space.</p>
+<h2>Trusted Execution Environment Attestation</h2>
+<p>How do we ensure SaaS customers can prove we are making use of Confidential Computing. This is where <a href="https://www.redhat.com/en/blog/attestation-confidential-computing">Attestation</a> comes in.</p>
+<blockquote>
+<p>Secure your sensitive and regulated data while it's being processed in the cloud. Azure confidential computing encrypts data in memory in hardware-based trusted execution environments and processes it only after the cloud environment is verified, helping prevent data access by cloud providers, administrators, and users. Build on top of secure hardware using familiar tools, software, and cloud infrastructure, or migrate your existing workloads and applications. <strong>Microsoft</strong></p>
+</blockquote>
+<p><img src="attestation.png" alt="alt text" title="Confidential Compute Attestation" /></p>
+<p>Attestation gives us the following</p>
+<ul>
+<li>
+<p><strong>Verifies integrity and authenticity</strong>: Attestation confirms that a secure enclave or Trusted Execution Environment (TEE) is genuine and has not been compromised or tampered with.</p>
+</li>
+<li>
+<p><strong>Generates a cryptographic proof</strong>: Attestation generates a cryptographic token, also known as an attestation token, that serves as proof of the enclave's or TEE's integrity.</p>
+</li>
+<li>
+<p><strong>Verifiable by a third party</strong>: The attestation token can be verified by a third party, such as a cloud provider or a user, to establish trust in the enclave or TEE.</p>
+</li>
+<li>
+<p><strong>Confirms environment and software</strong>: Attestation confirms that the environment is running the expected software or firmware, and that it has not been modified or tampered with.</p>
+</li>
+<li>
+<p><strong>Establishes trust</strong>: Attestation enables users to trust that their sensitive data will be protected from unauthorized access or tampering when processed within the secure enclave or TEE.</p>
+</li>
+</ul>
+<h2>Deterministic Builds and Validation</h2>
+<p>If we trust the cloud provider how can we trust the software deployed by the vendor.</p>
+<p>One way for open source projects is to map what's deployed to the cloud back to the source code in the git repository.</p>
+<p><img src="deterministic-build.jpg" alt="alt text" title="Deterministic Builds" /></p>
+<p>This process ensures that given the same source code, environment, and build instructions, the resulting binary will be identical. This involves controlling all factors that can affect the build output, such as timestamps, file ordering, and system-specific details.</p>
+<ol>
+<li><strong>Security and Verification</strong>: Repeatable builds enhance security by making it easier to detect and prevent malicious modifications. Developers and users can verify that the binary code they are running matches the source code, ensuring that no unauthorized changes have been introduced.</li>
+<li><strong>Collaboration and Trust</strong>: In open-source projects, repeatable builds foster trust among contributors and users. They allow multiple parties to independently verify the integrity of the software, enhancing collaboration and reducing the risk of supply chain attacks.</li>
+<li><strong>Build Environment</strong>: Achieving repeatable builds often requires careful management of the build environment, including the use of containerization or virtualisation to isolate the build process from external influences.</li>
+</ol>
+<p>With a deterministic build you can generate a Hash code for docker containers and anyone can reproduce the build and get the same hash.</p>
+<h3>How we handle Deterministic Builds and Validation</h3>
+<p>We use a tool called <a href="https://earthly.dev/">Earthly</a> which uses Docker to help us create reproducible builds.</p>
+<p>Our docker <strong>containers are cryptographically hashed</strong> and the hash code is stored in the repository for each version.</p>
+<p>Using Kubernetes we can deploy container images based on the hash. It's then easy for a customer to verify that a given container is traceable back to the source code.</p>
+<p><img src="hashes.png" alt="alt text" title="Deterministic Builds" /></p>
+<p>This proves that the code we deploy does not leak data and that the security measures we take can be verified.</p>
+<h2>Conclusion</h2>
+<p>In conclusion, building SaaS applications for highly regulated industries requires a deep understanding of the security and compliance requirements that come with handling sensitive data. Key takeaways include:</p>
+<ul>
+<li><strong>Implementing Defence in Depth best practices</strong>, such as multi-tenancy, to ensure data isolation and scalability</li>
+<li><strong>Using Bring Your Own Key (BYOK) encryption</strong> to maintain control over encryption keys and ensure data security</li>
+<li>Leveraging <strong>Confidential Computing</strong> to protect data in use and provide an additional layer of security</li>
+<li>Implementing deterministic builds to ensure repeatable and <strong>verifiable build processes</strong> that can be tied back to the original source code for verification and trust</li>
+<li>Utilizing <strong>attestation</strong> so we can prove the cloud provider has given us a secure environment.</li>
+</ul>
+<p><a href="https://www.reddit.com/r/SaaS/comments/1e25i8z/building_saas_applications_for_highly_regulated/">Join the discussion</a> on Reddit.</p>
+</div></div></article><section class="blog-sub-footer mt-16 border-y border-base-300 bg-base-200 px-6 py-12 md:py-16"><div class="mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2"><div><h2 class="text-3xl font-bold leading-tight md:text-4xl">Your sovereign AI agent for enterprise tasks</h2><p class="mt-4 text-lg opacity-80">Bionic connects AI to your organisation’s knowledge and tools, so it can research, analyse, create and take action. Deploy on-premise, in your private cloud or air-gapped, with full control over your data and models.</p><div class="mt-6 flex flex-wrap gap-3"><a class="btn btn-primary" href="/docs/running-locally/docker-compose/">Deploy Bionic</a><a class="btn btn-ghost" href="/contact/">Talk to us about the Accelerator</a></div></div><img class="mx-auto w-full max-w-sm rounded-box shadow-md" src="/landing-page/bionic-console.png" alt="Bionic workspace"/></div></section><footer class="mt-0 bg-base-200 px-6 py-10 text-base-content"><div class="mx-auto flex max-w-5xl flex-col gap-8 md:flex-row md:justify-between"><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Resources</h6><a href="/blog/" class="link link-hover">Blog</a><a href="/pricing/" class="link link-hover">Pricing</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Company</h6><a class="link link-hover">About Us</a><a href="/contact/" class="link link-hover">Contact</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Legal</h6><a href="/terms/" class="link link-hover">Terms of Use</a><a href="/privacy/" class="link link-hover">Privacy Policy</a></nav></div></footer><script integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" type="module" src="https://instant.page/5.2.0"></script></body></html>

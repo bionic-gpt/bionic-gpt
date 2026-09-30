@@ -1,0 +1,200 @@
+<!DOCTYPE html><html lang='en'><head><title>Evaluating Self-Hosted LLM Platforms: From Front Ends to Enterprise GenAI</title><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content="A practical framework for comparing self-hosted LLM platforms across UI, orchestration, security, and enterprise readiness."/><meta property="og:title" content="Evaluating Self-Hosted LLM Platforms: From Front Ends to Enterprise GenAI"/><meta property="og:description" content="A practical framework for comparing self-hosted LLM platforms across UI, orchestration, security, and enterprise readiness."/><meta property="og:type" content="article"/><meta property="og:site_name" content="Bionic GPT"/><meta property="og:url" content="https://bionic-gpt.com/blog/self-hosted-llm-platforms/"/><meta property="og:image" content="https://bionic-gpt.com/blog/self-hosted-llm-platforms/hero.svg"/><meta property="twitter:image" content="https://bionic-gpt.com/blog/self-hosted-llm-platforms/hero.svg"/><link rel="stylesheet" href="/content-lightbox.css" type="text/css"/><link rel="stylesheet" href="/tailwind.css" type="text/css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5" type="text/css"/><link rel="icon" type="image/svg+xml" href="/favicon.svg"/><script async=true data-goatcounter="" integrity="" type="" src="/content-lightbox.js"></script><script async=true data-goatcounter="https://bionicgpt.goatcounter.com/count" integrity="" type="" src="/goat-counter.js"></script><script async=true data-goatcounter="" integrity="" type="" src="/copy-paste.js"></script><script data-goatcounter="" integrity="" type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script></head><body><header class="sticky top-0 z-50 backdrop-filter backdrop-blur-lg bg-opacity-30"><div class="bg-primary text-primary-content text-xs sm:text-sm px-3 sm:px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-center"><span class="font-semibold">🎉 Zero to Agentic AI Hero</span><a class="inline-flex items-center gap-1 underline font-semibold hover:text-base-200" href="/architect-course/">Take the course<span>→</span></a></div><div class="navbar justify-between pl-4 pr-4"><div class="flex items-center gap-4"><div class="dropdown lg:hidden"><div tabindex="0" role="button" class="btn btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" stroke="currentColor" viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M4 6h16M4 12h8m-8 6h16" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"></path></svg></div><ul class="menu menu-sm dropdown-content mt-3 z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/">Home</a></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li><li><a hx-boost="true" href="/partners/">Partners</a></li><li><a hx-boost="true" href="/contact/">Book a Call</a></li><li><a class="shrink-0 flex gap-1 items-center underline pl-4" hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt">Star us on GitHub</a></li></ul></div><ul class="flex flex-row items-center gap-4"><li class="lg:mr-2"><a href="/"><span class="flex flex-row gap-2 items-center"><strong>Bionic</strong></span></a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Product<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/product/chat/">Chat</a></li><li><a hx-boost="true" href="/product/projects/">Projects</a></li><li><a hx-boost="true" href="/product/datasets/">Datasets</a></li><li><a hx-boost="true" href="/product/skills/">Skills</a></li><li><a hx-boost="true" href="/product/integrations/">Integrations</a></li><li><a hx-boost="true" href="/product/developers/">Developers</a></li></ul></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Resources<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li></ul></li><li><a hx-boost="true" href="/partners/">Partners</a></li></ul></div><div class="hidden lg:flex items-center gap-3"><a hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt"><img src="https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" alt="Github"/></a><a hx-boost="true" href="https://app.bionic-gpt.com">Login</a><a class="btn btn-primary btn-sm" hx-boost="true" href="/contact/">Book a Call</a></div></div></header><article class="mt-24 mb-16 mx-auto max-w-prose px-5 lg:max-w-[81.25ch]"><div class=""><h1 class="text-4xl font-extrabold leading-tight md:text-5xl">Evaluating Self-Hosted LLM Platforms: From Front Ends to Enterprise GenAI</h1><div class="my-8 flex items-center gap-3"><img class="h-11 w-11 shrink-0 rounded-full object-cover" width="44" height="44" src="/blog-authors/dio.jpeg" alt="Author"/><div class="min-w-0 leading-tight"><strong class="block text-base font-semibold">Kulbinder Dio</strong><small class="block text-base opacity-70">Friday 16th January 2026</small></div></div><div class="mb-4 flex items-center justify-between border-y border-base-300 py-2"><small class="block text-sm font-medium uppercase tracking-wide opacity-70">Share</small><div class="flex flex-row gap-1"><a class="btn btn-ghost btn-sm btn-square" href="https://twitter.com/intent/tweet?url=https://bionic-gpt.com/blog/self-hosted-llm-platforms/"><img width="16" height="16" src="/social-sharing/x-twitter.svg"/></a><a class="btn btn-ghost btn-sm btn-square" href="https://www.linkedin.com/sharing/share-offsite/?url=https://bionic-gpt.com/blog/self-hosted-llm-platforms/"><img width="16" height="16" src="/social-sharing/linkedin.svg"/></a></div></div><img class="mb-8 block aspect-video w-full rounded-box object-cover shadow-md" src="/blog/self-hosted-llm-platforms/hero.svg" alt="Evaluating Self-Hosted LLM Platforms: From Front Ends to Enterprise GenAI"/><div class="prose prose-slate max-w-none prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-slate-100 prose-code:font-mono prose-img:max-w-full"><h1>Evaluating Self-Hosted LLM Platforms</h1>
+<p><strong>Audience:</strong> technical leaders and engineers asking <em>“Why not just use Open WebUI?”</em></p>
+<p>This document explains the major capability categories used to evaluate self‑hosted LLM platforms (LibreChat, Open WebUI, Bionic GPT, Onyx). Each category explains <em>what the user sees</em>, <em>what happens underneath</em>, and—where relevant—<em>what a tool definition typically looks like</em>. A comparison matrix follows each section.</p>
+<hr />
+<h2>1. Interaction &amp; Modalities</h2>
+<p><img src="the-console.png" alt="Alt text" title="Chat GPT Prompt" /></p>
+<h3>What this category covers</h3>
+<p>How users interact with models and which input/output modalities are supported beyond plain text.</p>
+<h3>What happens underneath</h3>
+<p>The platform must:</p>
+<ul>
+<li>Normalize user inputs into model‑specific request formats</li>
+<li>Manage binary assets (files, images) with lifecycle and access control</li>
+<li>Route requests to different model endpoints depending on modality</li>
+</ul>
+<p>Platforms that only support chat are thin UIs. Platforms that support multiple modalities require orchestration, storage, and policy enforcement layers.</p>
+<h3>Typical tool definition (example)</h3>
+<pre style="background-color:#2b303b;">
+<span style="color:#bf616a;">web_search(query</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string, recency_days?</span><span style="color:#c0c5ce;">: </span><span style="color:#a3be8c;">number)
+</span><span style="color:#bf616a;">create_image(prompt</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string, size?</span><span style="color:#c0c5ce;">: </span><span style="color:#a3be8c;">string)
+</span><span style="color:#bf616a;">analyze_image(image_ref</span><span style="color:#c0c5ce;">: </span><span style="color:#a3be8c;">File)
+</span><span style="color:#bf616a;">open_url(url</span><span style="color:#c0c5ce;">: </span><span style="color:#a3be8c;">string)
+</span><span style="color:#a3be8c;">list_attachments()
+</span><span style="color:#bf616a;">get_attachment(id:number, offset</span><span style="color:#c0c5ce;">: </span><span style="color:#a3be8c;">number)
+</span></pre>
+<h3>Comparison matrix</h3>
+<table><thead><tr><th>Capability</th><th>LibreChat</th><th>Open WebUI</th><th>Bionic GPT</th><th>Onyx</th></tr></thead><tbody>
+<tr><td>Text chat</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>File attachments (tool‑accessible)</td><td>Partial</td><td>Basic</td><td>✓</td><td>✓</td></tr>
+<tr><td>Image generation</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>Image analysis / vision</td><td>Partial</td><td>Partial</td><td>✓</td><td>✓</td></tr>
+<tr><td>Web search via tools</td><td>Partial</td><td>Limited</td><td>✓</td><td>✓</td></tr>
+<tr><td>Deep research mode</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+</tbody></table>
+<hr />
+<h2>2. Saved Configurations, Agents &amp; Projects</h2>
+<p><img src="projects.png" alt="Alt text" title="Saved Configurations, Agents &amp; Projects" /></p>
+<h3>What this category covers</h3>
+<p>How systems define persistent AI behaviour and context.</p>
+<h3>What happens underneath</h3>
+<ul>
+<li>Saved configurations combine system prompts, tools, and data bindings</li>
+<li>Projects/workspaces attach shared context across chats</li>
+<li>Agentic systems include planners, tool executors, and state machines</li>
+</ul>
+<p>This is the dividing line between <em>chat UIs</em> and <em>AI systems</em>.</p>
+<p>Here is project-level tool pseudocode that represents what a full platform (not just a chat UI) typically exposes to an LLM when operating inside a Project / Workspace.</p>
+<h3>Project Context &amp; Navigation</h3>
+<pre style="background-color:#2b303b;">
+<span style="color:#8fa1b3;">get_project</span><span style="color:#c0c5ce;">() -&gt; </span><span style="color:#bf616a;">Project
+</span><span style="color:#8fa1b3;">list_project_chats</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">project_id</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">) -&gt; </span><span style="color:#ebcb8b;">Chat</span><span style="color:#c0c5ce;">[]
+</span><span style="color:#8fa1b3;">get_chat</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">chat_id</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">) -&gt; </span><span style="color:#bf616a;">Chat
+</span><span style="color:#8fa1b3;">create_chat</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">project_id</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">title</span><span style="color:#c0c5ce;">?: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">) -&gt; </span><span style="color:#bf616a;">Chat
+</span><span style="color:#8fa1b3;">rename_chat</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">chat_id</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">title</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">)
+</span></pre>
+<h3>Conversation Memory &amp; State</h3>
+<pre style="background-color:#2b303b;">
+<span style="color:#8fa1b3;">store_memory</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">key</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">value</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">)
+</span><span style="color:#8fa1b3;">read_memory</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">key</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">) -&gt; </span><span style="color:#bf616a;">string
+</span><span style="color:#8fa1b3;">list_memory_keys</span><span style="color:#c0c5ce;">() -&gt; </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">[]
+</span><span style="color:#8fa1b3;">delete_memory</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">key</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">)
+</span></pre>
+<h3>File &amp; Artifact Management</h3>
+<pre style="background-color:#2b303b;">
+<span style="color:#8fa1b3;">list_attachments</span><span style="color:#c0c5ce;">() -&gt; </span><span style="color:#ebcb8b;">File</span><span style="color:#c0c5ce;">[]
+</span><span style="color:#8fa1b3;">read_file</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">file_id</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">) -&gt; </span><span style="color:#bf616a;">FileContent
+</span><span style="color:#8fa1b3;">write_file</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">name</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">content</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">bytes</span><span style="color:#c0c5ce;">) -&gt; </span><span style="color:#bf616a;">File
+</span><span style="color:#8fa1b3;">delete_file</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">file_id</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">)
+</span></pre>
+<h3>Comparison matrix</h3>
+<table><thead><tr><th>Capability</th><th>LibreChat</th><th>Open WebUI</th><th>Bionic GPT</th><th>Onyx</th></tr></thead><tbody>
+<tr><td>Named configurations</td><td>✓</td><td>Limited</td><td>✓</td><td>✓</td></tr>
+<tr><td>System instructions</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>Tool access per configuration</td><td>Limited</td><td>Limited</td><td>✓</td><td>✓</td></tr>
+<tr><td>Projects / shared context</td><td>✗</td><td>Partial</td><td>✓</td><td>✓</td></tr>
+<tr><td>Multi‑step agent execution</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+</tbody></table>
+<hr />
+<h2>3. Knowledge &amp; Data Ingestion (RAG)</h2>
+<p><img src="rag-pipeline.png" alt="Alt text" title="Integrations" /></p>
+<h3>What this category covers</h3>
+<p>How external knowledge is ingested, indexed, and retrieved during inference.</p>
+<h3>What happens underneath</h3>
+<ul>
+<li>Documents are parsed and chunked</li>
+<li>Embeddings are generated and stored</li>
+<li>Retrieval pipelines select relevant chunks at runtime</li>
+<li>Permissions are enforced per chunk or source</li>
+</ul>
+<p>This requires background pipelines, vector stores, and runtime binding—none of which exist in simple chat UIs.</p>
+<h3>Rag Tools passed to the model</h3>
+<pre style="background-color:#2b303b;">
+<span style="color:#8fa1b3;">search_knowledge</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">query</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">, </span><span style="color:#bf616a;">k</span><span style="color:#c0c5ce;">?: </span><span style="color:#bf616a;">number</span><span style="color:#c0c5ce;">) -&gt; </span><span style="color:#ebcb8b;">RetrievedChunk</span><span style="color:#c0c5ce;">[]
+</span><span style="color:#8fa1b3;">get_chunk</span><span style="color:#c0c5ce;">(</span><span style="color:#bf616a;">chunk_id</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">) -&gt; </span><span style="color:#bf616a;">RetrievedChunk
+</span><span style="color:#c0c5ce;">
+</span><span style="color:#8fa1b3;">request_full_document</span><span style="color:#c0c5ce;">(
+</span><span style="color:#c0c5ce;">  </span><span style="color:#bf616a;">source_id</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string</span><span style="color:#c0c5ce;">,
+</span><span style="color:#c0c5ce;">  </span><span style="color:#bf616a;">justification</span><span style="color:#c0c5ce;">: </span><span style="color:#bf616a;">string
+</span><span style="color:#c0c5ce;">) -&gt; </span><span style="color:#bf616a;">DocumentHandle
+</span></pre>
+<h3>Comparison matrix</h3>
+<table><thead><tr><th>Capability</th><th>LibreChat</th><th>Open WebUI</th><th>Bionic GPT</th><th>Onyx</th></tr></thead><tbody>
+<tr><td>RAG support</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>Multiple knowledge sources</td><td>Limited</td><td>Limited</td><td>✓</td><td>✓</td></tr>
+<tr><td>Continuous ingestion</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+<tr><td>Permission‑aware retrieval</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+<tr><td>Supported file types (broad)</td><td>Partial</td><td>Partial</td><td>✓</td><td>✓</td></tr>
+</tbody></table>
+<hr />
+<h2>4. Integrations &amp; Extensibility</h2>
+<p><img src="open-api.png" alt="Alt text" title="Integrations" /></p>
+<h3>What this category covers</h3>
+<p>How the system interacts with external APIs and tools.</p>
+<h3>What happens underneath</h3>
+<ul>
+<li>OpenAPI specs are parsed into callable tools</li>
+<li>OAuth2 flows and secrets are managed centrally</li>
+<li>Tool execution is sandboxed and audited</li>
+<li>MCP enables cross‑system agent interoperability</li>
+</ul>
+<p>This is where platforms stop being UIs and become <em>integration hubs</em>.</p>
+<p><img src="integrations.png" alt="Alt text" title="Integrations" /></p>
+<h3>Typical OpenAPI tool binding</h3>
+<pre style="background-color:#2b303b;">
+<span style="color:#bf616a;">openapi</span><span style="color:#c0c5ce;">: </span><span style="color:#a3be8c;">https://api.example.com/openapi.json
+</span><span style="color:#bf616a;">auth</span><span style="color:#c0c5ce;">:
+</span><span style="color:#c0c5ce;">  </span><span style="color:#bf616a;">type</span><span style="color:#c0c5ce;">: </span><span style="color:#a3be8c;">oauth2
+</span><span style="color:#c0c5ce;">  </span><span style="color:#bf616a;">token_ref</span><span style="color:#c0c5ce;">: </span><span style="color:#a3be8c;">crm_access_token
+</span></pre>
+<h3>Comparison matrix</h3>
+<table><thead><tr><th>Capability</th><th>LibreChat</th><th>Open WebUI</th><th>Bionic GPT</th><th>Onyx</th></tr></thead><tbody>
+<tr><td>OpenAPI tool ingestion</td><td>Partial</td><td>Partial</td><td>✓</td><td>✓</td></tr>
+<tr><td>OAuth2‑secured APIs</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+<tr><td>MCP client</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+<tr><td>MCP server</td><td>✗</td><td>✗</td><td>✓</td><td>Limited</td></tr>
+<tr><td>Virtual API keys</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+</tbody></table>
+<hr />
+<h2>5. Security, Identity &amp; Governance</h2>
+<p><img src="sso.png" alt="Alt text" title="Single Sign On" /></p>
+<h3>What this category covers</h3>
+<p>Controls required in multi‑user, regulated, or enterprise environments.</p>
+<h3>What happens underneath</h3>
+<ul>
+<li>Identity providers are federated via SSO</li>
+<li>Authorization is enforced at request and data levels</li>
+<li>Secrets and prompts are encrypted at runtime</li>
+<li>Audit events are emitted for compliance</li>
+</ul>
+<h3>Comparison matrix</h3>
+<table><thead><tr><th>Capability</th><th>LibreChat</th><th>Open WebUI</th><th>Bionic GPT</th><th>Onyx</th></tr></thead><tbody>
+<tr><td>SSO</td><td>Partial</td><td>Partial</td><td>✓</td><td>✓</td></tr>
+<tr><td>RBAC</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+<tr><td>Teams / multi‑tenancy</td><td>Limited</td><td>Limited</td><td>✓</td><td>✓</td></tr>
+<tr><td>Sharing controls</td><td>Basic</td><td>Basic</td><td>✓</td><td>✓</td></tr>
+<tr><td>Runtime encryption</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+</tbody></table>
+<hr />
+<h2>6. Observability &amp; Cost Control</h2>
+<h3>What this category covers</h3>
+<p>Visibility into usage, cost, and system behaviour.</p>
+<h3>What happens underneath</h3>
+<ul>
+<li>Every request/response is metered</li>
+<li>Tokens are attributed to users, teams, and models</li>
+<li>Metrics are exported via OpenTelemetry</li>
+</ul>
+<p>Without this, systems cannot be governed or scaled responsibly.</p>
+<h3>Comparison matrix</h3>
+<table><thead><tr><th>Capability</th><th>LibreChat</th><th>Open WebUI</th><th>Bionic GPT</th><th>Onyx</th></tr></thead><tbody>
+<tr><td>Token accounting</td><td>Partial</td><td>Partial</td><td>✓</td><td>✓</td></tr>
+<tr><td>Request/response storage</td><td>Partial</td><td>Partial</td><td>✓</td><td>✓</td></tr>
+<tr><td>OpenTelemetry support</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+<tr><td>Grafana‑ready metrics</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+</tbody></table>
+<hr />
+<h2>7. Deployment &amp; Platform Architecture</h2>
+<h3>What this category covers</h3>
+<p>How the system runs in real infrastructure.</p>
+<h3>What happens underneath</h3>
+<ul>
+<li>Services are decomposed and scalable</li>
+<li>Execution environments are isolated</li>
+<li>Kubernetes operators manage lifecycle and upgrades</li>
+</ul>
+<p>This is the clearest separator between <em>tools</em> and <em>platforms</em>.</p>
+<h3>Comparison matrix</h3>
+<table><thead><tr><th>Capability</th><th>LibreChat</th><th>Open WebUI</th><th>Bionic GPT</th><th>Onyx</th></tr></thead><tbody>
+<tr><td>Self‑hosted</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>Kubernetes native</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+<tr><td>Kubernetes operator</td><td>✗</td><td>✗</td><td>✓</td><td>Partial</td></tr>
+<tr><td>Sandboxed code execution</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td></tr>
+</tbody></table>
+<hr />
+<h2>Final Takeaway</h2>
+<p><strong>Open WebUI answers the question:</strong> <em>“How do I chat with an LLM?”</em></p>
+<p><strong>Platforms like Bionic GPT and Onyx answer:</strong>
+<em>“How do I safely, observably, and extensibility deploy AI across an organization?”</em></p>
+<p>That distinction only becomes visible once you look below the UI layer—exactly what this evaluation framework is designed to do.</p>
+</div></div></article><section class="blog-sub-footer mt-16 border-y border-base-300 bg-base-200 px-6 py-12 md:py-16"><div class="mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2"><div><h2 class="text-3xl font-bold leading-tight md:text-4xl">Your sovereign AI agent for enterprise tasks</h2><p class="mt-4 text-lg opacity-80">Bionic connects AI to your organisation’s knowledge and tools, so it can research, analyse, create and take action. Deploy on-premise, in your private cloud or air-gapped, with full control over your data and models.</p><div class="mt-6 flex flex-wrap gap-3"><a class="btn btn-primary" href="/docs/running-locally/docker-compose/">Deploy Bionic</a><a class="btn btn-ghost" href="/contact/">Talk to us about the Accelerator</a></div></div><img class="mx-auto w-full max-w-sm rounded-box shadow-md" src="/landing-page/bionic-console.png" alt="Bionic workspace"/></div></section><footer class="mt-0 bg-base-200 px-6 py-10 text-base-content"><div class="mx-auto flex max-w-5xl flex-col gap-8 md:flex-row md:justify-between"><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Resources</h6><a href="/blog/" class="link link-hover">Blog</a><a href="/pricing/" class="link link-hover">Pricing</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Company</h6><a class="link link-hover">About Us</a><a href="/contact/" class="link link-hover">Contact</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Legal</h6><a href="/terms/" class="link link-hover">Terms of Use</a><a href="/privacy/" class="link link-hover">Privacy Policy</a></nav></div></footer><script integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" type="module" src="https://instant.page/5.2.0"></script></body></html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang='en'><head><title>From Chatbot to AI Computer</title><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content="How conversational systems become complete working environments."/><meta property="og:title" content="From Chatbot to AI Computer"/><meta property="og:description" content="How conversational systems become complete working environments."/><meta property="og:type" content="article"/><meta property="og:site_name" content="Bionic GPT"/><meta property="og:url" content="https://bionic-gpt.com/architect-course/ai-computer/"/><meta property="og:image" content="https://bionic-gpt.com/open-graph.png"/><meta property="twitter:image" content="https://bionic-gpt.com/open-graph.png"/><link rel="stylesheet" href="/content-lightbox.css" type="text/css"/><link rel="stylesheet" href="/tailwind.css" type="text/css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5" type="text/css"/><link rel="icon" type="image/svg+xml" href="/favicon.svg"/><script async=true data-goatcounter="" integrity="" type="" src="/content-lightbox.js"></script><script async=true data-goatcounter="https://bionicgpt.goatcounter.com/count" integrity="" type="" src="/goat-counter.js"></script><script async=true data-goatcounter="" integrity="" type="" src="/copy-paste.js"></script><script data-goatcounter="" integrity="" type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script></head><body><header class="sticky top-0 z-50 backdrop-filter backdrop-blur-lg bg-opacity-30"><div class="bg-primary text-primary-content text-xs sm:text-sm px-3 sm:px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-center"><span class="font-semibold">🎉 Zero to Agentic AI Hero</span><a class="inline-flex items-center gap-1 underline font-semibold hover:text-base-200" href="/architect-course/">Take the course<span>→</span></a></div><div class="navbar justify-between pl-4 pr-4"><div class="flex items-center gap-4"><div class="dropdown lg:hidden"><div tabindex="0" role="button" class="btn btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" stroke="currentColor" viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M4 6h16M4 12h8m-8 6h16" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"></path></svg></div><ul class="menu menu-sm dropdown-content mt-3 z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/">Home</a></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li><a hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a class="active" hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li><li><a hx-boost="true" href="/partners/">Partners</a></li><li><a hx-boost="true" href="/contact/">Book a Call</a></li><li><a class="shrink-0 flex gap-1 items-center underline pl-4" hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt">Star us on GitHub</a></li><ul class="menu menu-sm gap-1"><li><a href="/architect-course/">Course Introduction</a></li></ul><ul class="menu menu-sm gap-1"><li><a href="/architect-course/lab/docker-compose/">Running the Bionic Agentic AI Platform</a></li><li><a href="/architect-course/lab/api-provider/">Option 1: Use an API Provider</a></li><li><a href="/architect-course/lab/ollama/">Option 2: Run Locally with Ollama</a></li><li><a href="/architect-course/lab/test-platform/">Test the Platform</a></li></ul><ul class="menu menu-sm gap-1"><li><a href="/architect-course/how-agentic-ai-works/understanding-tool-calls/">Understanding Tool Calls</a></li><li><a href="/architect-course/how-agentic-ai-works/agentic-loop/">The Agentic Loop</a></li></ul><ul class="menu menu-sm gap-1"><li><a href="/architect-course/ai-computer/">From Chatbot to AI Computer</a></li><li><a href="/architect-course/ai-computer/sandboxes/">Sandboxes</a></li><li><a href="/architect-course/ai-computer/virtual-file-system/">Virtual File System</a></li><li><a href="/architect-course/how-agentic-ai-works/runtime-tools/">Runtime Tools</a></li><li><a href="/architect-course/ai-computer/datasets/">Datasets</a></li><li><a href="/architect-course/ai-computer/skills/">Skills</a></li><li><a href="/architect-course/ai-computer/memory/">Memory and Context</a></li><li><a href="/architect-course/ai-computer/scheduled-tasks/">Scheduled Tasks</a></li></ul><ul class="menu menu-sm gap-1"><li><a href="/architect-course/enterprise-evals/automationbench/">AutomationBench</a></li><li><a href="/architect-course/enterprise-evals/inbox-summarization/">Email-to-CRM Automation</a></li><li><a href="/architect-course/enterprise-evals/research/">Deep Research</a></li><li><a href="/architect-course/enterprise-evals/database/">Enterprise Database Access</a></li><li><a href="/architect-course/enterprise-evals/dashboard-builder/">Dashboard Generation</a></li><li><a href="/architect-course/enterprise-evals/document-validation/">Document Comparison</a></li><li><a href="/architect-course/enterprise-evals/document-coauthoring/">Document Co-authoring</a></li><li><a href="/architect-course/enterprise-evals/vision-analysis/">Vision Analysis</a></li><li><a href="/architect-course/enterprise-evals/persistent-state/">Persistent State</a></li></ul><ul class="menu menu-sm gap-1"><li><a href="/architect-course/deployment-and-operations/why-kubernetes/">Why Kubernetes</a></li><li><a href="/architect-course/deployment-and-operations/install-linux/">Running the Kubernetes Lab</a></li></ul></ul></div><ul class="flex flex-row items-center gap-4"><li class="lg:mr-2"><a href="/"><span class="flex flex-row gap-2 items-center"><strong>Bionic</strong></span></a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Product<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/product/chat/">Chat</a></li><li><a hx-boost="true" href="/product/projects/">Projects</a></li><li><a hx-boost="true" href="/product/datasets/">Datasets</a></li><li><a hx-boost="true" href="/product/skills/">Skills</a></li><li><a hx-boost="true" href="/product/integrations/">Integrations</a></li><li><a hx-boost="true" href="/product/developers/">Developers</a></li></ul></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Resources<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a class="active" hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li></ul></li><li><a hx-boost="true" href="/partners/">Partners</a></li></ul></div><div class="hidden lg:flex items-center gap-3"><a hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt"><img src="https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" alt="Github"/></a><a hx-boost="true" href="https://app.bionic-gpt.com">Login</a><a class="btn btn-primary btn-sm" hx-boost="true" href="/contact/">Book a Call</a></div></div></header><main class="flex-1"><div class="relative flex flex-row"><div class="fixed top-2.5 bottom-0 left-[-100%] z-40 hidden h-[calc(100vh-108px)] w-[420px] shrink-0 overflow-y-auto border-r border-base-300 bg-base-100 lg:sticky lg:left-0 lg:block" data-scroll-key="architect-course"><nav class="px-5 pt-12 pb-5"><p class="mb-2 font-semibold">Agentic AI Architecture Course</p><ul class="menu mb-6 p-0"><li><a class="" href="/architect-course/" hx-boost="true" tabindex="0">Course Introduction</a></li></ul><p class="mb-2 font-semibold">Setting up a Lab</p><ul class="menu mb-6 p-0"><li><a class="" href="/architect-course/lab/docker-compose/" hx-boost="true" tabindex="0">Running the Bionic Agentic AI Platform</a></li><li><a class="" href="/architect-course/lab/api-provider/" hx-boost="true" tabindex="0">Option 1: Use an API Provider</a></li><li><a class="" href="/architect-course/lab/ollama/" hx-boost="true" tabindex="0">Option 2: Run Locally with Ollama</a></li><li><a class="" href="/architect-course/lab/test-platform/" hx-boost="true" tabindex="0">Test the Platform</a></li></ul><p class="mb-2 font-semibold">How Agentic AI Works</p><ul class="menu mb-6 p-0"><li><a class="" href="/architect-course/how-agentic-ai-works/understanding-tool-calls/" hx-boost="true" tabindex="0">Understanding Tool Calls</a></li><li><a class="" href="/architect-course/how-agentic-ai-works/agentic-loop/" hx-boost="true" tabindex="0">The Agentic Loop</a></li></ul><p class="mb-2 font-semibold">The AI Computer</p><ul class="menu mb-6 p-0"><li><a class="font-bold" href="/architect-course/ai-computer/" hx-boost="true" tabindex="0">From Chatbot to AI Computer</a></li><li><a class="" href="/architect-course/ai-computer/sandboxes/" hx-boost="true" tabindex="0">Sandboxes</a></li><li><a class="" href="/architect-course/ai-computer/virtual-file-system/" hx-boost="true" tabindex="0">Virtual File System</a></li><li><a class="" href="/architect-course/how-agentic-ai-works/runtime-tools/" hx-boost="true" tabindex="0">Runtime Tools</a></li><li><a class="" href="/architect-course/ai-computer/datasets/" hx-boost="true" tabindex="0">Datasets</a></li><li><a class="" href="/architect-course/ai-computer/skills/" hx-boost="true" tabindex="0">Skills</a></li><li><a class="" href="/architect-course/ai-computer/memory/" hx-boost="true" tabindex="0">Memory and Context</a></li><li><a class="" href="/architect-course/ai-computer/scheduled-tasks/" hx-boost="true" tabindex="0">Scheduled Tasks</a></li></ul><p class="mb-2 font-semibold">Enterprise Evals</p><ul class="menu mb-6 p-0"><li><a class="" href="/architect-course/enterprise-evals/automationbench/" hx-boost="true" tabindex="0">AutomationBench</a></li><li><a class="" href="/architect-course/enterprise-evals/inbox-summarization/" hx-boost="true" tabindex="0">Email-to-CRM Automation</a></li><li><a class="" href="/architect-course/enterprise-evals/research/" hx-boost="true" tabindex="0">Deep Research</a></li><li><a class="" href="/architect-course/enterprise-evals/database/" hx-boost="true" tabindex="0">Enterprise Database Access</a></li><li><a class="" href="/architect-course/enterprise-evals/dashboard-builder/" hx-boost="true" tabindex="0">Dashboard Generation</a></li><li><a class="" href="/architect-course/enterprise-evals/document-validation/" hx-boost="true" tabindex="0">Document Comparison</a></li><li><a class="" href="/architect-course/enterprise-evals/document-coauthoring/" hx-boost="true" tabindex="0">Document Co-authoring</a></li><li><a class="" href="/architect-course/enterprise-evals/vision-analysis/" hx-boost="true" tabindex="0">Vision Analysis</a></li><li><a class="" href="/architect-course/enterprise-evals/persistent-state/" hx-boost="true" tabindex="0">Persistent State</a></li></ul><p class="mb-2 font-semibold">Deployment and Operations</p><ul class="menu mb-6 p-0"><li><a class="" href="/architect-course/deployment-and-operations/why-kubernetes/" hx-boost="true" tabindex="0">Why Kubernetes</a></li><li><a class="" href="/architect-course/deployment-and-operations/install-linux/" hx-boost="true" tabindex="0">Running the Kubernetes Lab</a></li></ul></nav></div><section class="h-[calc(100vh-108px)] w-full px-5 pt-12 pb-5 lg:overflow-y-auto"><div class="mb-12"><article class="mx-auto prose max-w-prose px-5 lg:prose-xl"><div class="prose prose-slate max-w-none prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-slate-100 prose-code:font-mono prose-img:max-w-full"><h1>From Chatbot to AI Computer</h1>
+<p>In <a href="/architect-course/how-agentic-ai-works/understanding-tool-calls/">Understanding Tool Calls</a>, we asked a model:</p>
+<blockquote>
+<p>What is the price of Bitcoin today in USD?</p>
+</blockquote>
+<p>The model could not answer from its training data because the price changes constantly. We solved that problem by giving it a purpose-built tool named <code>get_bitcoin_price_usd</code>.</p>
+<p>That tool adds one useful capability. If we want the model to retrieve an exchange rate, inspect a CSV, resize an image, or generate a report, we could keep adding purpose-built tools. Alternatively, we can give the model a working environment containing software that already knows how to perform many of those tasks.</p>
+<p>This is the shift from chatbot to <strong>AI computer</strong>.</p>
+<p>An AI computer is a conversational workspace in which a model can inspect and create files, execute commands or code, use installed tools and skills, maintain working context, connect to external systems, schedule future work, and produce finished artifacts.</p>
+<p>Here, “AI computer” describes the software environment around the model. It does not mean AI-specific hardware, a GPU workstation, or a consumer “AI PC.”</p>
+<p><a href="https://docs.openclaw.ai/agent">OpenClaw</a> made this shift easy to see. It
+connected the model to a workspace and tools on your computer, allowing it to
+read and change files, run commands, and use existing software. The model could
+then handle many kinds of work without a separate tool or agent being designed
+for every request.</p>
+<p><img src="./openclaw-feature-image.jpg" alt="OpenClaw giving a model access to a computer workspace" title="OpenClaw computer workspace" /></p>
+<h2>Give the Model a Computer</h2>
+<p>Let us ask the Bitcoin question again. This time we will not provide a Bitcoin-specific tool. We will provide one general tool that can execute a Bash command inside an isolated environment:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">{
+</span><span style="color:#c0c5ce;">  &quot;</span><span style="color:#a3be8c;">type</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">function</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">  &quot;</span><span style="color:#a3be8c;">function</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">name</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">exec_bash</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">description</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">Execute a Bash command in an isolated workspace and return stdout and stderr.</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">parameters</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">      &quot;</span><span style="color:#a3be8c;">type</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">object</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">      &quot;</span><span style="color:#a3be8c;">properties</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">        &quot;</span><span style="color:#a3be8c;">command</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">          &quot;</span><span style="color:#a3be8c;">type</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">string</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">          &quot;</span><span style="color:#a3be8c;">description</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">The Bash command to execute.</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#c0c5ce;">        }
+</span><span style="color:#c0c5ce;">      },
+</span><span style="color:#c0c5ce;">      &quot;</span><span style="color:#a3be8c;">required</span><span style="color:#c0c5ce;">&quot;: [&quot;</span><span style="color:#a3be8c;">command</span><span style="color:#c0c5ce;">&quot;],
+</span><span style="color:#c0c5ce;">      &quot;</span><span style="color:#a3be8c;">additionalProperties</span><span style="color:#c0c5ce;">&quot;: </span><span style="color:#d08770;">false
+</span><span style="color:#c0c5ce;">    }
+</span><span style="color:#c0c5ce;">  }
+</span><span style="color:#c0c5ce;">}
+</span></pre>
+<p>The user still asks:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">What is the price of Bitcoin today in USD?
+</span></pre>
+<p>The model knows that it needs current information. It also knows that <code>curl</code> can make an HTTP request, so it can use the general execution tool to call a public price API:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">{
+</span><span style="color:#c0c5ce;">  &quot;</span><span style="color:#a3be8c;">role</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">assistant</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">  &quot;</span><span style="color:#a3be8c;">content</span><span style="color:#c0c5ce;">&quot;: &quot;&quot;,
+</span><span style="color:#c0c5ce;">  &quot;</span><span style="color:#a3be8c;">tool_calls</span><span style="color:#c0c5ce;">&quot;: [
+</span><span style="color:#c0c5ce;">    {
+</span><span style="color:#c0c5ce;">      &quot;</span><span style="color:#a3be8c;">name</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">exec_bash</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">      &quot;</span><span style="color:#a3be8c;">arguments</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">        &quot;</span><span style="color:#a3be8c;">command</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">curl --fail --silent --show-error https://api.coinbase.com/v2/prices/BTC-USD/spot</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#c0c5ce;">      }
+</span><span style="color:#c0c5ce;">    }
+</span><span style="color:#c0c5ce;">  ]
+</span><span style="color:#c0c5ce;">}
+</span></pre>
+<p>The model does not execute this command itself. The application receives the tool call, runs the command inside the permitted sandbox, and returns stdout and stderr.</p>
+<p>A successful command returns JSON similar to this:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">{
+</span><span style="color:#c0c5ce;">  &quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">amount</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">64251.42</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">base</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">BTC</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">currency</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">USD</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#c0c5ce;">  }
+</span><span style="color:#c0c5ce;">}
+</span></pre>
+<p>The amount above is illustrative. Bitcoin prices change continuously.</p>
+<p>The application adds the command result to the conversation, and the model can now answer:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">Bitcoin is currently trading at approximately $64,251.42 USD.
+</span></pre>
+<p>The agentic loop is the same as before: the model requests a tool, the application executes it, and the result is returned to the model. What changed is the breadth of the tool.</p>
+<h2>Minimum Tools</h2>
+<p>Mistral Vibe exposes a small set of general tools that the model can combine
+around the request in front of it.</p>
+<section class="not-prose my-8 rounded-xl border border-slate-200 bg-slate-50 p-6 shadow-sm" data-content-lightbox tabindex="0" role="button" aria-haspopup="dialog" aria-label="Expand Mistral Vibe minimum toolset">
+  <p class="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">Mistral Vibe</p>
+  <h3 class="mb-6 text-2xl font-bold text-slate-900">A minimum toolset</h3>
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">exec_bash</code>
+      <p class="mt-1 text-sm text-slate-600">Run shell commands</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">exec_python</code>
+      <p class="mt-1 text-sm text-slate-600">Execute Python</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">search_tool</code>
+      <p class="mt-1 text-sm text-slate-600">Discover available capabilities</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">read_file</code>
+      <p class="mt-1 text-sm text-slate-600">Inspect workspace files</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">write_file</code>
+      <p class="mt-1 text-sm text-slate-600">Create or update files</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">search_replace</code>
+      <p class="mt-1 text-sm text-slate-600">Make targeted edits</p>
+    </div>
+  </div>
+</section>
+<p>In the following sections, we will show how this small toolset can cover a
+large range of the work users ask the model to perform.</p>
+<h2>The Architecture We Will Explore</h2>
+<p>The following lessons explore how the runtime, files, tools, skills, memory,
+integrations, and outputs fit together around the model.</p>
+<figure class="not-prose my-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+  <img class="w-full" src="agentic-ai-architecture.png" alt="Agentic AI architecture explored in the following lessons" />
+</figure>
+</div></article></div></section></div><script>
+                        (function() {
+                            const nav = document.querySelector('[data-scroll-key="architect-course"]');
+                            if (!nav) return;
+                            const storageKey = "left-nav-scroll-architect-course";
+                            const saved = sessionStorage.getItem(storageKey);
+                            if (saved) {
+                                nav.scrollTop = parseInt(saved, 10) || 0;
+                            }
+                            nav.addEventListener("scroll", function() {
+                                sessionStorage.setItem(storageKey, nav.scrollTop.toString());
+                            }, { passive: true });
+                        })();
+                    </script></main><script integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" type="module" src="https://instant.page/5.2.0"></script></body></html>

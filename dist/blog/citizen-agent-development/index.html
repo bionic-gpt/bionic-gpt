@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang='en'><head><title>Citizen Agent Development</title><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content="Learn how non-technical employees are using no-code platforms to create and deploy AI agents for their own work."/><meta property="og:title" content="Citizen Agent Development"/><meta property="og:description" content="Learn how non-technical employees are using no-code platforms to create and deploy AI agents for their own work."/><meta property="og:type" content="article"/><meta property="og:site_name" content="Bionic GPT"/><meta property="og:url" content="https://bionic-gpt.com/blog/citizen-agent-development/"/><meta property="og:image" content="https://bionic-gpt.com/blog/citizen-agent-development/open-graph.jpg"/><meta property="twitter:image" content="https://bionic-gpt.com/blog/citizen-agent-development/open-graph.jpg"/><link rel="stylesheet" href="/content-lightbox.css" type="text/css"/><link rel="stylesheet" href="/tailwind.css" type="text/css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5" type="text/css"/><link rel="icon" type="image/svg+xml" href="/favicon.svg"/><script async=true data-goatcounter="" integrity="" type="" src="/content-lightbox.js"></script><script async=true data-goatcounter="https://bionicgpt.goatcounter.com/count" integrity="" type="" src="/goat-counter.js"></script><script async=true data-goatcounter="" integrity="" type="" src="/copy-paste.js"></script><script data-goatcounter="" integrity="" type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script></head><body><header class="sticky top-0 z-50 backdrop-filter backdrop-blur-lg bg-opacity-30"><div class="bg-primary text-primary-content text-xs sm:text-sm px-3 sm:px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-center"><span class="font-semibold">🎉 Zero to Agentic AI Hero</span><a class="inline-flex items-center gap-1 underline font-semibold hover:text-base-200" href="/architect-course/">Take the course<span>→</span></a></div><div class="navbar justify-between pl-4 pr-4"><div class="flex items-center gap-4"><div class="dropdown lg:hidden"><div tabindex="0" role="button" class="btn btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" stroke="currentColor" viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M4 6h16M4 12h8m-8 6h16" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"></path></svg></div><ul class="menu menu-sm dropdown-content mt-3 z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/">Home</a></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li><li><a hx-boost="true" href="/partners/">Partners</a></li><li><a hx-boost="true" href="/contact/">Book a Call</a></li><li><a class="shrink-0 flex gap-1 items-center underline pl-4" hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt">Star us on GitHub</a></li></ul></div><ul class="flex flex-row items-center gap-4"><li class="lg:mr-2"><a href="/"><span class="flex flex-row gap-2 items-center"><strong>Bionic</strong></span></a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Product<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/product/chat/">Chat</a></li><li><a hx-boost="true" href="/product/projects/">Projects</a></li><li><a hx-boost="true" href="/product/datasets/">Datasets</a></li><li><a hx-boost="true" href="/product/skills/">Skills</a></li><li><a hx-boost="true" href="/product/integrations/">Integrations</a></li><li><a hx-boost="true" href="/product/developers/">Developers</a></li></ul></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Resources<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li></ul></li><li><a hx-boost="true" href="/partners/">Partners</a></li></ul></div><div class="hidden lg:flex items-center gap-3"><a hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt"><img src="https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" alt="Github"/></a><a hx-boost="true" href="https://app.bionic-gpt.com">Login</a><a class="btn btn-primary btn-sm" hx-boost="true" href="/contact/">Book a Call</a></div></div></header><article class="mt-24 mb-16 mx-auto max-w-prose px-5 lg:max-w-[81.25ch]"><div class=""><h1 class="text-4xl font-extrabold leading-tight md:text-5xl">Citizen Agent Development</h1><div class="my-8 flex items-center gap-3"><img class="h-11 w-11 shrink-0 rounded-full object-cover" width="44" height="44" src="/blog-authors/ian-purton.jpeg" alt="Author"/><div class="min-w-0 leading-tight"><strong class="block text-base font-semibold">Ian Purton</strong><small class="block text-base opacity-70">Tuesday 29th September 2026</small></div></div><div class="mb-4 flex items-center justify-between border-y border-base-300 py-2"><small class="block text-sm font-medium uppercase tracking-wide opacity-70">Share</small><div class="flex flex-row gap-1"><a class="btn btn-ghost btn-sm btn-square" href="https://twitter.com/intent/tweet?url=https://bionic-gpt.com/blog/citizen-agent-development/"><img width="16" height="16" src="/social-sharing/x-twitter.svg"/></a><a class="btn btn-ghost btn-sm btn-square" href="https://www.linkedin.com/sharing/share-offsite/?url=https://bionic-gpt.com/blog/citizen-agent-development/"><img width="16" height="16" src="/social-sharing/linkedin.svg"/></a></div></div><img class="mb-8 block aspect-video w-full rounded-box object-cover shadow-md" src="/blog/citizen-agent-development/citizen-agent-development.png" alt="Citizen Agent Development"/><div class="prose prose-slate max-w-none prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-slate-100 prose-code:font-mono prose-img:max-w-full"><p><strong>Citizen Agent Development</strong> is the practice of enabling non-technical employees to create and deploy AI agents for their own work. <a href="https://www.gartner.com/en/documents/6299715">Gartner</a> describes this through no-code agent builders for citizen developers, while <a href="https://www.appliedai.de/uploads/files/2603_AppliedAI_Whitepaper_AI_Maturity_26_EN_A4_04RZ_web_2026-03-02-132127_fiaq.pdf">appliedAI</a> explicitly calls the emerging practice <em>Citizen Agent Development</em>.</p>
+<p>In this article, we'll investigate how the industry defines agents, how these agents are created and what benefits, if any, they bring.</p>
+<h2>Industry Adoption at a Glance</h2>
+<ul>
+<li><strong>Prosus</strong> — 60,000+ agents built by 40,000 employees.<sup class="footnote-reference"><a href="#prosus">1</a></sup></li>
+<li><strong>Atos</strong> — 19,000 agents alongside 56,000 Copilot users.<sup class="footnote-reference"><a href="#atos">2</a></sup></li>
+<li><strong>Atea</strong> — 10,000+ agents across 8,000 employees.<sup class="footnote-reference"><a href="#atea">3</a></sup></li>
+<li><strong>Dow</strong> — 10,000+ AI agents.<sup class="footnote-reference"><a href="#dow">4</a></sup></li>
+<li><strong>Microsoft</strong> — More than three million agents created across its customer ecosystem in the preceding year.<sup class="footnote-reference"><a href="#microsoft">5</a></sup></li>
+</ul>
+<h2>How?</h2>
+<p>Most of these agents are created via a prompt, so they require no code. You can see this with Mistral Vibe, ChatGPT and, of course, Bionic.</p>
+<p>There's another aspect that's mentioned: training.</p>
+<p>Employees were trained en masse to "build agents" using this mechanism, and after that usage increased a lot.</p>
+<p><img src="it-is-just-a-prompt.png" alt="Alt text" title="Agents" /></p>
+<p>Three things need to be in place.</p>
+<ol>
+<li>An AI platform where users can create agents without writing code.</li>
+<li>The platform must support tools, particularly connections to existing systems like email and authentication.</li>
+<li>Training and advocacy. Employees create more agents after training sessions.</li>
+</ol>
+<h2>What Types of Agents?</h2>
+<p>Prosus analysed 60,000+ employee-created AI agents.<sup class="footnote-reference"><a href="#prosus">1</a></sup> Commonly created agents include:</p>
+<ol>
+<li><strong>Sales assistant</strong> — prepare reps, identify opportunities and recommend next actions.</li>
+<li><strong>Customer/churn analysis</strong> — identify customers at risk and suggest interventions.</li>
+<li><strong>Customer service assistant</strong> — handle specialised customer queries and cases.</li>
+<li><strong>Prospect/message triage</strong> — classify inbound messages and leads, then route or act on them.</li>
+<li><strong>Research &amp; monitoring</strong> — monitor news, competitors, markets and events.</li>
+<li><strong>Data analysis &amp; reporting</strong> — analyse company data and generate reports.</li>
+<li><strong>Demand &amp; shortage forecasting</strong> — analyse operational data and anticipate problems.</li>
+<li><strong>Contract &amp; invoice review</strong> — extract, compare and validate business documents.</li>
+<li><strong>Supplier &amp; partner onboarding</strong> — coordinate onboarding, communications and checks.</li>
+<li><strong>Personal/employee assistant</strong> — handle summaries, drafting, coordination and recurring knowledge work.</li>
+</ol>
+<h3>Example - Message Triage</h3>
+<p>A message triage prompt could look like this.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">Review new support emails. 
+</span><span style="color:#c0c5ce;">Use our product documentation and previous resolved cases to understand the problem. 
+</span><span style="color:#c0c5ce;">Classify the issue, assess its urgency, 
+</span><span style="color:#c0c5ce;">identify the relevant product and engineering team, 
+</span><span style="color:#c0c5ce;">and draft a response with links to the supporting documentation. 
+</span><span style="color:#c0c5ce;">If you&#39;re not confident, escalate it rather than guessing.
+</span></pre>
+<p><img src="message-triage.png" alt="Alt text" title="Agents" /></p>
+<p>That's quite a lot of value for such a short prompt.</p>
+<h2>Benefits</h2>
+<p>Prosus in particular mentions agents saving time and money, or sometimes creating opportunities such as new revenue.</p>
+<p>They also categorise agents by impact, such as saving one or two hours versus saving many hours.</p>
+<p>The articles support the view that enterprise agents are a good thing.</p>
+<h2>The Implications</h2>
+<p>Straight away, we can see that if enterprises start to build out thousands of agents, people are going to start thinking about token usage.</p>
+<p>There's also API governance: how do we give agents access to existing systems in a safe and compliant way?</p>
+<p>Important decisions that need to be made include:</p>
+<ul>
+<li>LLM Gateways - A way to put limits on token usage as well as monitor costs.</li>
+<li>API Governance - How do we connect our systems and roll that out as quickly as possible?</li>
+<li>The Platform - Which AI platform? Cloud, on-prem, open source or closed.</li>
+</ul>
+<p><img src="ai-platform.png" alt="Alt text" title="AI Platform" /></p>
+<h2>The Future</h2>
+<p>Citizen Agent Development is only just starting. Once organisations have thousands or tens of thousands of agents, a new set of problems appears.</p>
+<ul>
+<li>
+<p><strong>Model switching</strong> — Not every agent needs the most capable model. Research such as <a href="https://arxiv.org/abs/2406.18665">RouteLLM</a> explores automatically routing requests between stronger, expensive models and cheaper models while maintaining quality.</p>
+</li>
+<li>
+<p><strong>Intelligence up front</strong> — A powerful model could create and validate a scheduled task, then turn it into explicit instructions that a much smaller model can execute repeatedly. This starts to resemble the emerging idea of using stronger models to generate supervision and workflows for weaker models.</p>
+</li>
+<li>
+<p><strong>Procedural memory</strong> — Perhaps we don't need to create an agent at all. <a href="https://arxiv.org/abs/2409.07429">Agent Workflow Memory</a> shows how agents can extract reusable workflows from previous experiences, while <a href="https://www.microsoft.com/en-us/research/publication/legomem-modular-procedural-memory-for-multi-agent-llm-systems-for-workflow-automation/">LEGOMem</a> explores reusable procedural memory specifically for workflow automation. A user might eventually just say <em>"another customer — you fix it"</em> or <em>"kick off the bond rollover."</em></p>
+</li>
+<li>
+<p><strong>Agent consolidation</strong> — If tens of thousands of employee-created agents collapse into a relatively small number of recurring patterns, perhaps platforms can identify, share and improve those patterns rather than maintaining thousands of near-duplicates. <a href="https://arxiv.org/abs/2609.12655">LifeMem</a> explores automatically discovering reusable skills by clustering previous agent trajectories around common workflows.</p>
+</li>
+<li>
+<p><strong>Evaluation</strong> — We need to evaluate the complete deployed system — model, skills, memory, sandbox and enterprise integrations — rather than testing models in isolation. Benchmarks such as <a href="https://arxiv.org/abs/2406.12045">τ-bench</a> and <a href="https://github.com/zapier/AutomationBench">AutomationBench</a> are moving evaluation toward realistic tool-using agents, although there is still plenty of room for evaluation of complete enterprise platforms.</p>
+</li>
+</ul>
+<p>It's early. But we're starting to see some of the benefits of the agent hype across the enterprise.</p>
+<h2>References</h2>
+<div class="footnote-definition" id="prosus"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://www.prosus.com/news-insights/2026/deploying-agentic-ai-at-scale-from-the-company-that-built-60000-agents?utm_source=chatgpt.com"><strong>Prosus — 60,000+ agents built by 40,000 employees</strong></a> — Built using its internal Toqan platform; Prosus identified 20 recurring high-value use-case patterns.</p>
+</div>
+<div class="footnote-definition" id="atos"><sup class="footnote-definition-label">2</sup>
+<p><a href="https://news.microsoft.com/source/2026/06/09/atos-group-and-microsoft-expand-strategic-collaboration-to-scale-secure-agentic-ai-across-atos-group-workforce-and-clients/?utm_source=chatgpt.com"><strong>Atos — 19,000 AI agents</strong></a> — Reports managing 19,000 agents across the organization alongside 56,000 Copilot users.</p>
+</div>
+<div class="footnote-definition" id="atea"><sup class="footnote-definition-label">3</sup>
+<p><a href="https://enablement.microsoft.com/en-us/ai-agents/transformation-stories/atea/?utm_source=chatgpt.com"><strong>Atea — 10,000+ agents across 8,000 employees</strong></a> — Microsoft says non-technical employees are building their own agents, dashboards and applications.</p>
+</div>
+<div class="footnote-definition" id="dow"><sup class="footnote-definition-label">4</sup>
+<p><a href="https://www.microsoft.com/en/customers/story/25620-dow-microsoft-copilot-studio?utm_source=chatgpt.com"><strong>Dow — 10,000+ AI agents</strong></a> — Dow describes scaling an internal agent ecosystem using Copilot Studio, including citizen development alongside centrally managed solutions.</p>
+</div>
+<div class="footnote-definition" id="microsoft"><sup class="footnote-definition-label">5</sup>
+<p><a href="https://blogs.microsoft.com/blog/2025/04/23/microsoft-2025-annual-work-trend-index-the-frontier-firm-is-born/?utm_source=chatgpt.com"><strong>Microsoft — 3+ million agents created with Copilot Studio</strong></a> — Microsoft reported that customers had created more than three million agents in the preceding year; this is ecosystem-wide rather than one company.</p>
+</div>
+</div></div></article><section class="blog-sub-footer mt-16 border-y border-base-300 bg-base-200 px-6 py-12 md:py-16"><div class="mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2"><div><h2 class="text-3xl font-bold leading-tight md:text-4xl">Your sovereign AI agent for enterprise tasks</h2><p class="mt-4 text-lg opacity-80">Bionic connects AI to your organisation’s knowledge and tools, so it can research, analyse, create and take action. Deploy on-premise, in your private cloud or air-gapped, with full control over your data and models.</p><div class="mt-6 flex flex-wrap gap-3"><a class="btn btn-primary" href="/docs/running-locally/docker-compose/">Deploy Bionic</a><a class="btn btn-ghost" href="/contact/">Talk to us about the Accelerator</a></div></div><img class="mx-auto w-full max-w-sm rounded-box shadow-md" src="/landing-page/bionic-console.png" alt="Bionic workspace"/></div></section><footer class="mt-0 bg-base-200 px-6 py-10 text-base-content"><div class="mx-auto flex max-w-5xl flex-col gap-8 md:flex-row md:justify-between"><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Resources</h6><a href="/blog/" class="link link-hover">Blog</a><a href="/pricing/" class="link link-hover">Pricing</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Company</h6><a class="link link-hover">About Us</a><a href="/contact/" class="link link-hover">Contact</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Legal</h6><a href="/terms/" class="link link-hover">Terms of Use</a><a href="/privacy/" class="link link-hover">Privacy Policy</a></nav></div></footer><script integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" type="module" src="https://instant.page/5.2.0"></script></body></html>

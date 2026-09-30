@@ -1,0 +1,49 @@
+date,region,product,customer,revenue,margin
+2026-01-05,DACH,Analytics,Airbus Defence,42800,0.41
+2026-01-12,UK & Ireland,Analytics,BAE Systems,31600,0.38
+2026-01-18,France,Automation,Safran,27400,0.36
+2026-01-26,Nordics,Knowledge,Kongsberg,22100,0.44
+2026-02-03,DACH,Automation,Siemens Energy,35200,0.39
+2026-02-10,UK & Ireland,Knowledge,Rolls-Royce,24800,0.43
+2026-02-16,France,Analytics,Thales,39100,0.4
+2026-02-24,Nordics,Automation,Saab,26700,0.37
+2026-03-04,DACH,Knowledge,Rheinmetall,29400,0.46
+2026-03-11,UK & Ireland,Automation,BAE Systems,33800,0.35
+2026-03-19,France,Knowledge,Dassault Aviation,25600,0.45
+2026-03-27,Nordics,Analytics,Kongsberg,30100,0.42
+2026-04-02,DACH,Analytics,Airbus Defence,46300,0.42
+2026-04-09,UK & Ireland,Analytics,Rolls-Royce,32900,0.39
+2026-04-17,France,Automation,Safran,29600,0.37
+2026-04-25,Nordics,Knowledge,Saab,23400,0.45
+2026-05-05,DACH,Automation,Siemens Energy,38100,0.4
+2026-05-12,UK & Ireland,Knowledge,BAE Systems,26100,0.44
+2026-05-20,France,Analytics,Thales,41800,0.41
+2026-05-28,Nordics,Automation,Kongsberg,28400,0.38
+2026-06-04,DACH,Knowledge,Rheinmetall,31800,0.47
+2026-06-13,UK & Ireland,Automation,Rolls-Royce,35600,0.36
+2026-06-21,France,Knowledge,Dassault Aviation,27200,0.46
+2026-06-29,Nordics,Analytics,Saab,32200,0.43
+2026-07-03,DACH,Analytics,Airbus Defence,51200,0.43
+2026-07-10,UK & Ireland,Analytics,BAE Systems,34700,0.4
+2026-07-18,France,Automation,Safran,31100,0.38
+2026-07-26,Nordics,Knowledge,Kongsberg,24900,0.46
+2026-08-04,DACH,Automation,Siemens Energy,40700,0.41
+2026-08-11,UK & Ireland,Knowledge,Rolls-Royce,27900,0.45
+2026-08-19,France,Analytics,Thales,44600,0.42
+2026-08-27,Nordics,Automation,Saab,29600,0.39
+2026-09-05,DACH,Knowledge,Rheinmetall,34200,0.48
+2026-09-12,UK & Ireland,Automation,BAE Systems,37100,0.37
+2026-09-20,France,Knowledge,Dassault Aviation,28900,0.47
+2026-09-28,Nordics,Analytics,Kongsberg,33800,0.44
+2026-10-03,DACH,Analytics,Airbus Defence,54800,0.44
+2026-10-10,UK & Ireland,Analytics,Rolls-Royce,36500,0.41
+2026-10-18,France,Automation,Safran,32900,0.39
+2026-10-26,Nordics,Knowledge,Saab,26100,0.47
+2026-11-04,DACH,Automation,Siemens Energy,43500,0.42
+2026-11-11,UK & Ireland,Knowledge,BAE Systems,29500,0.46
+2026-11-19,France,Analytics,Thales,47200,0.43
+2026-11-27,Nordics,Automation,Kongsberg,30700,0.4
+2026-12-04,DACH,Knowledge,Rheinmetall,36100,0.49
+2026-12-12,UK & Ireland,Automation,Rolls-Royce,11200,0.18
+2026-12-20,France,Knowledge,Dassault Aviation,30400,0.48
+2026-12-28,Nordics,Analytics,Saab,57900,0.45

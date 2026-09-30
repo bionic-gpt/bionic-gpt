@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang='en'><head><title>Model Denial of Service prevention for  production LLM applications</title><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content="Protect your production LLM applications from model denial of service attacks with effective prevention strategies."/><meta property="og:title" content="Model Denial of Service prevention for  production LLM applications"/><meta property="og:description" content="Protect your production LLM applications from model denial of service attacks with effective prevention strategies."/><meta property="og:type" content="article"/><meta property="og:site_name" content="Bionic GPT"/><meta property="og:url" content="https://bionic-gpt.com/blog/model-denial-of-service/"/><meta property="og:image" content="https://bionic-gpt.com/blog/model-denial-of-service/model-denial-of-service.png"/><meta property="twitter:image" content="https://bionic-gpt.com/blog/model-denial-of-service/model-denial-of-service.png"/><link rel="stylesheet" href="/content-lightbox.css" type="text/css"/><link rel="stylesheet" href="/tailwind.css" type="text/css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5" type="text/css"/><link rel="icon" type="image/svg+xml" href="/favicon.svg"/><script async=true data-goatcounter="" integrity="" type="" src="/content-lightbox.js"></script><script async=true data-goatcounter="https://bionicgpt.goatcounter.com/count" integrity="" type="" src="/goat-counter.js"></script><script async=true data-goatcounter="" integrity="" type="" src="/copy-paste.js"></script><script data-goatcounter="" integrity="" type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script></head><body><header class="sticky top-0 z-50 backdrop-filter backdrop-blur-lg bg-opacity-30"><div class="bg-primary text-primary-content text-xs sm:text-sm px-3 sm:px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-center"><span class="font-semibold">🎉 Zero to Agentic AI Hero</span><a class="inline-flex items-center gap-1 underline font-semibold hover:text-base-200" href="/architect-course/">Take the course<span>→</span></a></div><div class="navbar justify-between pl-4 pr-4"><div class="flex items-center gap-4"><div class="dropdown lg:hidden"><div tabindex="0" role="button" class="btn btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" stroke="currentColor" viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M4 6h16M4 12h8m-8 6h16" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"></path></svg></div><ul class="menu menu-sm dropdown-content mt-3 z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/">Home</a></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li><li><a hx-boost="true" href="/partners/">Partners</a></li><li><a hx-boost="true" href="/contact/">Book a Call</a></li><li><a class="shrink-0 flex gap-1 items-center underline pl-4" hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt">Star us on GitHub</a></li></ul></div><ul class="flex flex-row items-center gap-4"><li class="lg:mr-2"><a href="/"><span class="flex flex-row gap-2 items-center"><strong>Bionic</strong></span></a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Product<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/product/chat/">Chat</a></li><li><a hx-boost="true" href="/product/projects/">Projects</a></li><li><a hx-boost="true" href="/product/datasets/">Datasets</a></li><li><a hx-boost="true" href="/product/skills/">Skills</a></li><li><a hx-boost="true" href="/product/integrations/">Integrations</a></li><li><a hx-boost="true" href="/product/developers/">Developers</a></li></ul></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Resources<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li></ul></li><li><a hx-boost="true" href="/partners/">Partners</a></li></ul></div><div class="hidden lg:flex items-center gap-3"><a hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt"><img src="https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" alt="Github"/></a><a hx-boost="true" href="https://app.bionic-gpt.com">Login</a><a class="btn btn-primary btn-sm" hx-boost="true" href="/contact/">Book a Call</a></div></div></header><article class="mt-24 mb-16 mx-auto max-w-prose px-5 lg:max-w-[81.25ch]"><div class=""><h1 class="text-4xl font-extrabold leading-tight md:text-5xl">Model Denial of Service prevention for  production LLM applications</h1><div class="my-8 flex items-center gap-3"><img class="h-11 w-11 shrink-0 rounded-full object-cover" width="44" height="44" src="/blog-authors/ian-purton.jpeg" alt="Author"/><div class="min-w-0 leading-tight"><strong class="block text-base font-semibold">Ian Purton</strong><small class="block text-base opacity-70">Wednesday 10th April 2024</small></div></div><div class="mb-4 flex items-center justify-between border-y border-base-300 py-2"><small class="block text-sm font-medium uppercase tracking-wide opacity-70">Share</small><div class="flex flex-row gap-1"><a class="btn btn-ghost btn-sm btn-square" href="https://twitter.com/intent/tweet?url=https://bionic-gpt.com/blog/model-denial-of-service/"><img width="16" height="16" src="/social-sharing/x-twitter.svg"/></a><a class="btn btn-ghost btn-sm btn-square" href="https://www.linkedin.com/sharing/share-offsite/?url=https://bionic-gpt.com/blog/model-denial-of-service/"><img width="16" height="16" src="/social-sharing/linkedin.svg"/></a></div></div><img class="mb-8 block aspect-video w-full rounded-box object-cover shadow-md" src="/blog/model-denial-of-service/model-denial-of-service.png" alt="Model Denial of Service prevention for  production LLM applications"/><div class="prose prose-slate max-w-none prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-slate-100 prose-code:font-mono prose-img:max-w-full"><h2>What is Model Denial of Service?</h2>
+<p>Model Denial of Service (DoS) on large language models (LLMs) and other machine learning (ML) systems can disrupt normal operations or degrade performance. These attacks can take various forms, each exploiting different aspects of the model's functionality or its supporting infrastructure. <a href="https://genai.owasp.org/llmrisk/llm04-model-denial-of-service/">Model Denial of Service</a> is on the Owasp Top 10 List for LLM and Generative AI applications.</p>
+<p>Note: We call them <em>attacks</em> but <strong>often these can be unintentional</strong> i.e. a script left running overnight or just normal day to day usage.</p>
+<p>Here are some of the types of DoS.</p>
+<ol>
+<li>
+<p>Adversarial Example Attacks
+<strong>Perturbation Attacks:</strong> Small, crafted changes to inputs can mislead the model into incorrect outputs, increasing computational load.</p>
+</li>
+<li>
+<p>Resource Exhaustion Attacks
+<strong>Query Flooding:</strong> Sending a high volume of queries overwhelms the model's processing capacity.</p>
+</li>
+<li>
+<p>Algorithmic Complexity Attacks
+<strong>Input Crafting for High Complexity:</strong> Designing inputs to exploit worst-case performance characteristics can significantly slow down the model.</p>
+</li>
+<li>
+<p>Data Poisoning Attacks
+<strong>Injecting Malicious Data:</strong> Introducing bad data into the training set causes long-term performance degradation.</p>
+</li>
+<li>
+<p>Model Overload Attacks
+<strong>Concurrent Query Flooding:</strong> Overloading the model with simultaneous queries from multiple sources exceeds its capacity for handling concurrent processes.</p>
+</li>
+<li>
+<p>Infrastructure Attacks
+<strong>Network Saturation:</strong> Saturating the network bandwidth of the model's server infrastructure disrupts service.</p>
+</li>
+</ol>
+<h2>Resource Exhaustion</h2>
+<p>In this article we'll focus on Resource Exhaustion as its the most likely DoS that you'll see in a production Generative AI Application.</p>
+<p>There's a great article <a href="https://www.bentoml.com/blog/benchmarking-llm-inference-backends">Benchmarking LLM Inference Backends</a> that gives us an insight into what performance we can expect when simulating LLM usage on an A100 GPU.</p>
+<p><img src="nvidia-a100-80gb.jpg" alt="alt text" title="Nvidia A100" /></p>
+<p>The main issue is that GPUs are expensive, non trivial to install and it's very difficult to know how many users a card will support.</p>
+<p>How do we ensure our investment will be successful?</p>
+<h3>LLMs are Memory Bound</h3>
+<p>This means you need <strong>very fast memory</strong> to get the best performance and the very fastest memory you can get is on the most expensive GPU cards.</p>
+<p><img src="llama3_70b_performance.png" alt="alt text" title="LLM Performance and Rate Limiting" /></p>
+<h2>We need to take care of two scenarios</h2>
+<h3>1. High Volume of Queries</h3>
+<p>A high volume of queries to a large language model (LLM) can significantly strain its computational resources, leading to performance degradation and potential unavailability.</p>
+<p>This makes sense and is the same problem for any API that gets deployed into production.</p>
+<h3>2. Large Prompt and Response Sizes</h3>
+<p>LLMs have an additional problem that is not often seen with other API endpoints. A single call to an LLM can be large, especially in the case of Retrieval Augmented Generation where the <strong>prompt may contain whole documents</strong>.</p>
+<p><img src="rag-arch.png" alt="alt text" title="Agentic RAG Architecturey" /></p>
+<p><strong>Agentic RAG</strong> puts extra strain on the Inference Engine.</p>
+<p>It also works both ways. Ask an LLM to write a <strong>10,000 word essay</strong> and although the initial prompt is small the LLM will need to generate thousands of tokens.</p>
+<p>So we need a way to limit query volumes and sizes and still give our users the best results.</p>
+<h2>Prevention using a Gateway or Reverse Proxy</h2>
+<p>A gateway or reverse proxy acts as an intermediary server that forwards client requests to other servers, enhancing security, load balancing, and performance.</p>
+<p>LLM Inference engines actually have a relatively simple API. Nearly all popular engines support the <a href="https://platform.openai.com/docs/api-reference/completions">Open AI API</a> Completions endpoint.</p>
+<p>So when we talk about prevention we're applying protection to more or less just one main endpoint. Below is an example of calling an LLM.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#8fa1b3;">curl</span><span style="color:#c0c5ce;"> https://api.openai.com/v1/completions \
+</span><span style="color:#bf616a;">-H </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">Content-Type: application/json</span><span style="color:#c0c5ce;">&quot; \
+</span><span style="color:#bf616a;">-H </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">Authorization: Bearer YOUR_API_KEY</span><span style="color:#c0c5ce;">&quot; \
+</span><span style="color:#bf616a;">-d </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">{&quot;model&quot;: &quot;text-davinci-003&quot;, 
+</span><span style="color:#a3be8c;">    &quot;prompt&quot;: &quot;Say this is a test&quot;, 
+</span><span style="color:#a3be8c;">    &quot;temperature&quot;: 0, 
+</span><span style="color:#a3be8c;">    &quot;max_tokens&quot;: 7}</span><span style="color:#c0c5ce;">&#39;
+</span></pre>
+<p>So ideally we'd like to put a Gateway or Reverse Proxy in front of our chosen inference engine so that we can <strong>throttle requests</strong>.</p>
+<p>Ask any budding interviewee who's studied for their <a href="https://interviewing.io/guides/system-design-interview">System Design Interview</a> how they would solve this and they would reply <a href="https://en.wikipedia.org/wiki/Token_bucket">Token Buckets</a>.</p>
+<h3>Token Buckets</h3>
+<p>A token bucket is a mechanism used in network traffic management to control the amount of data that can be sent over a network.</p>
+<ul>
+<li>It generates tokens at a fixed rate, storing them in a bucket.</li>
+<li>Each token permits the sending of a certain amount of data.</li>
+<li>Tokens are removed from the bucket when data is sent.</li>
+<li>If the bucket is empty, data transmission halts until more tokens are added.</li>
+<li>Regulates data flow and ensures network stability.</li>
+</ul>
+<p><img src="token-bucket.webp" alt="alt text" title="Token Buckets" /></p>
+<p>So ideally we want to expand on this concept and add not just rate limiting but <strong>token usage limiting</strong>. We'd also like to use a pre-built production ready proxy so we don't have to re-invent the wheel.</p>
+<h3>Proxies with Rate Limiting and LLM Awareness?</h3>
+<p>To be useful our proxy needs to manage request rate limiting, throttling based on over use of token/request response sizes and to be <strong>user aware</strong>. By user aware we mean the proxy should not just limit all users but just those users who are overusing resources.</p>
+<p><img src="rate-limiter.jpeg" alt="alt text" title="Rate Limiting" /></p>
+<h4>Envoy, Kong and Other API Gateways</h4>
+<p>Most of the mainstream Gateways support Token Buckets and have mixed support for LLM specific API calls.</p>
+<p>They all seem to lack the ability to support throttling based on specific users. So for example we would like to have the ability to pass in user details with each call.</p>
+<h4>LLM-Lite</h4>
+<p><a href="https://www.litellm.ai">LLM Lite</a> is an LLM aware proxy and has support for rate limiting based on users which it calls a budget manager.</p>
+<p>To make this work you'll need to setup a database for Lite LLM and then also add users based on an API that Lite LLM provides.</p>
+<p>This is not ideal as it adds complexity to your production setup.</p>
+<h4>How we manage this in Bionic</h4>
+<p>Bionic comes with a built in proxy that is both <strong>user aware</strong> and <strong>API key</strong> aware. We custom built our solution as no solution quite fitted all the use cases we needed to handle.</p>
+<p><img src="bionic-limits.png" alt="alt text" title="Bionic Token Limits" /></p>
+<p>Bionic allows you to dynamically adjust the load on your inference engines in real time and give your users the best and most fair experience.</p>
+<h2>Join the Discussion</h2>
+<p>I have you [have any comments](https://www.reddit.com/r/LocalLLaMA/comments/1dch7bv/model_denial_of_service_prevention_for_production/please let us know on Reddit.</p>
+</div></div></article><section class="blog-sub-footer mt-16 border-y border-base-300 bg-base-200 px-6 py-12 md:py-16"><div class="mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2"><div><h2 class="text-3xl font-bold leading-tight md:text-4xl">Your sovereign AI agent for enterprise tasks</h2><p class="mt-4 text-lg opacity-80">Bionic connects AI to your organisation’s knowledge and tools, so it can research, analyse, create and take action. Deploy on-premise, in your private cloud or air-gapped, with full control over your data and models.</p><div class="mt-6 flex flex-wrap gap-3"><a class="btn btn-primary" href="/docs/running-locally/docker-compose/">Deploy Bionic</a><a class="btn btn-ghost" href="/contact/">Talk to us about the Accelerator</a></div></div><img class="mx-auto w-full max-w-sm rounded-box shadow-md" src="/landing-page/bionic-console.png" alt="Bionic workspace"/></div></section><footer class="mt-0 bg-base-200 px-6 py-10 text-base-content"><div class="mx-auto flex max-w-5xl flex-col gap-8 md:flex-row md:justify-between"><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Resources</h6><a href="/blog/" class="link link-hover">Blog</a><a href="/pricing/" class="link link-hover">Pricing</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Company</h6><a class="link link-hover">About Us</a><a href="/contact/" class="link link-hover">Contact</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Legal</h6><a href="/terms/" class="link link-hover">Terms of Use</a><a href="/privacy/" class="link link-hover">Privacy Policy</a></nav></div></footer><script integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" type="module" src="https://instant.page/5.2.0"></script></body></html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html><html lang='en'><head><title>How to Make Enterprise Systems Available to AI at Scale</title><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content="Learn how OpenAPI specifications and a governed API catalogue can connect AI to enterprise systems and make integrations reusable."/><meta property="og:title" content="How to Make Enterprise Systems Available to AI at Scale"/><meta property="og:description" content="Learn how OpenAPI specifications and a governed API catalogue can connect AI to enterprise systems and make integrations reusable."/><meta property="og:type" content="article"/><meta property="og:site_name" content="Bionic GPT"/><meta property="og:url" content="https://bionic-gpt.com/blog/enterprise-integrations/"/><meta property="og:image" content="https://bionic-gpt.com/blog/enterprise-integrations/open-graph.png"/><meta property="twitter:image" content="https://bionic-gpt.com/blog/enterprise-integrations/open-graph.png"/><link rel="stylesheet" href="/content-lightbox.css" type="text/css"/><link rel="stylesheet" href="/tailwind.css" type="text/css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5" type="text/css"/><link rel="icon" type="image/svg+xml" href="/favicon.svg"/><script async=true data-goatcounter="" integrity="" type="" src="/content-lightbox.js"></script><script async=true data-goatcounter="https://bionicgpt.goatcounter.com/count" integrity="" type="" src="/goat-counter.js"></script><script async=true data-goatcounter="" integrity="" type="" src="/copy-paste.js"></script><script data-goatcounter="" integrity="" type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script></head><body><header class="sticky top-0 z-50 backdrop-filter backdrop-blur-lg bg-opacity-30"><div class="bg-primary text-primary-content text-xs sm:text-sm px-3 sm:px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-center"><span class="font-semibold">🎉 Zero to Agentic AI Hero</span><a class="inline-flex items-center gap-1 underline font-semibold hover:text-base-200" href="/architect-course/">Take the course<span>→</span></a></div><div class="navbar justify-between pl-4 pr-4"><div class="flex items-center gap-4"><div class="dropdown lg:hidden"><div tabindex="0" role="button" class="btn btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" stroke="currentColor" viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M4 6h16M4 12h8m-8 6h16" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"></path></svg></div><ul class="menu menu-sm dropdown-content mt-3 z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/">Home</a></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li><li><a hx-boost="true" href="/partners/">Partners</a></li><li><a hx-boost="true" href="/contact/">Book a Call</a></li><li><a class="shrink-0 flex gap-1 items-center underline pl-4" hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt">Star us on GitHub</a></li></ul></div><ul class="flex flex-row items-center gap-4"><li class="lg:mr-2"><a href="/"><span class="flex flex-row gap-2 items-center"><strong>Bionic</strong></span></a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Product<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/product/chat/">Chat</a></li><li><a hx-boost="true" href="/product/projects/">Projects</a></li><li><a hx-boost="true" href="/product/datasets/">Datasets</a></li><li><a hx-boost="true" href="/product/skills/">Skills</a></li><li><a hx-boost="true" href="/product/integrations/">Integrations</a></li><li><a hx-boost="true" href="/product/developers/">Developers</a></li></ul></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Resources<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li></ul></li><li><a hx-boost="true" href="/partners/">Partners</a></li></ul></div><div class="hidden lg:flex items-center gap-3"><a hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt"><img src="https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" alt="Github"/></a><a hx-boost="true" href="https://app.bionic-gpt.com">Login</a><a class="btn btn-primary btn-sm" hx-boost="true" href="/contact/">Book a Call</a></div></div></header><article class="mt-24 mb-16 mx-auto max-w-prose px-5 lg:max-w-[81.25ch]"><div class=""><h1 class="text-4xl font-extrabold leading-tight md:text-5xl">How to Make Enterprise Systems Available to AI at Scale</h1><div class="my-8 flex items-center gap-3"><img class="h-11 w-11 shrink-0 rounded-full object-cover" width="44" height="44" src="/blog-authors/ian-purton.jpeg" alt="Author"/><div class="min-w-0 leading-tight"><strong class="block text-base font-semibold">Ian Purton</strong><small class="block text-base opacity-70">Saturday 19th September 2026</small></div></div><div class="mb-4 flex items-center justify-between border-y border-base-300 py-2"><small class="block text-sm font-medium uppercase tracking-wide opacity-70">Share</small><div class="flex flex-row gap-1"><a class="btn btn-ghost btn-sm btn-square" href="https://twitter.com/intent/tweet?url=https://bionic-gpt.com/blog/enterprise-integrations/"><img width="16" height="16" src="/social-sharing/x-twitter.svg"/></a><a class="btn btn-ghost btn-sm btn-square" href="https://www.linkedin.com/sharing/share-offsite/?url=https://bionic-gpt.com/blog/enterprise-integrations/"><img width="16" height="16" src="/social-sharing/linkedin.svg"/></a></div></div><img class="mb-8 block aspect-video w-full rounded-box object-cover shadow-md" src="/blog/enterprise-integrations/enterprise-mcp.png" alt="How to Make Enterprise Systems Available to AI at Scale"/><div class="prose prose-slate max-w-none prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-slate-100 prose-code:font-mono prose-img:max-w-full"><blockquote>
+<p><strong>TL;DR:</strong> Enterprises are approaching AI integration one use case at a time. Each new agent or application gets connected to the systems it needs, creating duplicated integration work and making governance increasingly difficult.</p>
+<p>A more scalable approach is to make enterprise systems available to AI once, through a governed catalogue of APIs that can be reused across models, agents and applications.</p>
+<p><strong>Connect systems once; enable many use cases.</strong></p>
+</blockquote>
+<h2>The integration problem</h2>
+<p>This article looks at one part of Agentic AI transformation: <strong>connecting AI to the hundreds of systems that already exist inside a large enterprise.</strong></p>
+<p>Salesforce, SAP, ServiceNow, Microsoft 365, internal systems, legacy applications...</p>
+<p>Potentially <strong>hundreds of systems exposing thousands of operations</strong>.</p>
+<p>The obvious approach is to tackle this one use case at a time: build an AI application, connect it to the systems it needs, then repeat for the next use case.</p>
+<p>That works for a pilot. <strong>It doesn't scale particularly well.</strong></p>
+<p><a href="https://aws.amazon.com/blogs/machine-learning/building-a-serverless-a2a-gateway-for-agent-discovery-routing-and-access-control/">AWS describes the problem in similar terms</a>: <em>“each new agent integration adds point-to-point connections, separate credentials, and custom routing logic.”</em></p>
+<p><a href="https://www.deloitte.com/content/dam/assets-zone3/us/en/docs/services/consulting/2026/api-governance-agentic-ai.pdf">Deloitte makes the corresponding case for reuse</a>: standardized, shared APIs can provide AI systems with <strong>reusable and consistent access</strong> while reducing duplication and centralising governance.</p>
+<p>So the question is:</p>
+<blockquote>
+<p><strong>How do we make enterprise systems available to AI without turning every new use case into another integration project?</strong></p>
+</blockquote>
+<h3>Connect once, enable many use cases</h3>
+<p>The interesting thing is that enterprises already have much of the technology required to do this.</p>
+<p>The rest of this article looks at how the pieces fit together:</p>
+<ol>
+<li><strong>Machine-readable API specifications</strong> describe what enterprise systems can do.</li>
+<li><strong>LLM tool calling</strong> gives AI models a way to use those capabilities.</li>
+<li><strong>API catalogues and gateways</strong> provide a place to discover and govern them.</li>
+<li>Together, these can become a <strong>reusable enterprise capability catalogue for AI</strong>.</li>
+</ol>
+<p>Let's start with the APIs enterprises already have.</p>
+<hr />
+<h2>Machine Readable API Specifications</h2>
+<p>About a million years ago, we invented ways for computer systems to describe their APIs.</p>
+<p>One standard that gained a lot of traction was <strong>Swagger, now known as <a href="https://www.openapis.org/">OpenAPI</a></strong>.</p>
+<p>An OpenAPI specification gives us a machine-readable description of what a system can do.</p>
+<p>Here's a deliberately tiny example:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">{
+</span><span style="color:#c0c5ce;">  &quot;</span><span style="color:#a3be8c;">paths</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">/contacts/{contactId}</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">      &quot;</span><span style="color:#a3be8c;">patch</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">        &quot;</span><span style="color:#a3be8c;">operationId</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">updateContact</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">        &quot;</span><span style="color:#a3be8c;">parameters</span><span style="color:#c0c5ce;">&quot;: [
+</span><span style="color:#c0c5ce;">          {
+</span><span style="color:#c0c5ce;">            &quot;</span><span style="color:#a3be8c;">name</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">contactId</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">            &quot;</span><span style="color:#a3be8c;">in</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">path</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">            &quot;</span><span style="color:#a3be8c;">required</span><span style="color:#c0c5ce;">&quot;: </span><span style="color:#d08770;">true
+</span><span style="color:#c0c5ce;">          }
+</span><span style="color:#c0c5ce;">        ]
+</span><span style="color:#c0c5ce;">      }
+</span><span style="color:#c0c5ce;">    }
+</span><span style="color:#c0c5ce;">  }
+</span><span style="color:#c0c5ce;">}
+</span></pre>
+<p>The real specifications are obviously much larger.</p>
+<p>But the important thing is that we now have a machine-readable way to specify our systems:</p>
+<blockquote>
+<p><strong>Here is something this system can do, and here is how you call it.</strong></p>
+</blockquote>
+<hr />
+<h2>LLMs can already call tools</h2>
+<p>In LLM API calls we can pass a tool defintion. This is very similar to the API defintion above.</p>
+<p>So there's gnerally a mapping between what we specify in Open API and what the model can use.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">{
+</span><span style="color:#c0c5ce;">  &quot;</span><span style="color:#a3be8c;">type</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">function</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">  &quot;</span><span style="color:#a3be8c;">function</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">name</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">updateContact</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">description</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">Update a Salesforce contact</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">parameters</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">      &quot;</span><span style="color:#a3be8c;">type</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">object</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">      &quot;</span><span style="color:#a3be8c;">properties</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">        &quot;</span><span style="color:#a3be8c;">contactId</span><span style="color:#c0c5ce;">&quot;: { &quot;</span><span style="color:#a3be8c;">type</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">string</span><span style="color:#c0c5ce;">&quot; },
+</span><span style="color:#c0c5ce;">        &quot;</span><span style="color:#a3be8c;">phone</span><span style="color:#c0c5ce;">&quot;: { &quot;</span><span style="color:#a3be8c;">type</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">string</span><span style="color:#c0c5ce;">&quot; }
+</span><span style="color:#c0c5ce;">      },
+</span><span style="color:#c0c5ce;">      &quot;</span><span style="color:#a3be8c;">required</span><span style="color:#c0c5ce;">&quot;: [&quot;</span><span style="color:#a3be8c;">contactId</span><span style="color:#c0c5ce;">&quot;, &quot;</span><span style="color:#a3be8c;">phone</span><span style="color:#c0c5ce;">&quot;]
+</span><span style="color:#c0c5ce;">    }
+</span><span style="color:#c0c5ce;">  }
+</span><span style="color:#c0c5ce;">}
+</span></pre>
+<p>They can decide they need to call a tool and produce something conceptually like this:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">{
+</span><span style="color:#c0c5ce;">  &quot;</span><span style="color:#a3be8c;">name</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">updateContact</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">  &quot;</span><span style="color:#a3be8c;">arguments</span><span style="color:#c0c5ce;">&quot;: {
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">contactId</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">0038X00001ABC</span><span style="color:#c0c5ce;">&quot;,
+</span><span style="color:#c0c5ce;">    &quot;</span><span style="color:#a3be8c;">phone</span><span style="color:#c0c5ce;">&quot;: &quot;</span><span style="color:#a3be8c;">+49 89 123456</span><span style="color:#c0c5ce;">&quot;
+</span><span style="color:#c0c5ce;">  }
+</span><span style="color:#c0c5ce;">}
+</span></pre>
+<p>That looks <em>remarkably similar</em> to something we've already described in our OpenAPI specification.</p>
+<p><img src="models-to-tools.png" alt="Enterprise systems" title="Enterprise systems" /></p>
+<p>And that gives us an interesting bridge between the <strong>AI world</strong> and the systems we already have.</p>
+<hr />
+<h2>API Catalogs and Gateways</h2>
+<p>None of this is particularly new from an enterprise architecture perspective.</p>
+<p>Companies have been <strong>cataloguing, securing, documenting and governing APIs for years</strong>.</p>
+<p>Some enterprises may already have a large part of the answer sitting inside an API catalogue or API management platform.</p>
+<p><img src="api-manager-screenshot.png" alt="Existing API management" /></p>
+<p>So my first question would be:</p>
+<blockquote>
+<p><strong>What do we already have?</strong></p>
+</blockquote>
+<hr />
+<h2>Mapping the enterprise</h2>
+<p>I'd start by finding out:</p>
+<ol>
+<li>Do we already have an <strong>API catalogue</strong>?</li>
+<li>Do we have an <strong>API gateway</strong>?</li>
+<li>Are teams already maintaining <strong>OpenAPI specifications</strong>?</li>
+</ol>
+<p>Then I'd go after the <em>easy wins</em>.</p>
+<h3>Start with cloud services</h3>
+<p>Cloud services are an obvious place to start because many already expose mature APIs.</p>
+<ul>
+<li>Salesforce</li>
+<li>Microsoft 365</li>
+<li>ServiceNow</li>
+<li>Jira</li>
+<li>Slack</li>
+</ul>
+<p>Then progressively move further into the enterprise.</p>
+<p><strong>Internal services → backend systems → legacy applications → and, eventually, I'm looking at you SAP.</strong></p>
+<p><img src="grow.png" alt="Expand into the enterprise" /></p>
+<p>I'm <em>not</em> suggesting we spend two years mapping every system before anyone is allowed to build anything with AI.</p>
+<p><strong>Start small and grow the catalogue while people are already using it.</strong></p>
+<hr />
+<h2>Imagine a ZIP file of OpenAPI specs</h2>
+<p>Imagine someone handed me this:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">enterprise-apis.zip
+</span><span style="color:#c0c5ce;">
+</span><span style="color:#c0c5ce;">├── salesforce.yaml
+</span><span style="color:#c0c5ce;">├── microsoft-365.yaml
+</span><span style="color:#c0c5ce;">├── servicenow.yaml
+</span><span style="color:#c0c5ce;">├── jira.yaml
+</span><span style="color:#c0c5ce;">├── sap.yaml
+</span><span style="color:#c0c5ce;">├── workday.yaml
+</span><span style="color:#c0c5ce;">├── confluence.yaml
+</span><span style="color:#c0c5ce;">├── internal-finance.yaml
+</span><span style="color:#c0c5ce;">└── ...
+</span></pre>
+<p>Inside are good OpenAPI specifications for <strong>100 enterprise systems</strong>.</p>
+<p><img src="api-catalog.png" alt="ZIP file containing enterprise APIs" /></p>
+<p>Potentially thousands of operations describing what those systems can actually <em>do</em>.</p>
+<p>We've created something interesting:</p>
+<blockquote>
+<p><strong>A machine-readable map of a significant part of the enterprise.</strong></p>
+</blockquote>
+<p>And importantly, we don't have to reach 100 before it's useful.</p>
+<p><strong>5 is useful.</strong></p>
+<p><strong>20 is more useful.</strong></p>
+<p><strong>50 is better again.</strong></p>
+<p>The capability surface grows over time.</p>
+<hr />
+<h2>What this looks like</h2>
+<p>In practice, the flow is simple: upload the API specifications, make the integrations available to users, and let the AI use them in chat.</p>
+<table><thead><tr><th>Upload API specs</th><th>Select integrations</th><th>Use them in chat</th></tr></thead><tbody>
+<tr><td><img src="screenshots/01-upload-zip.png" alt="Uploading a ZIP file of OpenAPI specifications into an AI platform" /></td><td><img src="screenshots/02-user-selection.png" alt="Selecting the uploaded API integrations for use in the AI platform" /></td><td><img src="screenshots/03-the-chat.png" alt="Using the selected API integrations to complete a task in an AI chat" /></td></tr>
+</tbody></table>
+<hr />
+<h2>A governed enterprise capability catalogue</h2>
+<p>Now we're getting somewhere interesting.</p>
+<p>Instead of every AI project independently figuring out how to talk to Salesforce, SAP or ServiceNow, we have a <strong>reusable catalogue of enterprise capabilities</strong>.</p>
+<p><img src="api-platform.png" alt="Enterprise capability catalogue" /></p>
+<p>Now:</p>
+<ul>
+<li>Authentication can be managed.</li>
+<li>Access can be governed.</li>
+<li>Specifications can be versioned.</li>
+<li>Operations can be tested.</li>
+<li>Capabilities can be reused.</li>
+<li>Multiple AI platforms can consume them.</li>
+</ul>
+<p>Most importantly:</p>
+<blockquote>
+<p><strong>Every system we add makes the next AI use case easier.</strong></p>
+</blockquote>
+<hr />
+<h2>Why not MCP?</h2>
+<p>At this point there's an obvious question.</p>
+<p><strong>Why not just create MCP servers for everything?</strong></p>
+<p>MCP is useful.</p>
+<p>But I think we need to be careful about <em>which layer becomes our source of truth</em>.</p>
+<p><img src="openapi-vs-mcp.png" alt="MCP versus OpenAPI" /></p>
+<p>The enterprise already has APIs.</p>
+<p>Those APIs aren't only there for AI. They're used by applications, integrations, developers and other systems.</p>
+<p>My preference is therefore to keep the <strong>API definition as the durable enterprise asset</strong>.</p>
+<blockquote>
+<p><strong>OpenAPI describes the enterprise capability.</strong></p>
+</blockquote>
+<p>MCP, tool calling or whatever comes next can be ways of exposing that capability to AI.</p>
+<p>What I don't want to create is <strong>another parallel integration estate that exists only for AI</strong>.</p>
+<hr />
+<h2>Conclusion</h2>
+<p>Connecting enterprise systems is only <strong>one part of an Agentic AI transformation</strong>.</p>
+<p>But it's an important one.</p>
+<p>If every new AI use case requires another team to hand-build integrations into the same enterprise systems, we're going to move slowly.</p>
+<p>A reusable, governed catalogue of enterprise capabilities gives us another route.</p>
+<p><strong>Start with what's easy.</strong></p>
+<p><strong>Grow it continuously.</strong></p>
+<p>And make the enterprise progressively more accessible to AI.</p>
+</div></div></article><section class="blog-sub-footer mt-16 border-y border-base-300 bg-base-200 px-6 py-12 md:py-16"><div class="mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2"><div><h2 class="text-3xl font-bold leading-tight md:text-4xl">Your sovereign AI agent for enterprise tasks</h2><p class="mt-4 text-lg opacity-80">Bionic connects AI to your organisation’s knowledge and tools, so it can research, analyse, create and take action. Deploy on-premise, in your private cloud or air-gapped, with full control over your data and models.</p><div class="mt-6 flex flex-wrap gap-3"><a class="btn btn-primary" href="/docs/running-locally/docker-compose/">Deploy Bionic</a><a class="btn btn-ghost" href="/contact/">Talk to us about the Accelerator</a></div></div><img class="mx-auto w-full max-w-sm rounded-box shadow-md" src="/landing-page/bionic-console.png" alt="Bionic workspace"/></div></section><footer class="mt-0 bg-base-200 px-6 py-10 text-base-content"><div class="mx-auto flex max-w-5xl flex-col gap-8 md:flex-row md:justify-between"><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Resources</h6><a href="/blog/" class="link link-hover">Blog</a><a href="/pricing/" class="link link-hover">Pricing</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Company</h6><a class="link link-hover">About Us</a><a href="/contact/" class="link link-hover">Contact</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Legal</h6><a href="/terms/" class="link link-hover">Terms of Use</a><a href="/privacy/" class="link link-hover">Privacy Policy</a></nav></div></footer><script integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" type="module" src="https://instant.page/5.2.0"></script></body></html>

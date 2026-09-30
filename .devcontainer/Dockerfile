@@ -13,4 +13,6 @@ RUN curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
 RUN curl -fsSL https://raw.githubusercontent.com/metalbear-co/mirrord/main/scripts/install.sh | bash
 
+RUN cargo binstall --no-confirm --locked typst-cli
+
 ARG USERNAME=vscode

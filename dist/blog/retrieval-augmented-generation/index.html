@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang='en'><head><title>What is Retrieval Augmented Generation?</title><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content="Technical deep-dive into Retrieval Augmented Generation (Agentic RAG) architecture, implementation details, and best practices."/><meta property="og:title" content="What is Retrieval Augmented Generation?"/><meta property="og:description" content="Technical deep-dive into Retrieval Augmented Generation (Agentic RAG) architecture, implementation details, and best practices."/><meta property="og:type" content="article"/><meta property="og:site_name" content="Bionic GPT"/><meta property="og:url" content="https://bionic-gpt.com/blog/retrieval-augmented-generation/"/><meta property="og:image" content="https://bionic-gpt.com/blog/retrieval-augmented-generation/rag-llama.webp"/><meta property="twitter:image" content="https://bionic-gpt.com/blog/retrieval-augmented-generation/rag-llama.webp"/><link rel="stylesheet" href="/content-lightbox.css" type="text/css"/><link rel="stylesheet" href="/tailwind.css" type="text/css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5" type="text/css"/><link rel="icon" type="image/svg+xml" href="/favicon.svg"/><script async=true data-goatcounter="" integrity="" type="" src="/content-lightbox.js"></script><script async=true data-goatcounter="https://bionicgpt.goatcounter.com/count" integrity="" type="" src="/goat-counter.js"></script><script async=true data-goatcounter="" integrity="" type="" src="/copy-paste.js"></script><script data-goatcounter="" integrity="" type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script></head><body><header class="sticky top-0 z-50 backdrop-filter backdrop-blur-lg bg-opacity-30"><div class="bg-primary text-primary-content text-xs sm:text-sm px-3 sm:px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-center"><span class="font-semibold">🎉 Zero to Agentic AI Hero</span><a class="inline-flex items-center gap-1 underline font-semibold hover:text-base-200" href="/architect-course/">Take the course<span>→</span></a></div><div class="navbar justify-between pl-4 pr-4"><div class="flex items-center gap-4"><div class="dropdown lg:hidden"><div tabindex="0" role="button" class="btn btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" stroke="currentColor" viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M4 6h16M4 12h8m-8 6h16" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"></path></svg></div><ul class="menu menu-sm dropdown-content mt-3 z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/">Home</a></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li><li><a hx-boost="true" href="/partners/">Partners</a></li><li><a hx-boost="true" href="/contact/">Book a Call</a></li><li><a class="shrink-0 flex gap-1 items-center underline pl-4" hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt">Star us on GitHub</a></li></ul></div><ul class="flex flex-row items-center gap-4"><li class="lg:mr-2"><a href="/"><span class="flex flex-row gap-2 items-center"><strong>Bionic</strong></span></a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Product<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/product/chat/">Chat</a></li><li><a hx-boost="true" href="/product/projects/">Projects</a></li><li><a hx-boost="true" href="/product/datasets/">Datasets</a></li><li><a hx-boost="true" href="/product/skills/">Skills</a></li><li><a hx-boost="true" href="/product/integrations/">Integrations</a></li><li><a hx-boost="true" href="/product/developers/">Developers</a></li></ul></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Resources<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li></ul></li><li><a hx-boost="true" href="/partners/">Partners</a></li></ul></div><div class="hidden lg:flex items-center gap-3"><a hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt"><img src="https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" alt="Github"/></a><a hx-boost="true" href="https://app.bionic-gpt.com">Login</a><a class="btn btn-primary btn-sm" hx-boost="true" href="/contact/">Book a Call</a></div></div></header><article class="mt-24 mb-16 mx-auto max-w-prose px-5 lg:max-w-[81.25ch]"><div class=""><h1 class="text-4xl font-extrabold leading-tight md:text-5xl">What is Retrieval Augmented Generation?</h1><div class="my-8 flex items-center gap-3"><img class="h-11 w-11 shrink-0 rounded-full object-cover" width="44" height="44" src="/blog-authors/ian-purton.jpeg" alt="Author"/><div class="min-w-0 leading-tight"><strong class="block text-base font-semibold">Ian Purton</strong><small class="block text-base opacity-70">Thursday 21st September 2023</small></div></div><div class="mb-4 flex items-center justify-between border-y border-base-300 py-2"><small class="block text-sm font-medium uppercase tracking-wide opacity-70">Share</small><div class="flex flex-row gap-1"><a class="btn btn-ghost btn-sm btn-square" href="https://twitter.com/intent/tweet?url=https://bionic-gpt.com/blog/retrieval-augmented-generation/"><img width="16" height="16" src="/social-sharing/x-twitter.svg"/></a><a class="btn btn-ghost btn-sm btn-square" href="https://www.linkedin.com/sharing/share-offsite/?url=https://bionic-gpt.com/blog/retrieval-augmented-generation/"><img width="16" height="16" src="/social-sharing/linkedin.svg"/></a></div></div><img class="mb-8 block aspect-video w-full rounded-box object-cover shadow-md" src="/blog/retrieval-augmented-generation/rag-llama.webp" alt="What is Retrieval Augmented Generation?"/><div class="prose prose-slate max-w-none prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-slate-100 prose-code:font-mono prose-img:max-w-full"><h2>What is Retrieval Augmented Generation?</h2>
+<p>Basically we give the Large Language Model the best chance of answering the question by giving the model the answer as well as the question.</p>
+<h4>What?</h4>
+<p>Bare with us, we're going to show how we can <strong>use documents you already have</strong> to make this happen automagically.</p>
+<h2>Talking directly with a Large Language Model</h2>
+<p>In this example we'll use a small language model at 7B parameters so you can follow along.</p>
+<p>We'll remove all the frameworks and fluff so you can see exactly what gets sent to the model.</p>
+<p>Run up a large language model API on your machine. (Assuming you have docker installed).</p>
+<h3>Running a local LLM</h3>
+<pre style="background-color:#2b303b;">
+<span style="color:#8fa1b3;">docker</span><span style="color:#c0c5ce;"> run</span><span style="color:#bf616a;"> -p</span><span style="color:#c0c5ce;"> 8080:8080</span><span style="color:#bf616a;"> -it --rm</span><span style="color:#c0c5ce;"> ghcr.io/purton-tech/bionicgpt-model-api
+</span></pre>
+<h3>Asking questions via the API</h3>
+<p>Let's ask our model a question it probably doesn't know the answer to.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#8fa1b3;">curl</span><span style="color:#c0c5ce;"> http://localhost:8080/v1/completions \
+</span><span style="color:#bf616a;">    -H </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">Content-Type: application/json</span><span style="color:#c0c5ce;">&quot; \
+</span><span style="color:#bf616a;">    -d </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">{&quot;model&quot;: &quot;ggml-gpt4all-j&quot;, \
+</span><span style="color:#a3be8c;">    &quot;prompt&quot;: &quot;What is a Dobblenobble?&quot; }</span><span style="color:#c0c5ce;">&#39;
+</span></pre>
+<p>And one possible response is below. Note: you might get a different response due to something called <a href="https://lukesalamone.github.io/posts/what-is-temperature/">temperature</a>.</p>
+<h3>The answer</h3>
+<blockquote>
+<p>As an AI language model, I do not have any information about the term "Dobblenobblê". It may be a misspelling or an outdated term. Can you please provide more context or information about what it means?</p>
+</blockquote>
+<p>Next we'll ask the same question and give the LLM the answer.</p>
+<h3>The Question</h3>
+<pre style="background-color:#2b303b;">
+<span style="color:#8fa1b3;">curl</span><span style="color:#c0c5ce;"> http://localhost:8080/v1/completions \
+</span><span style="color:#bf616a;">    -H </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">Content-Type: application/json</span><span style="color:#c0c5ce;">&quot; \
+</span><span style="color:#bf616a;">    -d </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">{&quot;model&quot;: &quot;ggml-gpt4all-j&quot;, 
+</span><span style="color:#a3be8c;">    &quot;prompt&quot;: &quot;A Dobblenobble is a type of biscuit. What is a Dobblenobble?&quot; }</span><span style="color:#c0c5ce;">&#39;
+</span></pre>
+<h3>The Answer - Welsh Biscuits</h3>
+<blockquote>
+<p>A dobbler nobble is a type of biscuit that originated in Wales and is popular among Welsh people. It typically consists of oatmeal, sugar and butter flavoured with orange or lemon zest, and is often served with milk or a dollop of jam. The name "dobbler nobble" is believed to have originated from the fact that it was originally baked in a muffin tin, which resembled the shape of an old-fashioned dobbler, a type of small animal found in Welsh folklore.</p>
+</blockquote>
+<p>I did not make this up. These are the answers I got</p>
+<h3>Hallucinating</h3>
+<p>So we gave the model the answer and it kind of fed it back to us but then completely went off on one. In the trade that's called hallucinating.</p>
+<p>As far as I know</p>
+<ul>
+<li>A dobbler nobble is not a welsh biscuit. (although it sounds like it would taste delicious)</li>
+<li>There's no small animal in Wales called a dobbler.</li>
+</ul>
+<h2>A tiny amount of Prompt Engineering</h2>
+<p>When talking with an LLM we generally use a prompt template that gives the LLM an idea about how we want it to respond.</p>
+<p>A typical prompt template consists of several elements that help define the context, the user's request, and any specific instructions. Here's an example of a prompt template, followed by an explanation of its different elements:</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">Context: 
+</span><span style="color:#c0c5ce;">You are an AI travel guide helping with travel information.
+</span><span style="color:#c0c5ce;">User Request: 
+</span><span style="color:#c0c5ce;">Provide me with flight 
+</span><span style="color:#c0c5ce;">options from New York to Los Angeles.
+</span><span style="color:#c0c5ce;">Instructions: 
+</span><span style="color:#c0c5ce;">Use the GPT-3.5 model to
+</span><span style="color:#c0c5ce;">generate a concise response with at least three flight options. 
+</span><span style="color:#c0c5ce;">Include departure times, airlines, and prices.
+</span></pre>
+<ol>
+<li>
+<p><strong>Context</strong>: This element sets the stage for the conversation or the scenario in which the user's request is made. It provides important context that helps the model understand the context and generate relevant responses. In this example, the context tells the model to act as an AI travel guide.</p>
+</li>
+<li>
+<p><strong>User Request</strong>: This part of the template represents the user's input or query. It specifies what the user is asking or requesting from the model. In this case, the user is asking for flight options from New York to Los Angeles.</p>
+</li>
+<li>
+<p><strong>Instructions</strong>: Instructions are crucial in guiding the model on how to respond to the user's request. They provide specific details and constraints for generating the response. In this example, the instructions specify that the model should use the GPT-3.5 model and generate a concise response that includes at least three flight options, departure times, airlines, and prices.</p>
+</li>
+</ol>
+<p>By using a prompt template with these elements, you can structure your interactions with the model more effectively. The context sets the stage, the user request defines the user's intent, and the instructions guide the model on how to fulfil that intent. This structured approach helps improve the quality and relevance of the responses generated by the model.</p>
+<h2>Let's stop the hallucinating (hopefully)</h2>
+<p>Here's a prompt template for using context. I don't know if it's the best but this is sometimes more art than science.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">Context information is below. Given the context information 
+</span><span style="color:#c0c5ce;">and not prior knowledge, answer the query. 
+</span><span style="color:#c0c5ce;">### Prompt:
+</span><span style="color:#c0c5ce;">{{.Input}}
+</span><span style="color:#c0c5ce;">### Context:
+</span><span style="color:#c0c5ce;">{{.Data}}
+</span><span style="color:#c0c5ce;">### Response:
+</span></pre>
+<p>and if we punch in our question we get</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#c0c5ce;">Context information is below. Given the context information 
+</span><span style="color:#c0c5ce;">and not prior knowledge, answer the query. 
+</span><span style="color:#c0c5ce;">### Prompt:
+</span><span style="color:#c0c5ce;">What is a Dobblenobble?
+</span><span style="color:#c0c5ce;">### Context:
+</span><span style="color:#c0c5ce;">A Dobblenobble is a type of biscuit.
+</span><span style="color:#c0c5ce;">### Response:
+</span></pre>
+<p>Let's send that and see what happens</p>
+<h3>Calling the LLM</h3>
+<pre style="background-color:#2b303b;">
+<span style="color:#8fa1b3;">curl</span><span style="color:#c0c5ce;"> http://llm-api:8080/v1/completions \
+</span><span style="color:#bf616a;">    -H </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">Content-Type: application/json</span><span style="color:#c0c5ce;">&quot; \
+</span><span style="color:#bf616a;">    -d </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">{&quot;model&quot;: &quot;ggml-gpt4all-j&quot;, &quot;prompt&quot;: &quot;Context information is below. Given the context information and not prior knowledge, answer the query. ### Prompt: What is a Dobblenobble? ### Context: A Dobblenobble is a type of biscuit.### Response:&quot; }</span><span style="color:#c0c5ce;">&#39;
+</span></pre>
+<h3>The Answer</h3>
+<blockquote>
+<p>A Dobblenobbl is a type of biscuit.</p>
+</blockquote>
+<p>I'm not sure why it misspelled <code>Dobblenobble</code>, this might be an issue with using a model at only 7 billion parameters.</p>
+<h2>The retrieval part of things</h2>
+<p>We can condense data retrieval for LLM's into three key points:</p>
+<ol>
+<li>
+<p><strong>Data Collection and Indexing</strong>:</p>
+<ul>
+<li>Gather and preprocess a dataset of relevant documents.</li>
+<li>Create an index for efficient retrieval.</li>
+</ul>
+</li>
+<li>
+<p><strong>Query and Retrieve</strong>:</p>
+<ul>
+<li>Formulate a query based on user input.</li>
+<li>Use an information retrieval model to retrieve top-k relevant documents.</li>
+</ul>
+</li>
+<li>
+<p><strong>Contextual Input to Generation</strong>:</p>
+<ul>
+<li>Pass the retrieved content as context to a generative model.</li>
+<li>Generate responses that are contextually relevant and coherent for the user.</li>
+</ul>
+</li>
+</ol>
+<h2>Data Collection and Indexing</h2>
+<p>Assuming the information you have is stored in your companies documentation.</p>
+<p class="text-center">
+<img src='/blog/retrieval-augmented-generation/for-dummies.jpg' />
+</p>
+<p>We can process that information in many ways, but let's just give you an opinionated answer.</p>
+<ol>
+<li>Use a tool such as <a href="https://unstructured.io/">Unstructured</a> to rip text from your documents.</li>
+<li>Split this text into chunks that are less than 512 tokens.</li>
+<li>Store each chunk in a database.</li>
+</ol>
+<h2>Storing them in database</h2>
+<p>Chunks get stored into the database in their text form it's going to look something like</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">INSERT INTO</span><span style="color:#c0c5ce;"> documents (</span><span style="color:#b48ead;">text</span><span style="color:#c0c5ce;">)
+</span><span style="color:#b48ead;">VALUES</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#a3be8c;">A Dobblenobble is a type of biscuit.</span><span style="color:#c0c5ce;">&#39;);
+</span></pre>
+<p>The problem we now have is how do we retrieve this information when we want to add it to the prompt</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">SELECT </span><span style="color:#c0c5ce;">* </span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> documents </span><span style="color:#b48ead;">WHERE text </span><span style="color:#c0c5ce;">= &#39;</span><span style="color:#a3be8c;">What is a dobblenobble</span><span style="color:#c0c5ce;">&#39;;
+</span></pre>
+<p>That query won't work.</p>
+<h2>Similarity search to the rescue</h2>
+<p>In postgres we can do the following assuming you have the pgVector extension.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">ALTER TABLE </span><span style="color:#c0c5ce;">documents ADD COLUMN embeddings vector(</span><span style="color:#d08770;">384</span><span style="color:#c0c5ce;">);
+</span></pre>
+<p>Now we are able to do a similarity search which looks like</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#b48ead;">SELECT </span><span style="color:#c0c5ce;">* </span><span style="color:#b48ead;">FROM</span><span style="color:#c0c5ce;"> documents </span><span style="color:#b48ead;">WHERE text</span><span style="color:#c0c5ce;"> embeddings &lt;-&gt; &#39;</span><span style="color:#a3be8c;">What is a dobblenobble</span><span style="color:#c0c5ce;">&#39;;
+</span></pre>
+<p>And this will return our row because it's <strong>similar</strong> to the question.</p>
+<h2>Generating embeddings</h2>
+<p>How do we populate our embeddings column so we can do similarity search.</p>
+<p>We can take our chunks of text and pass them to our LLM we have running locally.</p>
+<pre style="background-color:#2b303b;">
+<span style="color:#8fa1b3;">curl</span><span style="color:#c0c5ce;"> http://localhost:8080/v1/embeddings \
+</span><span style="color:#bf616a;">  -H </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">Content-Type: application/json</span><span style="color:#c0c5ce;">&quot; \
+</span><span style="color:#bf616a;">  -d </span><span style="color:#c0c5ce;">&#39;</span><span style="color:#a3be8c;">{
+</span><span style="color:#a3be8c;">    &quot;input&quot;: &quot;A Dobblenobble is a type of biscuit.&quot;,
+</span><span style="color:#a3be8c;">    &quot;model&quot;: &quot;text-embedding-ada-002&quot;
+</span><span style="color:#a3be8c;">  }</span><span style="color:#c0c5ce;">&#39;
+</span></pre>
+<p>This will return 384 floating point numbers. The 384 is the dimensions of our embedding returned by our locally running embeddings model.</p>
+<p>The documentation for <a href="https://openai.com/blog/new-and-improved-embedding-model">text-embedding-ada-002</a> states it should have 1536 dimension not sure why it doesn't.</p>
+<h2>What is Agentic RAG? - A final definition</h2>
+<p>So Agentic RAG is a process you follow</p>
+<ol>
+<li><strong>Retrieve</strong> relevant information from your documents based on the question.</li>
+<li><strong>Augment</strong> the prompt template so it has more context about the question</li>
+<li><strong>Generate</strong> responses based on this augmented template.</li>
+</ol>
+<p>After which your model should be able to answer questions it had no knowledge of before with a reduction in hallucinations.</p>
+</div></div></article><section class="blog-sub-footer mt-16 border-y border-base-300 bg-base-200 px-6 py-12 md:py-16"><div class="mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2"><div><h2 class="text-3xl font-bold leading-tight md:text-4xl">Your sovereign AI agent for enterprise tasks</h2><p class="mt-4 text-lg opacity-80">Bionic connects AI to your organisation’s knowledge and tools, so it can research, analyse, create and take action. Deploy on-premise, in your private cloud or air-gapped, with full control over your data and models.</p><div class="mt-6 flex flex-wrap gap-3"><a class="btn btn-primary" href="/docs/running-locally/docker-compose/">Deploy Bionic</a><a class="btn btn-ghost" href="/contact/">Talk to us about the Accelerator</a></div></div><img class="mx-auto w-full max-w-sm rounded-box shadow-md" src="/landing-page/bionic-console.png" alt="Bionic workspace"/></div></section><footer class="mt-0 bg-base-200 px-6 py-10 text-base-content"><div class="mx-auto flex max-w-5xl flex-col gap-8 md:flex-row md:justify-between"><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Resources</h6><a href="/blog/" class="link link-hover">Blog</a><a href="/pricing/" class="link link-hover">Pricing</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Company</h6><a class="link link-hover">About Us</a><a href="/contact/" class="link link-hover">Contact</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Legal</h6><a href="/terms/" class="link link-hover">Terms of Use</a><a href="/privacy/" class="link link-hover">Privacy Policy</a></nav></div></footer><script integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" type="module" src="https://instant.page/5.2.0"></script></body></html>

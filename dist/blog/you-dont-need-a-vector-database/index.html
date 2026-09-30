@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang='en'><head><title>Why you don&#39;t need a specialist Vector Database</title><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="description" content="Why PostgreSQL with vector extensions might be better than specialized vector databases for most AI applications."/><meta property="og:title" content="Why you don&#39;t need a specialist Vector Database"/><meta property="og:description" content="Why PostgreSQL with vector extensions might be better than specialized vector databases for most AI applications."/><meta property="og:type" content="article"/><meta property="og:site_name" content="Bionic GPT"/><meta property="og:url" content="https://bionic-gpt.com/blog/you-dont-need-a-vector-database/"/><meta property="og:image" content="https://bionic-gpt.com/blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"/><meta property="twitter:image" content="https://bionic-gpt.com/blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"/><link rel="stylesheet" href="/content-lightbox.css" type="text/css"/><link rel="stylesheet" href="/tailwind.css" type="text/css"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5" type="text/css"/><link rel="icon" type="image/svg+xml" href="/favicon.svg"/><script async=true data-goatcounter="" integrity="" type="" src="/content-lightbox.js"></script><script async=true data-goatcounter="https://bionicgpt.goatcounter.com/count" integrity="" type="" src="/goat-counter.js"></script><script async=true data-goatcounter="" integrity="" type="" src="/copy-paste.js"></script><script data-goatcounter="" integrity="" type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script></head><body><header class="sticky top-0 z-50 backdrop-filter backdrop-blur-lg bg-opacity-30"><div class="bg-primary text-primary-content text-xs sm:text-sm px-3 sm:px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-center"><span class="font-semibold">🎉 Zero to Agentic AI Hero</span><a class="inline-flex items-center gap-1 underline font-semibold hover:text-base-200" href="/architect-course/">Take the course<span>→</span></a></div><div class="navbar justify-between pl-4 pr-4"><div class="flex items-center gap-4"><div class="dropdown lg:hidden"><div tabindex="0" role="button" class="btn btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" stroke="currentColor" viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M4 6h16M4 12h8m-8 6h16" stroke-linejoin="round" stroke-linecap="round" stroke-width="2"></path></svg></div><ul class="menu menu-sm dropdown-content mt-3 z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/">Home</a></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li><li><a hx-boost="true" href="/partners/">Partners</a></li><li><a hx-boost="true" href="/contact/">Book a Call</a></li><li><a class="shrink-0 flex gap-1 items-center underline pl-4" hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt">Star us on GitHub</a></li></ul></div><ul class="flex flex-row items-center gap-4"><li class="lg:mr-2"><a href="/"><span class="flex flex-row gap-2 items-center"><strong>Bionic</strong></span></a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Product<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a hx-boost="true" href="/product/chat/">Chat</a></li><li><a hx-boost="true" href="/product/projects/">Projects</a></li><li><a hx-boost="true" href="/product/datasets/">Datasets</a></li><li><a hx-boost="true" href="/product/skills/">Skills</a></li><li><a hx-boost="true" href="/product/integrations/">Integrations</a></li><li><a hx-boost="true" href="/product/developers/">Developers</a></li></ul></li><li><a hx-boost="true" href="/pricing/">Pricing</a></li><li class="dropdown dropdown-hover"><div tabindex="0" role="button" aria-haspopup="true" class="flex cursor-pointer items-center gap-1">Resources<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3 w-3"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"></path></svg></div><ul class="menu dropdown-content z-10 w-52 rounded-box bg-base-100 p-2 shadow"><li><a class="active" hx-boost="true" href="/blog/">Blog</a></li><li><a hx-boost="true" href="/docs/">Documentation</a></li><li><a hx-boost="true" href="/architect-course/">Zero to Agentic AI Hero</a></li></ul></li><li><a hx-boost="true" href="/partners/">Partners</a></li></ul></div><div class="hidden lg:flex items-center gap-3"><a hx-boost="false" href="https://github.com/bionic-gpt/bionic-gpt"><img src="https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" alt="Github"/></a><a hx-boost="true" href="https://app.bionic-gpt.com">Login</a><a class="btn btn-primary btn-sm" hx-boost="true" href="/contact/">Book a Call</a></div></div></header><article class="mt-24 mb-16 mx-auto max-w-prose px-5 lg:max-w-[81.25ch]"><div class=""><h1 class="text-4xl font-extrabold leading-tight md:text-5xl">Why you don&#39;t need a specialist Vector Database</h1><div class="my-8 flex items-center gap-3"><img class="h-11 w-11 shrink-0 rounded-full object-cover" width="44" height="44" src="/blog-authors/ian-purton.jpeg" alt="Author"/><div class="min-w-0 leading-tight"><strong class="block text-base font-semibold">Ian Purton</strong><small class="block text-base opacity-70">Friday 13th October 2023</small></div></div><div class="mb-4 flex items-center justify-between border-y border-base-300 py-2"><small class="block text-sm font-medium uppercase tracking-wide opacity-70">Share</small><div class="flex flex-row gap-1"><a class="btn btn-ghost btn-sm btn-square" href="https://twitter.com/intent/tweet?url=https://bionic-gpt.com/blog/you-dont-need-a-vector-database/"><img width="16" height="16" src="/social-sharing/x-twitter.svg"/></a><a class="btn btn-ghost btn-sm btn-square" href="https://www.linkedin.com/sharing/share-offsite/?url=https://bionic-gpt.com/blog/you-dont-need-a-vector-database/"><img width="16" height="16" src="/social-sharing/linkedin.svg"/></a></div></div><img class="mb-8 block aspect-video w-full rounded-box object-cover shadow-md" src="/blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg" alt="Why you don&#39;t need a specialist Vector Database"/><div class="prose prose-slate max-w-none prose-pre:overflow-x-auto prose-pre:rounded-xl prose-pre:bg-slate-100 prose-code:font-mono prose-img:max-w-full"><h2>The short version</h2>
+<p><a href="https://www.postgresql.org/">Postgres</a> and <a href="https://github.com/pgvector/pgvector">pgVector</a> do everything a specialist Vector database can do and a whole lot more. If you choose a specialist Vector database you're going to end up needing 2 databases.</p>
+<h3>1. You don't need "a database for AI" you need a database</h3>
+<p>From a discussion on <a href="https://news.ycombinator.com/item?id=37420628">HN</a></p>
+<blockquote>
+<p>Exactly. The whole point about databases is you don't need "a database for AI" <strong>you need a database, ideally with an extension to add additional AI functionality (i.e. postgres and pgVector)</strong>. Trying to take a special store you invent for AI and retrofit all the desirable things you need to make it work properly in the context of a real application you're just going to end up with a mess.</p>
+</blockquote>
+<blockquote>
+<p>As a thought-experiment for people who don't understand why you need (for example) regular relational columns alongside vector storage, consider how you would implement <a href="/blog/retrieval-augmented-generation/">Agentic RAG</a> for a set of documents where not everyone has permission to view every document. In the pgVector case it's easy - I can add one or more label columns and then when I do my search query filter to only include labels that user has permission to view. Then my vector similarity results will definitely not include anything that violates my access control. Trivial with something like pgVector - basically impossible (afaics) with special-purpose vector stores.</p>
+</blockquote>
+<blockquote>
+<p>Or think about ranking. Say you want to do Agentic RAG over a space where you want to prioritise the most recent results, not just pure similarity. Or prioritise on a set of other features somehow (source credibility whatever). Easy to do if you have relational columns, no bueno if you just have a vector store.</p>
+</blockquote>
+<blockquote>
+<p>And that's not to mention the obvious things around ACID, availability, recovery, replication, etc.</p>
+</blockquote>
+<p>Thanks to <a href="https://news.ycombinator.com/submitted?id=seanhunter">Sean Hunter</a> who articulates it so well.</p>
+<h3>2. Real world requirements</h3>
+<p>As an architect working on LLM applications I have these criteria for a database.</p>
+<ul>
+<li>
+<p>Full SQL support</p>
+</li>
+<li>
+<p>Has good tooling around migrations (i.e. dbmate)</p>
+</li>
+<li>
+<p>Good support for running in Kubernetes or in the cloud</p>
+</li>
+<li>
+<p>Well understood by operations i.e. backups and scaling</p>
+</li>
+<li>
+<p>Supports vectors and similarity search.</p>
+</li>
+<li>
+<p>Well supported client libraries</p>
+</li>
+</ul>
+<p>So basically Postgres and PgVector.</p>
+<h3>3. It's a long way from your laptop to production</h3>
+<p>Here's an outline of the Roles involved in getting a database application into production.</p>
+<ul>
+<li>
+<p>Database Administrator (DBA): Responsible for database design, performance optimization, security, backups, and overall database management.</p>
+</li>
+<li>
+<p>Database Developer: Designs and develops the database schema, writes SQL queries, and ensures efficient data retrieval and manipulation.</p>
+</li>
+<li>
+<p>DevOps Engineers: Implement database automation, continuous integration/continuous deployment (CI/CD) pipelines, and manage infrastructure.</p>
+</li>
+</ul>
+<p>You may have 1 person that takes on all these roles or you might be the person taking on this role. The point is you need a story around how the database will perform in production especially if you can't use a hosted solution which is often the case for corporate data.</p>
+<h3>4. Pick learning curves that pay off year after year</h3>
+<p>I learned Postgres 15 years ago. In that time new technologies have come along and Postgres has assimilated the useful ones into it's code base.</p>
+<p>Reusing a technology over many projects means he can fix issues quickly as you've often seen them before.</p>
+<p>Basically, You hit the ground running.</p>
+<p>Here's some other tech that I predict will last you a whole career.</p>
+<ol>
+<li>SQL</li>
+<li>Docker</li>
+<li>Kubernetes</li>
+</ol>
+<h3>5. How about performance?</h3>
+<p>For an LLM architecture the main bottle neck is probably going to be the LLM itself.</p>
+<p>So performance will only be an issue for pgVector if it turns out to be a lot slower than the competition.</p>
+<p>There's also another Postgres solution that claims to be <a href="https://neon.tech/blog/pg-embedding-extension-for-vector-search">20x faster the pgVector</a></p>
+</div></div></article><section class="blog-sub-footer mt-16 border-y border-base-300 bg-base-200 px-6 py-12 md:py-16"><div class="mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2"><div><h2 class="text-3xl font-bold leading-tight md:text-4xl">Your sovereign AI agent for enterprise tasks</h2><p class="mt-4 text-lg opacity-80">Bionic connects AI to your organisation’s knowledge and tools, so it can research, analyse, create and take action. Deploy on-premise, in your private cloud or air-gapped, with full control over your data and models.</p><div class="mt-6 flex flex-wrap gap-3"><a class="btn btn-primary" href="/docs/running-locally/docker-compose/">Deploy Bionic</a><a class="btn btn-ghost" href="/contact/">Talk to us about the Accelerator</a></div></div><img class="mx-auto w-full max-w-sm rounded-box shadow-md" src="/landing-page/bionic-console.png" alt="Bionic workspace"/></div></section><footer class="mt-0 bg-base-200 px-6 py-10 text-base-content"><div class="mx-auto flex max-w-5xl flex-col gap-8 md:flex-row md:justify-between"><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Resources</h6><a href="/blog/" class="link link-hover">Blog</a><a href="/pricing/" class="link link-hover">Pricing</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Company</h6><a class="link link-hover">About Us</a><a href="/contact/" class="link link-hover">Contact</a></nav><nav class="flex flex-col gap-2"><h6 class="mb-2 text-sm font-bold uppercase tracking-[0.08em]">Legal</h6><a href="/terms/" class="link link-hover">Terms of Use</a><a href="/privacy/" class="link link-hover">Privacy Policy</a></nav></div></footer><script integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" type="module" src="https://instant.page/5.2.0"></script></body></html>
