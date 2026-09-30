@@ -41,7 +41,7 @@ wt:
     cd /workspace/crates/web-assets && tailwind-extra -i ./input.css -o ./dist/output.css --watch
 
 ws:
-    cd /workspace/crates/bionic-gpt && cargo watch --workdir /workspace/crates/bionic-gpt -w ./content -w ./src --no-gitignore -x "run --bin bionic-gpt"
+    cd /workspace/crates/bionic-gpt && cargo watch --workdir /workspace/crates/bionic-gpt -w ./assets -w ./content -w ./src --no-gitignore -x "run --bin bionic-gpt"
 
 wts:
     cd /workspace/crates/bionic-gpt && tailwind-extra -i ./input.css -o ./dist/tailwind.css --watch
@@ -50,7 +50,10 @@ spell:
     docker run --rm -ti -v $HOST_PROJECT_PATH/crates/bionic-gpt/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"
 
 playbook-pdf:
-    typst compile crates/bionic-gpt/content/playbook-pdf/playbook.typ crates/bionic-gpt/content/playbook-pdf/playbook.pdf
+    typst compile crates/bionic-gpt/content/playbook-pdf/playbook.typ crates/bionic-gpt/assets/playbook.pdf
+
+playbook-pdf-watch:
+    typst watch crates/bionic-gpt/content/playbook-pdf/playbook.typ crates/bionic-gpt/assets/playbook.pdf
 
 md:
     mirrord exec target/debug/web-server --steal -n bionic-gpt --target deployment/bionic-gpt
