@@ -1,4 +1,3 @@
-pub mod agentic_ai_transformation_playbook_summary;
 pub mod architect_course_summary;
 pub mod blog_summary;
 pub mod docs_summary;
@@ -111,15 +110,6 @@ pub mod routes {
 
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/architect-course/")]
-        pub struct Index {}
-    }
-
-    pub mod agentic_ai_transformation_playbook {
-        use axum_extra::routing::TypedPath;
-        use serde::Deserialize;
-
-        #[derive(TypedPath, Deserialize)]
-        #[typed_path("/agentic-ai-transformation-playbook/")]
         pub struct Index {}
     }
 }

@@ -5,8 +5,7 @@ use ssg_whiz::{
 };
 
 use bionic_gpt::{
-    agentic_ai_transformation_playbook_summary, architect_course_summary, blog_summary,
-    docs_summary, generator,
+    architect_course_summary, blog_summary, docs_summary, generator,
     marketing::blog_extra_footer::blog_extra_footer,
     pages_summary,
     site_header::site_header,
@@ -22,7 +21,6 @@ async fn main() {
 
     let docs_summary = docs_summary::summary();
     let architect_summary = architect_course_summary::summary();
-    let transformation_summary = agentic_ai_transformation_playbook_summary::summary();
     let blog_summary = blog_summary::summary();
     let pages_summary = pages_summary::summary();
     let tailwind_stylesheet =
@@ -82,10 +80,6 @@ async fn main() {
             },
             DocumentSite {
                 summary: architect_summary,
-                section: Section::ArchitectCourse,
-            },
-            DocumentSite {
-                summary: transformation_summary,
                 section: Section::ArchitectCourse,
             },
         ])

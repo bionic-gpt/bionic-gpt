@@ -28,9 +28,11 @@ tmux set-option -t "$session" -g mouse on
 
 top_pane=$(tmux display-message -p -t "$session:website" '#{pane_id}')
 bottom_pane=$(tmux split-window -v -p 50 -t "$top_pane" -c "$workspace" -P -F '#{pane_id}')
+playbook_pane=$(tmux split-window -h -p 50 -t "$bottom_pane" -c "$workspace" -P -F '#{pane_id}')
 
 tmux send-keys -t "$top_pane" "just ws" Enter
 tmux send-keys -t "$bottom_pane" "just wts" Enter
+tmux send-keys -t "$playbook_pane" "just playbook-pdf-watch" Enter
 
 tmux select-pane -t "$top_pane"
 
