@@ -55,9 +55,56 @@ Bionic provides that foundation. Your team keeps control of the models, infrastr
 - Identity, teams, permissions, audit, and usage controls
 - Kubernetes-oriented deployment infrastructure
 
-## Agentic Runtime
+Yes. For a README I'd keep it this tight:
 
-Bionic is not just a chat surface. Each conversation can become a controlled working environment where the model can discover available tools, read relevant skills, operate over files, execute sandboxed code, and return durable outputs.
+## Agentic Runtime and Sandbox
+
+Bionic gives the model a single `run_bash` tool and exposes its capabilities through a virtual filesystem.
+
+```text
+/
+├── memory.md
+├── attachments/
+│   ├── customer-list.xlsx
+│   └── contract.pdf
+├── conversations/
+│   ├── today/
+│   └── last-week/
+├── datasets/
+│   ├── customers.csv
+│   └── sales.parquet
+├── skills/
+│   ├── crm/
+│   │   ├── SKILL.md
+│   │   └── openapi.json
+│   ├── spreadsheets/
+│   │   └── SKILL.md
+│   └── pdf/
+│       └── SKILL.md
+├── artifacts/
+│   ├── report.xlsx
+│   └── analysis.pdf
+└── tmp/
+```
+
+- **Memory** — relevant context from previous work.
+- **Attachments** — files supplied by the user.
+- **Conversations** — previous conversations available when more context is needed.
+- **Datasets** — data available to the agent.
+- **Skills** — instructions and capabilities, including access to enterprise systems.
+- **Artifacts** — files produced by the agent.
+- **tmp** — ephemeral working files and generated code.
+
+The filesystem is virtual, so resources can be discovered without copying everything into the sandbox or loading it into the model's context.
+
+This architecture is closely aligned with *Everything is Context: Agentic File System Abstraction for Context Engineering*, which proposes a Unix-inspired filesystem abstraction for exposing memory, knowledge and tools to agents. :chatgpt-content-reference{index="0"}
+
+[Everything is Context — arXiv](https://arxiv.org/abs/2512.05470?utm_source=chatgpt.com)
+
+For the **memory** part specifically, *Filesystem-Based Memory for LLM Agents* studies directory-tree memory accessed by agents using generic filesystem tools, and finds that organized filesystem memory can substantially reduce retrieval cost. :chatgpt-content-reference{index="2"}
+
+[Filesystem-Based Memory for LLM Agents — arXiv](https://arxiv.org/abs/2607.26637?utm_source=chatgpt.com)
+
 
 ![Bionic architecture](crates/bionic-gpt/content/architect-course/architecture.svg "Bionic architecture")
 
