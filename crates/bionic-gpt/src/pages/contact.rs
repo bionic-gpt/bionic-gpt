@@ -33,15 +33,6 @@ pub fn contact_page() -> String {
                         class: "font-bold mt-4",
                         "Email founders (at) bionic-gpt.com"
                     }
-                    p {
-                        class: "mt-4 mb-4",
-                        "Or Schedule a Meeting with Calendly"
-                    }
-                    a {
-                        class: "btn btn-primary",
-                        href: "https://calendly.com/bionicgpt",
-                        "Book a Call via Calendly"
-                    }
                 }
 
                 Team {

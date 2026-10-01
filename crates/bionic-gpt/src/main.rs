@@ -8,7 +8,6 @@ use bionic_gpt::{
     architect_course_summary, blog_summary, docs_summary, generator,
     marketing::blog_extra_footer::blog_extra_footer,
     pages_summary,
-    site_header::site_header,
     ui_links::{footer_links, navigation_links},
 };
 use ssg_whiz::summaries::DocumentSite;
@@ -35,7 +34,7 @@ async fn main() {
         navigation_links: navigation_links(),
         footer_links: footer_links(),
         site_meta: bionic_gpt::ui_links::site_meta(),
-        site_header: Some(site_header),
+        site_header: None,
         features: SiteFeatures {
             content_lightbox: true,
             ..SiteFeatures::default()

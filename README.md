@@ -25,7 +25,7 @@
     |
     <a href="https://bionic-gpt.com/docs/">Documentation</a>
     |
-    <a href="https://bionic-gpt.com/pricing/">Pricing</a>
+    <a href="https://bionic-gpt.com/go-bionic/">Go Bionic</a>
     |
     <a href="https://github.com/bionic-gpt/bionic-gpt/blob/main/CONTRIBUTING.md">Contributing</a>
   </h4>
@@ -154,7 +154,7 @@ Bionic is open source. Commercial support is available for organisations running
 - **Enterprise:** production support, SLAs, security response, supported releases, architecture guidance, and upgrade assistance.
 - **Deployment Accelerator:** help deploying Bionic and delivering a first validated production workflow.
 
-[View pricing](https://bionic-gpt.com/pricing/) or [talk to us](https://calendly.com/bionicgpt).
+[Explore deployment options](https://bionic-gpt.com/go-bionic/) or [talk to us](https://calendly.com/bionicgpt).
 
 ## Contributing
 

@@ -15,6 +15,7 @@ pub fn home_page() -> String {
     let deploy_url = "/docs/running-locally/docker-compose/";
     let contact_url = crate::routes::marketing::Contact {}.to_string();
     let course_url = crate::routes::architect_course::Index {}.to_string();
+    let go_bionic_url = crate::routes::marketing::GoBionic {}.to_string();
 
     let page = rsx! {
         Layout {
@@ -30,17 +31,8 @@ pub fn home_page() -> String {
                     title: "Your sovereign AI agent for enterprise tasks, fluent in your knowledge and tools.",
                     subtitle: "Bionic connects AI to your organisation’s knowledge and tools, so it can research, analyse, create and take action. Deploy on-premise, in your private cloud or air-gapped, with full control over your data and models.",
                     claim: "Open source. Self-hosted. Model independent.",
-                    cta_label: "Deploy Bionic",
-                    cta_href: deploy_url.to_string()
-                }
-
-                div {
-                    class: "flex justify-center -mt-20",
-                    a {
-                        class: "btn btn-primary btn-outline",
-                        href: contact_url.clone(),
-                        "Talk to us about the Accelerator"
-                    }
+                    cta_label: "Go Bionic",
+                    cta_href: go_bionic_url
                 }
 
                 Customers {}

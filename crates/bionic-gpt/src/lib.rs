@@ -5,7 +5,6 @@ pub mod generator;
 pub mod marketing;
 pub mod pages;
 pub mod pages_summary;
-pub mod site_header;
 pub mod ui_links;
 
 pub mod routes {
@@ -79,16 +78,12 @@ pub mod routes {
         pub struct Privacy {}
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/pricing/")]
-        pub struct Pricing {}
-
-        #[derive(TypedPath, Deserialize)]
         #[typed_path("/contact/")]
         pub struct Contact {}
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/partners/")]
-        pub struct PartnersPage {}
+        #[typed_path("/go-bionic/")]
+        pub struct GoBionic {}
 
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/services/")]

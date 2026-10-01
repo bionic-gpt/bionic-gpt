@@ -24,11 +24,6 @@ pub fn Footer(margin_top: Option<String>, links: FooterLinks) -> Element {
                         class: "block link-hover",
                         "Blog"
                     }
-                    a {
-                        href: links.pricing.clone(),
-                        class: "block link-hover",
-                        "Pricing"
-                    }
                 }
                 nav {
                     h6 {

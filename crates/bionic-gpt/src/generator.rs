@@ -71,8 +71,7 @@ pub async fn generate_solutions() -> Vec<SitePage> {
 
 pub async fn generate_marketing() -> Vec<SitePage> {
     vec![
-        output_page("pricing", pages::pricing::pricing()),
-        output_page("partners", pages::partners::partners_page()),
+        output_page("go-bionic", pages::go_bionic::go_bionic_page()),
         output_page("contact", pages::contact::contact_page()),
         output_page("", pages::home::home_page()),
     ]

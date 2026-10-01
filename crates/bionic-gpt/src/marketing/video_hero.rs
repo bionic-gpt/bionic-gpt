@@ -45,7 +45,7 @@ pub fn VideoHero(
                 div {
                     if let Some(cta_href) = cta_href {
                         a {
-                            class: "btn btn-secondary",
+                            class: "btn btn-primary",
                             href: cta_href,
                             "{cta_label}"
                         }
