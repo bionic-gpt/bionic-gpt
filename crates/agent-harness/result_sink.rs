@@ -141,7 +141,12 @@ async fn save_results_db(pool: &Pool, request: SaveRequest<'_>) {
 
         if status == ChatStatus::Success {
             let (prompt_tokens, completion_tokens) = usage
-                .map(|u| (u.input_tokens as i32, u.output_tokens as i32))
+                .map(|u| {
+                    (
+                        u.input_tokens.unwrap_or_default() as i32,
+                        u.output_tokens.unwrap_or_default() as i32,
+                    )
+                })
                 .unwrap_or_else(|| {
                     tracing::warn!("Missing provider token usage, storing zeros");
                     (0, 0)

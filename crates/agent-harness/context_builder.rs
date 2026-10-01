@@ -2,7 +2,7 @@ use crate::errors::CustomError;
 use db::queries::{models, runtime_settings};
 use db::Transaction;
 use db::{Chat, ChatRole};
-use rig::message::{AssistantContent, Message};
+use rig::message::{AssistantContent, CallId, Message, ToolName};
 use tool_runtime::{parse_reasoning, parse_tool_calls, ToolCall};
 
 /// Converts database chats into rig-native messages.
@@ -38,7 +38,11 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
             }
             ChatRole::Tool => {
                 let tool_call_id = chat.tool_call_id.unwrap_or_else(|| "tool_call".to_string());
-                Message::tool_result(tool_call_id, "run_bash", content)
+                Message::tool_result(
+                    CallId::from_wire(tool_call_id),
+                    ToolName::new("run_bash").expect("static tool name is non-empty"),
+                    content,
+                )
             }
             ChatRole::System | ChatRole::Developer => Message::system(content),
             ChatRole::User => Message::user(content),

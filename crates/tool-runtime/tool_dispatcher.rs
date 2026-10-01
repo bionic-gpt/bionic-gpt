@@ -91,8 +91,7 @@ pub async fn execute_tool_call_with_tools(
             debug!("Tool execution successful");
             return ToolResult {
                 call: tool_call.id.clone(),
-                provider: tool_call.provider.clone(),
-                name: tool_name.clone(),
+                name: tool_call.function.name.clone(),
                 content: vec![ToolResultContent::text(result)],
             };
         } else if let Err(e) = result {
@@ -110,7 +109,6 @@ fn to_error_result(tool_call: &ToolCall, error: Value) -> ToolResult {
     debug!("Returning error result for tool call");
     ToolResult {
         call: tool_call.id.clone(),
-        provider: tool_call.provider.clone(),
         name: tool_call.function.name.clone(),
         content: vec![ToolResultContent::text(error.to_string())],
     }
@@ -130,9 +128,9 @@ mod tests {
         let tools: Vec<Arc<dyn ToolDyn>> = vec![time_date_tool];
 
         let tool_call = ToolCall::new(
-            rig::message::ToolCallId::new_or_mint("call_123"),
+            rig::message::CallId::from_wire("call_123"),
             ToolCallFunction::new(
-                "get_current_time_and_date".to_string(),
+                rig::message::ToolName::new("get_current_time_and_date").unwrap(),
                 json!({"timezone": "utc"}),
             ),
         );

@@ -36,7 +36,11 @@ struct ConversationTurn {
 fn visible_reasoning(tool_calls: Option<&str>) -> Vec<String> {
     parse_reasoning(tool_calls)
         .into_iter()
-        .map(|reasoning| reasoning.display_text())
+        .filter_map(|reasoning| {
+            reasoning
+                .open(reasoning.issuer())
+                .map(|reasoning| reasoning.display_text())
+        })
         .filter(|text| !text.trim().is_empty())
         .collect()
 }
@@ -264,7 +268,7 @@ fn build_tool_call_index(chat_history: &[ChatWithChunks]) -> HashMap<String, Too
         if let Some(tool_calls_json) = &chat_with_chunks.chat.tool_calls {
             for tool_call in parse_tool_calls(Some(tool_calls_json)) {
                 index.insert(tool_call.id.to_string(), tool_call.clone());
-                if let Some(provider) = tool_call.provider.clone() {
+                if let Some(provider) = tool_call.id.provider().cloned() {
                     let provider_call_id = provider.call_id;
                     let provider_item_id = provider.item_id;
                     index.insert(provider_call_id, tool_call.clone());
@@ -322,7 +326,10 @@ mod tests {
         let tool_call = ToolCall::from_dual_wire(
             "provider_item_id",
             "provider_call_id",
-            ToolCallFunction::new("run_bash".to_string(), json!({"query": "bitcoin price"})),
+            ToolCallFunction::new(
+                tool_runtime::ToolName::new("run_bash").unwrap(),
+                json!({"query": "bitcoin price"}),
+            ),
         );
         let history = vec![chat_with_tool_calls(vec![tool_call])];
 
@@ -345,7 +352,7 @@ mod tests {
         assistant_call.chat.tool_calls = serde_json::to_string(&vec![ToolCall::from_wire(
             "call-1",
             ToolCallFunction::new(
-                "run_bash".to_string(),
+                tool_runtime::ToolName::new("run_bash").unwrap(),
                 json!({"commands": "sqlite3 customers.db '.tables'"}),
             ),
         )])
@@ -391,7 +398,10 @@ mod tests {
         let mut assistant_call = chat(2, ChatRole::Assistant, None);
         assistant_call.chat.tool_calls = serde_json::to_string(&vec![ToolCall::from_wire(
             "call-1",
-            ToolCallFunction::new("run_bash".to_string(), json!({"commands": "ls"})),
+            ToolCallFunction::new(
+                tool_runtime::ToolName::new("run_bash").unwrap(),
+                json!({"commands": "ls"}),
+            ),
         )])
         .ok();
         let mut pending_tool = chat(3, ChatRole::Tool, None).chat;

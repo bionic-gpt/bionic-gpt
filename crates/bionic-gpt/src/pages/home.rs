@@ -12,8 +12,6 @@ use ssg_whiz::layouts::layout::Layout;
 use ssg_whiz::Section;
 
 pub fn home_page() -> String {
-    let deploy_url = "/docs/running-locally/docker-compose/";
-    let contact_url = crate::routes::marketing::Contact {}.to_string();
     let course_url = crate::routes::architect_course::Index {}.to_string();
     let go_bionic_url = crate::routes::marketing::GoBionic {}.to_string();
 
@@ -123,78 +121,6 @@ pub fn home_page() -> String {
                                     li { "internal governance rules" }
                                     li { "differentiated capabilities" }
                                 }
-                            }
-                        }
-                    }
-                }
-
-                section {
-                    class: "grid gap-8",
-                    div {
-                        class: "max-w-3xl",
-                        h2 {
-                            class: "text-3xl font-bold tracking-tight sm:text-4xl",
-                            "Choose how you adopt Bionic"
-                        }
-                    }
-                    div {
-                        class: "grid gap-6 lg:grid-cols-3",
-                        div {
-                            class: "card card-border bg-base-100",
-                            div {
-                                class: "card-body list-tick",
-                                h3 { class: "card-title", "Community" }
-                                p { class: "text-3xl font-extrabold", "Free" }
-                                p { "Open-source foundation for teams that want to deploy and extend Bionic themselves." }
-                                ul {
-                                    class: "space-y-2",
-                                    li { "self-hosted" }
-                                    li { "core platform" }
-                                    li { "local and private models" }
-                                    li { "integrations" }
-                                    li { "community support" }
-                                }
-                                a { class: "btn btn-secondary btn-outline mt-4", href: deploy_url, "Get Started" }
-                            }
-                        }
-                        div {
-                            class: "card card-border border-primary bg-base-100 shadow-xl",
-                            div {
-                                class: "card-body list-tick",
-                                h3 { class: "card-title", "Enterprise" }
-                                p { class: "text-3xl font-extrabold", "Starting at €40,000/year" }
-                                p { "Production assurance for organisations running Bionic as critical internal infrastructure." }
-                                ul {
-                                    class: "space-y-2",
-                                    li { "premium support" }
-                                    li { "SLAs" }
-                                    li { "security response" }
-                                    li { "supported releases" }
-                                    li { "architecture guidance" }
-                                    li { "upgrade guidance" }
-                                    li { "air-gapped support" }
-                                }
-                                a { class: "btn btn-primary mt-4", href: contact_url.clone(), "Talk to Us" }
-                            }
-                        }
-                        div {
-                            class: "card card-border bg-base-100",
-                            div {
-                                class: "card-body list-tick",
-                                h3 { class: "card-title", "Deployment Accelerator" }
-                                p { class: "text-3xl font-extrabold", "Starting at €50,000" }
-                                p { "Help an internal AI team get Bionic and its first production workflow live quickly." }
-                                ul {
-                                    class: "space-y-2",
-                                    li { "production deployment" }
-                                    li { "SSO" }
-                                    li { "model setup" }
-                                    li { "initial integration" }
-                                    li { "first workflow" }
-                                    li { "team enablement" }
-                                    li { "handover" }
-                                }
-                                a { class: "btn btn-secondary btn-outline mt-4", href: contact_url.clone(), "Plan a Deployment" }
                             }
                         }
                     }

@@ -7,11 +7,13 @@ use crate::user_config::UserConfig;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{ChatStatus, Pool};
-use rig::client::CompletionClient;
-use rig::completion::{CompletionModel as _, Usage};
-use rig::message::ReasoningContent;
-use rig::providers::{groq, ollama, openai, openrouter};
-use rig::streaming::{StreamedAssistantContent, StreamingCompletionResponse};
+use rig::completion::Usage;
+use rig::error::ProviderError;
+use rig::message::{
+    AssistantContent, Issuer, Reasoning as RigReasoning, ReasoningContent, ToolFunction, ToolName,
+};
+use rig::providers::{ollama, openai};
+use rig::streaming::{CompletionStream, Item, StreamEvent};
 use serde_json::json;
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -350,47 +352,32 @@ pub(crate) async fn stream_chat_with_rig(
         "Starting model stream"
     );
     let api_key = request.api_key.as_deref().unwrap_or("");
-    match request.provider_type {
-        db::ModelProvider::OpenAI | db::ModelProvider::OpenAICompatible => {
-            let client = openai::Client::builder()
-                .api_key(api_key)
-                .base_url(&request.base_url)
-                .build()?;
-            let model = client
-                .completion_model(&request.model_name)
-                .completions_api();
-            let stream = model.stream(request.completion).await?;
-            consume_rig_stream(stream, sender).await
+    let stream = match request.provider_type {
+        db::ModelProvider::OpenAI
+        | db::ModelProvider::OpenAICompatible
+        | db::ModelProvider::Groq
+        | db::ModelProvider::OpenRouter => {
+            let dialect = match request.provider_type {
+                db::ModelProvider::Groq => &openai::wire::GROQ,
+                db::ModelProvider::OpenRouter => &openai::wire::OPENROUTER,
+                _ => &openai::wire::OPENAI,
+            };
+            openai::OpenAIConfig::with_key(dialect, api_key)
+                .with_base_url(&request.base_url)
+                .client()
+                .chat(&request.model_name)
+                .erase()
+                .stream(request.completion)?
         }
-        db::ModelProvider::Groq => {
-            let client = groq::Client::builder()
-                .api_key(api_key)
-                .base_url(&request.base_url)
-                .build()?;
-            let model = client.completion_model(&request.model_name);
-            let stream = model.stream(request.completion).await?;
-            consume_rig_stream(stream, sender).await
-        }
-        db::ModelProvider::OpenRouter => {
-            let client = openrouter::Client::builder()
-                .api_key(api_key)
-                .base_url(&request.base_url)
-                .build()?;
-            let model = client.completion_model(&request.model_name);
-            let stream = model.stream(request.completion).await?;
-            consume_rig_stream(stream, sender).await
-        }
-        db::ModelProvider::Ollama => {
-            let base_url = ollama_base_url(&request.base_url);
-            let client = ollama::Client::builder()
-                .api_key(api_key)
-                .base_url(base_url)
-                .build()?;
-            let model = client.completion_model(&request.model_name);
-            let stream = model.stream(request.completion).await?;
-            consume_rig_stream(stream, sender).await
-        }
-    }
+        db::ModelProvider::Ollama => ollama::OllamaConfig::new()
+            .with_api_key(api_key)
+            .with_base_url(ollama_base_url(&request.base_url))
+            .client()
+            .completion(&request.model_name)
+            .erase()
+            .stream(request.completion)?,
+    };
+    consume_rig_stream(stream, sender).await
 }
 
 fn ollama_base_url(base_url: &str) -> &str {
@@ -401,34 +388,38 @@ fn ollama_base_url(base_url: &str) -> &str {
 }
 
 async fn consume_rig_stream(
-    mut stream: StreamingCompletionResponse,
+    mut stream: CompletionStream,
     sender: mpsc::Sender<Result<GenerationEvent, axum::Error>>,
 ) -> Result<StreamOutcome, Box<dyn std::error::Error + Send + Sync>> {
     let mut snapshot = String::new();
     let mut tool_calls: Vec<ToolCall> = Vec::new();
-    let mut reasoning: Vec<Reasoning> = Vec::new();
+    let mut reasoning: Vec<RigReasoning> = Vec::new();
+    let reasoning_issuer = stream.reasoning_issuer();
     let mut usage: Option<Usage> = None;
     let mut text_event_count = 0;
     let mut tool_call_delta_count = 0;
     let mut final_event_received = false;
+    let mut malformed_tool_input_received = false;
     let mut unknown_event_count = 0;
     let mut event_count = 0;
+    let mut text_parts_with_deltas = std::collections::HashSet::new();
 
     while let Some(item) = stream.next().await {
         event_count += 1;
         match item {
-            Ok(StreamedAssistantContent::Text(text)) => {
+            Ok(Item::Event(StreamEvent::Text { part, text })) => {
                 text_event_count += 1;
                 tracing::debug!(
                     event = event_count,
-                    delta_length = text.text.len(),
+                    delta_length = text.len(),
                     "Rig stream text event"
                 );
-                snapshot.push_str(&text.text);
+                if !text.is_empty() {
+                    text_parts_with_deltas.insert(part.index());
+                }
+                snapshot.push_str(&text);
                 if sender
-                    .send(Ok(GenerationEvent::Text {
-                        delta: text.text.clone(),
-                    }))
+                    .send(Ok(GenerationEvent::Text { delta: text }))
                     .await
                     .is_err()
                 {
@@ -439,61 +430,98 @@ async fn consume_rig_stream(
                         } else {
                             Some(tool_calls)
                         },
-                        reasoning: if reasoning.is_empty() {
-                            None
-                        } else {
-                            Some(reasoning)
-                        },
+                        reasoning: seal_reasoning(&reasoning, &reasoning_issuer),
                         usage,
                     });
                 }
             }
-            Ok(StreamedAssistantContent::ToolCall { tool_call, .. }) => {
-                tracing::debug!(
-                    event = event_count,
-                    tool_name = %tool_call.function.name,
-                    tool_id = %tool_call.id,
-                    "Rig stream complete tool-call event"
-                );
-                tool_calls.push(tool_call);
-            }
-            Ok(StreamedAssistantContent::ToolCallDelta { .. }) => {
+            Ok(Item::Event(StreamEvent::Arguments { .. })) => {
                 tool_call_delta_count += 1;
-                tracing::debug!(event = event_count, "Rig stream tool-call delta event");
+                tracing::debug!(event = event_count, "Rig stream tool-call argument delta");
             }
-            Ok(StreamedAssistantContent::Reasoning {
-                reasoning: reasoning_item,
-                ..
-            }) => {
-                tracing::debug!(event = event_count, "Rig stream reasoning event");
-                push_reasoning(&mut reasoning, reasoning_item);
-            }
-            Ok(StreamedAssistantContent::ReasoningDelta {
-                id,
-                reasoning: delta,
-                ..
-            }) => {
+            Ok(Item::Event(StreamEvent::Reasoning { part, text })) => {
                 tracing::debug!(
                     event = event_count,
-                    delta_length = delta.len(),
-                    "Rig stream reasoning delta event"
+                    delta_length = text.len(),
+                    "Rig stream reasoning event"
                 );
-                push_reasoning_delta(&mut reasoning, Some(id), delta);
+                push_reasoning_delta(&mut reasoning, Some(part.index().to_string()), text);
             }
-            Ok(StreamedAssistantContent::Unknown(_)) => {
+            Ok(Item::Event(StreamEvent::End { part, content })) => match content {
+                AssistantContent::ToolCall(tool_call) => {
+                    tracing::debug!(
+                        event = event_count,
+                        tool_name = %tool_call.function.name,
+                        tool_id = %tool_call.id,
+                        "Rig stream complete tool-call event"
+                    );
+                    tool_calls.push(tool_call);
+                }
+                AssistantContent::Text(text) => {
+                    if !text_parts_with_deltas.contains(&part.index()) {
+                        snapshot.push_str(&text.text);
+                        if sender
+                            .send(Ok(GenerationEvent::Text { delta: text.text }))
+                            .await
+                            .is_err()
+                        {
+                            return Ok(StreamOutcome::ClientDisconnected {
+                                snapshot,
+                                tool_calls: (!tool_calls.is_empty()).then_some(tool_calls),
+                                reasoning: seal_reasoning(&reasoning, &reasoning_issuer),
+                                usage,
+                            });
+                        }
+                    }
+                }
+                AssistantContent::Reasoning(sealed) => {
+                    if let Some(mut item) = sealed.open(&reasoning_issuer).cloned() {
+                        if item.id.is_none() {
+                            item.id = Some(part.index().to_string());
+                        }
+                        push_reasoning(&mut reasoning, item);
+                    }
+                }
+                _ => {}
+            },
+            Ok(Item::Event(StreamEvent::Start { .. })) => {}
+            Ok(Item::Unknown(_)) => {
                 unknown_event_count += 1;
                 tracing::debug!(event = event_count, "Rig stream unknown event");
             }
-            Ok(StreamedAssistantContent::Final(final_response)) => {
-                final_event_received = true;
-                tracing::debug!(event = event_count, "Rig stream final event");
-                usage = Some(final_response.usage);
+            Err(ProviderError::MalformedToolInput(input)) => {
+                tracing::warn!(
+                    event = event_count,
+                    tool_name = %input.name,
+                    tool_id = %input.id,
+                    error = %input.error,
+                    "Preserving malformed streamed tool call as a retryable tool error"
+                );
+                let additional_params = json!({
+                    "bionic_malformed_tool_call": input.error,
+                    "bionic_malformed_tool_call_raw": input.raw,
+                });
+                tool_calls.push(
+                    ToolCall::new(
+                        input.id,
+                        ToolFunction::new(ToolName::new(input.name)?, json!({})),
+                    )
+                    .with_additional_params(Some(additional_params)),
+                );
+                malformed_tool_input_received = true;
+                break;
             }
             Err(err) => {
                 tracing::error!(event = event_count, error = %err, "Rig stream item failed");
                 return Err(Box::new(err));
             }
         }
+    }
+
+    if !malformed_tool_input_received {
+        let final_response = stream.finish().await?;
+        final_event_received = true;
+        usage = Some(final_response.usage);
     }
 
     tracing::debug!(
@@ -513,11 +541,7 @@ async fn consume_rig_stream(
     } else {
         Some(tool_calls.clone())
     };
-    let reasoning_for_end = if reasoning.is_empty() {
-        None
-    } else {
-        Some(reasoning.clone())
-    };
+    let reasoning_for_end = seal_reasoning(&reasoning, &reasoning_issuer);
 
     if snapshot.trim().is_empty() && tool_calls_for_end.is_none() {
         tracing::warn!(
@@ -552,11 +576,7 @@ async fn consume_rig_stream(
             } else {
                 Some(tool_calls)
             },
-            reasoning: if reasoning.is_empty() {
-                None
-            } else {
-                Some(reasoning)
-            },
+            reasoning: seal_reasoning(&reasoning, &reasoning_issuer),
             usage,
         });
     }
@@ -564,14 +584,24 @@ async fn consume_rig_stream(
     Ok(StreamOutcome::Completed)
 }
 
-fn push_reasoning(reasoning: &mut Vec<Reasoning>, reasoning_item: Reasoning) {
+fn push_reasoning(reasoning: &mut Vec<RigReasoning>, reasoning_item: RigReasoning) {
     if let Some(id) = reasoning_item.id.as_deref() {
         reasoning.retain(|existing| existing.id.as_deref() != Some(id));
     }
     reasoning.push(reasoning_item);
 }
 
-fn push_reasoning_delta(reasoning: &mut Vec<Reasoning>, id: Option<String>, delta: String) {
+fn seal_reasoning(reasoning: &[RigReasoning], issuer: &Issuer) -> Option<Vec<Reasoning>> {
+    (!reasoning.is_empty()).then(|| {
+        reasoning
+            .iter()
+            .cloned()
+            .map(|item| item.sealed(issuer.clone()))
+            .collect()
+    })
+}
+
+fn push_reasoning_delta(reasoning: &mut Vec<RigReasoning>, id: Option<String>, delta: String) {
     if let Some(existing) = reasoning
         .iter_mut()
         .find(|item| item.id == id && reasoning_ends_with_text(item))
@@ -582,12 +612,12 @@ fn push_reasoning_delta(reasoning: &mut Vec<Reasoning>, id: Option<String>, delt
         }
     }
 
-    let mut item = Reasoning::new(&delta);
+    let mut item = RigReasoning::new(&delta);
     item.id = id;
     reasoning.push(item);
 }
 
-fn reasoning_ends_with_text(reasoning: &Reasoning) -> bool {
+fn reasoning_ends_with_text(reasoning: &RigReasoning) -> bool {
     matches!(
         reasoning.content.last(),
         Some(ReasoningContent::Text { .. })

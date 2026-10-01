@@ -50,8 +50,8 @@ async fn event_stream_saves_on_end_with_tool_calls() {
     let sub = Arc::new("user-1".to_string());
 
     let tool_calls = vec![ToolCall::new(
-        rig::message::ToolCallId::new_or_mint("call_1"),
-        ToolCallFunction::new("do_thing".to_string(), json!({})),
+        rig::message::CallId::from_wire("call_1"),
+        ToolCallFunction::new(rig::message::ToolName::new("do_thing").unwrap(), json!({})),
     )];
 
     let input = tokio_stream::iter(vec![
@@ -134,7 +134,6 @@ fn provider_request(provider_type: db::ModelProvider, base_url: String) -> RigCh
         api_key: Some("test-key".to_string()),
         completion: CompletionRequest {
             model: None,
-            preamble: None,
             chat_history: vec![Message::user("Say hi")],
             documents: vec![],
             tools: vec![ToolDefinition {
@@ -345,11 +344,15 @@ async fn rig_stream_preserves_malformed_tool_calls_for_recovery() {
     assert_eq!(tool_calls.len(), 1);
     assert_eq!(tool_calls[0].id.to_string(), "call-malformed");
     assert_eq!(tool_calls[0].function.arguments, json!({}));
-    assert!(tool_calls[0]
+    let params = tool_calls[0]
         .additional_params
         .as_ref()
-        .and_then(|params| params.get("bionic_malformed_tool_call"))
-        .is_some());
+        .expect("malformed call diagnostics should be retained");
+    assert!(params.get("bionic_malformed_tool_call").is_some());
+    assert!(params
+        .get("bionic_malformed_tool_call_raw")
+        .and_then(serde_json::Value::as_str)
+        .is_some_and(|raw| raw.contains("bad\\q")));
 }
 
 #[tokio::test]

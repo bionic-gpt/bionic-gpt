@@ -7,8 +7,6 @@ use crate::chunks::ChunkText;
 use crate::config::ChunkingEngine;
 use db::queries;
 use object_storage::StorageConfig;
-use rig::client::EmbeddingsClient;
-use rig::embeddings::EmbeddingModel;
 use rig::providers::{ollama, openai};
 
 #[tokio::main]
@@ -228,24 +226,26 @@ async fn get_embeddings_via_rig(
         .unwrap_or_else(|| api_end_point.trim_end_matches('/').to_string());
 
     let embedding = if let Some(key) = api_key.filter(|k| !k.trim().is_empty()) {
-        let client = openai::Client::builder()
-            .api_key(key)
-            .base_url(&normalized_base_url)
-            .build()?;
-        client
-            .embedding_model(model)
-            .embed_text(&trimmed_text)
+        openai::OpenAIConfig::with_key(&openai::wire::OPENAI, key)
+            .with_base_url(&normalized_base_url)
+            .client()
+            .embedding(model, None)
+            .call(vec![trimmed_text.clone()])
             .await?
     } else {
-        let client = ollama::Client::builder()
-            .api_key("")
-            .base_url(&normalized_base_url)
-            .build()?;
-        client
-            .embedding_model(model)
-            .embed_text(&trimmed_text)
+        ollama::OllamaConfig::new()
+            .with_api_key("")
+            .with_base_url(&normalized_base_url)
+            .client()
+            .embedding(model, None)
+            .call(vec![trimmed_text])
             .await?
     };
 
-    Ok(embedding.vec.into_iter().map(|v| v as f32).collect())
+    let vector = embedding
+        .embeddings
+        .into_iter()
+        .next()
+        .ok_or("embedding response contained no vector")?;
+    Ok(vector.vec.into_iter().map(|v| v as f32).collect())
 }

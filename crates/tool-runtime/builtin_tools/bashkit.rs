@@ -6,8 +6,6 @@ use bashkit::{Bash, ExecutionLimits, FileSystem, FileType, InMemoryFs};
 use bashkit::{PythonLimits, SqliteLimits};
 use db::{queries, Pool, Transaction};
 use object_storage::StorageConfig;
-use rig::client::EmbeddingsClient;
-use rig::embeddings::EmbeddingModel;
 use rig::providers::{ollama, openai};
 use rig::wasm_compat::WasmBoxedFuture;
 use sandbox::Sandbox;
@@ -1401,30 +1399,30 @@ async fn get_embeddings_via_rig(
         .unwrap_or_else(|| api_end_point.trim_end_matches('/').to_string());
 
     let embedding = if let Some(key) = api_key.filter(|k| !k.trim().is_empty()) {
-        let client = openai::Client::builder()
-            .api_key(key)
-            .base_url(&normalized_base_url)
-            .build()
-            .map_err(|e| e.to_string())?;
-        client
-            .embedding_model(model)
-            .embed_text(&trimmed_text)
+        openai::OpenAIConfig::with_key(&openai::wire::OPENAI, key)
+            .with_base_url(&normalized_base_url)
+            .client()
+            .embedding(model, None)
+            .call(vec![trimmed_text.clone()])
             .await
             .map_err(|e| e.to_string())?
     } else {
-        let client = ollama::Client::builder()
-            .api_key("")
-            .base_url(&normalized_base_url)
-            .build()
-            .map_err(|e| e.to_string())?;
-        client
-            .embedding_model(model)
-            .embed_text(&trimmed_text)
+        ollama::OllamaConfig::new()
+            .with_api_key("")
+            .with_base_url(&normalized_base_url)
+            .client()
+            .embedding(model, None)
+            .call(vec![trimmed_text])
             .await
             .map_err(|e| e.to_string())?
     };
 
-    Ok(embedding.vec.into_iter().map(|v| v as f32).collect())
+    let vector = embedding
+        .embeddings
+        .into_iter()
+        .next()
+        .ok_or_else(|| "embedding response contained no vector".to_string())?;
+    Ok(vector.vec.into_iter().map(|v| v as f32).collect())
 }
 
 #[cfg(test)]

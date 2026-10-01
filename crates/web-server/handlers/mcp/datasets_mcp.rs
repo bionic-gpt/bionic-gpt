@@ -14,8 +14,6 @@ use axum_extra::routing::{RouterExt, TypedPath};
 use chrono::{DateTime, FixedOffset, SecondsFormat};
 use db::Pool;
 use pgvector::Vector;
-use rig::client::EmbeddingsClient;
-use rig::embeddings::EmbeddingModel;
 use rig::providers::{ollama, openai};
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -884,30 +882,28 @@ async fn get_embeddings_via_rig(
         .unwrap_or_else(|| api_end_point.trim_end_matches('/').to_string());
 
     let embedding = if let Some(key) = api_key.filter(|k| !k.trim().is_empty()) {
-        let client = openai::Client::builder()
-            .api_key(key)
-            .base_url(&normalized_base_url)
-            .build()
-            .map_err(|err| DatasetToolError::Internal(err.to_string()))?;
-        client
-            .embedding_model(model)
-            .embed_text(&trimmed_text)
+        openai::OpenAIConfig::with_key(&openai::wire::OPENAI, key)
+            .with_base_url(&normalized_base_url)
+            .client()
+            .embedding(model, None)
+            .call(vec![trimmed_text.clone()])
             .await
             .map_err(|err| DatasetToolError::Internal(err.to_string()))?
     } else {
-        let client = ollama::Client::builder()
-            .api_key("")
-            .base_url(&normalized_base_url)
-            .build()
-            .map_err(|err| DatasetToolError::Internal(err.to_string()))?;
-        client
-            .embedding_model(model)
-            .embed_text(&trimmed_text)
+        ollama::OllamaConfig::new()
+            .with_api_key("")
+            .with_base_url(&normalized_base_url)
+            .client()
+            .embedding(model, None)
+            .call(vec![trimmed_text])
             .await
             .map_err(|err| DatasetToolError::Internal(err.to_string()))?
     };
 
-    Ok(embedding.vec.into_iter().map(|v| v as f32).collect())
+    let vector = embedding.embeddings.into_iter().next().ok_or_else(|| {
+        DatasetToolError::Internal("embedding response contained no vector".into())
+    })?;
+    Ok(vector.vec.into_iter().map(|v| v as f32).collect())
 }
 
 async fn apply_customer_key(transaction: &db::Transaction<'_>) -> Result<(), DatasetToolError> {

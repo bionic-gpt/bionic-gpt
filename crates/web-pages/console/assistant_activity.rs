@@ -242,7 +242,7 @@ mod tests {
             tool_call_id: Some("call-1".to_string()),
             tool_call: Some(ToolCall::from_wire(
                 "call-1",
-                ToolCallFunction::new(name.to_string(), arguments),
+                ToolCallFunction::new(tool_runtime::ToolName::new(name).unwrap(), arguments),
             )),
             response: None,
         }

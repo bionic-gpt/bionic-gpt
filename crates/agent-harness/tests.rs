@@ -158,7 +158,7 @@ fn assistant_tool_calls(msg: &Message) -> Vec<(String, String, serde_json::Value
             .filter_map(|c| match c {
                 AssistantContent::ToolCall(tc) => Some((
                     tc.id.to_string(),
-                    tc.function.name.clone(),
+                    tc.function.name.as_str().to_owned(),
                     tc.function.arguments.clone(),
                 )),
                 _ => None,
@@ -168,10 +168,10 @@ fn assistant_tool_calls(msg: &Message) -> Vec<(String, String, serde_json::Value
     }
 }
 
-fn tool_result_call_id(msg: &Message) -> Option<&str> {
+fn tool_result_call_id(msg: &Message) -> Option<String> {
     match msg {
         Message::User { content } => content.iter().find_map(|c| match c {
-            UserContent::ToolResult(res) => Some(res.call.as_str()),
+            UserContent::ToolResult(res) => Some(res.call.to_string()),
             _ => None,
         }),
         _ => None,
@@ -220,7 +220,10 @@ async fn test_complete_time_conversation_flow() {
     assert_eq!(messages.len(), 5);
     assert!(is_user(&messages[0]));
     assert!(is_assistant(&messages[1]));
-    assert_eq!(tool_result_call_id(&messages[2]), Some("call_a96p"));
+    assert_eq!(
+        tool_result_call_id(&messages[2]).as_deref(),
+        Some("call_a96p")
+    );
     assert!(is_assistant(&messages[3]));
 }
 
@@ -259,7 +262,10 @@ async fn test_second_time_conversation_flow() {
     assert_eq!(messages.len(), 4);
     assert!(is_user(&messages[0]));
     assert!(is_assistant(&messages[1]));
-    assert_eq!(tool_result_call_id(&messages[2]), Some("call_yc5v"));
+    assert_eq!(
+        tool_result_call_id(&messages[2]).as_deref(),
+        Some("call_yc5v")
+    );
     assert!(is_assistant(&messages[3]));
 }
 
@@ -311,7 +317,10 @@ async fn test_tool_call_id_linking() {
     let messages = convert_chat_to_messages(conversation);
     assert_eq!(messages.len(), 2);
     assert_eq!(assistant_tool_calls(&messages[0])[0].0, "call_link_test");
-    assert_eq!(tool_result_call_id(&messages[1]), Some("call_link_test"));
+    assert_eq!(
+        tool_result_call_id(&messages[1]).as_deref(),
+        Some("call_link_test")
+    );
 }
 
 #[tokio::test]
@@ -389,11 +398,18 @@ fn test_strip_tool_data_removes_tool_messages() {
         Message::Assistant {
             id: None,
             content: vec![AssistantContent::ToolCall(rig::message::ToolCall::new(
-                rig::message::ToolCallId::new_or_mint("call1"),
-                rig::message::ToolFunction::new("do_it".to_string(), serde_json::json!({})),
+                rig::message::CallId::from_wire("call1"),
+                rig::message::ToolFunction::new(
+                    rig::message::ToolName::new("do_it").unwrap(),
+                    serde_json::json!({}),
+                ),
             ))],
         },
-        Message::tool_result("call1", "do_it", "{}"),
+        Message::tool_result(
+            rig::message::CallId::from_wire("call1"),
+            rig::message::ToolName::new("do_it").unwrap(),
+            "{}",
+        ),
     ];
 
     let sanitized = strip_tool_data(&messages);

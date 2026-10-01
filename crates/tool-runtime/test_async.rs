@@ -36,9 +36,9 @@ async fn test_execute_tool_call_with_tools() {
 
     // Create a tool call
     let tool_call = ToolCall::new(
-        rig::message::ToolCallId::new_or_mint("call_123"),
+        rig::message::CallId::from_wire("call_123"),
         ToolCallFunction::new(
-            "get_current_time_and_date".to_string(),
+            rig::message::ToolName::new("get_current_time_and_date").unwrap(),
             json!({"timezone": "utc"}),
         ),
     );

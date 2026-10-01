@@ -41,6 +41,6 @@ pub use tool_contract::{ToolDyn, ToolError};
 pub use tool_dispatcher::{execute_tool_call_with_tools, execute_tool_calls};
 pub use types::{
     parse_reasoning, parse_tool_calls, serialize_assistant_tool_state, Reasoning,
-    StoredAssistantToolState, ToolCall, ToolCallFunction, ToolDefinition, ToolResult,
+    StoredAssistantToolState, ToolCall, ToolCallFunction, ToolDefinition, ToolName, ToolResult,
     ToolResultContent,
 };

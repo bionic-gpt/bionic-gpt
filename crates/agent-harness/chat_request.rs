@@ -177,7 +177,6 @@ pub(crate) async fn create_request(
 
     let completion = CompletionRequest {
         model: None,
-        preamble: None,
         chat_history: if messages.is_empty() {
             vec![RigMessage::user("")]
         } else {
