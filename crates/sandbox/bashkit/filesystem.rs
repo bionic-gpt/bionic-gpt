@@ -1,117 +1,137 @@
 use crate::{
-    error, OpenApiSpec, SandboxError, SandboxFile, SandboxToolError, ToolFiles, HOME_DIR,
-    OUTPUT_DIR, WORK_DIR,
+    DirectoryEntry, FileMetadata, FileType, FilesystemError, FilesystemErrorKind,
+    SandboxFilesystem, WriteMode,
 };
 use async_trait::async_trait;
-use bashkit::{FileSystem, FileType};
-use std::collections::BTreeMap;
-use std::path::{Component, Path};
+use bashkit::{FileSystem, FileSystemExt};
+use std::io::{Error as IoError, ErrorKind};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::time::SystemTime;
 
-pub(super) struct FsToolFiles(pub(super) Arc<dyn FileSystem>);
+pub(super) struct FilesystemAdapter(pub(super) Arc<dyn SandboxFilesystem>);
+
+impl FileSystemExt for FilesystemAdapter {}
 
 #[async_trait]
-impl ToolFiles for FsToolFiles {
-    async fn read(&self, path: &str) -> Result<Vec<u8>, SandboxToolError> {
-        checked_path(path).map_err(|err| SandboxToolError(err.to_string()))?;
+impl FileSystem for FilesystemAdapter {
+    async fn read_file(&self, path: &Path) -> bashkit::Result<Vec<u8>> {
+        self.0.read(path).await.map_err(to_bashkit_error)
+    }
+
+    async fn write_file(&self, path: &Path, content: &[u8]) -> bashkit::Result<()> {
         self.0
-            .read_file(Path::new(path))
+            .write(path, content, WriteMode::Truncate)
             .await
-            .map_err(|err| SandboxToolError(err.to_string()))
+            .map_err(to_bashkit_error)
     }
 
-    async fn write(&self, path: &str, contents: &[u8]) -> Result<(), SandboxToolError> {
-        write_checked(self.0.as_ref(), path, contents)
+    async fn append_file(&self, path: &Path, content: &[u8]) -> bashkit::Result<()> {
+        self.0
+            .write(path, content, WriteMode::Append)
             .await
-            .map_err(|err| SandboxToolError(err.to_string()))
+            .map_err(to_bashkit_error)
+    }
+
+    async fn mkdir(&self, path: &Path, recursive: bool) -> bashkit::Result<()> {
+        self.0
+            .create_dir(path, recursive)
+            .await
+            .map_err(to_bashkit_error)
+    }
+
+    async fn remove(&self, path: &Path, recursive: bool) -> bashkit::Result<()> {
+        self.0
+            .remove(path, recursive)
+            .await
+            .map_err(to_bashkit_error)
+    }
+
+    async fn stat(&self, path: &Path) -> bashkit::Result<bashkit::Metadata> {
+        self.0
+            .stat(path)
+            .await
+            .map(to_metadata)
+            .map_err(to_bashkit_error)
+    }
+
+    async fn read_dir(&self, path: &Path) -> bashkit::Result<Vec<bashkit::DirEntry>> {
+        self.0
+            .read_dir(path)
+            .await
+            .map(|entries| entries.into_iter().map(to_entry).collect())
+            .map_err(to_bashkit_error)
+    }
+
+    async fn exists(&self, path: &Path) -> bashkit::Result<bool> {
+        self.0.exists(path).await.map_err(to_bashkit_error)
+    }
+
+    async fn rename(&self, from: &Path, to: &Path) -> bashkit::Result<()> {
+        self.0.rename(from, to).await.map_err(to_bashkit_error)
+    }
+
+    async fn copy(&self, from: &Path, to: &Path) -> bashkit::Result<()> {
+        self.0.copy(from, to).await.map_err(to_bashkit_error)
+    }
+
+    async fn symlink(&self, target: &Path, link: &Path) -> bashkit::Result<()> {
+        self.0.symlink(target, link).await.map_err(to_bashkit_error)
+    }
+
+    async fn read_link(&self, path: &Path) -> bashkit::Result<PathBuf> {
+        self.0.read_link(path).await.map_err(to_bashkit_error)
+    }
+
+    async fn chmod(&self, path: &Path, mode: u32) -> bashkit::Result<()> {
+        self.0
+            .set_permissions(path, mode)
+            .await
+            .map_err(to_bashkit_error)
+    }
+
+    async fn set_modified_time(&self, path: &Path, time: SystemTime) -> bashkit::Result<()> {
+        self.0
+            .set_modified(path, time)
+            .await
+            .map_err(to_bashkit_error)
     }
 }
 
-pub(super) async fn seed_files<'a>(
-    fs: &dyn FileSystem,
-    files: impl Iterator<Item = &'a SandboxFile>,
-) -> Result<(), SandboxError> {
-    for file in files {
-        write_checked(fs, &file.path, &file.contents).await?;
+fn to_entry(entry: DirectoryEntry) -> bashkit::DirEntry {
+    bashkit::DirEntry {
+        name: entry.name,
+        metadata: to_metadata(entry.metadata),
     }
-    for dir in [WORK_DIR, OUTPUT_DIR] {
-        fs.mkdir(Path::new(dir), true).await.map_err(error)?;
-    }
-    Ok(())
 }
 
-pub(super) async fn seed_openapi_specs(
-    fs: &dyn FileSystem,
-    specs: &[OpenApiSpec],
-) -> Result<(), SandboxError> {
-    for spec in specs {
-        let name = spec
-            .name
-            .chars()
-            .map(|character| {
-                if character.is_ascii_alphanumeric() || matches!(character, '-' | '_') {
-                    character
-                } else {
-                    '-'
-                }
-            })
-            .collect::<String>();
-        let contents = serde_json::to_vec_pretty(&spec.document).map_err(error)?;
-        write_checked(
-            fs,
-            &format!("{HOME_DIR}/functions/{name}.openapi.json"),
-            &contents,
-        )
-        .await?;
+fn to_metadata(metadata: FileMetadata) -> bashkit::Metadata {
+    bashkit::Metadata {
+        file_type: match metadata.file_type {
+            FileType::File => bashkit::FileType::File,
+            FileType::Directory => bashkit::FileType::Directory,
+            FileType::Symlink => bashkit::FileType::Symlink,
+            FileType::Fifo => bashkit::FileType::Fifo,
+        },
+        size: metadata.size,
+        mode: metadata.mode,
+        modified: metadata.modified,
+        created: metadata.created,
     }
-    Ok(())
 }
 
-pub(super) async fn write_checked(
-    fs: &dyn FileSystem,
-    path: &str,
-    contents: &[u8],
-) -> Result<(), SandboxError> {
-    let path = checked_path(path)?;
-    if let Some(parent) = path.parent() {
-        fs.mkdir(parent, true).await.map_err(error)?;
-    }
-    fs.write_file(path, contents).await.map_err(error)
-}
-
-pub(super) fn checked_path(path: &str) -> Result<&Path, SandboxError> {
-    let path = Path::new(path);
-    if !path.is_absolute() || !path.starts_with(HOME_DIR) {
-        return Err(SandboxError("path must be inside /home/user".to_string()));
-    }
-    if path
-        .components()
-        .any(|component| matches!(component, Component::ParentDir | Component::CurDir))
-    {
-        return Err(SandboxError("path must not contain . or ..".to_string()));
-    }
-    Ok(path)
-}
-
-pub(super) async fn collect_mutable_files(
-    fs: &dyn FileSystem,
-) -> Result<BTreeMap<String, SandboxFile>, SandboxError> {
-    let mut files = BTreeMap::new();
-    let mut pending = vec![
-        Path::new(WORK_DIR).to_path_buf(),
-        Path::new(OUTPUT_DIR).to_path_buf(),
-    ];
-    while let Some(dir) = pending.pop() {
-        for entry in fs.read_dir(&dir).await.map_err(error)? {
-            let path = dir.join(entry.name);
-            if entry.metadata.file_type == FileType::Directory {
-                pending.push(path);
-            } else if entry.metadata.file_type == FileType::File {
-                let path = path.to_string_lossy().to_string();
-                let contents = fs.read_file(Path::new(&path)).await.map_err(error)?;
-                files.insert(path.clone(), SandboxFile { path, contents });
-            }
-        }
-    }
-    Ok(files)
+fn to_bashkit_error(error: FilesystemError) -> bashkit::Error {
+    let kind = match error.kind {
+        FilesystemErrorKind::NotFound => ErrorKind::NotFound,
+        FilesystemErrorKind::AlreadyExists => ErrorKind::AlreadyExists,
+        FilesystemErrorKind::PermissionDenied => ErrorKind::PermissionDenied,
+        FilesystemErrorKind::InvalidInput => ErrorKind::InvalidInput,
+        FilesystemErrorKind::Unsupported => ErrorKind::Unsupported,
+        FilesystemErrorKind::ResourceExhausted => ErrorKind::OutOfMemory,
+        FilesystemErrorKind::NotDirectory
+        | FilesystemErrorKind::IsDirectory
+        | FilesystemErrorKind::DirectoryNotEmpty
+        | FilesystemErrorKind::Other => ErrorKind::Other,
+    };
+    IoError::new(kind, error.message).into()
 }

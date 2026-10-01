@@ -692,6 +692,8 @@ dependencies = [
  "num-traits",
  "os_display",
  "regex",
+ "reqwest 0.13.1",
+ "rustls 0.23.36",
  "serde",
  "serde_json",
  "sha1 0.11.0",
@@ -5894,8 +5896,6 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "bashkit",
- "serde",
- "serde_json",
  "tokio",
 ]
 

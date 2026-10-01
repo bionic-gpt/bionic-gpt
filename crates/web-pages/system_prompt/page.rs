@@ -245,7 +245,7 @@ fn BuiltInTools(content: Option<String>, token_estimate: i32) -> Element {
             }
             CardBody {
                 class: "text-sm text-base-content/80",
-                p { "These tools are shipped with Bionic and available system-wide. They are immutable here; use the catalogue files in /home/user/functions to discover their callable operations." }
+                p { "These capabilities are shipped with Bionic and available system-wide. Their runtime instructions are exposed as immutable skills under /home/user/skills." }
                 if let Some(content) = content.as_ref() {
                     pre {
                         class: "mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded border border-base-300 bg-base-100 p-4 font-mono text-xs text-base-content",
@@ -264,19 +264,19 @@ fn DiscoverableFunctions(integration_context: Option<String>, token_estimate: i3
     rsx!(
         Card {
             CardHeaderWithEstimate {
-                title: "Discoverable functions".to_string(),
+                title: "Connector skills".to_string(),
                 token_estimate
             }
             CardBody {
                 class: "text-sm text-base-content/80",
-                p { "Connected integrations and built-in web functions are exposed through catalogue files in /home/user/functions. Use read_file or run_bash to inspect the directory, then read the relevant .md file before calling an integration with run_python; it contains the exact function names, parameters, and usage examples." }
+                p { "Connected integrations are exposed as skills under /home/user/skills. Read the relevant SKILL.md and inspect its OpenAPI document on demand, then call the documented virtual origin with curl; authentication is supplied outside the sandbox." }
                 if let Some(integration_context) = integration_context.as_ref() {
                     pre {
                         class: "mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded border border-base-300 bg-base-100 p-4 font-mono text-xs text-base-content",
                         "{integration_context}"
                     }
                 } else {
-                    EmptyPreview { message: "No discoverable functions are currently connected.".to_string() }
+                    EmptyPreview { message: "No connector skills are currently connected.".to_string() }
                 }
             }
         }

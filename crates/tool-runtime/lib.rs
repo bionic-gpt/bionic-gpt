@@ -4,8 +4,10 @@
 //! and OpenAPI-backed tool adapters used by the agent runtime.
 
 pub mod builtin_tools;
+mod connector_network;
+mod lazy_fs;
 pub mod openapi_tool_factory;
-pub mod sandbox_dispatcher;
+mod sandbox_io;
 pub mod scheduled_tasks;
 pub mod skills;
 pub mod system_tool_sources;
@@ -29,8 +31,10 @@ pub fn json_error(kind: &str, err: impl ToString) -> serde_json::Value {
 
 // Re-export key types for convenience
 pub use builtin_tools::openapi_tool_adapter::OpenApiTool;
+pub use connector_network::{
+    connector_prompt_for_conversation, connector_skill_catalogue_for_team, ConnectorSkillCatalogue,
+};
 pub use openapi_tool_factory::{BionicOpenAPI, IntegrationTools, OAuth2Config};
-pub use sandbox_dispatcher::{dispatch_to_sandbox, SandboxInputs};
 pub use tool_auth::{OAuth2TokenProvider, StaticTokenProvider, TokenProvider};
 pub use tool_catalog::get_chat_tool_definitions;
 pub use tool_contract::{ToolDyn, ToolError};

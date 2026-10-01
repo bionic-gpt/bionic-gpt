@@ -16,7 +16,7 @@ Use this skill when the user asks for a printable document or PDF artifact.
 2. Choose a layout based on how the document will actually be used.
 3. Start from the closest known-good reference in `references/` rather than inventing Typst structure from scratch.
 4. Write the Typst source to `/home/user/output/<document-name>/main.typ`.
-5. Compile using the function documented in `/home/user/functions/typst.md`.
+5. Compile using the connector documented in `/home/user/skills/typst/SKILL.md`.
 6. If compilation fails, fix the Typst error and recompile until successful.
 7. Return the PDF only after successful compilation.
 
@@ -72,17 +72,14 @@ Avoid unsupported or untested Typst constructs. Prefer primitives already demons
 
 ## Compilation
 
-Read `/home/user/functions/typst.md` for the current compilation API.
+Read `/home/user/skills/typst/SKILL.md` and its `openapi.json` for the current compilation API.
 
-Call the provided function directly with `run_python`; do not import it as a Python module.
+Call the documented virtual URL with `curl`; authentication is supplied by the runtime.
 
-Example:
-
-```python
-print(typst_compiledocument(**{
-    'file_paths': ['/home/user/output/<document-name>/main.typ']
-}))
-```
+Use the operation and multipart field names from `openapi.json`. Pass
+`/home/user/output/<document-name>/main.typ` to `curl` with `-F`; Bashkit reads
+the file from the VFS and the mediated request sends it without placing its
+contents in model context.
 
 ## Repair Loop
 

@@ -34,12 +34,12 @@ suitable for review by engineering leadership.
 
 1. The model discovers `document-coauthoring` under
    `/home/user/skills` and reads its instructions.
-2. It lists `/home/user/functions` and reads the document-generation function
-   catalogue before attempting compilation.
+2. It reads `/home/user/skills/typst/SKILL.md` and inspects its OpenAPI document
+   before attempting compilation.
 3. It asks focused questions before committing to a detailed structure.
 4. It writes the draft to a path such as:
    `/home/user/output/document-processing-decision/`.
-5. It calls the document-generation function with that VFS path.
+5. It calls the documented virtual connector URL with `curl` and that VFS path.
 6. The compiled PDF appears in the same output directory and is shown as a
    generated artifact in the conversation.
 

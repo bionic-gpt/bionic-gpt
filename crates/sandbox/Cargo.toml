@@ -8,8 +8,5 @@ path = "lib.rs"
 
 [dependencies]
 async-trait.workspace = true
-bashkit = { version = "0.14.5", features = ["python", "sqlite"] }
-serde = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
+bashkit = { version = "0.14.5", features = ["python", "sqlite", "http_client"] }
 tokio = { workspace = true, features = ["time"] }
-

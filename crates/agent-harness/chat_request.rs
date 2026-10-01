@@ -72,7 +72,7 @@ pub(crate) async fn create_request(
         .any(|c| c.capability == db::ModelCapability::tool_use);
 
     let integration_context = if supports_tool_use {
-        match tool_runtime::builtin_tools::monty::available_function_catalogue_prompt_section_for_conversation(
+        match tool_runtime::connector_prompt_for_conversation(
             pool,
             &current_user.sub,
             conversation.id,

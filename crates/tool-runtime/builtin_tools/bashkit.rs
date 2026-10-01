@@ -14,7 +14,7 @@ use sandbox::Sandbox;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::time::{Duration, Instant};
 
 const DEFAULT_TIMEOUT_MS: u64 = 5_000;
@@ -22,7 +22,6 @@ const MAX_TIMEOUT_MS: u64 = 30_000;
 const CHUNKS_PER_DOCUMENT_LIMIT: i64 = 1_000;
 const HOME_DIR: &str = "/home/user";
 const SKILLS_DIR: &str = "/home/user/skills";
-const FUNCTIONS_DIR: &str = "/home/user/functions";
 const DATASETS_DIR: &str = "/home/user/datasets";
 const ATTACHMENTS_DIR: &str = "/home/user/attachments";
 const OUTPUT_DIR: &str = "/home/user/output";
@@ -164,7 +163,7 @@ impl ToolDyn for BashkitTool {
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_bash".to_string(),
-        description: "Run short shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use read_file, write_file, and edit_file for file contents. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read skill instructions, and /home/user/datasets to inspect connected datasets. To use an integration, list /home/user/functions, then cat the relevant .md file; it contains the exact function names, parameters, and usage examples. Use run_python for Python calculations and integration calls. Use /home/user/work for persistent intermediate files that should not appear in chat, and /home/user/output for generated files that should persist and appear in chat. Use rag-search 'query' and rag-read for indexed dataset content. Bash has no network or host filesystem access.".to_string(),
+        description: "Run short shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem and mediated HTTP. Use read_file, write_file, and edit_file for file contents. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read skill and connector instructions, and /home/user/datasets to inspect connected datasets. Connector skills document safe curl requests; authentication is supplied outside the sandbox. Use run_python for dependency-free calculations and filesystem work. Use /home/user/work for persistent intermediate files that should not appear in chat, and /home/user/output for generated files that should persist and appear in chat. There is no host filesystem access.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -187,7 +186,7 @@ pub fn get_tool_definition() -> ToolDefinition {
 pub fn preview_vfs_tree(
     skill_summaries: &[db::queries::skills::SkillSummary],
     skill_files: &[db::queries::skills::SkillFile],
-    function_files: &[crate::builtin_tools::monty::RuntimeFunctionFile],
+    connector_files: &[String],
 ) -> String {
     let mut skill_dirs = builtin_skills::all()
         .iter()
@@ -198,7 +197,6 @@ pub fn preview_vfs_tree(
             .trim_start_matches("/home/user/skills/")
             .to_string()
     }));
-    let skill_dirs = skill_dirs.into_iter().collect::<Vec<_>>();
     let mut skill_file_trees: BTreeMap<String, PreviewTreeNode> = BTreeMap::new();
     for file in skills::runtime_skill_files_with_builtins(skill_files.to_vec()) {
         let Some(relative_path) = file.path.strip_prefix("/home/user/skills/") else {
@@ -213,16 +211,21 @@ pub fn preview_vfs_tree(
             .or_default()
             .insert(components);
     }
-    let function_files = function_files
-        .iter()
-        .map(|file| {
-            file.path
-                .trim_start_matches("/home/user/functions/")
-                .to_string()
-        })
-        .collect::<BTreeSet<_>>()
-        .into_iter()
-        .collect::<Vec<_>>();
+    for path in connector_files {
+        let Some(relative_path) = path.strip_prefix("/home/user/skills/") else {
+            continue;
+        };
+        let mut components = relative_path.split('/');
+        let Some(skill_dir) = components.next() else {
+            continue;
+        };
+        skill_dirs.insert(skill_dir.to_string());
+        skill_file_trees
+            .entry(skill_dir.to_string())
+            .or_default()
+            .insert(components);
+    }
+    let skill_dirs = skill_dirs.into_iter().collect::<Vec<_>>();
 
     let mut tree = String::from(
         "/home/user\n\
@@ -242,23 +245,8 @@ pub fn preview_vfs_tree(
 |   `-- <generated_file_or_directory>\n\
 |-- work                        # persistent intermediate files\n\
 |   `-- <working_file_or_directory>\n\
-|-- functions                   # callable function catalogues\n",
+`-- skills                      # current visible skills and connectors\n",
     );
-
-    if function_files.is_empty() {
-        tree.push_str("|   `-- <no callable functions>\n");
-    } else {
-        for (index, file) in function_files.iter().enumerate() {
-            let branch = if index + 1 == function_files.len() {
-                "`--"
-            } else {
-                "|--"
-            };
-            tree.push_str(&format!("|   {branch} {file}\n"));
-        }
-    }
-
-    tree.push_str("`-- skills                      # current visible skills\n");
 
     if skill_dirs.is_empty() {
         tree.push_str("    `-- <no visible skills>\n");
@@ -322,45 +310,20 @@ async fn execute_run_bash(
         .unwrap_or(DEFAULT_TIMEOUT_MS)
         .clamp(100, MAX_TIMEOUT_MS);
 
-    let fs = seeded_filesystem(&tool.pool, &tool.sub, tool.conversation_id, tool.model_id).await?;
-    let function_registry = std::sync::Arc::new(
-        crate::builtin_tools::monty::RuntimeFunctionRegistry::load_for_conversation(
-            &tool.pool,
-            &tool.sub,
-            tool.conversation_id,
-        )
-        .await
-        .map_err(|e| json!({"error": "Failed to get function registry", "details": e}))?,
-    );
+    let (fs, network) =
+        seeded_runtime(&tool.pool, &tool.sub, tool.conversation_id, tool.model_id).await?;
     let started = Instant::now();
-    let mut tools = function_registry.sandbox_tools();
-    tools.push(std::sync::Arc::new(RagSearchSandboxTool {
-        pool: tool.pool.clone(),
-        sub: tool.sub.clone(),
-        conversation_id: tool.conversation_id,
-        model_id: tool.model_id,
-    }));
-    tools.push(std::sync::Arc::new(RagReadSandboxTool));
     let result = sandbox::BashkitSandbox
         .run(sandbox::RunRequest {
             command: sandbox::Command::Shell {
                 script: arguments.commands,
                 timeout: Duration::from_millis(timeout),
             },
-            skills: Vec::new(),
-            openapi_specs: Vec::new(),
-            credentials: sandbox::CredentialSet::default(),
-            workspace: sandbox::WorkspaceSnapshot {
-                key: tool.conversation_id.to_string(),
-                revision: String::new(),
-                files: snapshot_files(fs.as_ref(), Path::new(HOME_DIR)).await?,
-            },
-            tools,
+            filesystem: std::sync::Arc::new(crate::sandbox_io::RuntimeFilesystem::new(fs.clone())),
+            network,
         })
         .await
         .map_err(|err| json!({"error": "bash execution failed", "details": err.to_string()}))?;
-    apply_workspace_delta(fs.as_ref(), &result.workspace_changes).await?;
-
     let output_sync_result =
         persist_outputs(&tool.pool, &tool.sub, tool.conversation_id, fs.as_ref()).await;
 
@@ -381,13 +344,21 @@ async fn execute_run_bash(
     Ok(response)
 }
 
-pub(crate) async fn seeded_filesystem(
+pub(crate) async fn seeded_runtime(
     pool: &Pool,
     sub: &str,
     conversation_id: i64,
     model_id: i32,
-) -> Result<std::sync::Arc<dyn FileSystem>, serde_json::Value> {
-    let fs: std::sync::Arc<dyn FileSystem> = std::sync::Arc::new(InMemoryFs::new());
+) -> Result<
+    (
+        std::sync::Arc<crate::lazy_fs::LazyFilesystem>,
+        std::sync::Arc<crate::connector_network::RuntimeNetwork>,
+    ),
+    serde_json::Value,
+> {
+    let base: std::sync::Arc<dyn FileSystem> = std::sync::Arc::new(InMemoryFs::new());
+    let lazy = std::sync::Arc::new(crate::lazy_fs::LazyFilesystem::new(base));
+    let fs: std::sync::Arc<dyn FileSystem> = lazy.clone();
     let bash = Bash::builder()
         .fs(fs.clone())
         .username("user")
@@ -397,23 +368,27 @@ pub(crate) async fn seeded_filesystem(
         .build();
 
     seed_custom_skills(pool, sub, &bash).await?;
-    let registry = std::sync::Arc::new(
-        crate::builtin_tools::monty::RuntimeFunctionRegistry::load_for_conversation(
-            pool,
-            sub,
-            conversation_id,
-        )
+    seed_datasets(pool, sub, model_id, conversation_id, &bash, &lazy).await?;
+    seed_attachments(pool, sub, conversation_id, &bash, &lazy).await?;
+    seed_persistent_files(pool, sub, conversation_id, &bash, &lazy).await?;
+    let network =
+        crate::connector_network::RuntimeNetwork::load_for_conversation(pool, sub, conversation_id)
+            .await
+            .map_err(
+                |error| json!({"error": "Failed to load connector skills", "details": error}),
+            )?;
+    network
+        .seed_skills(fs.as_ref())
         .await
-        .map_err(
-            |e| json!({"error": "Failed to get function registry", "details": e.to_string()}),
-        )?,
-    );
-    seed_function_catalogue(&bash, registry.function_catalogue()).await?;
-    seed_datasets(pool, sub, model_id, conversation_id, &bash).await?;
-    seed_attachments(pool, sub, conversation_id, &bash).await?;
-    seed_persistent_files(pool, sub, conversation_id, &bash).await?;
+        .map_err(|error| json!({"error": "Failed to seed connector skills", "details": error}))?;
+    lazy.protect([
+        Path::new(ATTACHMENTS_DIR).to_path_buf(),
+        Path::new(DATASETS_DIR).to_path_buf(),
+        Path::new(SKILLS_DIR).to_path_buf(),
+    ])
+    .await;
 
-    Ok(fs)
+    Ok((lazy, network))
 }
 
 async fn seed_custom_skills(pool: &Pool, sub: &str, bash: &Bash) -> Result<(), serde_json::Value> {
@@ -461,28 +436,13 @@ async fn seed_custom_skills(pool: &Pool, sub: &str, bash: &Bash) -> Result<(), s
     Ok(())
 }
 
-async fn seed_function_catalogue(
-    bash: &Bash,
-    catalogue: crate::builtin_tools::monty::FunctionCatalogue,
-) -> Result<(), serde_json::Value> {
-    let fs = bash.fs();
-    fs.mkdir(Path::new(FUNCTIONS_DIR), true).await.map_err(
-        |e| json!({"error": "Failed to seed Bashkit functions directory", "details": e.to_string()}),
-    )?;
-
-    for file in catalogue.files {
-        write_vfs_file(fs.as_ref(), &file.path, &file.contents).await?;
-    }
-
-    Ok(())
-}
-
 async fn seed_datasets(
     pool: &Pool,
     sub: &str,
     _model_id: i32,
     _conversation_id: i64,
     bash: &Bash,
+    lazy: &std::sync::Arc<crate::lazy_fs::LazyFilesystem>,
 ) -> Result<(), serde_json::Value> {
     let mut client = pool
         .get()
@@ -566,11 +526,16 @@ async fn seed_datasets(
 
             for chunk in chunks {
                 let path = format!("{chunks_path}/{}.txt", chunk.id);
-                fs.write_file(Path::new(&path), chunk.text.as_bytes())
-                    .await
-                    .map_err(
-                        |e| json!({"error": "Failed to seed chunk file", "details": e.to_string()}),
-                    )?;
+                let loader_pool = pool.clone();
+                let loader_sub = sub.to_string();
+                let chunk_id = chunk.id;
+                lazy.register(Path::new(&path), chunk.size, move || {
+                    let pool = loader_pool.clone();
+                    let sub = loader_sub.clone();
+                    async move { load_dataset_chunk(&pool, &sub, chunk_id).await }
+                }).await.map_err(
+                    |e| json!({"error": "Failed to register lazy chunk file", "details": e.to_string()}),
+                )?;
             }
         }
 
@@ -618,6 +583,7 @@ async fn seed_attachments(
     sub: &str,
     conversation_id: i64,
     bash: &Bash,
+    lazy: &std::sync::Arc<crate::lazy_fs::LazyFilesystem>,
 ) -> Result<(), serde_json::Value> {
     let mut client = pool
         .get()
@@ -657,33 +623,38 @@ async fn seed_attachments(
                 json!({"error": "Failed to create attachment directory", "details": e.to_string()})
             })?;
         }
-        let data = queries::attachments::get_content()
-            .bind(&transaction, &attachment.id)
-            .one()
-            .await
-            .map_err(|e| {
-                json!({
-                    "error": "Failed to get attachment content",
-                    "details": e.to_string()
-                })
-            })?;
-
-        fs.write_file(Path::new(&path), &data.object_data)
-            .await
-            .map_err(
-                |e| json!({"error": "Failed to seed attachment file", "details": e.to_string()}),
-            )?;
+        let attachment_id = attachment.id;
+        let loader_pool = pool.clone();
+        let loader_sub = sub.to_string();
+        lazy.register(
+            Path::new(&path),
+            attachment.file_size.max(0) as u64,
+            move || {
+                let pool = loader_pool.clone();
+                let sub = loader_sub.clone();
+                async move { load_attachment_content(&pool, &sub, attachment_id).await }
+            },
+        )
+        .await
+        .map_err(
+            |e| json!({"error": "Failed to register attachment file", "details": e.to_string()}),
+        )?;
 
         if attachment.content_object_id > 0 {
             let content_object_id = attachment.content_object_id;
-            let content = queries::attachments::get_extracted_content()
-                .bind(&transaction, &content_object_id)
-                .one()
-                .await
-                .map_err(|e| json!({"error": "Failed to get extracted attachment content", "details": e.to_string()}))?;
-            fs.write_file(Path::new(&content_path), &content.object_data)
-                .await
-                .map_err(|e| json!({"error": "Failed to seed extracted attachment content", "details": e.to_string()}))?;
+            let size: i64 = transaction.query_one(
+                "SELECT octet_length(object_data)::bigint FROM storage.objects WHERE id = $1",
+                &[&content_object_id],
+            ).await.map_err(|e| json!({"error": "Failed to inspect extracted attachment content", "details": e.to_string()}))?.get(0);
+            let loader_pool = pool.clone();
+            let loader_sub = sub.to_string();
+            lazy.register(Path::new(&content_path), size.max(0) as u64, move || {
+                let pool = loader_pool.clone();
+                let sub = loader_sub.clone();
+                async move { load_extracted_attachment_content(&pool, &sub, content_object_id).await }
+            }).await.map_err(
+                |e| json!({"error": "Failed to register extracted attachment content", "details": e.to_string()}),
+            )?;
         }
 
         entries.push(AttachmentEntry {
@@ -716,6 +687,7 @@ async fn seed_persistent_files(
     sub: &str,
     conversation_id: i64,
     bash: &Bash,
+    lazy: &std::sync::Arc<crate::lazy_fs::LazyFilesystem>,
 ) -> Result<(), serde_json::Value> {
     let conversation_id = db_conversation_id(conversation_id)?;
     let mut client = pool
@@ -752,18 +724,22 @@ async fn seed_persistent_files(
             continue;
         }
 
-        let data = queries::generated_outputs::get_content()
-            .bind(&transaction, &output.id)
-            .one()
-            .await
-            .map_err(|e| {
-                json!({
-                    "error": "Failed to get generated output content",
-                    "details": e.to_string()
-                })
-            })?;
-
-        write_vfs_file(fs.as_ref(), &output.path, &data.object_data).await?;
+        let output_id = output.id;
+        let loader_pool = pool.clone();
+        let loader_sub = sub.to_string();
+        lazy.register(
+            Path::new(&output.path),
+            output.file_size.max(0) as u64,
+            move || {
+                let pool = loader_pool.clone();
+                let sub = loader_sub.clone();
+                async move { load_output_content(&pool, &sub, output_id).await }
+            },
+        )
+        .await
+        .map_err(
+            |e| json!({"error": "Failed to register persisted file", "details": e.to_string()}),
+        )?;
     }
 
     transaction
@@ -774,11 +750,82 @@ async fn seed_persistent_files(
     Ok(())
 }
 
+async fn load_attachment_content(
+    pool: &Pool,
+    sub: &str,
+    attachment_id: i32,
+) -> Result<Vec<u8>, String> {
+    let mut client = pool.get().await.map_err(|error| error.to_string())?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|error| error.to_string())?;
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+        .await
+        .map_err(|error| error.to_string())?;
+    let data = queries::attachments::get_content()
+        .bind(&transaction, &attachment_id)
+        .one()
+        .await
+        .map_err(|error| error.to_string())?;
+    transaction
+        .commit()
+        .await
+        .map_err(|error| error.to_string())?;
+    Ok(data.object_data)
+}
+
+async fn load_extracted_attachment_content(
+    pool: &Pool,
+    sub: &str,
+    content_object_id: i32,
+) -> Result<Vec<u8>, String> {
+    let mut client = pool.get().await.map_err(|error| error.to_string())?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|error| error.to_string())?;
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+        .await
+        .map_err(|error| error.to_string())?;
+    let content = queries::attachments::get_extracted_content()
+        .bind(&transaction, &content_object_id)
+        .one()
+        .await
+        .map_err(|error| error.to_string())?;
+    transaction
+        .commit()
+        .await
+        .map_err(|error| error.to_string())?;
+    Ok(content.object_data)
+}
+
+async fn load_output_content(pool: &Pool, sub: &str, output_id: i32) -> Result<Vec<u8>, String> {
+    let mut client = pool.get().await.map_err(|error| error.to_string())?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|error| error.to_string())?;
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+        .await
+        .map_err(|error| error.to_string())?;
+    let data = queries::generated_outputs::get_content()
+        .bind(&transaction, &output_id)
+        .one()
+        .await
+        .map_err(|error| error.to_string())?;
+    transaction
+        .commit()
+        .await
+        .map_err(|error| error.to_string())?;
+    Ok(data.object_data)
+}
+
 pub(crate) async fn persist_outputs(
     pool: &Pool,
     sub: &str,
     conversation_id: i64,
-    fs: &dyn FileSystem,
+    fs: &crate::lazy_fs::LazyFilesystem,
 ) -> Result<Vec<OutputEntry>, serde_json::Value> {
     let conversation_id_i32 = db_conversation_id(conversation_id)?;
     fs.mkdir(Path::new(OUTPUT_DIR), true).await.map_err(
@@ -788,9 +835,28 @@ pub(crate) async fn persist_outputs(
         |e| json!({"error": "Failed to inspect work directory", "details": e.to_string()}),
     )?;
 
-    let mut files = collect_persistent_files(fs, Path::new(OUTPUT_DIR)).await?;
-    files.extend(collect_persistent_files(fs, Path::new(WORK_DIR)).await?);
+    let mut files = Vec::new();
+    let mut deleted = Vec::new();
+    for path in fs.changed_files().await {
+        let path = path.to_string_lossy().to_string();
+        if !is_persistent_path(&path) {
+            continue;
+        }
+        if fs.exists(Path::new(&path)).await.map_err(|error| {
+            json!({"error": "Failed to inspect changed output", "path": path, "details": error.to_string()})
+        })? {
+            let metadata = fs.stat(Path::new(&path)).await.map_err(|error| {
+                json!({"error": "Failed to stat changed output", "path": path, "details": error.to_string()})
+            })?;
+            if metadata.file_type == FileType::File && metadata.size <= MAX_OUTPUT_FILE_BYTES {
+                files.push(path);
+            }
+        } else {
+            deleted.push(path);
+        }
+    }
     files.sort();
+    files.dedup();
     files.truncate(MAX_OUTPUT_FILES);
     let mut client = pool
         .get()
@@ -814,13 +880,14 @@ pub(crate) async fn persist_outputs(
     let storage_config = StorageConfig::database(pool.clone());
     let mut persisted = Vec::new();
 
+    for path in deleted {
+        delete_persisted_path(pool, sub, conversation_id_i32, &path).await?;
+    }
+
     for file in files {
         let bytes = fs.read_file(Path::new(&file)).await.map_err(
             |e| json!({"error": "Failed to read output file", "path": file, "details": e.to_string()}),
         )?;
-        if bytes.is_empty() {
-            continue;
-        }
         let hash = format!("{:x}", md5::compute(&bytes));
         let file_name = output_file_name(&file);
         let mime_type = output_mime_type(&file_name);
@@ -872,37 +939,28 @@ pub(crate) async fn persist_outputs(
     Ok(persisted)
 }
 
-async fn collect_persistent_files(
-    fs: &dyn FileSystem,
-    root: &Path,
-) -> Result<Vec<String>, serde_json::Value> {
-    let mut pending = vec![root.to_path_buf()];
-    let mut files = Vec::new();
-
-    while let Some(dir) = pending.pop() {
-        for entry in fs.read_dir(&dir).await.map_err(
-            |e| json!({"error": "Failed to read output directory", "path": dir.display().to_string(), "details": e.to_string()}),
-        )? {
-            let path = dir.join(&entry.name);
-            if entry.metadata.file_type == FileType::Directory {
-                pending.push(path);
-            } else if entry.metadata.file_type == FileType::File
-                && entry.metadata.size <= MAX_OUTPUT_FILE_BYTES
-            {
-                let path = path.to_string_lossy().to_string();
-                if is_persistent_path(&path) {
-                    files.push(path);
-                    if files.len() >= MAX_OUTPUT_FILES {
-                        files.sort();
-                        return Ok(files);
-                    }
-                }
-            }
-        }
-    }
-
-    files.sort();
-    Ok(files)
+async fn delete_persisted_path(
+    pool: &Pool,
+    sub: &str,
+    conversation_id: i32,
+    path: &str,
+) -> Result<(), serde_json::Value> {
+    let mut client = pool.get().await.map_err(
+        |error| json!({"error": "Failed to get DB client", "details": error.to_string()}),
+    )?;
+    let transaction = client.transaction().await.map_err(
+        |error| json!({"error": "Failed to start transaction", "details": error.to_string()}),
+    )?;
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+        .await
+        .map_err(|error| json!({"error": "Failed to set RLS", "details": error.to_string()}))?;
+    let prefix = format!("{}/%", path.trim_end_matches('/'));
+    transaction.execute(
+        "DELETE FROM llm.generated_outputs WHERE conversation_id = $1 AND (path = $2 OR path LIKE $3)",
+        &[&conversation_id, &path, &prefix],
+    ).await.map_err(|error| json!({"error": "Failed to delete persisted path", "details": error.to_string()}))?;
+    transaction.commit().await.map_err(|error| json!({"error": "Failed to commit persisted deletion", "details": error.to_string()}))?;
+    Ok(())
 }
 
 async fn existing_output(
@@ -1005,70 +1063,6 @@ async fn conversation_owner_and_team_id(
     Ok((row.get(0), row.get(1)))
 }
 
-async fn write_vfs_file(
-    fs: &dyn FileSystem,
-    path: &str,
-    contents: &[u8],
-) -> Result<(), serde_json::Value> {
-    let path = Path::new(path);
-    if let Some(parent) = path.parent() {
-        fs.mkdir(parent, true).await.map_err(
-            |e| json!({"error": "Failed to create VFS directory", "details": e.to_string()}),
-        )?;
-    }
-    fs.write_file(path, contents)
-        .await
-        .map_err(|e| json!({"error": "Failed to write VFS file", "details": e.to_string()}))
-}
-
-async fn snapshot_files(
-    fs: &dyn FileSystem,
-    root: &Path,
-) -> Result<Vec<sandbox::SandboxFile>, serde_json::Value> {
-    let mut pending = vec![root.to_path_buf()];
-    let mut files = Vec::new();
-    while let Some(directory) = pending.pop() {
-        for entry in fs.read_dir(&directory).await.map_err(|error| {
-            json!({"error":"Failed to snapshot sandbox filesystem","details":error.to_string()})
-        })? {
-            let path = directory.join(entry.name);
-            if entry.metadata.file_type == FileType::Directory {
-                pending.push(path);
-            } else if entry.metadata.file_type == FileType::File {
-                let contents = fs.read_file(&path).await.map_err(|error| {
-                    json!({"error":"Failed to snapshot sandbox file","path":path,"details":error.to_string()})
-                })?;
-                files.push(sandbox::SandboxFile {
-                    path: path.to_string_lossy().to_string(),
-                    contents,
-                });
-            }
-        }
-    }
-    files.sort_by(|left, right| left.path.cmp(&right.path));
-    Ok(files)
-}
-
-async fn apply_workspace_delta(
-    fs: &dyn FileSystem,
-    delta: &sandbox::WorkspaceDelta,
-) -> Result<(), serde_json::Value> {
-    for path in &delta.deleted {
-        let path = Path::new(path);
-        if fs.exists(path).await.map_err(|error| {
-            json!({"error":"Failed to inspect deleted sandbox file","details":error.to_string()})
-        })? {
-            fs.remove(path, false).await.map_err(|error| {
-                json!({"error":"Failed to delete sandbox file","details":error.to_string()})
-            })?;
-        }
-    }
-    for file in &delta.upserted {
-        write_vfs_file(fs, &file.path, &file.contents).await?;
-    }
-    Ok(())
-}
-
 fn is_output_path(path: &str) -> bool {
     path == OUTPUT_DIR || path.starts_with(&format!("{OUTPUT_DIR}/"))
 }
@@ -1140,7 +1134,7 @@ struct SeedDocument {
 
 struct SeedChunk {
     id: i32,
-    text: String,
+    size: u64,
 }
 
 async fn dataset_documents(
@@ -1183,7 +1177,7 @@ async fn document_chunks(
     let rows = transaction
         .query(
             "
-            SELECT c.id, decrypt_text(c.text) AS text
+            SELECT c.id, octet_length(decrypt_text(c.text))::bigint AS size
             FROM rag.chunks c
             INNER JOIN rag.documents d ON d.id = c.document_id
             WHERE c.document_id = $1
@@ -1200,114 +1194,34 @@ async fn document_chunks(
         .into_iter()
         .map(|row| SeedChunk {
             id: row.get(0),
-            text: row.get(1),
+            size: row.get::<_, i64>(1).max(0) as u64,
         })
         .collect())
 }
 
-struct RagReadSandboxTool;
-
-#[async_trait::async_trait]
-impl sandbox::SandboxTool for RagReadSandboxTool {
-    fn definition(&self) -> sandbox::SandboxToolDefinition {
-        sandbox::SandboxToolDefinition {
-            name: "rag-read".to_string(),
-            description: "Read a dataset chunk returned by rag-search.".to_string(),
-            parameters: json!({"type":"object","properties":{"args":{"type":"array"}}}),
-            exposure: sandbox::ToolExposure::Shell,
-            credential: None,
-        }
-    }
-
-    async fn call(
-        &self,
-        arguments: Value,
-        context: sandbox::ToolCallContext<'_>,
-    ) -> Result<Value, sandbox::SandboxToolError> {
-        let path = arguments
-            .get("args")
-            .and_then(Value::as_array)
-            .and_then(|args| args.first())
-            .and_then(Value::as_str)
-            .ok_or_else(|| sandbox::SandboxToolError("usage: rag-read PATH".to_string()))?;
-        if parse_chunk_path(path).is_none() {
-            return Err(sandbox::SandboxToolError(
-                "rag-read only accepts dataset chunk paths".to_string(),
-            ));
-        }
-        let bytes = context.files.read(path).await?;
-        Ok(Value::String(String::from_utf8_lossy(&bytes).to_string()))
-    }
-}
-
-struct RagSearchSandboxTool {
-    pool: Pool,
-    sub: String,
-    conversation_id: i64,
-    model_id: i32,
-}
-
-#[async_trait::async_trait]
-impl sandbox::SandboxTool for RagSearchSandboxTool {
-    fn definition(&self) -> sandbox::SandboxToolDefinition {
-        sandbox::SandboxToolDefinition {
-            name: "rag-search".to_string(),
-            description: "Search connected datasets.".to_string(),
-            parameters: json!({"type":"object","properties":{"args":{"type":"array"}}}),
-            exposure: sandbox::ToolExposure::Shell,
-            credential: None,
-        }
-    }
-
-    async fn call(
-        &self,
-        arguments: Value,
-        _context: sandbox::ToolCallContext<'_>,
-    ) -> Result<Value, sandbox::SandboxToolError> {
-        let args = arguments
-            .get("args")
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-            .filter_map(Value::as_str)
-            .map(str::to_string)
-            .collect::<Vec<_>>();
-        let (query, limit) = parse_rag_search_args(&args);
-        if query.trim().is_empty() {
-            return Err(sandbox::SandboxToolError(
-                "usage: rag-search QUERY [--limit N]".to_string(),
-            ));
-        }
-        execute_rag_search(
-            &self.pool,
-            &self.sub,
-            self.conversation_id,
-            self.model_id,
-            &query,
-            limit,
-        )
+async fn load_dataset_chunk(pool: &Pool, sub: &str, chunk_id: i32) -> Result<Vec<u8>, String> {
+    let mut client = pool.get().await.map_err(|error| error.to_string())?;
+    let transaction = client
+        .transaction()
         .await
-        .map_err(|error| sandbox::SandboxToolError(error.to_string()))
-    }
+        .map_err(|error| error.to_string())?;
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+        .await
+        .map_err(|error| error.to_string())?;
+    let row = transaction.query_opt(
+        "SELECT decrypt_text(c.text) FROM rag.chunks c INNER JOIN rag.documents d ON d.id = c.document_id WHERE c.id = $1",
+        &[&chunk_id],
+    ).await.map_err(|error| error.to_string())?
+        .ok_or_else(|| "dataset chunk is no longer available".to_string())?;
+    let text: String = row.get(0);
+    transaction
+        .commit()
+        .await
+        .map_err(|error| error.to_string())?;
+    Ok(text.into_bytes())
 }
 
-fn parse_rag_search_args(args: &[String]) -> (String, i32) {
-    let mut limit = 5;
-    let mut query_parts = Vec::new();
-    let mut iter = args.iter();
-    while let Some(arg) = iter.next() {
-        if arg == "--limit" {
-            if let Some(value) = iter.next().and_then(|value| value.parse::<i32>().ok()) {
-                limit = value.clamp(1, 20);
-            }
-        } else {
-            query_parts.push(arg.as_str());
-        }
-    }
-    (query_parts.join(" "), limit)
-}
-
-async fn execute_rag_search(
+pub(crate) async fn execute_rag_search(
     pool: &Pool,
     sub: &str,
     conversation_id: i64,
@@ -1451,35 +1365,6 @@ async fn chunk_paths(
         .collect())
 }
 
-fn parse_chunk_path(path: &str) -> Option<ChunkPath> {
-    let path = PathBuf::from(path);
-    let parts: Vec<_> = path
-        .components()
-        .map(|component| component.as_os_str().to_string_lossy().to_string())
-        .collect();
-
-    if parts.len() != 9
-        || parts[0] != "/"
-        || parts[1] != "home"
-        || parts[2] != "user"
-        || parts[3] != "datasets"
-        || parts[5] != "files"
-        || parts[7] != "chunks"
-    {
-        return None;
-    }
-
-    let dataset_id = parts[4].parse().ok()?;
-    let document_id = parts[6].parse().ok()?;
-    let chunk_id = parts[8].strip_suffix(".txt")?.parse().ok()?;
-
-    Some(ChunkPath {
-        dataset_id,
-        document_id,
-        chunk_id,
-    })
-}
-
 fn trim_to_context_length(input: &str, context_length: i32) -> String {
     if input.is_empty() {
         return String::new();
@@ -1551,11 +1436,11 @@ mod tests {
         let tool = get_tool_definition();
         assert_eq!(tool.name, "run_bash");
         assert!(tool.description.contains("/home/user/attachments"));
-        assert!(tool.description.contains("/home/user/functions"));
-        assert!(tool.description.contains("cat the relevant .md file"));
+        assert!(tool.description.contains("/home/user/skills"));
+        assert!(tool.description.contains("mediated HTTP"));
         assert!(tool
             .description
-            .contains("exact function names, parameters, and usage examples"));
+            .contains("authentication is supplied outside the sandbox"));
     }
 
     #[test]
@@ -1585,16 +1470,16 @@ mod tests {
                     object_data: b"print('ok')".to_vec(),
                 },
             ],
-            &[crate::builtin_tools::monty::RuntimeFunctionFile {
-                path: "/home/user/functions/email.md".to_string(),
-                contents: b"# Email".to_vec(),
-            }],
+            &[
+                "/home/user/skills/email/SKILL.md".to_string(),
+                "/home/user/skills/email/openapi.json".to_string(),
+            ],
         );
 
         assert!(preview.contains("/home/user"));
         assert!(preview.contains("`-- skills"));
-        assert!(preview.contains("|-- functions"));
-        assert!(preview.contains("email.md"));
+        assert!(preview.contains("email"));
+        assert!(preview.contains("openapi.json"));
         assert!(preview.contains("presentation-builder"));
         assert!(preview.contains("SKILL.md"));
         assert!(preview.contains("package"));
@@ -1673,33 +1558,5 @@ mod tests {
             "notes.md"
         );
         assert_eq!(sanitize_attachment_file_name("..."), "attachment");
-    }
-
-    #[test]
-    fn test_parse_rag_search_args() {
-        let args = vec![
-            "quarterly".to_string(),
-            "sales".to_string(),
-            "--limit".to_string(),
-            "7".to_string(),
-        ];
-        let (query, limit) = parse_rag_search_args(&args);
-        assert_eq!(query, "quarterly sales");
-        assert_eq!(limit, 7);
-    }
-
-    #[test]
-    fn test_parse_chunk_path() {
-        let path = parse_chunk_path("/home/user/datasets/1/files/2/chunks/3.txt").unwrap();
-        assert_eq!(path.dataset_id, 1);
-        assert_eq!(path.document_id, 2);
-        assert_eq!(path.chunk_id, 3);
-    }
-
-    #[test]
-    fn test_parse_chunk_path_rejects_other_paths() {
-        assert!(parse_chunk_path("/tmp/3.txt").is_none());
-        assert!(parse_chunk_path("/datasets/1/files/2/chunks/3.txt").is_none());
-        assert!(parse_chunk_path("/home/user/datasets/1/files/2/metadata.json").is_none());
     }
 }

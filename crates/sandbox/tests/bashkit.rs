@@ -1,107 +1,194 @@
 use async_trait::async_trait;
+use bashkit::{FileSystem, InMemoryFs};
 use sandbox::{
-    BashkitSandbox, Command, Credential, CredentialSet, OpenApiSpec, RunRequest, Sandbox,
-    SandboxTool, SandboxToolDefinition, SandboxToolError, ToolCallContext, ToolExposure,
-    WorkspaceSnapshot,
+    BashkitSandbox, Command, DirectoryEntry, FileMetadata, FileType, FilesystemError,
+    FilesystemErrorKind, HttpRequest, HttpResponse, NetworkError, RunRequest, Sandbox,
+    SandboxFilesystem, SandboxNetwork, WriteMode,
 };
-use serde_json::Value;
-use std::sync::Arc;
-use std::time::Duration;
+use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, SystemTime};
 
-struct EchoTool;
+struct TestFilesystem(Arc<InMemoryFs>);
+
+fn error(error: bashkit::Error) -> FilesystemError {
+    FilesystemError::new(FilesystemErrorKind::Other, error.to_string())
+}
+
+fn metadata(value: bashkit::Metadata) -> FileMetadata {
+    FileMetadata {
+        file_type: match value.file_type {
+            bashkit::FileType::File => FileType::File,
+            bashkit::FileType::Directory => FileType::Directory,
+            bashkit::FileType::Symlink => FileType::Symlink,
+            bashkit::FileType::Fifo => FileType::Fifo,
+        },
+        size: value.size,
+        mode: value.mode,
+        modified: value.modified,
+        created: value.created,
+    }
+}
 
 #[async_trait]
-impl SandboxTool for EchoTool {
-    fn definition(&self) -> SandboxToolDefinition {
-        SandboxToolDefinition {
-            name: "echo_callback".to_string(),
-            description: "Echo a value".to_string(),
-            parameters: serde_json::json!({"type": "object"}),
-            exposure: ToolExposure::Python,
-            credential: None,
-        }
+impl SandboxFilesystem for TestFilesystem {
+    async fn stat(&self, path: &Path) -> Result<FileMetadata, FilesystemError> {
+        self.0.stat(path).await.map(metadata).map_err(error)
     }
-
-    async fn call(
+    async fn read_dir(&self, path: &Path) -> Result<Vec<DirectoryEntry>, FilesystemError> {
+        self.0
+            .read_dir(path)
+            .await
+            .map(|values| {
+                values
+                    .into_iter()
+                    .map(|value| DirectoryEntry {
+                        name: value.name,
+                        metadata: metadata(value.metadata),
+                    })
+                    .collect()
+            })
+            .map_err(error)
+    }
+    async fn read(&self, path: &Path) -> Result<Vec<u8>, FilesystemError> {
+        self.0.read_file(path).await.map_err(error)
+    }
+    async fn write(
         &self,
-        arguments: Value,
-        _context: ToolCallContext<'_>,
-    ) -> Result<Value, SandboxToolError> {
-        Ok(arguments.get("value").cloned().unwrap_or(Value::Null))
+        path: &Path,
+        contents: &[u8],
+        mode: WriteMode,
+    ) -> Result<(), FilesystemError> {
+        match mode {
+            WriteMode::Truncate => self.0.write_file(path, contents).await,
+            WriteMode::Append => self.0.append_file(path, contents).await,
+        }
+        .map_err(error)
+    }
+    async fn create_dir(&self, path: &Path, recursive: bool) -> Result<(), FilesystemError> {
+        self.0.mkdir(path, recursive).await.map_err(error)
+    }
+    async fn remove(&self, path: &Path, recursive: bool) -> Result<(), FilesystemError> {
+        self.0.remove(path, recursive).await.map_err(error)
+    }
+    async fn rename(&self, from: &Path, to: &Path) -> Result<(), FilesystemError> {
+        self.0.rename(from, to).await.map_err(error)
+    }
+    async fn copy(&self, from: &Path, to: &Path) -> Result<(), FilesystemError> {
+        self.0.copy(from, to).await.map_err(error)
+    }
+    async fn symlink(&self, target: &Path, link: &Path) -> Result<(), FilesystemError> {
+        self.0.symlink(target, link).await.map_err(error)
+    }
+    async fn read_link(&self, path: &Path) -> Result<PathBuf, FilesystemError> {
+        self.0.read_link(path).await.map_err(error)
+    }
+    async fn set_permissions(&self, path: &Path, mode: u32) -> Result<(), FilesystemError> {
+        self.0.chmod(path, mode).await.map_err(error)
+    }
+    async fn set_modified(&self, path: &Path, modified: SystemTime) -> Result<(), FilesystemError> {
+        self.0
+            .set_modified_time(path, modified)
+            .await
+            .map_err(error)
+    }
+}
+
+#[derive(Default)]
+struct RecordingNetwork(Mutex<Vec<String>>);
+
+#[async_trait]
+impl SandboxNetwork for RecordingNetwork {
+    async fn request(&self, request: HttpRequest) -> Result<HttpResponse, NetworkError> {
+        self.0.lock().unwrap().push(request.url);
+        Ok(HttpResponse {
+            status: 200,
+            headers: vec![],
+            body: b"mediated".to_vec(),
+        })
+    }
+}
+
+fn request(
+    command: Command,
+    fs: Arc<TestFilesystem>,
+    network: Arc<RecordingNetwork>,
+) -> RunRequest {
+    RunRequest {
+        command,
+        filesystem: fs,
+        network,
     }
 }
 
 #[tokio::test]
-async fn workspace_changes_are_reported() {
+async fn shell_writes_through_supplied_filesystem() {
+    let inner = Arc::new(InMemoryFs::new());
+    let fs = Arc::new(TestFilesystem(inner.clone()));
     let result = BashkitSandbox
-        .run(RunRequest {
-            command: Command::WriteFile {
-                path: "/home/user/work/example.txt".to_string(),
-                contents: b"new".to_vec(),
-            },
-            skills: vec![],
-            openapi_specs: vec![],
-            credentials: CredentialSet::default(),
-            workspace: WorkspaceSnapshot::default(),
-            tools: vec![],
-        })
-        .await
-        .unwrap();
-    assert_eq!(result.workspace_changes.upserted.len(), 1);
-    assert_eq!(result.workspace_changes.upserted[0].contents, b"new");
-}
-
-#[tokio::test]
-async fn python_calls_supplied_callback_tools() {
-    let result = BashkitSandbox
-        .run(RunRequest {
-            command: Command::Python {
-                code: "print(echo_callback(value='scheduled'))".to_string(),
+        .run(request(
+            Command::Shell {
+                script: "mkdir -p /home/user/work && printf new > /home/user/work/example.txt"
+                    .into(),
                 timeout: Duration::from_secs(5),
             },
-            skills: vec![],
-            openapi_specs: vec![],
-            credentials: CredentialSet::default(),
-            workspace: WorkspaceSnapshot::default(),
-            tools: vec![Arc::new(EchoTool)],
-        })
+            fs,
+            Arc::new(RecordingNetwork::default()),
+        ))
         .await
         .unwrap();
-    assert_eq!(result.execution.stdout, "scheduled\n");
     assert_eq!(result.execution.exit_code, 0);
+    assert_eq!(
+        inner
+            .read_file(Path::new("/home/user/work/example.txt"))
+            .await
+            .unwrap(),
+        b"new"
+    );
 }
 
 #[tokio::test]
-async fn openapi_specs_are_exposed_in_the_filesystem() {
-    let result = BashkitSandbox
-        .run(RunRequest {
-            command: Command::ReadFile {
-                path: "/home/user/functions/calendar.openapi.json".to_string(),
-            },
-            skills: vec![],
-            openapi_specs: vec![OpenApiSpec {
-                name: "calendar".to_string(),
-                document: serde_json::json!({"openapi": "3.0.0"}),
-            }],
-            credentials: CredentialSet::default(),
-            workspace: WorkspaceSnapshot::default(),
-            tools: vec![],
-        })
+async fn python_open_uses_supplied_filesystem() {
+    let inner = Arc::new(InMemoryFs::new());
+    inner
+        .mkdir(Path::new("/home/user/work"), true)
         .await
         .unwrap();
-    let contents = result.execution.data.unwrap();
-    assert!(String::from_utf8(contents).unwrap().contains("3.0.0"));
+    inner
+        .write_file(Path::new("/home/user/work/input.txt"), b"hello")
+        .await
+        .unwrap();
+    let result = BashkitSandbox
+        .run(request(
+            Command::Python {
+                code: "print(open('/home/user/work/input.txt').read())".into(),
+                timeout: Duration::from_secs(5),
+            },
+            Arc::new(TestFilesystem(inner)),
+            Arc::new(RecordingNetwork::default()),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(result.execution.stdout, "hello\n");
 }
 
-#[test]
-fn credentials_do_not_debug_secrets() {
-    let mut credentials = CredentialSet::default();
-    credentials.insert(
-        "integration",
-        Credential::Bearer {
-            token: "secret".to_string(),
-        },
+#[tokio::test]
+async fn curl_uses_supplied_network() {
+    let network = Arc::new(RecordingNetwork::default());
+    let result = BashkitSandbox
+        .run(request(
+            Command::Shell {
+                script: "curl -s https://example.com/data".into(),
+                timeout: Duration::from_secs(5),
+            },
+            Arc::new(TestFilesystem(Arc::new(InMemoryFs::new()))),
+            network.clone(),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(result.execution.stdout, "mediated");
+    assert_eq!(
+        network.0.lock().unwrap().as_slice(),
+        ["https://example.com/data"]
     );
-    let debug = format!("{credentials:?}");
-    assert!(!debug.contains("secret"));
 }

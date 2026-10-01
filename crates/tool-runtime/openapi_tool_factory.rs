@@ -35,6 +35,9 @@ pub struct BionicOpenAPI {
 }
 
 impl BionicOpenAPI {
+    pub fn document(&self) -> &Value {
+        &self.raw_spec
+    }
     /// Create a new BionicOpenAPI instance from an OpenAPI v3 specification JSON string
     pub fn new(spec: &Value) -> Result<Self, serde_json::Error> {
         let raw_spec = spec.clone();
@@ -358,6 +361,23 @@ impl BionicOpenAPI {
                 }
                 _ => None,
             })
+        })
+    }
+
+    /// Return the configured API-key parameter name and OpenAPI location.
+    pub fn get_api_key_name_and_location(&self) -> Option<(String, String)> {
+        self.spec.components.as_ref().and_then(|components| {
+            components
+                .security_schemes
+                .values()
+                .find_map(|scheme| match scheme {
+                    oas3::spec::ObjectOrReference::Object(SecurityScheme::ApiKey {
+                        name,
+                        location,
+                        ..
+                    }) => Some((name.clone(), location.clone())),
+                    _ => None,
+                })
         })
     }
 
