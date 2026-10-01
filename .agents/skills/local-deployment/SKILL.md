@@ -30,6 +30,19 @@ Prerequisites:
 - kubectl is using the `k3d-k3d-bionic` context.
 - The `bionic-gpt` namespace and StackApp are available.
 
+Before deployment, ensure the default kubeconfig has a reachable API server
+address for the current host. If the context is missing or the API server is
+unreachable, run the repository's local kubeconfig setup script:
+
+```bash
+bash .agents/skills/k3d-environment/get-config.sh
+```
+
+This writes/merges the `k3d-bionic` kubeconfig, replaces loopback/wildcard
+addresses with the host gateway, and disables TLS verification for local
+development. It may install `iproute2` using `sudo apt-get`; review its effects
+before running it on a new machine. Then run the deployment script above.
+
 Inspect web traces after deployment with:
 
 ```bash

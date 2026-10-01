@@ -1,6 +1,5 @@
-use crate::{CredentialSet, SandboxFile, SandboxTool, WorkspaceDelta, WorkspaceSnapshot};
+use crate::{SandboxFilesystem, SandboxNetwork};
 use async_trait::async_trait;
-use serde_json::Value;
 use std::fmt;
 use std::sync::Arc;
 use std::time::Duration;
@@ -12,41 +11,14 @@ pub trait Sandbox: Send + Sync {
 
 pub struct RunRequest {
     pub command: Command,
-    pub skills: Vec<SandboxFile>,
-    pub openapi_specs: Vec<OpenApiSpec>,
-    pub credentials: CredentialSet,
-    pub workspace: WorkspaceSnapshot,
-    pub tools: Vec<Arc<dyn SandboxTool>>,
+    pub filesystem: Arc<dyn SandboxFilesystem>,
+    pub network: Arc<dyn SandboxNetwork>,
 }
 
 #[derive(Debug, Clone)]
 pub enum Command {
-    Shell {
-        script: String,
-        timeout: Duration,
-    },
-    Python {
-        code: String,
-        timeout: Duration,
-    },
-    ReadFile {
-        path: String,
-    },
-    WriteFile {
-        path: String,
-        contents: Vec<u8>,
-    },
-    EditFile {
-        path: String,
-        find: Vec<u8>,
-        replace: Vec<u8>,
-    },
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct OpenApiSpec {
-    pub name: String,
-    pub document: Value,
+    Shell { script: String, timeout: Duration },
+    Python { code: String, timeout: Duration },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -57,21 +29,11 @@ pub struct ExecutionResult {
     pub duration_ms: u128,
     pub stdout_truncated: bool,
     pub stderr_truncated: bool,
-    /// Raw result bytes for filesystem reads. Execution commands leave this unset.
-    pub data: Option<Vec<u8>>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Artifact {
-    pub path: String,
-    pub size: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RunResult {
     pub execution: ExecutionResult,
-    pub workspace_changes: WorkspaceDelta,
-    pub artifacts: Vec<Artifact>,
 }
 
 #[derive(Debug, Clone)]

@@ -1,61 +1,58 @@
 # tool-runtime
 
-This crate provides the tool and integration system used by the app and
-`agent-harness`. It exposes OpenAI-style tool definitions, executes tool calls, and
-supports both built-in tools and OpenAPI-based external integrations.
+This crate owns the application side of model tool execution. It constructs a
+conversation-scoped virtual filesystem and mediated network, then supplies them
+to the provider-neutral `sandbox` crate.
 
-## What it does
+## Responsibilities
 
-- Uses rig's `ToolDyn` trait for all executable tools.
-- Registers model-facing shell, virtual filesystem, and Python tools.
-- Maps execution to provider-neutral operations in the `sandbox` crate.
-- Loads system-level and team-connected OpenAPI specs into the function catalogue.
-- Executes tool calls and returns JSON results.
+- Fixed model-facing tools: `run_bash`, `read_file`, `write_file`, `edit_file`,
+  and `run_python`.
+- Virtual filesystem routing for skills, datasets, attachments, and persistent
+  `/home/user/work` and `/home/user/output` files.
+- Lazy loading of remotely backed file content and a write journal for
+  persistence.
+- Connector discovery from OpenAPI documents.
+- Authorization, credential lookup, OAuth refresh, credential injection,
+  destination policy, and bounded HTTP execution.
+- A future connector extension point for MCP and internal Bionic capabilities.
+
+## Filesystem
+
+The runtime presents application data through `/home/user` without copying it
+through `sandbox::RunRequest`. Directory listings and file metadata are
+available without loading lazy object bodies. Reading a lazy attachment,
+dataset chunk, or persisted file fetches its content on demand. Writes under
+`work` and `output` are observed and persisted after execution.
+
+## Connectors
+
+Each authorized integration is exposed as a skill:
+
+```text
+/home/user/skills/<connector>/SKILL.md
+/home/user/skills/<connector>/openapi.json
+```
+
+The OpenAPI document uses an execution-scoped virtual origin such as
+`https://gmail.connectors.invalid`. The model inspects the skill/spec and calls
+it with ordinary `curl`. `RuntimeNetwork` validates the OpenAPI operation,
+maps the virtual origin to the configured upstream, removes caller-supplied
+credential headers, injects credentials outside the sandbox, refreshes OAuth
+tokens on a 401, and bounds the response. Anonymous public HTTP is a separate
+route with no credentials and SSRF checks.
+
+OpenAPI parsing and request-building code remains useful for MCP compatibility,
+validation, and metadata extraction. The generated Python-function registry has
+been removed.
 
 ## Key modules
 
-- `builtin_tools/` and OpenAPI adapters implement rig `ToolDyn`.
-- `tool_catalog.rs`: fixed model-facing built-in tool definitions.
-- `tool_dispatcher.rs`: resolve tool instances and execute tool calls.
-- `sandbox_dispatcher.rs`: translate model tool calls into sandbox commands.
-- `openapi_tool_factory.rs`: OpenAPI v3 parsing and tool definition generation.
-- `system_tool_sources.rs`: system-selected OpenAPI specs (per category).
-- `builtin_tools/`: built-in tool implementations.
-- `tool_auth.rs`: auth token providers for OpenAPI tools.
-
-## Model-facing tools
-
-The model receives fixed definitions for `run_bash`, `read_file`, `write_file`,
-`edit_file`, and `run_python`. OpenAPI integrations are discoverable as
-markdown files under `/home/user/functions` and are invoked from Python inside
-the sandbox; they are not exposed as direct model tools.
-
-## Built-in tools
-
-- `time_date`: get current time and date.
-- `web`: open URL tool.
-- `run_bash`: sandbox shell tool with `/home/user/skills`, `/home/user/datasets`,
-  `/home/user/attachments`, and `rag-search` / `rag-read`.
-- `read_file`, `write_file`, `edit_file`: virtual filesystem file operations.
-- `run_python`: Monty-backed Python snippets with the virtual filesystem.
-
-## OpenAPI integrations
-
-Prompt integrations are stored in the DB. The flow is:
-
-1. Load prompt integrations and their connections.
-2. Parse OpenAPI v3 specs into executable function entries.
-3. Build function markdown files and seed them into the sandbox filesystem.
-4. Supply executable operations to the sandbox as scoped callbacks.
-
-## Executing tool calls
-
-`execute_tool_calls` accepts a list of OpenAI-style tool calls and dispatches
-the fixed built-in tool instances. OpenAPI and Bionic-owned calls are dispatched
-through callbacks supplied in `RunRequest.tools`.
-
-## Testing
-
-- `tool_catalog.rs` verifies the fixed model-facing tool definition.
-- `tool_dispatcher.rs` includes a tool execution test for the time/date tool.
-- `builtin_tools/openapi_tool_adapter.rs` supports HTTP client overrides for tests.
+- `connector_network.rs`: mediated connector, public HTTP, and internal dataset
+  routes.
+- `lazy_fs.rs`: lazy content and mutation journal over Bashkit's filesystem.
+- `sandbox_io.rs`: application filesystem adapter to the neutral sandbox trait.
+- `builtin_tools/bashkit.rs`: conversation filesystem construction and output
+  persistence.
+- `openapi_tool_factory.rs`: OpenAPI parsing and connector metadata.
+- `tool_auth.rs`: application-owned token providers and OAuth refresh.

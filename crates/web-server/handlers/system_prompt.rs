@@ -46,28 +46,23 @@ pub async fn loader(
         .await?;
     let runtime_additions =
         tool_runtime::skills::available_skills_prompt_section_with_custom(skill_summaries.clone());
-    let function_catalogue = match tool_runtime::builtin_tools::monty::function_catalogue_for_team(
-        &pool,
-        &sub,
-        team_id_num,
-    )
-    .await
-    {
-        Ok(catalogue) => catalogue,
-        Err(err) => tool_runtime::builtin_tools::monty::FunctionCatalogue {
-            prompt_section: Some(format!("Failed to preview discoverable functions: {err}")),
-            built_in_prompt_section: None,
-            connected_prompt_section: None,
-            files: Vec::new(),
-        },
-    };
-    let integration_context = function_catalogue.prompt_section.clone();
-    let built_in_tools = function_catalogue.built_in_prompt_section.clone();
-    let connected_integrations = function_catalogue.connected_prompt_section.clone();
+    let connector_catalogue =
+        match tool_runtime::connector_skill_catalogue_for_team(&pool, &sub, team_id_num).await {
+            Ok(catalogue) => catalogue,
+            Err(err) => tool_runtime::ConnectorSkillCatalogue {
+                prompt_section: Some(format!("Failed to preview connector skills: {err}")),
+                built_in_prompt_section: None,
+                connected_prompt_section: None,
+                files: Vec::new(),
+            },
+        };
+    let integration_context = connector_catalogue.prompt_section.clone();
+    let built_in_tools = connector_catalogue.built_in_prompt_section.clone();
+    let connected_integrations = connector_catalogue.connected_prompt_section.clone();
     let vfs_preview = tool_runtime::builtin_tools::bashkit::preview_vfs_tree(
         &skill_summaries,
         &skill_files,
-        &function_catalogue.files,
+        &connector_catalogue.files,
     );
 
     let tool_definitions = tool_runtime::get_chat_tool_definitions();
@@ -210,9 +205,9 @@ mod tests {
         let preview = build_prompt_size_preview(
             "You are helpful.",
             Some("Use available skills when relevant."),
-            Some("Available function catalogues:\n- Email: /home/user/functions/email.md\n- Web Fetch: /home/user/functions/web-fetch.md"),
-            Some("Built-in tools:\n- Web Fetch: /home/user/functions/web-fetch.md"),
-            Some("Connected integrations:\n- Email: /home/user/functions/email.md"),
+            Some("Available connector skills:\n- Email: /home/user/skills/email/SKILL.md"),
+            Some("Built-in capabilities:\n- Scheduled Tasks: /home/user/skills/scheduled-tasks/SKILL.md"),
+            Some("Connected integrations:\n- Email: /home/user/skills/email/SKILL.md"),
             &tools,
         );
 

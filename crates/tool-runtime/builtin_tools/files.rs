@@ -1,5 +1,5 @@
 use crate::builtin_tools::bashkit::{
-    persist_outputs, seeded_filesystem, OutputEntry, MAX_FILE_TOOL_BYTES,
+    persist_outputs, seeded_runtime, OutputEntry, MAX_FILE_TOOL_BYTES,
 };
 use crate::{ToolDyn, ToolError};
 use bashkit::FileSystem;
@@ -162,7 +162,7 @@ pub fn get_edit_file_definition() -> crate::types::ToolDefinition {
 pub fn get_run_python_definition() -> crate::types::ToolDefinition {
     definition(
         "run_python",
-        "Run dependency-free Python in Monty with the virtual filesystem and integrations available.",
+        "Run dependency-free Python in Monty with the virtual filesystem. Use connector skills and curl from run_bash for HTTP integrations.",
         json!({
             "type": "object",
             "properties": {"code": {"type": "string"}},
@@ -207,7 +207,7 @@ async fn execute_operation(
     operation: Operation,
     args: &str,
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let fs = seeded_filesystem(&tool.pool, &tool.sub, tool.conversation_id, tool.model_id)
+    let (fs, network) = seeded_runtime(&tool.pool, &tool.sub, tool.conversation_id, tool.model_id)
         .await
         .map_err(|error| std::io::Error::other(error.to_string()))?;
 
@@ -215,16 +215,7 @@ async fn execute_operation(
         Operation::Read => {
             let arguments: ReadArgs = serde_json::from_str(args)?;
             let path = checked_path(&arguments.path)?;
-            let result = run_sandbox_command(
-                tool,
-                fs.as_ref(),
-                sandbox::Command::ReadFile {
-                    path: path.to_string_lossy().to_string(),
-                },
-                Vec::new(),
-            )
-            .await?;
-            let bytes = result.execution.data.unwrap_or_default();
+            let bytes = fs.read_file(&path).await?;
             if bytes.len() > MAX_FILE_TOOL_BYTES {
                 return Err(format!("file exceeds {MAX_FILE_TOOL_BYTES} bytes").into());
             }
@@ -245,16 +236,10 @@ async fn execute_operation(
             let arguments: WriteArgs = serde_json::from_str(args)?;
             let path = checked_path(&arguments.path)?;
             ensure_size(arguments.content.as_bytes())?;
-            run_sandbox_command(
-                tool,
-                fs.as_ref(),
-                sandbox::Command::WriteFile {
-                    path: path.to_string_lossy().to_string(),
-                    contents: arguments.content.into_bytes(),
-                },
-                Vec::new(),
-            )
-            .await?;
+            if let Some(parent) = path.parent() {
+                fs.mkdir(parent, true).await?;
+            }
+            fs.write_file(&path, arguments.content.as_bytes()).await?;
             let outputs = persist_output_if_needed(tool, &fs).await?;
             Ok(json!({"path": path, "written": true, "outputs": outputs}).to_string())
         }
@@ -263,50 +248,26 @@ async fn execute_operation(
             let path = checked_path(&arguments.path)?;
             ensure_size(arguments.find.as_bytes())?;
             ensure_size(arguments.replace.as_bytes())?;
-            run_sandbox_command(
-                tool,
-                fs.as_ref(),
-                sandbox::Command::EditFile {
-                    path: path.to_string_lossy().to_string(),
-                    find: arguments.find.into_bytes(),
-                    replace: arguments.replace.into_bytes(),
-                },
-                Vec::new(),
-            )
-            .await?;
+            let original = String::from_utf8(fs.read_file(&path).await?)?;
+            let updated = replace_once(&original, &arguments.find, &arguments.replace)?;
+            ensure_size(updated.as_bytes())?;
+            fs.write_file(&path, updated.as_bytes()).await?;
             let outputs = persist_output_if_needed(tool, &fs).await?;
             Ok(json!({"path": path, "edited": true, "outputs": outputs}).to_string())
         }
         Operation::Python => {
             let arguments: PythonArgs = serde_json::from_str(args)?;
             ensure_size(arguments.code.as_bytes())?;
-            let registry = std::sync::Arc::new(
-                crate::builtin_tools::monty::RuntimeFunctionRegistry::load_for_conversation(
-                    &tool.pool,
-                    &tool.sub,
-                    tool.conversation_id,
-                )
-                .await?,
-            );
-            let workspace = sandbox::WorkspaceSnapshot {
-                key: tool.conversation_id.to_string(),
-                revision: String::new(),
-                files: snapshot_files(fs.as_ref(), Path::new(HOME_DIR)).await?,
-            };
             let result = sandbox::BashkitSandbox
                 .run(sandbox::RunRequest {
                     command: sandbox::Command::Python {
                         code: arguments.code,
                         timeout: Duration::from_secs(30),
                     },
-                    skills: Vec::new(),
-                    openapi_specs: Vec::new(),
-                    credentials: sandbox::CredentialSet::default(),
-                    workspace,
-                    tools: registry.sandbox_tools(),
+                    filesystem: Arc::new(crate::sandbox_io::RuntimeFilesystem::new(fs.clone())),
+                    network,
                 })
                 .await?;
-            apply_workspace_delta(fs.as_ref(), &result.workspace_changes).await?;
             let outputs = persist_output_if_needed(tool, &fs).await?;
             Ok(json!({
                 "stdout": result.execution.stdout,
@@ -319,73 +280,6 @@ async fn execute_operation(
     }
 }
 
-async fn run_sandbox_command(
-    tool: &FileTool,
-    fs: &dyn FileSystem,
-    command: sandbox::Command,
-    tools: Vec<Arc<dyn sandbox::SandboxTool>>,
-) -> Result<sandbox::RunResult, Box<dyn std::error::Error + Send + Sync>> {
-    let result = sandbox::BashkitSandbox
-        .run(sandbox::RunRequest {
-            command,
-            skills: Vec::new(),
-            openapi_specs: Vec::new(),
-            credentials: sandbox::CredentialSet::default(),
-            workspace: sandbox::WorkspaceSnapshot {
-                key: tool.conversation_id.to_string(),
-                revision: String::new(),
-                files: snapshot_files(fs, Path::new(HOME_DIR)).await?,
-            },
-            tools,
-        })
-        .await?;
-    apply_workspace_delta(fs, &result.workspace_changes).await?;
-    Ok(result)
-}
-
-async fn snapshot_files(
-    fs: &dyn FileSystem,
-    root: &Path,
-) -> Result<Vec<sandbox::SandboxFile>, Box<dyn std::error::Error + Send + Sync>> {
-    let mut pending = vec![root.to_path_buf()];
-    let mut files = Vec::new();
-    while let Some(directory) = pending.pop() {
-        for entry in fs.read_dir(&directory).await? {
-            let path = directory.join(entry.name);
-            if entry.metadata.file_type == bashkit::FileType::Directory {
-                pending.push(path);
-            } else if entry.metadata.file_type == bashkit::FileType::File {
-                files.push(sandbox::SandboxFile {
-                    path: path.to_string_lossy().to_string(),
-                    contents: fs.read_file(&path).await?,
-                });
-            }
-        }
-    }
-    files.sort_by(|left, right| left.path.cmp(&right.path));
-    Ok(files)
-}
-
-async fn apply_workspace_delta(
-    fs: &dyn FileSystem,
-    delta: &sandbox::WorkspaceDelta,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    for path in &delta.deleted {
-        if fs.exists(Path::new(path)).await? {
-            fs.remove(Path::new(path), false).await?;
-        }
-    }
-    for file in &delta.upserted {
-        let path = Path::new(&file.path);
-        if let Some(parent) = path.parent() {
-            fs.mkdir(parent, true).await?;
-        }
-        fs.write_file(path, &file.contents).await?;
-    }
-    Ok(())
-}
-
-#[cfg(test)]
 fn replace_once(
     content: &str,
     find: &str,
@@ -424,7 +318,7 @@ fn ensure_size(bytes: &[u8]) -> Result<(), Box<dyn std::error::Error + Send + Sy
 
 async fn persist_output_if_needed(
     tool: &FileTool,
-    fs: &Arc<dyn FileSystem>,
+    fs: &Arc<crate::lazy_fs::LazyFilesystem>,
 ) -> Result<Vec<OutputEntry>, Box<dyn std::error::Error + Send + Sync>> {
     persist_outputs(&tool.pool, &tool.sub, tool.conversation_id, fs.as_ref())
         .await

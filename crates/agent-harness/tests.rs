@@ -81,7 +81,7 @@ async fn test_generate_prompt_adds_integration_context() {
         1.0,
         Some("Runtime default prompt".to_string()),
         Some("You are a helpful assistant".to_string()),
-        Some("Available function catalogues:\n- Email: /home/user/functions/email.md\n- Web Fetch: /home/user/functions/web-fetch.md".to_string()),
+        Some("Available connector skills:\n- Email: /home/user/skills/email/SKILL.md\n- Dataset search: /home/user/skills/dataset-search/SKILL.md".to_string()),
         vec![Message::user("Summarize my inbox")],
     )
     .await;
@@ -89,9 +89,9 @@ async fn test_generate_prompt_adds_integration_context() {
     assert_eq!(messages.len(), 2);
     assert!(matches!(messages[0], Message::System { .. }));
     let system = text_content(&messages[0]).unwrap();
-    assert!(system.contains("Available function catalogues:"));
-    assert!(system.contains("- Email: /home/user/functions/email.md"));
-    assert!(system.contains("- Web Fetch: /home/user/functions/web-fetch.md"));
+    assert!(system.contains("Available connector skills:"));
+    assert!(system.contains("- Email: /home/user/skills/email/SKILL.md"));
+    assert!(system.contains("- Dataset search: /home/user/skills/dataset-search/SKILL.md"));
 }
 
 fn create_test_chat(

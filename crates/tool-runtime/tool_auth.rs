@@ -6,6 +6,7 @@ use oauth2::reqwest::Client;
 use oauth2::{
     basic::BasicClient, AuthUrl, ClientId, ClientSecret, RefreshToken, TokenResponse, TokenUrl,
 };
+use std::sync::Arc;
 
 #[cfg(test)]
 use oauth2::{basic::BasicTokenType, EmptyExtraTokenFields, StandardTokenResponse};
@@ -33,6 +34,33 @@ impl StaticTokenProvider {
     pub fn new(token: String) -> Self {
         Self { token }
     }
+}
+
+pub(crate) fn token_provider_for_connected_integration(
+    pool: db::Pool,
+    sub: String,
+    integration: &db::ConnectedIntegration,
+    bionic_api: &crate::BionicOpenAPI,
+) -> Option<Arc<dyn TokenProvider>> {
+    if let Some(connection_id) = integration.oauth2_connection_id {
+        let token = integration.bearer_token.clone();
+        if let Some(config) = bionic_api.get_oauth2_config() {
+            return Some(Arc::new(OAuth2TokenProvider::new(
+                pool,
+                sub,
+                connection_id,
+                token,
+                integration.refresh_token.clone(),
+                integration.expires_at,
+                config,
+            )));
+        }
+        return token.map(|token| Arc::new(StaticTokenProvider::new(token)) as Arc<_>);
+    }
+    integration
+        .bearer_token
+        .clone()
+        .map(|token| Arc::new(StaticTokenProvider::new(token)) as Arc<_>)
 }
 
 #[async_trait]
