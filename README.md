@@ -99,12 +99,11 @@ The filesystem is virtual, so resources can be discovered without copying everyt
 
 This architecture is closely aligned with *Everything is Context: Agentic File System Abstraction for Context Engineering*, which proposes a Unix-inspired filesystem abstraction for exposing memory, knowledge and tools to agents. :chatgpt-content-reference{index="0"}
 
-[Everything is Context — arXiv](https://arxiv.org/abs/2512.05470?utm_source=chatgpt.com)
+This architecture is closely aligned with [*Everything is Context: Agentic File System Abstraction for Context Engineering*](https://arxiv.org/abs/2512.05470), which proposes a Unix-inspired filesystem abstraction for exposing memory, knowledge and tools to agents.
 
-For the **memory** part specifically, *Filesystem-Based Memory for LLM Agents* studies directory-tree memory accessed by agents using generic filesystem tools, and finds that organized filesystem memory can substantially reduce retrieval cost. :chatgpt-content-reference{index="2"}
+For **memory** specifically, [*Filesystem-Based Memory for LLM Agents*](https://arxiv.org/abs/2607.26637) studies directory-tree memory accessed by agents using generic filesystem tools, and finds that organized filesystem memory can substantially reduce retrieval cost.
 
-[Filesystem-Based Memory for LLM Agents — arXiv](https://arxiv.org/abs/2607.26637?utm_source=chatgpt.com)
-
+## Architecture
 
 ![Bionic architecture](crates/bionic-gpt/content/architect-course/architecture.svg "Bionic architecture")
 
