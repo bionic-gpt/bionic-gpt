@@ -56,10 +56,10 @@ the site's Tailwind input. Inspect `Justfile` before using other recipes.
 ## Verification
 
 ```bash
-DO_NOT_RUN_SERVER=1 cargo run -p bionic-gpt
+(cd crates/bionic-gpt && DO_NOT_RUN_SERVER=1 cargo run -p bionic-gpt)
 cargo build -p bionic-gpt
 ```
 
-Inspect generated HTML for metadata, links, and asset paths. Run
-`git diff --check`. Do not treat generated `dist/` output as a source change
-unless the repository explicitly tracks it.
+Run the site generator from `crates/bionic-gpt` so its `dist/` output lands in
+the site crate's ignored build directory, not the workspace root. Inspect the
+generated HTML for metadata, links, and asset paths. Run `git diff --check`.
