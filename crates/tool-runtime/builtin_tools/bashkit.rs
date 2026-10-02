@@ -161,7 +161,7 @@ impl ToolDyn for BashkitTool {
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_bash".to_string(),
-        description: "Run short shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem and mediated HTTP. Use read_file, write_file, and edit_file for file contents. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read skill and connector instructions, and /home/user/datasets to inspect connected datasets. Connector skills document safe curl requests; authentication is supplied outside the sandbox. Use run_python for dependency-free calculations and filesystem work. Use /home/user/work for persistent intermediate files that should not appear in chat, and /home/user/output for generated files that should persist and appear in chat. There is no host filesystem access.".to_string(),
+        description: "Run short shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem and mediated HTTP. Use read_file, write_file, and edit_file for file contents. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read skill and connector instructions, and /home/user/datasets to inspect connected datasets. Connector skills document Python functions supplied by Bionic; authentication is supplied outside the sandbox. Use run_python for connector calls, dependency-free calculations, and filesystem work. Use /home/user/work for persistent intermediate files that should not appear in chat, and /home/user/output for generated files that should persist and appear in chat. There is no host filesystem access.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -310,6 +310,7 @@ async fn execute_run_bash(
 
     let (fs, network) =
         seeded_runtime(&tool.pool, &tool.sub, tool.conversation_id, tool.model_id).await?;
+    let python_functions = network.python_functions(fs.clone());
     let started = Instant::now();
     let result = sandbox::BashkitSandbox
         .run(sandbox::RunRequest {
@@ -319,6 +320,7 @@ async fn execute_run_bash(
             },
             filesystem: std::sync::Arc::new(crate::sandbox_io::RuntimeFilesystem::new(fs.clone())),
             network,
+            python_functions,
         })
         .await
         .map_err(|err| json!({"error": "bash execution failed", "details": err.to_string()}))?;
@@ -1470,14 +1472,14 @@ mod tests {
             ],
             &[
                 "/home/user/skills/email/SKILL.md".to_string(),
-                "/home/user/skills/email/openapi.json".to_string(),
+                "/home/user/skills/email/operations/email_list_messages.md".to_string(),
             ],
         );
 
         assert!(preview.contains("/home/user"));
         assert!(preview.contains("`-- skills"));
         assert!(preview.contains("email"));
-        assert!(preview.contains("openapi.json"));
+        assert!(preview.contains("email_list_messages.md"));
         assert!(preview.contains("presentation-builder"));
         assert!(preview.contains("SKILL.md"));
         assert!(preview.contains("package"));

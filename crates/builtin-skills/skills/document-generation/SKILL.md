@@ -72,14 +72,12 @@ Avoid unsupported or untested Typst constructs. Prefer primitives already demons
 
 ## Compilation
 
-Read `/home/user/skills/typst/SKILL.md` and its `openapi.json` for the current compilation API.
+Read `/home/user/skills/typst/SKILL.md` for the current compilation function.
 
-Call the documented virtual URL with `curl`; authentication is supplied by the runtime.
-
-Use the operation and multipart field names from `openapi.json`. Pass
-`/home/user/output/<document-name>/main.typ` to `curl` with `-F`; Bashkit reads
-the file from the VFS and the mediated request sends it without placing its
-contents in model context.
+Call `typst_compile_document` with `run_python`. Pass the workspace files using
+the documented `file_paths` argument, including
+`/home/user/output/<document-name>/main.typ` and any referenced assets. Bionic
+reads the files from the VFS without placing their contents in model context.
 
 ## Repair Loop
 

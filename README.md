@@ -76,7 +76,8 @@ Bionic gives the model a single `run_bash` tool and exposes its capabilities thr
 ├── skills/
 │   ├── crm/
 │   │   ├── SKILL.md
-│   │   └── openapi.json
+│   │   └── operations/
+│   │       └── crm_list_customers.md
 │   ├── spreadsheets/
 │   │   └── SKILL.md
 │   └── pdf/

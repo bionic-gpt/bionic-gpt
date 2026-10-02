@@ -4,6 +4,7 @@
 //! and OpenAPI-backed tool adapters used by the agent runtime.
 
 pub mod builtin_tools;
+mod connector_functions;
 mod connector_network;
 mod lazy_fs;
 pub mod openapi_tool_factory;

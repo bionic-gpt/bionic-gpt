@@ -1,3 +1,7 @@
+use crate::connector_functions::{
+    build_python_functions, catalogue as function_catalogue, operation_markdown, skill_markdown,
+    ConnectorDocument,
+};
 use crate::{BionicOpenAPI, TokenProvider};
 use async_trait::async_trait;
 use reqwest::{redirect::Policy, Client, Url};
@@ -15,6 +19,7 @@ const SCHEDULED_TASKS_HOST: &str = "scheduled-tasks.internal.invalid";
 struct ConnectorRoute {
     slug: String,
     name: String,
+    is_builtin: bool,
     base_url: String,
     document: Value,
     auth: ConnectorAuth,
@@ -75,7 +80,7 @@ pub async fn connector_skill_catalogue_for_team(
         .await
         .map_err(|error| error.to_string())?;
 
-    let mut entries = Vec::new();
+    let mut documents = Vec::new();
     let mut used = reserved_skill_slugs();
     for integration in connected {
         let Some(document) = integration.definition else {
@@ -90,11 +95,12 @@ pub async fn connector_skill_catalogue_for_team(
         if ConnectorAuth::for_openapi(&openapi).is_none() {
             continue;
         }
-        entries.push((
-            integration.integration_name.clone(),
-            unique_slug(&integration.integration_name, &mut used),
-            false,
-        ));
+        documents.push(ConnectorDocument {
+            name: integration.integration_name.clone(),
+            slug: unique_slug(&integration.integration_name, &mut used),
+            document,
+            is_builtin: false,
+        });
     }
     let overrides = crate::system_tool_sources::openapi_server_overrides();
     for spec in crate::system_tool_sources::load_system_openapi_specs(pool).await? {
@@ -110,12 +116,24 @@ pub async fn connector_skill_catalogue_for_team(
         if ConnectorAuth::for_openapi(&openapi).is_none() {
             continue;
         }
-        entries.push((
-            spec.title,
-            unique_slug(&spec.slug, &mut used),
-            spec.is_builtin,
-        ));
+        documents.push(ConnectorDocument {
+            name: spec.title,
+            slug: unique_slug(&spec.slug, &mut used),
+            document: spec.spec,
+            is_builtin: spec.is_builtin,
+        });
     }
+    let connectors = function_catalogue(&documents);
+    let mut entries = connectors
+        .iter()
+        .map(|connector| {
+            (
+                connector.name.clone(),
+                connector.slug.clone(),
+                connector.is_builtin,
+            )
+        })
+        .collect::<Vec<_>>();
     entries.push(("Scheduled Tasks".into(), "scheduled-tasks".into(), true));
     entries.sort_by(|left, right| left.1.cmp(&right.1));
 
@@ -134,7 +152,7 @@ pub async fn connector_skill_catalogue_for_team(
     let connected = entries.iter().filter(|entry| !entry.2).collect::<Vec<_>>();
     let built_in_prompt_section = section("Built-in capabilities", &built_in);
     let connected_prompt_section = section("Connected integrations", &connected);
-    let mut prompt = String::from("Available connector skills:\nRead the relevant SKILL.md before using curl; authentication is supplied by the runtime.");
+    let mut prompt = String::from("Available connector skills:\nRead the relevant SKILL.md, then call its documented functions with run_python. Authentication is supplied by the runtime.");
     for value in [&built_in_prompt_section, &connected_prompt_section]
         .into_iter()
         .flatten()
@@ -142,16 +160,20 @@ pub async fn connector_skill_catalogue_for_team(
         prompt.push('\n');
         prompt.push_str(value);
     }
-    let files = entries
-        .into_iter()
-        .flat_map(|(_, slug, _)| {
-            let mut files = vec![format!("/home/user/skills/{slug}/SKILL.md")];
-            if slug != "scheduled-tasks" {
-                files.push(format!("/home/user/skills/{slug}/openapi.json"));
-            }
-            files
+    let mut files = connectors
+        .iter()
+        .flat_map(|connector| {
+            std::iter::once(format!("/home/user/skills/{}/SKILL.md", connector.slug)).chain(
+                connector.operations.iter().map(|operation| {
+                    format!(
+                        "/home/user/skills/{}/operations/{}.md",
+                        connector.slug, operation.function_name
+                    )
+                }),
+            )
         })
-        .collect();
+        .collect::<Vec<_>>();
+    files.push("/home/user/skills/scheduled-tasks/SKILL.md".into());
     Ok(ConnectorSkillCatalogue {
         prompt_section: Some(prompt),
         built_in_prompt_section,
@@ -187,7 +209,7 @@ impl RuntimeNetwork {
         let mut routes = self.routes.values().collect::<Vec<_>>();
         routes.sort_by(|left, right| left.slug.cmp(&right.slug));
         let mut prompt = String::from(
-            "Available connector skills:\nRead the relevant SKILL.md before using curl; authentication is supplied by the runtime.\n",
+            "Available connector skills:\nRead the relevant SKILL.md, then call its documented functions with run_python. Authentication is supplied by the runtime.\n",
         );
         for route in routes {
             prompt.push_str(&format!(
@@ -260,6 +282,7 @@ impl RuntimeNetwork {
                 ConnectorRoute {
                     slug,
                     name: integration.integration_name,
+                    is_builtin: false,
                     base_url,
                     document,
                     auth,
@@ -295,6 +318,7 @@ impl RuntimeNetwork {
                 ConnectorRoute {
                     slug,
                     name: spec.title,
+                    is_builtin: spec.is_builtin,
                     base_url,
                     document: spec.spec,
                     auth,
@@ -328,25 +352,28 @@ impl RuntimeNetwork {
     }
 
     pub(crate) async fn seed_skills(&self, fs: &dyn bashkit::FileSystem) -> Result<(), String> {
-        for route in self.routes.values() {
-            let dir = format!("/home/user/skills/{}", route.slug);
+        for connector in function_catalogue(&self.connector_documents()) {
+            let dir = format!("/home/user/skills/{}", connector.slug);
             fs.mkdir(Path::new(&dir), true)
                 .await
                 .map_err(|error| error.to_string())?;
-            let origin = connector_origin(&route.slug);
-            let skill = format!(
-                "# {}\n\nUse this connector with `curl`. Authentication is supplied by the runtime; never add credentials.\n\nInspect `{dir}/openapi.json` for operations. Its server is `{origin}`. Save large or binary responses with `curl -o /home/user/output/<name> ...`.\n",
-                route.name,
-            );
+            let skill = skill_markdown(&connector);
             fs.write_file(Path::new(&format!("{dir}/SKILL.md")), skill.as_bytes())
                 .await
                 .map_err(|error| error.to_string())?;
-            let mut document = route.document.clone();
-            document["servers"] = json!([{"url": origin}]);
-            let bytes = serde_json::to_vec_pretty(&document).map_err(|error| error.to_string())?;
-            fs.write_file(Path::new(&format!("{dir}/openapi.json")), &bytes)
+            let operations_dir = format!("{dir}/operations");
+            fs.mkdir(Path::new(&operations_dir), true)
                 .await
                 .map_err(|error| error.to_string())?;
+            for operation in &connector.operations {
+                let markdown = operation_markdown(&connector, operation);
+                fs.write_file(
+                    Path::new(&format!("{operations_dir}/{}.md", operation.function_name)),
+                    markdown.as_bytes(),
+                )
+                .await
+                .map_err(|error| error.to_string())?;
+            }
         }
         let dir = "/home/user/skills/dataset-search";
         fs.mkdir(Path::new(dir), true)
@@ -363,6 +390,26 @@ impl RuntimeNetwork {
             "# Scheduled tasks\n\nManage the current user's scheduled tasks through the internal HTTP capability. Use JSON bodies and `Content-Type: application/json`.\n\n- List: `curl -s https://{SCHEDULED_TASKS_HOST}/tasks`\n- Create: `curl -s -X POST https://{SCHEDULED_TASKS_HOST}/tasks -H 'Content-Type: application/json' -d '{{\"name\":\"...\",\"prompt\":\"...\",\"cron\":\"0 8 * * *\",\"timezone\":\"Europe/London\"}}'`\n- Update: `curl -s -X PATCH https://{SCHEDULED_TASKS_HOST}/tasks/<id> -H 'Content-Type: application/json' -d '{{\"enabled\":false}}'`\n- Delete: `curl -s -X DELETE https://{SCHEDULED_TASKS_HOST}/tasks/<id>`\n"
         ).as_bytes()).await.map_err(|error| error.to_string())?;
         Ok(())
+    }
+
+    fn connector_documents(&self) -> Vec<ConnectorDocument> {
+        self.routes
+            .values()
+            .map(|route| ConnectorDocument {
+                name: route.name.clone(),
+                slug: route.slug.clone(),
+                document: route.document.clone(),
+                is_builtin: route.is_builtin,
+            })
+            .collect()
+    }
+
+    pub(crate) fn python_functions(
+        self: &Arc<Self>,
+        filesystem: Arc<dyn bashkit::FileSystem>,
+    ) -> Vec<Arc<dyn sandbox::PythonFunction>> {
+        let network: Arc<dyn SandboxNetwork> = self.clone();
+        build_python_functions(&self.connector_documents(), network, filesystem)
     }
 
     fn route_for_url(&self, url: &Url) -> Option<&ConnectorRoute> {
@@ -1019,6 +1066,7 @@ mod tests {
         let route = ConnectorRoute {
             slug: "gmail".into(),
             name: "Gmail".into(),
+            is_builtin: false,
             base_url: "https://gmail.googleapis.com".into(),
             document: json!({}),
             auth: ConnectorAuth::Header("Authorization".into()),
@@ -1068,6 +1116,7 @@ mod tests {
         let route = ConnectorRoute {
             slug: "example".into(),
             name: "Example".into(),
+            is_builtin: false,
             base_url: "https://api.example.test".into(),
             document: json!({}),
             auth,

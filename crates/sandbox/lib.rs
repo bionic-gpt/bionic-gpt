@@ -9,7 +9,10 @@ mod filesystem;
 mod network;
 
 pub use bashkit::BashkitSandbox;
-pub use contract::{Command, ExecutionResult, RunRequest, RunResult, Sandbox, SandboxError};
+pub use contract::{
+    Command, ExecutionResult, PythonCallArguments, PythonFunction, PythonFunctionError, RunRequest,
+    RunResult, Sandbox, SandboxError,
+};
 pub use filesystem::{
     DirectoryEntry, FileMetadata, FileType, FilesystemError, FilesystemErrorKind,
     SandboxFilesystem, WriteMode,

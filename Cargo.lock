@@ -5920,6 +5920,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "bashkit",
+ "serde_json",
  "tokio",
 ]
 

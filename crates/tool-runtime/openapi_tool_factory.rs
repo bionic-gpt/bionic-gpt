@@ -458,6 +458,29 @@ impl BionicOpenAPI {
 
         Ok(tools)
     }
+
+    pub(crate) fn create_tools_with_http_client(
+        &self,
+        base_url: &str,
+        client: Arc<dyn crate::builtin_tools::openapi_tool_adapter::HttpClient>,
+    ) -> Vec<Arc<dyn ToolDyn>> {
+        self.create_tool_definitions()
+            .tool_definitions
+            .into_iter()
+            .map(|definition| {
+                let operation_id = definition.name.clone();
+                Arc::new(crate::OpenApiTool::with_http_client(
+                    definition,
+                    base_url.to_string(),
+                    self.spec.clone(),
+                    operation_id,
+                    self.get_auth_header_name(),
+                    None,
+                    client.clone(),
+                )) as Arc<dyn ToolDyn>
+            })
+            .collect()
+    }
 }
 
 #[cfg(test)]

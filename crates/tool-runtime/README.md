@@ -31,20 +31,19 @@ Each authorized integration is exposed as a skill:
 
 ```text
 /home/user/skills/<connector>/SKILL.md
-/home/user/skills/<connector>/openapi.json
+/home/user/skills/<connector>/operations/<function>.md
 ```
 
-The OpenAPI document uses an execution-scoped virtual origin such as
-`https://gmail.connectors.invalid`. The model inspects the skill/spec and calls
-it with ordinary `curl`. `RuntimeNetwork` validates the OpenAPI operation,
-maps the virtual origin to the configured upstream, removes caller-supplied
-credential headers, injects credentials outside the sandbox, refreshes OAuth
-tokens on a 401, and bounds the response. Anonymous public HTTP is a separate
-route with no credentials and SSRF checks.
+The model reads a compact function index, opens detailed documentation only for
+the operation it needs, and calls the function from Python. The internal OpenAPI
+document remains authoritative. `RuntimeNetwork` validates the operation, maps
+its virtual origin to the configured upstream, removes caller-supplied credential
+headers, injects credentials outside the sandbox, refreshes OAuth tokens on a
+401, and bounds the response. Anonymous public HTTP is a separate route with no
+credentials and SSRF checks.
 
-OpenAPI parsing and request-building code remains useful for MCP compatibility,
-validation, and metadata extraction. The generated Python-function registry has
-been removed.
+OpenAPI parsing and request-building code also remains useful for MCP
+compatibility, validation, and metadata extraction.
 
 ## Key modules
 

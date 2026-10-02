@@ -1,14 +1,15 @@
 # Bionic sandbox
 
 This crate is the provider-neutral execution boundary. It knows how to run a
-command, access a caller-supplied virtual filesystem, and issue HTTP requests
-through a caller-supplied network mediator:
+command, access a caller-supplied virtual filesystem, issue HTTP requests
+through a caller-supplied network mediator, and invoke scoped Python callbacks:
 
 ```rust
 pub struct RunRequest {
     pub command: Command,
     pub filesystem: Arc<dyn SandboxFilesystem>,
     pub network: Arc<dyn SandboxNetwork>,
+    pub python_functions: Vec<Arc<dyn PythonFunction>>,
 }
 ```
 

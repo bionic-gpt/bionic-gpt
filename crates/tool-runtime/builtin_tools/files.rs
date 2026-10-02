@@ -162,7 +162,7 @@ pub fn get_edit_file_definition() -> crate::types::ToolDefinition {
 pub fn get_run_python_definition() -> crate::types::ToolDefinition {
     definition(
         "run_python",
-        "Run dependency-free Python in Monty with the virtual filesystem. Use connector skills and curl from run_bash for HTTP integrations.",
+        "Run dependency-free Python in Monty with the virtual filesystem. Connector functions documented under /home/user/skills are available directly by name; no import or credentials are needed.",
         json!({
             "type": "object",
             "properties": {"code": {"type": "string"}},
@@ -258,6 +258,7 @@ async fn execute_operation(
         Operation::Python => {
             let arguments: PythonArgs = serde_json::from_str(args)?;
             ensure_size(arguments.code.as_bytes())?;
+            let python_functions = network.python_functions(fs.clone());
             let result = sandbox::BashkitSandbox
                 .run(sandbox::RunRequest {
                     command: sandbox::Command::Python {
@@ -266,6 +267,7 @@ async fn execute_operation(
                     },
                     filesystem: Arc::new(crate::sandbox_io::RuntimeFilesystem::new(fs.clone())),
                     network,
+                    python_functions,
                 })
                 .await?;
             let outputs = persist_output_if_needed(tool, &fs).await?;

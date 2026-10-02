@@ -9,7 +9,7 @@ Use this skill when the user's task depends on information contained in an uploa
 ## Workflow
 
 1. Identify the relevant image in `/home/user/attachments`.
-2. List `/home/user/skills` and read the relevant connector's `SKILL.md` and `openapi.json` before calling it with `curl`.
+2. List `/home/user/skills`, read the relevant connector's `SKILL.md`, and inspect the referenced operation file when exact arguments are needed.
 3. Send the image reference and a short task describing what needs to be extracted or assessed.
 4. Treat the returned analysis as evidence, not as the final answer.
 5. Write a useful answer for the user's domain and task.

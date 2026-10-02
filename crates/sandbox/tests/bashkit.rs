@@ -2,9 +2,11 @@ use async_trait::async_trait;
 use bashkit::{FileSystem, InMemoryFs};
 use sandbox::{
     BashkitSandbox, Command, DirectoryEntry, FileMetadata, FileType, FilesystemError,
-    FilesystemErrorKind, HttpRequest, HttpResponse, NetworkError, RunRequest, Sandbox,
-    SandboxFilesystem, SandboxNetwork, WriteMode,
+    FilesystemErrorKind, HttpRequest, HttpResponse, NetworkError, PythonCallArguments,
+    PythonFunction, PythonFunctionError, RunRequest, Sandbox, SandboxFilesystem, SandboxNetwork,
+    WriteMode,
 };
+use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime};
@@ -97,6 +99,29 @@ impl SandboxFilesystem for TestFilesystem {
 #[derive(Default)]
 struct RecordingNetwork(Mutex<Vec<String>>);
 
+struct AddFunction;
+
+#[async_trait]
+impl PythonFunction for AddFunction {
+    fn name(&self) -> &str {
+        "connector_add"
+    }
+
+    async fn call(&self, arguments: PythonCallArguments) -> Result<Value, PythonFunctionError> {
+        let left = arguments
+            .keyword
+            .get("left")
+            .and_then(Value::as_i64)
+            .unwrap();
+        let right = arguments
+            .keyword
+            .get("right")
+            .and_then(Value::as_i64)
+            .unwrap();
+        Ok(json!({"total": left + right}))
+    }
+}
+
 #[async_trait]
 impl SandboxNetwork for RecordingNetwork {
     async fn request(&self, request: HttpRequest) -> Result<HttpResponse, NetworkError> {
@@ -118,6 +143,7 @@ fn request(
         command,
         filesystem: fs,
         network,
+        python_functions: Vec::new(),
     }
 }
 
@@ -170,6 +196,24 @@ async fn python_open_uses_supplied_filesystem() {
         .await
         .unwrap();
     assert_eq!(result.execution.stdout, "hello\n");
+}
+
+#[tokio::test]
+async fn python_can_call_scoped_host_functions_in_a_loop() {
+    let mut run_request = request(
+        Command::Python {
+            code:
+                "for value in [1, 2, 3]:\n    print(connector_add(left=value, right=10)['total'])"
+                    .into(),
+            timeout: Duration::from_secs(5),
+        },
+        Arc::new(TestFilesystem(Arc::new(InMemoryFs::new()))),
+        Arc::new(RecordingNetwork::default()),
+    );
+    run_request.python_functions = vec![Arc::new(AddFunction)];
+    let result = BashkitSandbox.run(run_request).await.unwrap();
+    assert_eq!(result.execution.exit_code, 0);
+    assert_eq!(result.execution.stdout, "11\n12\n13\n");
 }
 
 #[tokio::test]

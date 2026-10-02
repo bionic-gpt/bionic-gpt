@@ -9,4 +9,5 @@ path = "lib.rs"
 [dependencies]
 async-trait.workspace = true
 bashkit = { version = "0.14.5", features = ["python", "sqlite", "http_client"] }
+serde_json.workspace = true
 tokio = { workspace = true, features = ["time"] }

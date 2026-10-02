@@ -269,7 +269,7 @@ fn DiscoverableFunctions(integration_context: Option<String>, token_estimate: i3
             }
             CardBody {
                 class: "text-sm text-base-content/80",
-                p { "Connected integrations are exposed as skills under /home/user/skills. Read the relevant SKILL.md and inspect its OpenAPI document on demand, then call the documented virtual origin with curl; authentication is supplied outside the sandbox." }
+                p { "Connected integrations are exposed as skills under /home/user/skills. Read the relevant SKILL.md, inspect an operation file when exact arguments are needed, then call the documented function with run_python; authentication is supplied outside the sandbox." }
                 if let Some(integration_context) = integration_context.as_ref() {
                     pre {
                         class: "mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded border border-base-300 bg-base-100 p-4 font-mono text-xs text-base-content",
