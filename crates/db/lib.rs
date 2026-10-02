@@ -23,6 +23,7 @@ pub use queries::generated_outputs::{GeneratedOutput, GeneratedOutputData};
 pub use queries::history::History;
 pub use queries::integrations::Integration;
 pub use queries::invitations::{Invitation, InviteSummary};
+pub use queries::model_requests::{ModelRequestDetail, ModelRequestSummary};
 pub use queries::models::{Model, ModelConfig};
 pub use queries::oauth_clients::OauthClient;
 pub use queries::object_storage::ObjectStorage;

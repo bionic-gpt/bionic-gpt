@@ -352,6 +352,11 @@ pub(crate) async fn stream_chat_with_rig(
         "Starting model stream"
     );
     let api_key = request.api_key.as_deref().unwrap_or("");
+    let http = request
+        .request_recorder
+        .clone()
+        .map(|recorder| recorder.transport())
+        .unwrap_or_else(rig_reqwest::shared);
     let stream = match request.provider_type {
         db::ModelProvider::OpenAI
         | db::ModelProvider::OpenAICompatible
@@ -364,7 +369,7 @@ pub(crate) async fn stream_chat_with_rig(
             };
             openai::OpenAIConfig::with_key(dialect, api_key)
                 .with_base_url(&request.base_url)
-                .client()
+                .connect(http.clone())
                 .chat(&request.model_name)
                 .erase()
                 .stream(request.completion)?
@@ -372,7 +377,7 @@ pub(crate) async fn stream_chat_with_rig(
         db::ModelProvider::Ollama => ollama::OllamaConfig::new()
             .with_api_key(api_key)
             .with_base_url(ollama_base_url(&request.base_url))
-            .client()
+            .connect(http)
             .completion(&request.model_name)
             .erase()
             .stream(request.completion)?,

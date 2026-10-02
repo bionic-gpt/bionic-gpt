@@ -66,6 +66,24 @@ pub mod rate_limits {
     }
 }
 
+pub mod model_requests {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/llm-requests")]
+    pub struct Index {
+        pub team_id: String,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/llm-requests/{id}")]
+    pub struct View {
+        pub team_id: String,
+        pub id: i64,
+    }
+}
+
 pub mod api_keys {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;

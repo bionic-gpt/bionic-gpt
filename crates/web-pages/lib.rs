@@ -14,6 +14,7 @@ pub mod i18n;
 pub mod integrations;
 pub mod mcp_api_keys;
 pub mod menu;
+pub mod model_requests;
 pub mod models;
 pub mod oauth_clients;
 pub mod openapi_specs;

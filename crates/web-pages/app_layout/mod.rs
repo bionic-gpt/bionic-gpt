@@ -29,6 +29,7 @@ pub enum SideBar {
     ScheduledTasks,
     Integrations,
     McpApiKeys,
+    ModelRequests,
     Models,
     OauthClients,
     OpenapiSpecs,

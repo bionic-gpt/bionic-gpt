@@ -63,6 +63,14 @@ pub fn render(params: &SidebarParams, _labels: &SidebarLabels) -> Element {
                         title: "Models",
                         disabled: false
                     }
+                    NavItem {
+                        id: SideBar::ModelRequests.to_string(),
+                        selected_item_id: selected_item.clone(),
+                        href: crate::routes::model_requests::Index { team_id: team_id.clone() },
+                        icon: nav_service_requests_svg.name,
+                        title: "Requests",
+                        disabled: setup_required
+                    }
                     if rbac.is_sys_admin {
                         NavItem {
                             id: SideBar::Providers.to_string(),

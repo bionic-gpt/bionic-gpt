@@ -2,6 +2,7 @@ use crate::context_builder;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
 use crate::moderation::{moderate_chat, strip_tool_data, ModerationVerdict};
+use crate::request_recorder::RequestRecorder;
 use crate::user_config::UserConfig;
 use db::{queries, ChatRole, ChatStatus, Pool};
 use rig::completion::{CompletionRequest, Message as RigMessage};
@@ -15,6 +16,7 @@ pub(crate) struct RigChatRequest {
     pub(crate) completion: CompletionRequest,
     pub(crate) model_id: i32,
     pub(crate) user_id: i32,
+    pub(crate) request_recorder: Option<RequestRecorder>,
 }
 
 /// Builds the model request payload and marks the chat as in-progress.
@@ -200,5 +202,10 @@ pub(crate) async fn create_request(
         completion,
         model_id: model.id,
         user_id: conversation.user_id,
+        request_recorder: Some(RequestRecorder::new(
+            pool.clone(),
+            current_user.sub.clone(),
+            chat_id,
+        )),
     })
 }

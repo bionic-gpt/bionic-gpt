@@ -23,8 +23,10 @@ tower-http = { workspace = true, features = ["fs", "cors"] }
 async-trait.workspace = true
 tiktoken-rs = "0.9.1"
 rig = { package = "rig-core", version = "0.43", default-features = false, features = ["reqwest", "rustls"] }
+rig-reqwest = { version = "0.43", default-features = false, features = ["rustls"] }
 
 base64.workspace = true
+bytes.workspace = true
 
 [dev-dependencies]
 chrono.workspace = true

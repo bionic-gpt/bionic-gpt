@@ -4,6 +4,7 @@ mod errors;
 mod jwt;
 pub mod limits;
 pub mod moderation;
+mod request_recorder;
 mod result_sink;
 pub mod synthesize;
 #[cfg(test)]

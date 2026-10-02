@@ -107,6 +107,7 @@ async fn main() {
         .merge(agent_harness::routes())
         .merge(handlers::mcp::routes())
         .merge(handlers::models::routes())
+        .merge(handlers::model_requests::routes())
         .merge(handlers::providers::routes())
         .merge(handlers::pipelines::routes())
         .merge(handlers::profile::routes())

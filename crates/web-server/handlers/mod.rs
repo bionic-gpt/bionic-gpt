@@ -10,6 +10,7 @@ pub mod integrations;
 pub mod mcp;
 pub mod mcp_api_keys;
 pub mod metrics;
+pub mod model_requests;
 pub mod models;
 pub mod oauth2;
 pub mod oauth_clients;

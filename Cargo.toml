@@ -15,6 +15,7 @@ hyper = "1"
 tokio = "1"
 tokio-util = "0.7.15"
 base64 = "0.22"
+bytes = "1"
 pgvector = "0.4"
 reqwest = { version = "0.13", default-features = false }
 rustls = "0.23"
