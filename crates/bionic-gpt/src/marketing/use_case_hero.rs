@@ -64,22 +64,22 @@ const SCENES: [Scene; 3] = [
             focus: "50% 45%",
             mobile_focus: "52% 45%",
         },
-        top: "Bionic can",
+        top: "Bionic builds",
         tasks: [
             Task {
-                text: "find your next 20 leads",
+                text: "your next 20 leads",
                 icon: TaskIcon::Search,
             },
             Task {
-                text: "prepare your board pack",
+                text: "your board pack",
                 icon: TaskIcon::Presentation,
             },
             Task {
-                text: "review every open contract",
+                text: "your contract review",
                 icon: TaskIcon::FileCheck,
             },
         ],
-        bottom: "while you work",
+        bottom: "while you create",
     },
     Scene {
         media: ImageMedia {
@@ -88,18 +88,18 @@ const SCENES: [Scene; 3] = [
             focus: "50% 45%",
             mobile_focus: "40% 45%",
         },
-        top: "Bionic can",
+        top: "Bionic handles",
         tasks: [
             Task {
-                text: "compare 30 supplier bids",
+                text: "your supplier comparison",
                 icon: TaskIcon::Scale,
             },
             Task {
-                text: "analyse customer feedback",
+                text: "your customer analysis",
                 icon: TaskIcon::Messages,
             },
             Task {
-                text: "draft your tender response",
+                text: "your tender response",
                 icon: TaskIcon::FileEdit,
             },
         ],
@@ -112,22 +112,22 @@ const SCENES: [Scene; 3] = [
             focus: "50% 50%",
             mobile_focus: "60% 50%",
         },
-        top: "Bionic can",
+        top: "Bionic keeps going",
         tasks: [
             Task {
-                text: "reconcile the monthly accounts",
+                text: "reconciling your accounts",
                 icon: TaskIcon::Calculator,
             },
             Task {
-                text: "explain the revenue variance",
+                text: "explaining the variance",
                 icon: TaskIcon::Trending,
             },
             Task {
-                text: "prepare tomorrow's report",
+                text: "preparing tomorrow's report",
                 icon: TaskIcon::Clipboard,
             },
         ],
-        bottom: "while you unwind",
+        bottom: "while you don't",
     },
 ];
 

@@ -2,7 +2,38 @@ const TASK_DURATION = 2000;
 const FADE_DURATION = 800;
 const LOAD_TIMEOUT = 12000;
 
+function initializeHeroNavbar(hero) {
+  const header = document.querySelector('body > header');
+  if (!header) return;
+  let queued = false;
+
+  function update() {
+    queued = false;
+    const headerBounds = header.getBoundingClientRect();
+    document.body.style.setProperty('--hero-navbar-height', `${headerBounds.height}px`);
+    document.body.classList.toggle(
+      'hero-nav-solid',
+      hero.getBoundingClientRect().bottom <= headerBounds.bottom,
+    );
+  }
+
+  function scheduleUpdate() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  }
+
+  // Independent of rotation and motion preferences; also handles restored scroll.
+  update();
+  window.addEventListener('scroll', scheduleUpdate, { passive: true });
+  window.addEventListener('resize', scheduleUpdate, { passive: true });
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(scheduleUpdate).observe(header);
+  }
+}
+
 for (const hero of document.querySelectorAll('[data-use-case-hero]')) {
+  initializeHeroNavbar(hero);
   const pictures = [...hero.querySelectorAll('picture[data-scene]')];
   const scenes = pictures.map((picture) => ({
     picture,

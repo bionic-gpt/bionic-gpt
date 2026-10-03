@@ -25,7 +25,29 @@
   box-shadow: 0 10px 30px -15px oklch(var(--bc) / 0.35);
 }
 
-/* Homepage only; the shared navigation and lower sections keep their styling. */
+/* The existing shared navbar overlays the photograph only on the homepage. */
+body:has(> .use-case-hero) > header {
+  background: var(--color-base-100, #fff);
+  color: var(--color-base-content, #171917);
+}
+
+body:has(> .use-case-hero):not(.hero-nav-solid) > header {
+  background: transparent;
+  color: #fff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body:has(> .use-case-hero) > header .dropdown-content {
+  color: var(--color-base-content, #171917);
+}
+
+body:has(> .use-case-hero) > .use-case-hero {
+  margin-top: calc(0px - var(--hero-navbar-height, 4rem));
+  min-height: max(32rem, 100svh);
+}
+
+/* Homepage hero; lower sections keep their styling. */
 .use-case-hero {
   position: relative;
   isolation: isolate;
@@ -89,11 +111,13 @@
 }
 
 .use-case-hero__tasks {
+  --hero-task-height: 1.08em;
   display: grid;
   grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   align-items: center;
-  height: 1.08em;
+  height: var(--hero-task-height);
   margin: 0 auto;
+  overflow: hidden;
   white-space: nowrap;
 }
 
@@ -103,20 +127,18 @@
   font-weight: 550;
   text-wrap: balance;
   visibility: hidden;
-  opacity: 0;
-  transform: translateY(0.22em);
-  transition: opacity 240ms ease, transform 320ms ease, visibility 0s linear 320ms;
+  transform: translateY(var(--hero-task-height));
+  transition: transform 320ms ease, visibility 0s linear 320ms;
 }
 
 .use-case-hero__task.is-active {
   visibility: visible;
-  opacity: 1;
   transform: translateY(0);
   transition-delay: 0s;
 }
 
 .use-case-hero__task.is-leaving {
-  transform: translateY(-0.22em);
+  transform: translateY(calc(0px - var(--hero-task-height)));
 }
 
 .use-case-hero__task-copy {
@@ -161,7 +183,7 @@
 
 @media (max-width: 767px) {
   .use-case-hero__tasks {
-    height: 2.16em;
+    --hero-task-height: 2.16em;
     white-space: normal;
   }
 
