@@ -24,3 +24,183 @@
   border-color: oklch(var(--bc) / 0.4);
   box-shadow: 0 10px 30px -15px oklch(var(--bc) / 0.35);
 }
+
+/* The existing shared navbar overlays the photograph only on the homepage. */
+body:has(> .use-case-hero) > header {
+  background: var(--color-base-100, #fff);
+  color: var(--color-base-content, #171917);
+}
+
+body:has(> .use-case-hero):not(.hero-nav-solid) > header {
+  background: transparent;
+  color: #fff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body:has(> .use-case-hero) > header .dropdown-content {
+  color: var(--color-base-content, #171917);
+}
+
+body:has(> .use-case-hero) > .use-case-hero {
+  margin-top: calc(0px - var(--hero-navbar-height, 4rem));
+  min-height: max(32rem, 100svh);
+}
+
+/* Homepage hero; lower sections keep their styling. */
+.use-case-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: max(32rem, calc(100svh - 4rem));
+  overflow: hidden;
+  background: #171917;
+  color: #fff;
+  text-align: center;
+}
+
+.use-case-hero__scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 800ms ease-in-out;
+}
+
+.use-case-hero__scene.is-active {
+  z-index: 1;
+  opacity: 1;
+}
+
+.use-case-hero__scene img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--hero-focus);
+}
+
+.use-case-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(0 0 0 / 35%), rgb(0 0 0 / 64%) 55%, rgb(0 0 0 / 48%));
+}
+
+.use-case-hero__content {
+  position: relative;
+  z-index: 3;
+  width: min(100%, 75rem);
+  padding: 4rem 1.5rem;
+}
+
+.use-case-hero__sentence {
+  margin: 0;
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.use-case-hero__top,
+.use-case-hero__bottom {
+  display: block;
+}
+
+.use-case-hero__tasks {
+  --hero-task-height: 1.08em;
+  --hero-task-clearance: 0.2em;
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  align-items: center;
+  box-sizing: content-box;
+  height: var(--hero-task-height);
+  /* Expand the clipping window without moving either static sentence line. */
+  padding-block: var(--hero-task-clearance);
+  margin: calc(0px - var(--hero-task-clearance)) auto;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.use-case-hero__task {
+  grid-area: 1 / 1;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  font-weight: 550;
+  text-wrap: balance;
+  visibility: hidden;
+  transform: translateY(calc(var(--hero-task-height) + 2 * var(--hero-task-clearance)));
+  transition: transform 320ms ease, visibility 0s linear 320ms;
+}
+
+.use-case-hero__task.is-active {
+  visibility: visible;
+  transform: translateY(0);
+  transition-delay: 0s;
+}
+
+.use-case-hero__task.is-leaving {
+  transform: translateY(calc(0px - var(--hero-task-height) - 2 * var(--hero-task-clearance)));
+}
+
+.use-case-hero__task-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22em;
+  max-width: 100%;
+}
+
+.use-case-hero__task-copy > span {
+  min-width: 0;
+}
+
+/* Center icon and text together without increasing the fixed task slot height. */
+.use-case-hero__task-icon {
+  flex: 0 0 0.75em;
+  width: 0.75em;
+  height: 0.75em;
+  transform: translateY(0.06em);
+  opacity: 0.85;
+}
+
+.use-case-hero__pause {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1rem;
+  z-index: 3;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 0.25rem;
+  background: rgb(0 0 0 / 35%);
+  color: #fff;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.use-case-hero__pause:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+@media (max-width: 767px) {
+  .use-case-hero__tasks {
+    --hero-task-height: 2.16em;
+    white-space: normal;
+  }
+
+  .use-case-hero__scene img {
+    object-position: var(--hero-mobile-focus);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .use-case-hero__scene,
+  .use-case-hero__task {
+    transition: none;
+  }
+}
