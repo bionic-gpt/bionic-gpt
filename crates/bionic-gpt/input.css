@@ -119,6 +119,26 @@
   transform: translateY(-0.22em);
 }
 
+.use-case-hero__task-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22em;
+  max-width: 100%;
+  vertical-align: top;
+}
+
+.use-case-hero__task-copy > span {
+  min-width: 0;
+}
+
+/* Center icon and text together without increasing the fixed task slot height. */
+.use-case-hero__task-icon {
+  flex: 0 0 0.75em;
+  width: 0.75em;
+  height: 0.75em;
+  opacity: 0.85;
+}
+
 .use-case-hero__pause {
   position: absolute;
   right: 1.25rem;
