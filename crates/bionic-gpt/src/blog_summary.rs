@@ -7,6 +7,17 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 PageSummary {
+                    date: "2026-10-02",
+                    title: "Sandboxes",
+                    description: "Sandboxes",
+                    folder: "blog/sandboxes/",
+                    markdown: include_str!("../content/blog/sandboxes/index.md"),
+                    image: Some("/blog/sandboxes/sandboxes.png"),
+                    open_graph_image: Some("/blog/sandboxes/open-graph.jpg"),
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
+                },
+                PageSummary {
                     date: "2026-09-29",
                     title: "Citizen Agent Development",
                     description: "Learn how non-technical employees are using no-code platforms to create and deploy AI agents for their own work.",
