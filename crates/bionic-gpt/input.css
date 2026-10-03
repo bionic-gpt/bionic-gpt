@@ -112,22 +112,28 @@ body:has(> .use-case-hero) > .use-case-hero {
 
 .use-case-hero__tasks {
   --hero-task-height: 1.08em;
+  --hero-task-clearance: 0.2em;
   display: grid;
   grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   align-items: center;
+  box-sizing: content-box;
   height: var(--hero-task-height);
-  margin: 0 auto;
+  /* Expand the clipping window without moving either static sentence line. */
+  padding-block: var(--hero-task-clearance);
+  margin: calc(0px - var(--hero-task-clearance)) auto;
   overflow: hidden;
   white-space: nowrap;
 }
 
 .use-case-hero__task {
   grid-area: 1 / 1;
+  display: flex;
+  justify-content: center;
   margin: 0;
   font-weight: 550;
   text-wrap: balance;
   visibility: hidden;
-  transform: translateY(var(--hero-task-height));
+  transform: translateY(calc(var(--hero-task-height) + 2 * var(--hero-task-clearance)));
   transition: transform 320ms ease, visibility 0s linear 320ms;
 }
 
@@ -138,7 +144,7 @@ body:has(> .use-case-hero) > .use-case-hero {
 }
 
 .use-case-hero__task.is-leaving {
-  transform: translateY(calc(0px - var(--hero-task-height)));
+  transform: translateY(calc(0px - var(--hero-task-height) - 2 * var(--hero-task-clearance)));
 }
 
 .use-case-hero__task-copy {
@@ -146,7 +152,6 @@ body:has(> .use-case-hero) > .use-case-hero {
   align-items: center;
   gap: 0.22em;
   max-width: 100%;
-  vertical-align: top;
 }
 
 .use-case-hero__task-copy > span {
@@ -158,6 +163,7 @@ body:has(> .use-case-hero) > .use-case-hero {
   flex: 0 0 0.75em;
   width: 0.75em;
   height: 0.75em;
+  transform: translateY(0.06em);
   opacity: 0.85;
 }
 
