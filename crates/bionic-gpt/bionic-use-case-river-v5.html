@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bionic — Use Cases River Mockup</title>
+<style>
+:root{
+  --ink:#171717; --muted:#5f636b; --line:#e6e7eb; --soft:#f7f7f8;
+  --purple:#4b2ee8; --purple-soft:#f0edff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:white}
+main{max-width:1180px;margin:auto;padding:90px 32px 120px}
+.intro{max-width:720px;margin-bottom:80px}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple)}
+h1{font-size:52px;line-height:1.02;letter-spacing:-.045em;margin:14px 0 20px}
+.intro p{font-size:20px;line-height:1.55;color:var(--muted)}
+.river{display:grid;gap:110px}
+.row{display:grid;grid-template-columns:1fr 1.08fr;gap:80px;align-items:start}
+.row:nth-child(even) .copy{order:2}
+.row:nth-child(even) .visual{order:1}
+.num{font-size:13px;font-weight:750;color:var(--purple);margin-bottom:20px}
+h2{font-size:38px;line-height:1.08;letter-spacing:-.035em;margin:0 0 18px}
+.copy{padding-top:10px}
+.copy p{font-size:18px;line-height:1.65;color:var(--muted);margin:0;max-width:480px}
+.tools{
+  display:flex;align-items:center;gap:10px;margin-top:28px;flex-wrap:wrap;
+  width:max-content;max-width:100%;padding:11px 48px 11px 12px;
+  border:1px solid var(--line);border-radius:16px;background:#fff;
+  position:relative;box-shadow:0 5px 18px rgba(20,20,40,.035)
+}
+.tools:after{
+  content:"";position:absolute;right:-54px;top:50%;width:52px;height:1px;
+  background:#c9c5ee
+}
+.tools:before{
+  content:"";position:absolute;right:-55px;top:calc(50% - 4px);
+  width:8px;height:8px;border-top:1.5px solid var(--purple);
+  border-right:1.5px solid var(--purple);transform:rotate(45deg)
+}
+.tool{width:44px;height:44px;border:1px solid var(--line);background:#fff;border-radius:12px;display:grid;place-items:center}
+.tool svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tool-label{font-size:13px;color:#8a8d94;margin-right:2px}
+.visual{min-height:410px;border:1px solid var(--line);border-radius:28px;background:var(--soft);padding:34px;display:flex;align-items:center;justify-content:center}
+.window{width:100%;background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:0 18px 50px rgba(20,20,40,.07)}
+.chat{display:grid;gap:18px}
+.user-msg{justify-self:end;max-width:82%;padding:13px 16px;background:var(--purple);color:white;border-radius:17px 17px 5px 17px;font-size:15px;line-height:1.45}
+.agent{display:flex;gap:12px;align-items:flex-start}
+.avatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:var(--purple);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px}
+.answer{min-width:0;flex:1}
+.answer-head{font-size:13px;font-weight:750;margin:2px 0 9px}
+.answer-copy{font-size:14px;line-height:1.55;color:#454850;margin:0 0 14px}
+.prompt{display:inline-block;padding:11px 15px;background:var(--purple-soft);border-radius:13px;font-size:15px;margin-bottom:22px}
+.label{font-size:12px;font-weight:750;color:#737780;text-transform:uppercase;letter-spacing:.07em;margin:0 0 10px}
+.big{font-size:22px;font-weight:750;margin:0 0 18px}
+.item{padding:14px 0;border-top:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+.icon{width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:var(--purple-soft);display:grid;place-items:center}
+.item strong{display:block;font-size:15px;margin-bottom:3px}.item span{font-size:13px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.chip{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:#fff}
+.leads{display:grid;gap:10px}
+.lead{display:grid;grid-template-columns:1fr auto;gap:12px;padding:14px;border:1px solid var(--line);border-radius:13px}
+.lead b{font-size:14px}.lead small{display:block;color:var(--muted);margin-top:4px}
+.score{font-size:12px;font-weight:750;color:var(--purple);background:var(--purple-soft);border-radius:999px;padding:6px 9px;height:max-content}
+.status{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line);font-size:14px}.dot{width:8px;height:8px;border-radius:50%;background:var(--purple)}
+.footer-note{margin-top:110px;border-top:1px solid var(--line);padding-top:28px;color:var(--muted);font-size:14px}
+@media(max-width:800px){main{padding:55px 22px}h1{font-size:42px}.row{grid-template-columns:1fr;gap:30px}.row:nth-child(even) .copy,.row:nth-child(even) .visual{order:initial}.river{gap:75px}.visual{min-height:0}h2{font-size:32px}}
+</style>
+</head>
+<body>
+<main>
+  <section class="intro">
+    <div class="eyebrow">Bionic at work</div>
+    <h1>Give Bionic work.<br>Not just questions.</h1>
+    <p>From the first briefing of the day to work that keeps running after you leave, Bionic connects to the tools your business already uses and gets things done.</p>
+  </section>
+
+  <section class="river">
+    <article class="row">
+      <div class="copy">
+        <div class="num">01</div>
+        <h2>Start every day one step ahead</h2>
+        <p>Wake up to a briefing built from your inbox, calendar and business systems — what changed, what matters and what needs your attention.</p><div class="tools"><span class="tool-label">Works with</span><span class="tool" title="Mail"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span><span class="tool" title="Calendar"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg></span><span class="tool" title="Crm"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.7-4 2.5-6 5.5-6s4.8 2 5.5 6M16 8h5M18.5 5.5v5"/></svg></span><span class="tool" title="Docs"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span></div>
+      </div>
+      <div class="visual"><div class="window"><div class="chat">
+<div class="user-msg">Give me my morning briefing.</div>
+<div class="agent agent-clean"><div class="answer">
+<p class="answer-copy">Morning. Three things need your attention today.</p>
+<div class="item"><div class="icon">✉</div><div><strong>3 emails need a response</strong><span>One customer issue and two sales opportunities.</span></div></div>
+<div class="item"><div class="icon">◷</div><div><strong>Acme renewal · 09:30</strong><span>Sarah confirmed the revised budget yesterday.</span></div></div>
+<div class="item"><div class="icon">↗</div><div><strong>Northstar moved to proposal</strong><span>The opportunity changed overnight.</span></div></div>
+</div></div></div></div></div>
+    </article>
+
+    <article class="row">
+      <div class="copy">
+        <div class="num">02</div>
+        <h2>Turn your inbox into actions</h2>
+        <p>Bionic can triage incoming email, separate routine messages from the ones that matter, prepare replies and take the next step in your systems.</p><div class="tools"><span class="tool-label">Works with</span><span class="tool" title="Mail"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span><span class="tool" title="Crm"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.7-4 2.5-6 5.5-6s4.8 2 5.5 6M16 8h5M18.5 5.5v5"/></svg></span><span class="tool" title="Docs"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span></div>
+      </div>
+      <div class="visual"><div class="window"><div class="chat">
+<div class="user-msg">Keep on top of my inbox. Only bother me when I need to do something.</div>
+<div class="agent agent-clean"><div class="answer">
+<p class="answer-copy">I checked 27 new messages. I handled the routine ones; these four need you.</p>
+<div class="item"><div class="icon">!</div><div><strong>Customer needs a decision</strong><span>Contract question · I drafted a reply.</span></div></div>
+<div class="item"><div class="icon">★</div><div><strong>New sales enquiry</strong><span>Looks qualified · I created the CRM record.</span></div></div>
+<div class="item"><div class="icon">✓</div><div><strong>23 handled</strong><span>Receipts, notifications and routine requests.</span></div></div>
+</div></div></div></div></div>
+    </article>
+
+    <article class="row">
+      <div class="copy">
+        <div class="num">03</div>
+        <h2>Find your next customers</h2>
+        <p>Give Bionic a market or customer profile. It can research prospects, qualify them, enrich the useful ones and prepare personalized outreach.</p><div class="tools"><span class="tool-label">Works with</span><span class="tool" title="Web"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.7 5.5 3.7 9S14.5 18.5 12 21M12 3C9.5 5.5 8.3 8.5 8.3 12S9.5 18.5 12 21"/></svg></span><span class="tool" title="Crm"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.7-4 2.5-6 5.5-6s4.8 2 5.5 6M16 8h5M18.5 5.5v5"/></svg></span><span class="tool" title="Mail"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span></div>
+      </div>
+      <div class="visual"><div class="window"><div class="chat">
+<div class="user-msg">Find German manufacturers that look like good customers for us.</div>
+<div class="agent agent-clean"><div class="answer">
+<p class="answer-copy">I researched the market and found 12 strong matches. Here are the top three.</p>
+<div class="leads">
+<div class="lead"><div><b>Nordwerk GmbH</b><small>Relevant initiative found · decision maker identified</small></div><span class="score">92% fit</span></div>
+<div class="lead"><div><b>Rhein Systems AG</b><small>1,400 employees · active expansion signal</small></div><span class="score">88% fit</span></div>
+<div class="lead"><div><b>Hansa Industrial</b><small>Strong ICP match · outreach angle prepared</small></div><span class="score">84% fit</span></div>
+</div>
+</div></div></div></div></div>
+    </article>
+
+    <article class="row">
+      <div class="copy">
+        <div class="num">04</div>
+        <h2>Keep working when you aren't</h2>
+        <p>Turn useful prompts into recurring work. Bionic can prepare reports, monitor changes and follow up automatically — without waiting for another chat.</p><div class="tools"><span class="tool-label">Works with</span><span class="tool" title="Clock"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="tool" title="Mail"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span><span class="tool" title="Crm"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.7-4 2.5-6 5.5-6s4.8 2 5.5 6M16 8h5M18.5 5.5v5"/></svg></span><span class="tool" title="Docs"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span></div>
+      </div>
+      <div class="visual"><div class="window"><div class="chat">
+<div class="user-msg">Every Friday, prepare my sales report and flag anything I should worry about.</div>
+<div class="agent agent-clean"><div class="answer">
+<p class="answer-copy">Done. I’ll run this every Friday. This week’s report is ready now.</p>
+<div class="status"><span class="dot"></span><div><strong>6 deals moved</strong><br><span style="color:var(--muted);font-size:13px">Two progressed to proposal.</span></div></div>
+<div class="status"><span class="dot"></span><div><strong>2 risks need attention</strong><br><span style="color:var(--muted);font-size:13px">No activity for more than 14 days.</span></div></div>
+<div class="status"><span class="dot"></span><div><strong>Report ready to share</strong><br><span style="color:var(--muted);font-size:13px">I’ll do this again next Friday.</span></div></div>
+</div></div></div></div></div>
+    </article>
+  </section>
+
+  <div class="footer-note">Mockup direction: neutral product surfaces, large readable type, Bionic purple as an accent rather than a background.</div>
+</main>
+</body>
+</html>
+<style>
+.row:nth-child(even) .tools{padding:11px 12px 11px 48px}
+.row:nth-child(even) .tools:after{right:auto;left:-54px}
+.row:nth-child(even) .tools:before{
+  right:auto;left:-55px;transform:rotate(-135deg)
+}
+@media(max-width:800px){
+  .tools{padding:11px 12px!important}
+  .tools:after,.tools:before{display:none}
+}
+</style>
+
+<style>
+/* Cleaner assistant response: the purple prompt already establishes the conversation. */
+.agent-clean{display:block}
+.agent-clean .answer{width:100%}
+.visual{padding:22px}
+.window{padding:24px}
+.answer-copy{font-size:15px;line-height:1.55;margin-top:0}
+
+/* Give the actual vignette more of the available visual area. */
+@media(min-width:801px){
+  .visual .window{width:100%}
+}
+</style>

@@ -1,10 +1,10 @@
 use crate::marketing::{
     customer_logos::Customers,
     faq_accordian::{Faq, FaqText},
-    features::CapabilityVignettes,
     footer::Footer,
     security::Security,
     use_case_hero::UseCaseHero,
+    use_case_river::UseCaseRiver,
 };
 use crate::ui_links::footer_links;
 use dioxus::prelude::*;
@@ -27,7 +27,7 @@ pub fn home_page() -> String {
                 class: "px-4 md:px-0 w-full lg:max-w-5xl mt-16 md:mt-36 mx-auto grid gap-y-28",
                 Customers {}
 
-                CapabilityVignettes {}
+                UseCaseRiver {}
 
                 section {
                     class: "grid gap-8",

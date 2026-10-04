@@ -13,4 +13,5 @@ pub mod small_image_feature;
 pub mod team;
 pub mod testamonials;
 pub mod use_case_hero;
+pub mod use_case_river;
 pub mod video_hero;
