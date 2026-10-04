@@ -1,10 +1,10 @@
 use crate::marketing::{
     customer_logos::Customers,
     faq_accordian::{Faq, FaqText},
-    features::CapabilityVignettes,
     footer::Footer,
     security::Security,
-    video_hero::VideoHero,
+    use_case_hero::UseCaseHero,
+    use_case_river::UseCaseRiver,
 };
 use crate::ui_links::footer_links;
 use dioxus::prelude::*;
@@ -13,7 +13,6 @@ use ssg_whiz::Section;
 
 pub fn home_page() -> String {
     let course_url = crate::routes::architect_course::Index {}.to_string();
-    let go_bionic_url = crate::routes::marketing::GoBionic {}.to_string();
 
     let page = rsx! {
         Layout {
@@ -22,20 +21,13 @@ pub fn home_page() -> String {
             mobile_menu: None,
             section: Section::Home,
 
+            UseCaseHero {}
+
             div {
                 class: "px-4 md:px-0 w-full lg:max-w-5xl mt-16 md:mt-36 mx-auto grid gap-y-28",
-                VideoHero {
-                    video_id: "slRiOOM17tM",
-                    title: "Your sovereign AI agent for enterprise tasks, fluent in your knowledge and tools.",
-                    subtitle: "Bionic connects AI to your organisation’s knowledge and tools, so it can research, analyse, create and take action. Deploy on-premise, in your private cloud or air-gapped, with full control over your data and models.",
-                    claim: "Open source. Self-hosted. Model independent.",
-                    cta_label: "Go Bionic",
-                    cta_href: go_bionic_url
-                }
-
                 Customers {}
 
-                CapabilityVignettes {}
+                UseCaseRiver {}
 
                 section {
                     class: "grid gap-8",
