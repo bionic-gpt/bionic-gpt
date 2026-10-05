@@ -1,9 +1,9 @@
 use crate::marketing::{
     customer_logos::Customers,
     faq_accordian::{Faq, FaqText},
-    features::CapabilityVignettes,
     footer::Footer,
     security::Security,
+    use_case_river::UseCaseRiver,
     video_hero::VideoHero,
 };
 use crate::ui_links::footer_links;
@@ -35,7 +35,7 @@ pub fn home_page() -> String {
 
                 Customers {}
 
-                CapabilityVignettes {}
+                UseCaseRiver {}
 
                 section {
                     class: "grid gap-8",

@@ -24,3 +24,114 @@
   border-color: oklch(var(--bc) / 0.4);
   box-shadow: 0 10px 30px -15px oklch(var(--bc) / 0.35);
 }
+
+/* Homepage use-case river: only behavior not covered by DaisyUI/Tailwind utilities. */
+.use-case-river__intro h2 {
+  margin: 0.875rem 0 1.25rem;
+  font-size: clamp(2.625rem, 5vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.use-case-river__intro p {
+  font-size: 1.25rem;
+  line-height: 1.55;
+  opacity: 0.7;
+}
+
+.use-case-river__copy h3 {
+  margin-bottom: 1.125rem;
+  font-size: clamp(2rem, 4vw, 2.375rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.use-case-river__copy > p {
+  max-width: 30rem;
+  font-size: 1.125rem;
+  line-height: 1.65;
+  opacity: 0.7;
+}
+
+.use-case-river__item strong {
+  display: block;
+  margin-bottom: 0.1875rem;
+}
+
+.use-case-river__item span,
+.use-case-river__status span:not(.use-case-river__dot) {
+  font-size: 0.8125rem;
+  opacity: 0.65;
+}
+
+.use-case-river__lead b {
+  font-size: 0.875rem;
+}
+
+.use-case-river__lead small {
+  display: block;
+  margin-top: 0.25rem;
+  opacity: 0.65;
+}
+
+.use-case-river__tool svg {
+  width: 1.375rem;
+  height: 1.375rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (min-width: 768px) {
+  .use-case-river__row:nth-child(even) .use-case-river__copy {
+    order: 2;
+  }
+
+  .use-case-river__row:nth-child(even) .use-case-river__visual {
+    order: 1;
+  }
+
+  .use-case-river__tools::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: -3.375rem;
+    width: 3.25rem;
+    height: 1px;
+    background: color-mix(in oklab, var(--color-primary) 35%, transparent);
+  }
+
+  .use-case-river__tools::before {
+    content: "";
+    position: absolute;
+    top: calc(50% - 0.25rem);
+    right: -3.4375rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-top: 1.5px solid var(--color-primary);
+    border-right: 1.5px solid var(--color-primary);
+    transform: rotate(45deg);
+  }
+
+  .use-case-river__row:nth-child(even) .use-case-river__tools {
+    padding-right: 0.75rem;
+    padding-left: 3rem;
+  }
+
+  .use-case-river__row:nth-child(even) .use-case-river__tools::after {
+    right: auto;
+    left: -3.375rem;
+  }
+
+  .use-case-river__row:nth-child(even) .use-case-river__tools::before {
+    right: auto;
+    left: -3.4375rem;
+    transform: rotate(-135deg);
+  }
+}
