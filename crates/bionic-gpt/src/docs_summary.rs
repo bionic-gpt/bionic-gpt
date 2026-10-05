@@ -127,6 +127,36 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
+                name: "Integrations".to_string(),
+                pages: vec![
+                    PageSummary {
+                        date: "",
+                        title: "Curated Integrations",
+                        description: "Vendor OpenAPI specifications curated for use with Bionic.",
+                        folder: "docs/integrations/curated/",
+                        markdown: include_str!(concat!(
+                            env!("OUT_DIR"),
+                            "/integrations-curated-doc.md"
+                        )),
+                        image: None,
+                        open_graph_image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    PageSummary {
+                        date: "",
+                        title: "Creating an OpenAPI Integration",
+                        description: "Add an API described by OpenAPI to Bionic.",
+                        folder: "docs/integrations/creating/",
+                        markdown: include_str!("../content/docs/integrations/creating/index.md"),
+                        image: None,
+                        open_graph_image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                ],
+            },
+            Category {
                 name: "Authentication".to_string(),
                 pages: vec![PageSummary {
                     date: "",

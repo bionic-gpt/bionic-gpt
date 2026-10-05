@@ -1,0 +1,2313 @@
+{
+  "info": {
+    "title": "Salesforce",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjI1NnB4IiBoZWlnaHQ9IjE4MHB4IiB2aWV3Qm94PSIwIDAgMjU2IDE4MCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+Cgk8Zz4KCQk8cGF0aCBkPSJNMTA2LjU1MzIwMywxNTkuNjEwOTc2IEMxMTQuODAxMTI5LDE2OC4yMDQ5OTQgMTI2LjI4NDEwNywxNzMuNTM0ODE1IDEzOC45ODM4NzMsMTczLjUzNDgxNSBDMTU1Ljg2NTg5MiwxNzMuNTM0ODE1IDE3MC41OTQ4NTEsMTY0LjEyMTEwNSAxNzguNDM4Mzk2LDE1MC4xNDYyNjIgQzE4NS4yNTQ1OTMsMTUzLjE5MTg3NCAxOTIuNzk5NDA1LDE1NC44ODU5MDUgMjAwLjczNzY2OSwxNTQuODg1OTA1IEMyMzEuMTg2NTA2LDE1NC44ODU5MDUgMjU1Ljg3MTk5NSwxMjkuOTg1NDc1IDI1NS44NzE5OTUsOTkuMjcwNjkzNSBDMjU1Ljg3MTk5NSw2OC41NTIyNjk0IDIzMS4xODY1MDYsNDMuNjUxODM5IDIwMC43Mzc2NjksNDMuNjUxODM5IEMxOTcuMDIxNzMxLDQzLjY1MTgzOSAxOTMuMzg5NTgzLDQ0LjAyMzQzMjkgMTg5Ljg3NzY1Nyw0NC43MzM4MzI4IEMxODIuOTcwMzgzLDMyLjQxMjk0NjkgMTY5LjgwNzk0NywyNC4wODg1MTYzIDE1NC43MDAxMDcsMjQuMDg4NTE2MyBDMTQ4LjM3NTcyNiwyNC4wODg1MTYzIDE0Mi4zOTM3OTMsMjUuNTQ5MzkwMSAxMzcuMDY3NjE1LDI4LjE0NjkwMzkgQzEzMC4wNjU2MjEsMTEuNjc2NTUzNCAxMTMuNzUxOTIzLDAuMTI3OTk5NzI2IDk0LjczODcwNDksMC4xMjc5OTk3MjYgQzc0LjkzODU4MjIsMC4xMjc5OTk3MjYgNTguMDYzODUwMSwxMi42NTY1NDExIDUxLjU4NjQ1OTUsMzAuMjI3MTAwOCBDNDguNzU1Nzg4OCwyOS42MjU5OTMxIDQ1LjgyMzExMTksMjkuMzEyNjg4NSA0Mi44MTM5MzA0LDI5LjMxMjY4ODUgQzE5LjIzOTU4LDI5LjMxMjY4ODUgMC4xMjc5OTg3NzIsNDguNjIwOTk1OSAwLjEyNzk5ODc3Miw3Mi40NDMwNzU1IEMwLjEyNzk5ODc3Miw4OC40MDcwMzgzIDguNzE0NzMwOTQsMTAyLjM0NTQ1IDIxLjQ3Mjc4NjEsMTA5LjgwMjgyOSBDMTguODQ2MTI3NywxMTUuODQ2NjkzIDE3LjM4NTI1MzksMTIyLjUxNzE2NyAxNy4zODUyNTM5LDEyOS41MzAwOSBDMTcuMzg1MjUzOSwxNTYuOTI2MDI4IDM5LjYyNjIzODEsMTc5LjEzNDIyNSA2Ny4wNTg2MDY5LDE3OS4xMzQyMjUgQzgzLjE2NDY0OTcsMTc5LjEzNDIyNSA5Ny40NzgyOTg3LDE3MS40NzY0NzcgMTA2LjU1MzIwMywxNTkuNjEwOTc2IiBmaWxsPSIjMDBBMUUwIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMjcuOTk5OTk3LCA4OS42MzExMTIpIHNjYWxlKDEsIC0xKSB0cmFuc2xhdGUoLTEyNy45OTk5OTcsIC04OS42MzExMTIpICI+PC9wYXRoPgoJCTxwYXRoIGQ9Ik0zNy4xNzAwNzQ0LDc1LjMzMDk0MTMgQzM3LjAwOTc3OSw3NC45MTE5ODc1IDM3LjIyODM2MzYsNzQuODI0NTUzNiAzNy4yNzkzNjY3LDc0Ljc1MTY5MjEgQzM3Ljc2MDI1MjgsNzQuNDAxOTU2NyAzOC4yNDg0MjUxLDc0LjE1MDU4NDQgMzguNzQwMjQwNSw3My44NzAwNjc1IEM0MS4zNDg2ODM1LDcyLjQ4NTY5ODMgNDMuODExNDAzNSw3Mi4wODEzMTY4IDQ2LjM4NzA1ODgsNzIuMDgxMzE2OCBDNTEuNjMzMDg5NSw3Mi4wODEzMTY4IDU0Ljg5MDAwMDIsNzQuODcxOTEzNiA1NC44OTAwMDAyLDc5LjM2MzgyNzQgTDU0Ljg5MDAwMDIsNzkuNDUxMjYxMyBDNTQuODkwMDAwMiw4My42MDQzNjg5IDUxLjIxNDEzNTcsODUuMTEyNjAyNyA0Ny43NjQxNDE5LDg2LjIwMTg4MjcgTDQ3LjMxNjA0MzQsODYuMzQ3NjA1OCBDNDQuNzE0ODg2Niw4Ny4xOTI3OTk2IDQyLjQ3MDc1MTIsODcuOTIxNDE1IDQyLjQ3MDc1MTIsODkuNjMzNjYxMSBMNDIuNDcwNzUxMiw4OS43MjQ3MzggQzQyLjQ3MDc1MTIsOTEuMTg5MjU0OSA0My43ODIyNTg5LDkyLjI2NzYwNTcgNDUuODE1MDk1OCw5Mi4yNjc2MDU3IEM0OC4wNzM4MDM0LDkyLjI2NzYwNTcgNTAuNzU1MTA4LDkxLjUxNzEzMTggNTIuNDgxOTI2NCw5MC41NjI2NDU3IEM1Mi40ODE5MjY0LDkwLjU2MjY0NTcgNTIuOTg4MzE0MSw5MC4yMzQ3Njg4IDUzLjE3NDExMSw5MC43MjY1ODQyIEM1My4yNzYxMTcyLDkwLjk4ODg4NTcgNTQuMTUwNDU1Niw5My4zNDIzMTMzIDU0LjI0MTUzMjYsOTMuNTk3MzI4NyBDNTQuMzM5ODk1Niw5My44NzQyMDI2IDU0LjE2NTAyNzksOTQuMDc4MjE0OSA1My45ODY1MTcyLDk0LjE4NzUwNzIgQzUyLjAxNTYxMjYsOTUuMzg2MDc5NSA0OS4yOTA1OTExLDk2LjIwNTc3MTggNDYuNDcwODQ5Niw5Ni4yMDU3NzE4IEw0NS45NDYyNDY1LDk2LjIwMjEyODcgQzQxLjE0NDY3MTIsOTYuMjAyMTI4NyAzNy43OTMwNDA1LDkzLjMwMjIzOTUgMzcuNzkzMDQwNSw4OS4xNDU0ODg4IEwzNy43OTMwNDA1LDg5LjA1ODA1NSBDMzcuNzkzMDQwNSw4NC42NzU0MzM1IDQxLjQ5MDc2MzUsODMuMjU0NjMzNSA0NC45NTUzMjk2LDgyLjI2MzcxNjYgTDQ1LjUxMjcyMDQsODIuMDkyNDkyIEM0OC4wMzczNzI3LDgxLjMxNjUxNjYgNTAuMjEyMjg5NSw4MC42NDk4MzM2IDUwLjIxMjI4OTUsNzguODcyMDEyIEw1MC4yMTIyODk1LDc4Ljc4NDU3ODIgQzUwLjIxMjI4OTUsNzcuMTU5NzY1OSA0OC43OTg3NzU3LDc1Ljk1MDI2NDQgNDYuNTE4MjA5Niw3NS45NTAyNjQ0IEM0NS42MzI5NDE5LDc1Ljk1MDI2NDQgNDIuODA5NTU3NCw3NS45Njg0Nzk4IDM5Ljc2MDMwMiw3Ny44OTU2Njc0IEMzOS4zOTIzNTEzLDc4LjExMDYwOSAzOS4xNzc0MDk3LDc4LjI2NzI2MTMgMzguODkzMjQ5Nyw3OC40Mzg0ODU5IEMzOC43NDM4ODM2LDc4LjUzMzIwNTkgMzguMzY4NjQ2Nyw3OC42OTcxNDQ0IDM4LjIwNDcwODIsNzguMjAxNjg1OSBMMzcuMTcwMDc0NCw3NS4zMzA5NDEzIEwzNy4xNzAwNzQ0LDc1LjMzMDk0MTMgWiIgZmlsbD0iI0ZGRkZGRiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNDYuMDAxMTM4LCA4NC4xNDM1NDQpIHNjYWxlKDEsIC0xKSB0cmFuc2xhdGUoLTQ2LjAwMTEzOCwgLTg0LjE0MzU0NCkgIj48L3BhdGg+CgkJPHBhdGggZD0iTTExMy45Njk3NzksNzUuMzMwOTQxMyBDMTEzLjgwOTQ4NCw3NC45MTE5ODc1IDExNC4wMjgwNjgsNzQuODI0NTUzNiAxMTQuMDc5MDcyLDc0Ljc1MTY5MjEgQzExNC41NTk5NTgsNzQuNDAxOTU2NyAxMTUuMDQ4MTMsNzQuMTUwNTg0NCAxMTUuNTM5OTQ1LDczLjg3MDA2NzUgQzExOC4xNDgzODgsNzIuNDg1Njk4MyAxMjAuNjExMTA4LDcyLjA4MTMxNjggMTIzLjE4Njc2NCw3Mi4wODEzMTY4IEMxMjguNDMyNzk0LDcyLjA4MTMxNjggMTMxLjY4OTcwNSw3NC44NzE5MTM2IDEzMS42ODk3MDUsNzkuMzYzODI3NCBMMTMxLjY4OTcwNSw3OS40NTEyNjEzIEMxMzEuNjg5NzA1LDgzLjYwNDM2ODkgMTI4LjAxMzg0MSw4NS4xMTI2MDI3IDEyNC41NjM4NDcsODYuMjAxODgyNyBMMTI0LjExNTc0OCw4Ni4zNDc2MDU4IEMxMjEuNTE0NTkxLDg3LjE5Mjc5OTYgMTE5LjI3MDQ1Niw4Ny45MjE0MTUgMTE5LjI3MDQ1Niw4OS42MzM2NjExIEwxMTkuMjcwNDU2LDg5LjcyNDczOCBDMTE5LjI3MDQ1Niw5MS4xODkyNTQ5IDEyMC41ODE5NjQsOTIuMjY3NjA1NyAxMjIuNjE0ODAxLDkyLjI2NzYwNTcgQzEyNC44NzM1MDgsOTIuMjY3NjA1NyAxMjcuNTU0ODEzLDkxLjUxNzEzMTggMTI5LjI4MTYzMSw5MC41NjI2NDU3IEMxMjkuMjgxNjMxLDkwLjU2MjY0NTcgMTI5Ljc4ODAxOSw5MC4yMzQ3Njg4IDEyOS45NzM4MTYsOTAuNzI2NTg0MiBDMTMwLjA3NTgyMiw5MC45ODg4ODU3IDEzMC45NTAxNiw5My4zNDIzMTMzIDEzMS4wNDEyMzcsOTMuNTk3MzI4NyBDMTMxLjEzOTYsOTMuODc0MjAyNiAxMzAuOTY0NzMzLDk0LjA3ODIxNDkgMTMwLjc4NjIyMiw5NC4xODc1MDcyIEMxMjguODE1MzE3LDk1LjM4NjA3OTUgMTI2LjA5MDI5Niw5Ni4yMDU3NzE4IDEyMy4yNzA1NTQsOTYuMjA1NzcxOCBMMTIyLjc0NTk1MSw5Ni4yMDIxMjg3IEMxMTcuOTQ0Mzc2LDk2LjIwMjEyODcgMTE0LjU5Mjc0NSw5My4zMDIyMzk1IDExNC41OTI3NDUsODkuMTQ1NDg4OCBMMTE0LjU5Mjc0NSw4OS4wNTgwNTUgQzExNC41OTI3NDUsODQuNjc1NDMzNSAxMTguMjkwNDY4LDgzLjI1NDYzMzUgMTIxLjc1NTAzNCw4Mi4yNjM3MTY2IEwxMjIuMzEyNDI1LDgyLjA5MjQ5MiBDMTI0LjgzNzA3Nyw4MS4zMTY1MTY2IDEyNy4wMTU2MzcsODAuNjQ5ODMzNiAxMjcuMDE1NjM3LDc4Ljg3MjAxMiBMMTI3LjAxNTYzNyw3OC43ODQ1NzgyIEMxMjcuMDE1NjM3LDc3LjE1OTc2NTkgMTI1LjU5ODQ4MSw3NS45NTAyNjQ0IDEyMy4zMTc5MTQsNzUuOTUwMjY0NCBDMTIyLjQzMjY0Nyw3NS45NTAyNjQ0IDExOS42MDkyNjIsNzUuOTY4NDc5OCAxMTYuNTYwMDA3LDc3Ljg5NTY2NzQgQzExNi4xOTIwNTYsNzguMTEwNjA5IDExNS45NzM0NzEsNzguMjU5OTc1MSAxMTUuNjk2NTk4LDc4LjQzODQ4NTkgQzExNS42MDE4NzgsNzguNTAwNDE4MiAxMTUuMTU3NDIyLDc4LjY3MTY0MjggMTE1LjAwNDQxMyw3OC4yMDE2ODU5IEwxMTMuOTY5Nzc5LDc1LjMzMDk0MTMgTDExMy45Njk3NzksNzUuMzMwOTQxMyBaIiBmaWxsPSIjRkZGRkZGIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMjIuODAwODQzLCA4NC4xNDM1NDQpIHNjYWxlKDEsIC0xKSB0cmFuc2xhdGUoLTEyMi44MDA4NDMsIC04NC4xNDM1NDQpICI+PC9wYXRoPgoJCTxwYXRoIGQ9Ik0xNjYuMzk4NzY5LDg0LjExMzY3NDQgQzE2Ni4zOTg3NjksODEuNTc0NDQ5OSAxNjUuOTI1MTY5LDc5LjU3NDQwMDcgMTY0Ljk5MjU0MSw3OC4xNjA4ODY4IEMxNjQuMDcwODQzLDc2Ljc2MTk0NTMgMTYyLjY3NTU0NCw3Ni4wODA2OSAxNjAuNzMwMTQxLDc2LjA4MDY5IEMxNTguNzgxMDk1LDc2LjA4MDY5IDE1Ny4zOTMwODMsNzYuNzU4MzAyMiAxNTYuNDg1OTU2LDc4LjE2MDg4NjggQzE1NS41Njc5MDEsNzkuNTcwNzU3NiAxNTUuMTAxNTg3LDgxLjU3NDQ0OTkgMTU1LjEwMTU4Nyw4NC4xMTM2NzQ0IEMxNTUuMTAxNTg3LDg2LjY0OTI1NTkgMTU1LjU2NzkwMSw4OC42NDU2NjIxIDE1Ni40ODU5NTYsOTAuMDQ0NjAzNiBDMTU3LjM5MzA4Myw5MS40Mjg5NzI4IDE1OC43ODEwOTUsOTIuMTAyOTQyIDE2MC43MzAxNDEsOTIuMTAyOTQyIEMxNjIuNjc1NTQ0LDkyLjEwMjk0MiAxNjQuMDcwODQzLDkxLjQyODk3MjggMTY0Ljk5NjE4NCw5MC4wNDQ2MDM2IEMxNjUuOTI1MTY5LDg4LjY0NTY2MjEgMTY2LjM5ODc2OSw4Ni42NDkyNTU5IDE2Ni4zOTg3NjksODQuMTEzNjc0NCBNMTcwLjc3Nzc0Nyw4OC44MjA1Mjk3IEMxNzAuMzQ3ODY0LDkwLjI3NDExNzQgMTY5LjY3NzUzOCw5MS41NTY0ODA1IDE2OC43ODQ5ODQsOTIuNjIzOTAyIEMxNjcuODkyNDMsOTMuNjk0OTY2NiAxNjYuNzYzMDc2LDk0LjU1NDczMjcgMTY1LjQyMjQyNCw5NS4xODEzNDIgQzE2NC4wODU0MTUsOTUuODA0MzA4MSAxNjIuNTA0MzE5LDk2LjEyMTI1NTggMTYwLjczMDE0MSw5Ni4xMjEyNTU4IEMxNTguOTUyMzIsOTYuMTIxMjU1OCAxNTcuMzcxMjI0LDk1LjgwNDMwODEgMTU2LjAzNDIxNSw5NS4xODEzNDIgQzE1NC42OTM1NjMsOTQuNTU0NzMyNyAxNTMuNTY0MjA5LDkzLjY5NDk2NjYgMTUyLjY2ODAxMiw5Mi42MjM5MDIgQzE1MS43NzkxMDEsOTEuNTUyODM3NCAxNTEuMTA4Nzc1LDkwLjI3MDQ3NDMgMTUwLjY3NTI0OSw4OC44MjA1Mjk3IEMxNTAuMjQ5MDA5LDg3LjM3NDIyODIgMTUwLjAzNDA2Nyw4NS43OTMxMzI5IDE1MC4wMzQwNjcsODQuMTEzNjc0NCBDMTUwLjAzNDA2Nyw4Mi40MzQyMTYgMTUwLjI0OTAwOSw4MC44NDk0Nzc2IDE1MC42NzUyNDksNzkuNDA2ODE5MSBDMTUxLjEwODc3NSw3Ny45NTY4NzQ1IDE1MS43NzU0NTgsNzYuNjc0NTExNSAxNTIuNjcxNjU1LDc1LjYwMzQ0NjkgQzE1My41NjQyMDksNzQuNTMyMzgyMyAxNTQuNjk3MjA2LDczLjY3NjI1OTIgMTU2LjAzNDIxNSw3My4wNjc4NjU0IEMxNTcuMzc0ODY3LDcyLjQ1OTQ3MTUgMTU4Ljk1MjMyLDcyLjE0OTgxIDE2MC43MzAxNDEsNzIuMTQ5ODEgQzE2Mi41MDQzMTksNzIuMTQ5ODEgMTY0LjA4MTc3Miw3Mi40NTk0NzE1IDE2NS40MjI0MjQsNzMuMDY3ODY1NCBDMTY2Ljc1OTQzMyw3My42NzYyNTkyIDE2Ny44OTI0Myw3NC41MzIzODIzIDE2OC43ODQ5ODQsNzUuNjAzNDQ2OSBDMTY5LjY3NzUzOCw3Ni42NzA4Njg0IDE3MC4zNDc4NjQsNzcuOTUzMjMxNSAxNzAuNzc3NzQ3LDc5LjQwNjgxOTEgQzE3MS4yMDc2Myw4MC44NTMxMjA2IDE3MS40MjI1NzIsODIuNDM3ODU5MSAxNzEuNDIyNTcyLDg0LjExMzY3NDQgQzE3MS40MjI1NzIsODUuNzg5NDg5OCAxNzEuMjA3NjMsODcuMzc0MjI4MiAxNzAuNzc3NzQ3LDg4LjgyMDUyOTciIGZpbGw9IiNGRkZGRkYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE2MC43MjgzMjAsIDg0LjEzNTUzMykgc2NhbGUoMSwgLTEpIHRyYW5zbGF0ZSgtMTYwLjcyODMyMCwgLTg0LjEzNTUzMykgIj48L3BhdGg+CgkJPHBhdGggZD0iTTIwNi43Mzc0ODIsNzYuNzI1MTQyNyBDMjA2LjU5MTc1OSw3Ny4xNTEzODI3IDIwNi4xODAwOTEsNzYuOTkxMDg3MyAyMDYuMTgwMDkxLDc2Ljk5MTA4NzMgQzIwNS41NDI1NTMsNzYuNzQ3MDAxMiAyMDQuODY0OTQxLDc2LjUyMTEzMDQgMjA0LjE0MzYxMiw3Ni40MDgxOTUgQzIwMy40MTEzNTMsNzYuMjk1MjU5NiAyMDIuNjA2MjMzLDc2LjIzNjk3MDQgMjAxLjc0MjgyNCw3Ni4yMzY5NzA0IEMxOTkuNjIyNTUzLDc2LjIzNjk3MDQgMTk3LjkzOTQ1Miw3Ni44NjcyMjI3IDE5Ni43MzM1OTMsNzguMTEzMTU1IEMxOTUuNTI0MDkyLDc5LjM1OTA4NzMgMTk0Ljg0NjQ3OSw4MS4zNzM3MDg4IDE5NC44NTM3NjYsODQuMDk4NzMwMyBDMTk0Ljg2MTA1Miw4Ni41Nzk2NjU2IDE5NS40NTg1MTYsODguNDQ0OTIxIDE5Ni41MzMyMjQsODkuODY1NzIwOSBDMTk3LjYwMDY0NSw5MS4yNzkyMzQ4IDE5OS4yMjU0NTgsOTIuMDA0MjA3MSAyMDEuMzkzMDg4LDkyLjAwNDIwNzEgQzIwMy4yMDAwNTUsOTIuMDA0MjA3MSAyMDQuNTc3MTM4LDkxLjc5NjU1MTcgMjA2LjAxOTc5Niw5MS4zNDExNjcxIEMyMDYuMDE5Nzk2LDkxLjM0MTE2NzEgMjA2LjM2NTg4OCw5MS4xOTE4MDA5IDIwNi41Mjk4MjcsOTEuNjQzNTQyNCBDMjA2LjkxMjM1LDkyLjcwNzMyMDkgMjA3LjE5NjUxLDkzLjQ2ODcyNCAyMDcuNjA0NTM1LDk0LjYzODE1MTYgQzIwNy43MjExMTMsOTQuOTY5NjcxNiAyMDcuNDM2OTUzLDk1LjExMTc1MTYgMjA3LjMzNDk0Nyw5NS4xNTE4MjU1IEMyMDYuNzY2NjI3LDk1LjM3NDA1MzIgMjA1LjQyNTk3NSw5NS43MzQ3MTc4IDIwNC40MTMxOTksOTUuODg3NzI3IEMyMDMuNDY1OTk5LDk2LjAzMzQ1MDEgMjAyLjM1ODUwNCw5Ni4xMDk5NTQ3IDIwMS4xMjcxNDQsOTYuMTA5OTU0NyBDMTk5LjI4NzM5LDk2LjEwOTk1NDcgMTk3LjY0ODAwNSw5NS43OTY2NTAxIDE5Ni4yNDU0MjEsOTUuMTcwMDQwOSBDMTk0Ljg0NjQ3OSw5NC41NDcwNzQ3IDE5My42NTg4MzYsOTMuNjg3MzA4NiAxOTIuNzE4OTIyLDkyLjYxNjI0NCBDMTkxLjc3OTAwOSw5MS41NDUxNzk0IDE5MS4wNjQ5NjYsOTAuMjYyODE2MyAxOTAuNTg3NzIzLDg4LjgxMjg3MTcgQzE5MC4xMTQxMjMsODcuMzY2NTcwMiAxODkuODczNjc5LDg1Ljc3ODE4ODcgMTg5Ljg3MzY3OSw4NC4wOTg3MzAzIEMxODkuODczNjc5LDgwLjQ2NjU4MjYgMTkwLjg1MzY2Nyw3Ny41MzAyNjI3IDE5Mi43ODgxNDEsNzUuMzgwODQ3MyBDMTk0LjcyNjI1OCw3My4yMjQxNDU4IDE5Ny42MzcwNzYsNzIuMTI3NTc5NyAyMDEuNDMzMTYyLDcyLjEyNzU3OTcgQzIwMy42NzcyOTgsNzIuMTI3NTc5NyAyMDUuOTc5NzIyLDcyLjU4Mjk2NDMgMjA3LjYzMzY3OSw3My4yMzUwNzUxIEMyMDcuNjMzNjc5LDczLjIzNTA3NTEgMjA3Ljk1MDYyNyw3My4zODgwODQzIDIwNy44MTIxOSw3My43NTYwMzUgTDIwNi43Mzc0ODIsNzYuNzI1MTQyNyBMMjA2LjczNzQ4Miw3Ni43MjUxNDI3IFoiIGZpbGw9IiNGRkZGRkYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDE5OC44NjA0MzMsIDg0LjExODc2Nykgc2NhbGUoMSwgLTEpIHRyYW5zbGF0ZSgtMTk4Ljg2MDQzMywgLTg0LjExODc2NykgIj48L3BhdGg+CgkJPHBhdGggZD0iTTIxNC4zOTkyMDQsODYuNTUyMDE5OCBDMjE0LjYwNjg1OSw4Ny45NjE4OTA2IDIxNC45OTY2NjgsODkuMTM0OTYxMyAyMTUuNTk3Nzc2LDkwLjA0OTM3MzYgQzIxNi41MDQ5MDIsOTEuNDM3Mzg1OSAyMTcuODg5MjcxLDkyLjE5ODc4OSAyMTkuODM0Njc1LDkyLjE5ODc4OSBDMjIxLjc4MDA3OCw5Mi4xOTg3ODkgMjIzLjA2NjA4NCw5MS40MzM3NDI4IDIyMy45ODc3ODIsOTAuMDQ5MzczNiBDMjI0LjU5OTgxOSw4OS4xMzQ5NjEzIDIyNC44NjU3NjQsODcuOTEwODg3NSAyMjQuOTcxNDEzLDg2LjU1MjAxOTggTDIxNC4zOTkyMDQsODYuNTUyMDE5OCBMMjE0LjM5OTIwNCw4Ni41NTIwMTk4IFogTTIyOS4xNDI3MzYsODkuNjUyMjc4MyBDMjI4Ljc3MTE0Miw5MS4wNTQ4NjI5IDIyNy44NDk0NDQsOTIuNDcyMDE5OCAyMjcuMjQ0NjkzLDkzLjEyMDQ4NzQgQzIyNi4yOTAyMDcsOTQuMTQ3ODM1MSAyMjUuMzU3NTc5LDk0Ljg2NTUyMTMgMjI0LjQzMjIzOCw5NS4yNjYyNTk3IEMyMjMuMjIyNzM2LDk1Ljc4MzU3NjYgMjIxLjc3Mjc5MSw5Ni4xMjYwMjU4IDIyMC4xODQ0MSw5Ni4xMjYwMjU4IEMyMTguMzMzNzI3LDk2LjEyNjAyNTggMjE2LjY1NDI2OCw5NS44MTYzNjQzIDIxNS4yOTE3NTgsOTUuMTc1MTgyOCBDMjEzLjkyNTYwNCw5NC41MzQwMDEzIDIxMi43NzgwMzUsOTMuNjU5NjYyOCAyMTEuODc4MTk1LDkyLjU3MDM4MjggQzIxMC45NzgzNTUsOTEuNDg0NzQ1OSAyMTAuMzAwNzQyLDkwLjE5MTQ1MzYgMjA5Ljg3MDg1OSw4OC43MjMyOTM3IEMyMDkuNDM3MzMzLDg3LjI2MjQxOTggMjA5LjIxODc0OSw4NS42NzAzOTUyIDIwOS4yMTg3NDksODMuOTkwOTM2OCBDMjA5LjIxODc0OSw4Mi4yODIzMzM4IDIwOS40NDQ2MTksODAuNjkwMzA5MiAyMDkuODkyNzE4LDc5LjI1ODU4IEMyMTAuMzQ0NDU5LDc3LjgxNTkyMTUgMjExLjA2NTc4OSw3Ni41NDQ0ODc3IDIxMi4wNDIxMzMsNzUuNDkxNjM4NSBDMjEzLjAxNDgzNSw3NC40MzE1MDMxIDIxNC4yNjgwNTMsNzMuNjAwODgxNiAyMTUuNzY5MDAxLDczLjAyMTYzMjQgQzIxNy4yNTkwMTksNzIuNDQ2MDI2MiAyMTkuMDY5NjI4LDcyLjE0NzI5MzkgMjIxLjE0OTgyNSw3Mi4xNTA5MzcgQzIyNS40MzA0NDEsNzIuMTY1NTA5MyAyMjcuNjg1NTA1LDczLjExOTk5NTUgMjI4LjYxNDQ5LDczLjYzMzY2OTMgQzIyOC43Nzg0MjgsNzMuNzI0NzQ2MiAyMjguOTM1MDgxLDczLjg4NTA0MTYgMjI4LjczODM1NCw3NC4zNDQwNjkzIEwyMjcuNzY5Mjk2LDc3LjA1ODE2MTUgQzIyNy42MjM1NzMsNzcuNDYyNTQzMSAyMjcuMjExOTA1LDc3LjMxMzE3NjkgMjI3LjIxMTkwNSw3Ny4zMTMxNzY5IEMyMjYuMTUxNzcsNzYuOTE5NzI0NiAyMjQuNjQzNTM2LDc2LjIxMjk2NzcgMjIxLjEyNzk2Nyw3Ni4yMjAyNTM5IEMyMTguODI5MTg1LDc2LjIyMzg5NjkgMjE3LjEyNDIyNSw3Ni45MDE1MDkyIDIxNi4wNTY4MDQsNzcuOTYxNjQ0NiBDMjE0Ljk2MDIzOCw3OS4wNDcyODE1IDIxNC40MjQ3MDUsODAuNjQyOTQ5MiAyMTQuMzI5OTg1LDgyLjg5NDM3MDcgTDIyOS4xNTM2NjUsODIuODc5Nzk4NCBDMjI5LjE1MzY2NSw4Mi44Nzk3OTg0IDIyOS41NDM0NzQsODIuODg3MDg0NSAyMjkuNTgzNTQ4LDgzLjI2NTk2NDUgQzIyOS41OTgxMjEsODMuNDI2MjU5OSAyMzAuMDkzNTc5LDg2LjMxMTU3NjggMjI5LjE0MjczNiw4OS42NTIyNzgzIEwyMjkuMTQyNzM2LDg5LjY1MjI3ODMgWiIgZmlsbD0iI0ZGRkZGRiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjE5LjQ3MjEwMywgODQuMTM4NDY1KSBzY2FsZSgxLCAtMSkgdHJhbnNsYXRlKC0yMTkuNDcyMTAzLCAtODQuMTM4NDY1KSAiPjwvcGF0aD4KCQk8cGF0aCBkPSJNOTUuNjgyOTkwMSw4Ni41NTIwMTk4IEM5NS44OTQyODg1LDg3Ljk2MTg5MDYgOTYuMjgwNDU0Nyw4OS4xMzQ5NjEzIDk2Ljg4MTU2MjQsOTAuMDQ5MzczNiBDOTcuNzg4Njg4NSw5MS40MzczODU5IDk5LjE3MzA1NzcsOTIuMTk4Nzg5IDEwMS4xMTg0NjEsOTIuMTk4Nzg5IEMxMDMuMDYzODY0LDkyLjE5ODc4OSAxMDQuMzQ5ODcsOTEuNDMzNzQyOCAxMDUuMjc1MjExLDkwLjA0OTM3MzYgQzEwNS44ODM2MDUsODkuMTM0OTYxMyAxMDYuMTQ5NTUsODcuOTEwODg3NSAxMDYuMjU1MTk5LDg2LjU1MjAxOTggTDk1LjY4Mjk5MDEsODYuNTUyMDE5OCBMOTUuNjgyOTkwMSw4Ni41NTIwMTk4IFogTTExMC40MjI4NzksODkuNjUyMjc4MyBDMTEwLjA1MTI4NSw5MS4wNTQ4NjI5IDEwOS4xMzMyMyw5Mi40NzIwMTk4IDEwOC41Mjg0NzksOTMuMTIwNDg3NCBDMTA3LjU3Mzk5Myw5NC4xNDc4MzUxIDEwNi42NDEzNjUsOTQuODY1NTIxMyAxMDUuNzE2MDI0LDk1LjI2NjI1OTcgQzEwNC41MDY1MjIsOTUuNzgzNTc2NiAxMDMuMDU2NTc4LDk2LjEyNjAyNTggMTAxLjQ2ODE5Niw5Ni4xMjYwMjU4IEM5OS42MjExNTYyLDk2LjEyNjAyNTggOTcuOTM4MDU0Nyw5NS44MTYzNjQzIDk2LjU3NTU0MzksOTUuMTc1MTgyOCBDOTUuMjA5MzkwMSw5NC41MzQwMDEzIDk0LjA2MTgyMDksOTMuNjU5NjYyOCA5My4xNjE5ODA5LDkyLjU3MDM4MjggQzkyLjI2MjE0MDksOTEuNDg0NzQ1OSA5MS41ODQ1Mjg2LDkwLjE5MTQ1MzYgOTEuMTU0NjQ1NSw4OC43MjMyOTM3IEM5MC43MjQ3NjI1LDg3LjI2MjQxOTggOTAuNTAyNTM0OCw4NS42NzAzOTUyIDkwLjUwMjUzNDgsODMuOTkwOTM2OCBDOTAuNTAyNTM0OCw4Mi4yODIzMzM4IDkwLjcyODQwNTUsODAuNjkwMzA5MiA5MS4xNzY1MDQsNzkuMjU4NTggQzkxLjYyODI0NTUsNzcuODE1OTIxNSA5Mi4zNDk1NzQ3LDc2LjU0NDQ4NzcgOTMuMzI1OTE5Myw3NS40OTE2Mzg1IEM5NC4yOTg2MjA5LDc0LjQzMTUwMzEgOTUuNTUxODM5Myw3My42MDA4ODE2IDk3LjA1Mjc4Nyw3My4wMjE2MzI0IEM5OC41NDI4MDU0LDcyLjQ0NjAyNjIgMTAwLjM1MzQxNSw3Mi4xNDcyOTM5IDEwMi40MzM2MTIsNzIuMTUwOTM3IEMxMDYuNzE0MjI3LDcyLjE2NTUwOTMgMTA4Ljk2OTI5MSw3My4xMTk5OTU1IDEwOS44OTgyNzYsNzMuNjMzNjY5MyBDMTEwLjA2MjIxNCw3My43MjQ3NDYyIDExMC4yMTg4NjcsNzMuODg1MDQxNiAxMTAuMDIyMTQxLDc0LjM0NDA2OTMgTDEwOS4wNTY3MjUsNzcuMDU4MTYxNSBDMTA4LjkwNzM1OSw3Ny40NjI1NDMxIDEwOC40OTU2OTEsNzcuMzEzMTc2OSAxMDguNDk1NjkxLDc3LjMxMzE3NjkgQzEwNy40MzU1NTYsNzYuOTE5NzI0NiAxMDUuOTMwOTY1LDc2LjIxMjk2NzcgMTAyLjQwODExLDc2LjIyMDI1MzkgQzEwMC4xMTI5NzIsNzYuMjIzODk2OSA5OC40MDgwMTE2LDc2LjkwMTUwOTIgOTcuMzQwNTkwMSw3Ny45NjE2NDQ2IEM5Ni4yNDQwMjM5LDc5LjA0NzI4MTUgOTUuNzA4NDkxNiw4MC42NDI5NDkyIDk1LjYxMzc3MTYsODIuODk0MzcwNyBMMTEwLjQzNzQ1MSw4Mi44Nzk3OTg0IEMxMTAuNDM3NDUxLDgyLjg3OTc5ODQgMTEwLjgyNzI2MSw4Mi44ODcwODQ1IDExMC44NjczMzQsODMuMjY1OTY0NSBDMTEwLjg4MTkwNyw4My40MjYyNTk5IDExMS4zNzczNjUsODYuMzExNTc2OCAxMTAuNDIyODc5LDg5LjY1MjI3ODMgTDExMC40MjI4NzksODkuNjUyMjc4MyBaIiBmaWxsPSIjRkZGRkZGIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMDAuNzU1NjQzLCA4NC4xMzg0NjUpIHNjYWxlKDEsIC0xKSB0cmFuc2xhdGUoLTEwMC43NTU2NDMsIC04NC4xMzg0NjUpICI+PC9wYXRoPgoJCTxwYXRoIGQ9Ik02My42NDE3NjM4LDc2LjgxODc3MzkgQzYzLjA2MjUxNDYsNzcuMjgxNDQ0NyA2Mi45ODIzNjY5LDc3LjM5ODAyMzEgNjIuNzg1NjQwOCw3Ny42OTY3NTU0IEM2Mi40OTQxOTQ2LDc4LjE1MjE0IDYyLjM0NDgyODUsNzguODAwNjA3NyA2Mi4zNDQ4Mjg1LDc5LjYyMzk0MzEgQzYyLjM0NDgyODUsODAuOTI4MTY0NiA2Mi43NzQ3MTE1LDgxLjg2NDQzNTQgNjMuNjY3MjY1NCw4Mi40OTQ2ODc3IEM2My42NTYzMzYxLDgyLjQ5MTA0NDYgNjQuOTQyMzQyMyw4My42MDU4MjYxIDY3Ljk2NjA5NjEsODMuNTY1NzUyMyBDNzAuMDkwMDA5OSw4My41MzY2MDc2IDcxLjk4ODA1MjksODMuMjIzMzAzIDcxLjk4ODA1MjksODMuMjIzMzAzIEw3MS45ODgwNTI5LDc2LjQ4MzYxMDggTDcxLjk5MTY5Niw3Ni40ODM2MTA4IEM3MS45OTE2OTYsNzYuNDgzNjEwOCA3MC4xMDgyMjUzLDc2LjA3OTIyOTMgNjcuOTg3OTU0NSw3NS45NTE3MjE2IEM2NC45NzE0ODY5LDc1Ljc2OTU2NzggNjMuNjMwODM0Niw3Ni44MjI0MTcgNjMuNjQxNzYzOCw3Ni44MTg3NzM5IE02OS41Mzk5MDUzLDg3LjIzNDMzMDcgQzY4LjkzODc5NzYsODcuMjc4MDQ3NiA2OC4xNTkxNzkyLDg3LjMwMzU0OTEgNjcuMjI2NTUxNSw4Ny4zMDM1NDkxIEM2NS45NTUxMTc2LDg3LjMwMzU0OTEgNjQuNzI3NDAwNyw4Ny4xNDMyNTM3IDYzLjU3NjE4ODUsODYuODMzNTkyMiBDNjIuNDE3NjksODYuNTIzOTMwNyA2MS4zNzU3Nyw4Ni4wMzk0MDE0IDYwLjQ3OTU3MzEsODUuMzk4MjE5OSBDNTkuNTc5NzMzMSw4NC43NTMzOTUzIDU4Ljg1NDc2MDgsODMuOTMwMDU5OSA1OC4zMzAxNTc4LDgyLjk1MzcxNTMgQzU3LjgwNTU1NDcsODEuOTc3MzcwNyA1Ny41Mzk2MTAxLDgwLjgyNjE1ODQgNTcuNTM5NjEwMSw3OS41MzY1MDkyIEM1Ny41Mzk2MTAxLDc4LjIyNTAwMTYgNTcuNzY1NDgwOSw3Ny4wODQ3MTg1IDU4LjIxNzIyMjQsNzYuMTUyMDkwOCBDNTguNjY4OTYzOSw3NS4yMTU4MjAxIDU5LjMyMTA3NDcsNzQuNDM2MjAxNiA2MC4xNTE2OTYyLDczLjgzNTA5MzkgQzYwLjk3NTAzMTYsNzMuMjMzOTg2MyA2MS45OTE0NSw3Mi43OTMxNzQgNjMuMTcxODA2OSw3Mi41MjcyMjk0IEM2NC4zMzM5NDg0LDcyLjI2MTI4NDcgNjUuNjUyNzQyMyw3Mi4xMjY0OTA5IDY3LjA5NTQwMDcsNzIuMTI2NDkwOSBDNjguNjE0NTYzOCw3Mi4xMjY0OTA5IDcwLjEzMDA4MzcsNzIuMjUwMzU1NSA3MS41OTgyNDM3LDcyLjUwMTcyNzggQzczLjA1MTgzMTQsNzIuNzQ5NDU3IDc0LjgzNjkzOSw3My4xMTAxMjE3IDc1LjMzMjM5NzUsNzMuMjIzMDU3IEM3NS44MjQyMTI5LDczLjMzOTYzNTUgNzYuMzcwNjc0NCw3My40ODkwMDE2IDc2LjM3MDY3NDQsNzMuNDg5MDAxNiBDNzYuNzM4NjI1Miw3My41ODAwNzg2IDc2LjcwOTQ4MDYsNzMuOTczNTMwOSA3Ni43MDk0ODA2LDczLjk3MzUzMDkgTDc2LjcwMjE5NDQsODcuNTI5NDE5OSBDNzYuNzAyMTk0NCw5MC41MDIxNzA2IDc1LjkwODAwMzYsOTIuNzA2MjMyMSA3NC4zNDUxMjM3LDk0LjA3MjM4NTkgQzcyLjc4OTUyOTgsOTUuNDM0ODk2NyA3MC40OTgwMzQ1LDk2LjEyMzQzODIgNjcuNTM2MjEzLDk2LjEyMzQzODIgQzY2LjQyNTA3NDYsOTYuMTIzNDM4MiA2NC42MzYzMjM4LDk1Ljk3MDQyOSA2My41NjUyNTkyLDk1Ljc1NTQ4NzQgQzYzLjU2NTI1OTIsOTUuNzU1NDg3NCA2MC4zMjY1NjM5LDk1LjEyODg3ODIgNTguOTkzMTk3OCw5NC4wODY5NTgyIEM1OC45OTMxOTc4LDk0LjA4Njk1ODIgNTguNzAxNzUxNiw5My45MDQ4MDQ0IDU4Ljg2MjA0Nyw5My40OTY3Nzk4IEw1OS45MTEyNTMxLDkwLjY3NzAzODMgQzYwLjA0MjQwMzksOTAuMzEyNzMwNiA2MC4zOTU3ODI0LDkwLjQzNjU5NTIgNjAuMzk1NzgyNCw5MC40MzY1OTUyIEM2MC4zOTU3ODI0LDkwLjQzNjU5NTIgNjAuNTA4NzE3Nyw5MC40ODAzMTIxIDYwLjYzOTg2ODUsOTAuNTU2ODE2OCBDNjMuNDkyMzk3Nyw5Mi4xMDg3Njc1IDY3LjA5OTA0MzgsOTIuMDYxNDA3NSA2Ny4wOTkwNDM4LDkyLjA2MTQwNzUgQzY4LjcwMTk5NzYsOTIuMDYxNDA3NSA2OS45MzMzNTc2LDkxLjc0MDgxNjcgNzAuNzYzOTc5MSw5MS4xMDMyNzgzIEM3MS41NzI3NDIyLDkwLjQ4Mzk1NTIgNzEuOTg0NDA5OSw4OS41NDc2ODQ1IDcxLjk4NDQwOTksODcuNTczMTM2OCBMNzEuOTg0NDA5OSw4Ni45NDY1Mjc2IEM3MC43MDkzMzMsODcuMTI4NjgxNCA2OS41Mzk5MDUzLDg3LjIzNDMzMDcgNjkuNTM5OTA1Myw4Ny4yMzQzMzA3IiBmaWxsPSIjRkZGRkZGIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg2Ny4xMjQ4MTgsIDg0LjEyNDk2NSkgc2NhbGUoMSwgLTEpIHRyYW5zbGF0ZSgtNjcuMTI0ODE4LCAtODQuMTI0OTY1KSAiPjwvcGF0aD4KCQk8cGF0aCBkPSJNMTg5LjA5OTEzMyw5NC42NTg5NzQ1IEMxODkuMjEyMDY5LDk0Ljk5NDEzNzYgMTg4Ljk3NTI2OSw5NS4xNTQ0MzI5IDE4OC44NzY5MDYsOTUuMTkwODYzNyBDMTg4LjYyNTUzMyw5NS4yODkyMjY4IDE4Ny4zNjUwMjksOTUuNTU1MTcxNCAxODYuMzkyMzI3LDk1LjYxNzEwMzcgQzE4NC41MzA3MTUsOTUuNzMwMDM5MSAxODMuNDk2MDgxLDk1LjQxNjczNDUgMTgyLjU3MDc0LDk1LjAwMTQyMzcgQzE4MS42NTI2ODQsOTQuNTg2MTEzIDE4MC42MzI2MjMsOTMuOTE1Nzg2OCAxODAuMDY0MzAzLDkzLjE1NDM4MzcgTDE4MC4wNjQzMDMsOTQuOTU3NzA2OCBDMTgwLjA2NDMwMyw5NS4yMDkwNzkxIDE3OS44ODU3OTIsOTUuNDA5NDQ4MyAxNzkuNjM4MDYzLDk1LjQwOTQ0ODMgTDE3NS44MzgzMzQsOTUuNDA5NDQ4MyBDMTc1LjU5MDYwNCw5NS40MDk0NDgzIDE3NS40MTIwOTQsOTUuMjA5MDc5MSAxNzUuNDEyMDk0LDk0Ljk1NzcwNjggTDE3NS40MTIwOTQsNzIuODQ3ODczMyBDMTc1LjQxMjA5NCw3Mi42MDAxNDQxIDE3NS42MTYxMDYsNzIuMzk2MTMxOCAxNzUuODYzODM1LDcyLjM5NjEzMTggTDE3OS43NTgyODQsNzIuMzk2MTMxOCBDMTgwLjAwNjAxNCw3Mi4zOTYxMzE4IDE4MC4yMDYzODMsNzIuNjAwMTQ0MSAxODAuMjA2MzgzLDcyLjg0Nzg3MzMgTDE4MC4yMDYzODMsODMuODkzNjgyNCBDMTgwLjIwNjM4Myw4NS4zNzY0MTQ2IDE4MC4zNzAzMjEsODYuODU1NTAzOCAxODAuNjk4MTk4LDg3Ljc4NDQ4ODQgQzE4MS4wMTg3ODksODguNzAyNTQzOCAxODEuNDU1OTU4LDg5LjQzODQ0NTMgMTgxLjk5NTEzNCw4OS45NjY2OTE1IEMxODIuNTM3OTUyLDkwLjQ5MTI5NDYgMTgzLjE1MzYzMiw5MC44NTkyNDUzIDE4My44Mjc2MDEsOTEuMDY2OTAwNyBDMTg0LjUxNjE0Myw5MS4yNzgxOTkyIDE4NS4yNzc1NDYsOTEuMzQ3NDE3NiAxODUuODE2NzIxLDkxLjM0NzQxNzYgQzE4Ni41OTI2OTcsOTEuMzQ3NDE3NiAxODcuNDQ1MTc3LDkxLjE0NzA0ODQgMTg3LjQ0NTE3Nyw5MS4xNDcwNDg0IEMxODcuNzI5MzM3LDkxLjExNDI2MDcgMTg3Ljg4OTYzMiw5MS4yODkxMjg0IDE4Ny45ODQzNTIsOTEuNTQ3Nzg2OCBDMTg4LjIzOTM2Nyw5Mi4yMjUzOTkxIDE4OC45NjA2OTcsOTQuMjU0NTkzIDE4OS4wOTkxMzMsOTQuNjU4OTc0NSIgZmlsbD0iI0ZGRkZGRiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTgyLjI3MDU0NCwgODQuMDE4MjQ4KSBzY2FsZSgxLCAtMSkgdHJhbnNsYXRlKC0xODIuMjcwNTQ0LCAtODQuMDE4MjQ4KSAiPjwvcGF0aD4KCQk8cGF0aCBkPSJNMTUyLjU0Mzc2NywxMDUuNzYxNTc0IEMxNTIuMDcwMTY3LDEwNS45MDcyOTcgMTUxLjY0MDI4NCwxMDYuMDA1NjYgMTUxLjA3OTI1LDEwNi4xMTEzMDkgQzE1MC41MTA5MywxMDYuMjEzMzE2IDE0OS44MzMzMTgsMTA2LjI2NDMxOSAxNDkuMDY0NjI5LDEwNi4yNjQzMTkgQzE0Ni4zODMzMjQsMTA2LjI2NDMxOSAxNDQuMjcwMzM5LDEwNS41MDY1NTkgMTQyLjc4NzYwNywxMDQuMDEyODk3IEMxNDEuMzEyMTYxLDEwMi41MjY1MjIgMTQwLjMxMDMxNSwxMDAuMjY0MTcxIDEzOS44MDc1Nyw5Ny4yODc3NzczIEwxMzkuNjI1NDE2LDk2LjI4NTkzMTIgTDEzNi4yNTkyMTMsOTYuMjg1OTMxMiBDMTM2LjI1OTIxMyw5Ni4yODU5MzEyIDEzNS44NTExODksOTYuMzAwNTAzNSAxMzUuNzYzNzU1LDk1Ljg1NjA0ODEgTDEzNS4yMTM2NSw5Mi43NzAzNjIgQzEzNS4xNzM1NzcsOTIuNDc4OTE1OSAxMzUuMzAxMDg0LDkyLjI5MzExODkgMTM1LjY5NDUzNyw5Mi4yOTMxMTg5IEwxMzguOTY5NjYzLDkyLjI5MzExODkgTDEzNS42NDcxNzcsNzMuNzQyNTcxNSBDMTM1LjM4ODUxOCw3Mi4yNDg5MSAxMzUuMDg5Nzg2LDcxLjAyMTE5MzEgMTM0Ljc1ODI2Niw3MC4wODg1NjU1IEMxMzQuNDM0MDMyLDY5LjE3MDUxMDEgMTM0LjExNzA4NCw2OC40ODE5Njg2IDEzMy43MjM2MzIsNjcuOTc5MjIzOSBDMTMzLjM0NDc1Miw2Ny40OTgzMzc4IDEzMi45ODc3Myw2Ny4xNDEzMTYzIDEzMi4zNjg0MDcsNjYuOTMzNjYwOSBDMTMxLjg1ODM3Nyw2Ni43NjI0MzYzIDEzMS4yNjgxOTgsNjYuNjgyMjg4NiAxMzAuNjIzMzc0LDY2LjY4MjI4ODYgQzEzMC4yNjYzNTIsNjYuNjgyMjg4NiAxMjkuNzg5MTA5LDY2Ljc0MDU3NzggMTI5LjQzNTczLDY2LjgxMzQzOTMgQzEyOS4wODU5OTUsNjYuODgyNjU3OCAxMjguOTAwMTk4LDY2Ljk1OTE2MjQgMTI4LjYzNDI1NCw2Ny4wNzIwOTc4IEMxMjguNjM0MjU0LDY3LjA3MjA5NzggMTI4LjI1MTczMSw2Ny4yMTc4MjA5IDEyOC4wOTg3MjEsNjYuODM1Mjk3OCBDMTI3Ljk3ODUsNjYuNTE4MzUwMSAxMjcuMTA0MTYxLDY0LjExNzU2MjUgMTI2Ljk5ODUxMiw2My44MjI0NzMyIEMxMjYuODk2NTA2LDYzLjUyNzM4NCAxMjcuMDQyMjI5LDYzLjI5Nzg3MDIgMTI3LjIyODAyNiw2My4yMjg2NTE3IEMxMjcuNjY1MTk1LDYzLjA3NTY0MjUgMTI3Ljk4OTQyOSw2Mi45NzM2MzYzIDEyOC41ODMyNTEsNjIuODMxNTU2MyBDMTI5LjQwNjU4Niw2Mi42Mzg0NzMzIDEzMC4xMDI0MTQsNjIuNjI3NTQ0IDEzMC43NTQ1MjQsNjIuNjI3NTQ0IEMxMzIuMTE3MDM1LDYyLjYyNzU0NCAxMzMuMzYyOTY3LDYyLjgyMDYyNzEgMTM0LjM5Mzk1OCw2My4xOTIyMjA5IEMxMzUuNDI4NTkyLDYzLjU2NzQ1NzkgMTM2LjMzMjA3NSw2NC4yMTk1Njg2IDEzNy4xMzM1NTIsNjUuMTAxMTkzMiBDMTM3Ljk5Njk2MSw2Ni4wNTU2Nzk0IDEzOC41Mzk3OCw2Ny4wNTM4ODI0IDEzOS4wNTcwOTYsNjguNDIwMDM2MiBDMTM5LjU3MDc3LDY5Ljc2Nzk3NDcgMTQwLjAxMTU4Myw3MS40NDM3OSAxNDAuMzYxMzE4LDczLjM5NjQ3OTIgTDE0My43MDIwMTksOTIuMjkzMTE4OSBMMTQ4LjU4Mzc0Miw5Mi4yOTMxMTg5IEMxNDguNTgzNzQyLDkyLjI5MzExODkgMTQ4Ljk5NTQxLDkyLjI3ODU0NjYgMTQ5LjA3OTIwMSw5Mi43MjY2NDUxIEwxNDkuNjMyOTQ5LDk1LjgwODY4ODEgQzE0OS42NjkzNzksOTYuMTAzNzc3MyAxNDkuNTQ1NTE1LDk2LjI4NTkzMTIgMTQ5LjE0ODQxOSw5Ni4yODU5MzEyIEwxNDQuNDA4Nzc2LDk2LjI4NTkzMTIgQzE0NC40MzQyNzgsOTYuMzkxNTgwNCAxNDQuNjQ5MjE5LDk4LjA2MDEwOTYgMTQ1LjE5MjAzOCw5OS42MzAyNzU3IEMxNDUuNDI1MTk1LDEwMC4yOTY5NTkgMTQ1Ljg2MjM2NCwxMDAuODM5Nzc3IDE0Ni4yMzAzMTUsMTAxLjIxMTM3MSBDMTQ2LjU5NDYyMywxMDEuNTc1Njc5IDE0Ny4wMTM1NzYsMTAxLjgzNDMzNyAxNDcuNDcyNjA0LDEwMS45ODM3MDMgQzE0Ny45NDI1NjEsMTAyLjEzNjcxMyAxNDguNDc4MDkzLDEwMi4yMDk1NzQgMTQ5LjA2NDYyOSwxMDIuMjA5NTc0IEMxNDkuNTA5MDg0LDEwMi4yMDk1NzQgMTQ5Ljk0OTg5NiwxMDIuMTU4NTcxIDE1MC4yODE0MTYsMTAyLjA4OTM1MyBDMTUwLjc0MDQ0NCwxMDEuOTkwOTkgMTUwLjkxODk1NSwxMDEuOTM5OTg2IDE1MS4wMzkxNzYsMTAxLjkwMzU1NiBDMTUxLjUyMzcwNiwxMDEuNzU3ODMzIDE1MS41ODkyODEsMTAxLjg5OTkxMyAxNTEuNjg0MDAxLDEwMi4xMzMwNyBMMTUyLjgxNjk5OCwxMDUuMjQ0MjU3IEMxNTIuOTMzNTc2LDEwNS41Nzk0MiAxNTIuNjQ1NzczLDEwNS43MjE1IDE1Mi41NDM3NjcsMTA1Ljc2MTU3NCIgZmlsbD0iI0ZGRkZGRiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTM5LjkwNDYyMSwgODQuNDQ1OTMxKSBzY2FsZSgxLCAtMSkgdHJhbnNsYXRlKC0xMzkuOTA0NjIxLCAtODQuNDQ1OTMxKSAiPjwvcGF0aD4KCQk8cGF0aCBkPSJNODYuMzIxNzQwOCw2My41NTMyMzcgQzg2LjMyMTc0MDgsNjMuMzA1NTA3OCA4Ni4xNDMyMyw2My4xMDUxMzg1IDg1Ljg5NTUwMDgsNjMuMTA1MTM4NSBMODEuOTY0NjIwOSw2My4xMDUxMzg1IEM4MS43MTY4OTE2LDYzLjEwNTEzODUgODEuNTQyMDI0LDYzLjMwNTUwNzggODEuNTQyMDI0LDYzLjU1MzIzNyBMODEuNTQyMDI0LDk1LjE4OTcxNjUgQzgxLjU0MjAyNCw5NS40Mzc0NDU3IDgxLjcxNjg5MTYsOTUuNjM3ODE0OSA4MS45NjQ2MjA5LDk1LjYzNzgxNDkgTDg1Ljg5NTUwMDgsOTUuNjM3ODE0OSBDODYuMTQzMjMsOTUuNjM3ODE0OSA4Ni4zMjE3NDA4LDk1LjQzNzQ0NTcgODYuMzIxNzQwOCw5NS4xODk3MTY1IEw4Ni4zMjE3NDA4LDYzLjU1MzIzNyBMODYuMzIxNzQwOCw2My41NTMyMzcgWiIgZmlsbD0iI0ZGRkZGRiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoODMuOTMxODgyLCA3OS4zNzE0NzcpIHNjYWxlKDEsIC0xKSB0cmFuc2xhdGUoLTgzLjkzMTg4MiwgLTc5LjM3MTQ3NykgIj48L3BhdGg+Cgk8L2c+Cjwvc3ZnPg=="
+    },
+    "version": "v61.0",
+    "description": "Salesforce sObject, query, search, action, and report operations.",
+    "x-bionic-slug": "salesforce",
+    "x-bionic-source-url": "https://developer.salesforce.com/docs/platform/api-rest/guide/",
+    "x-bionic-source-note": "Adapted from the Bionic integration simulator Salesforce OpenAPI spec. Configure the server URL for your Salesforce My Domain."
+  },
+  "paths": {
+    "/services/data/v61.0/query": {
+      "get": {
+        "summary": "Run a SOQL query to search, filter, and fetch Salesforce records using standard SOQL syntax: SELECT fields FROM sObject [WHERE conditions] [ORDER BY field] [LIMIT n].",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "done": {
+                      "type": "boolean"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "records": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    },
+                    "totalSize": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{totalSize: int, done: boolean, records: [record], results: [record] (compatibility alias), count: int}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Complete SOQL query string (e.g., \"SELECT Id, Name FROM Contact WHERE LastName = 'Smith'\")."
+          }
+        ],
+        "description": "Run a SOQL query to search, filter, and fetch Salesforce records using standard SOQL syntax: SELECT fields FROM sObject [WHERE conditions] [ORDER BY field] [LIMIT n].",
+        "operationId": "salesforce.query"
+      }
+    },
+    "/services/data/v61.0/search": {
+      "get": {
+        "summary": "Run a SOSL full-text search across multiple Salesforce object types.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": {
+                      "type": "string"
+                    },
+                    "searchRecords": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{search_records: [record], query: string}"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "SOSL query string (e.g., \"FIND {term} IN ALL FIELDS RETURNING Account, Contact\")."
+          }
+        ],
+        "description": "Run a SOSL full-text search across multiple Salesforce object types.",
+        "operationId": "salesforce.search"
+      }
+    },
+    "/services/data/v61.0/sobjects/Case": {
+      "post": {
+        "summary": "Open a new Case (support ticket) in Salesforce.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Open a new Case (support ticket) in Salesforce. Request body: Case fields: {Subject, Description, Status, Priority, Origin, Type, Reason, AccountId, ContactId, SuppliedName}.",
+        "operationId": "salesforce.sobjects.case.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Type": {
+                    "type": "string"
+                  },
+                  "Origin": {
+                    "type": "string"
+                  },
+                  "Reason": {
+                    "type": "string"
+                  },
+                  "Status": {
+                    "type": "string"
+                  },
+                  "Subject": {
+                    "type": "string"
+                  },
+                  "Priority": {
+                    "type": "string"
+                  },
+                  "AccountId": {
+                    "type": "string"
+                  },
+                  "ContactId": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  }
+                },
+                "description": "Case fields: {Subject, Description, Status, Priority, Origin, Type, Reason, AccountId, ContactId, SuppliedName}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Lead": {
+      "post": {
+        "summary": "Add a new Lead record to Salesforce.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Add a new Lead record to Salesforce. Request body: Lead fields: {LastName (required), Company (required), FirstName, Email, Phone, Title, Status, LeadSource, Industry, Rating, Description, Street, City, State, PostalCode, Country}.",
+        "operationId": "salesforce.sobjects.lead.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "LastName",
+                  "Company"
+                ],
+                "properties": {
+                  "City": {
+                    "type": "string"
+                  },
+                  "Email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "Phone": {
+                    "type": "string"
+                  },
+                  "State": {
+                    "type": "string"
+                  },
+                  "Title": {
+                    "type": "string"
+                  },
+                  "Rating": {
+                    "type": "string"
+                  },
+                  "Status": {
+                    "type": "string"
+                  },
+                  "Street": {
+                    "type": "string"
+                  },
+                  "Company": {
+                    "type": "string"
+                  },
+                  "Country": {
+                    "type": "string"
+                  },
+                  "Industry": {
+                    "type": "string"
+                  },
+                  "LastName": {
+                    "type": "string"
+                  },
+                  "FirstName": {
+                    "type": "string"
+                  },
+                  "LeadSource": {
+                    "type": "string"
+                  },
+                  "PostalCode": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  }
+                },
+                "description": "Lead fields: {LastName (required), Company (required), FirstName, Email, Phone, Title, Status, LeadSource, Industry, Rating, Description, Street, City, State, PostalCode, Country}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Note": {
+      "post": {
+        "summary": "Attach a Note to a record in Salesforce.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Attach a Note to a record in Salesforce. Request body: Note fields: {ParentId (required), Title, Body, IsPrivate}.",
+        "operationId": "salesforce.sobjects.note.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "ParentId"
+                ],
+                "properties": {
+                  "Body": {
+                    "type": "string"
+                  },
+                  "Title": {
+                    "type": "string"
+                  },
+                  "ParentId": {
+                    "type": "string"
+                  },
+                  "IsPrivate": {
+                    "type": "boolean"
+                  }
+                },
+                "description": "Note fields: {ParentId (required), Title, Body, IsPrivate}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Task": {
+      "post": {
+        "summary": "Add a new Task record to Salesforce.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Add a new Task record to Salesforce. Request body: Task fields: {Subject (required), Status, Priority, ActivityDate (ISO format), Description, WhoId, WhatId, OwnerId}.",
+        "operationId": "salesforce.sobjects.task.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "Subject"
+                ],
+                "properties": {
+                  "WhoId": {
+                    "type": "string"
+                  },
+                  "Status": {
+                    "type": "string"
+                  },
+                  "WhatId": {
+                    "type": "string"
+                  },
+                  "OwnerId": {
+                    "type": "string"
+                  },
+                  "Subject": {
+                    "type": "string"
+                  },
+                  "Priority": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "ActivityDate": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                },
+                "description": "Task fields: {Subject (required), Status, Priority, ActivityDate (ISO format), Description, WhoId, WhatId, OwnerId}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Event": {
+      "post": {
+        "summary": "Add a new Event (meeting or calendar entry) to Salesforce.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Add a new Event (meeting or calendar entry) to Salesforce. Request body: Event fields: {Subject (required), StartDateTime (required, ISO), EndDateTime (required, ISO), Description, Location, WhoId, WhatId, IsAllDayEvent}.",
+        "operationId": "salesforce.sobjects.event.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "Subject",
+                  "StartDateTime",
+                  "EndDateTime"
+                ],
+                "properties": {
+                  "WhoId": {
+                    "type": "string"
+                  },
+                  "WhatId": {
+                    "type": "string"
+                  },
+                  "Subject": {
+                    "type": "string"
+                  },
+                  "Location": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "EndDateTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "IsAllDayEvent": {
+                    "type": "boolean"
+                  },
+                  "StartDateTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "description": "Event fields: {Subject (required), StartDateTime (required, ISO), EndDateTime (required, ISO), Description, Location, WhoId, WhatId, IsAllDayEvent}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Account": {
+      "post": {
+        "summary": "Add a new Account record to Salesforce.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Add a new Account record to Salesforce. Request body: Account fields: {Name (required), Type, Industry, Phone, Website, Description, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry, NumberOfEmployees, AnnualRevenue}.",
+        "operationId": "salesforce.sobjects.account.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "Name"
+                ],
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "Type": {
+                    "type": "string"
+                  },
+                  "Phone": {
+                    "type": "string"
+                  },
+                  "Website": {
+                    "type": "string"
+                  },
+                  "Industry": {
+                    "type": "string"
+                  },
+                  "BillingCity": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "BillingState": {
+                    "type": "string"
+                  },
+                  "AnnualRevenue": {
+                    "type": "number"
+                  },
+                  "BillingStreet": {
+                    "type": "string"
+                  },
+                  "BillingCountry": {
+                    "type": "string"
+                  },
+                  "BillingPostalCode": {
+                    "type": "string"
+                  },
+                  "NumberOfEmployees": {
+                    "type": "integer"
+                  }
+                },
+                "description": "Account fields: {Name (required), Type, Industry, Phone, Website, Description, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry, NumberOfEmployees, AnnualRevenue}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Contact": {
+      "post": {
+        "summary": "Add a new Contact record to Salesforce.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Add a new Contact record to Salesforce. Request body: Contact fields: {LastName (required), FirstName, Email, Phone, AccountId, Title, LeadSource, MailingStreet, MailingCity, MailingState, MailingPostalCode, MailingCountry, Description}.",
+        "operationId": "salesforce.sobjects.contact.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "LastName"
+                ],
+                "properties": {
+                  "Email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "Phone": {
+                    "type": "string"
+                  },
+                  "Title": {
+                    "type": "string"
+                  },
+                  "LastName": {
+                    "type": "string"
+                  },
+                  "AccountId": {
+                    "type": "string"
+                  },
+                  "FirstName": {
+                    "type": "string"
+                  },
+                  "LeadSource": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "MailingCity": {
+                    "type": "string"
+                  },
+                  "MailingState": {
+                    "type": "string"
+                  },
+                  "MailingStreet": {
+                    "type": "string"
+                  },
+                  "MailingCountry": {
+                    "type": "string"
+                  },
+                  "MailingPostalCode": {
+                    "type": "string"
+                  }
+                },
+                "description": "Contact fields: {LastName (required), FirstName, Email, Phone, AccountId, Title, LeadSource, MailingStreet, MailingCity, MailingState, MailingPostalCode, MailingCountry, Description}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Campaign": {
+      "post": {
+        "summary": "Add a new Campaign record to Salesforce.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Add a new Campaign record to Salesforce. Request body: Campaign fields: {Name (required), Type, Status, StartDate, EndDate, Description, BudgetedCost, ExpectedRevenue, IsActive}.",
+        "operationId": "salesforce.sobjects.campaign.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "Name"
+                ],
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "Type": {
+                    "type": "string"
+                  },
+                  "Status": {
+                    "type": "string"
+                  },
+                  "EndDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
+                  },
+                  "StartDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "BudgetedCost": {
+                    "type": "number"
+                  },
+                  "ExpectedRevenue": {
+                    "type": "number"
+                  }
+                },
+                "description": "Campaign fields: {Name (required), Type, Status, StartDate, EndDate, Description, BudgetedCost, ExpectedRevenue, IsActive}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Document": {
+      "post": {
+        "summary": "Store a Document inside a Salesforce Folder.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Store a Document inside a Salesforce Folder. Request body: Document fields: {FolderId (required), Name (required), Body (required - file content), Description, Keywords}.",
+        "operationId": "salesforce.sobjects.document.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "FolderId",
+                  "Name"
+                ],
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "FolderId": {
+                    "type": "string"
+                  },
+                  "Keywords": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  }
+                },
+                "description": "Document fields: {FolderId (required), Name (required), Body (required - file content), Description, Keywords}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Lead/{id}": {
+      "patch": {
+        "summary": "Modify the fields of an existing Salesforce Lead.",
+        "responses": {
+          "204": {
+            "description": "204 No Content on success"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The ID of the Lead record to update."
+          }
+        ],
+        "description": "Modify the fields of an existing Salesforce Lead. Request body: Lead fields to update: {FirstName, LastName, Company, Email, Phone, Title, Status, LeadSource, Industry, Rating, Description, Street, City, State, PostalCode, Country, OwnerId}.",
+        "operationId": "salesforce.sobjects.lead.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "City": {
+                    "type": "string"
+                  },
+                  "Email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "Phone": {
+                    "type": "string"
+                  },
+                  "State": {
+                    "type": "string"
+                  },
+                  "Title": {
+                    "type": "string"
+                  },
+                  "Rating": {
+                    "type": "string"
+                  },
+                  "Status": {
+                    "type": "string"
+                  },
+                  "Street": {
+                    "type": "string"
+                  },
+                  "Company": {
+                    "type": "string"
+                  },
+                  "Country": {
+                    "type": "string"
+                  },
+                  "Industry": {
+                    "type": "string"
+                  },
+                  "LastName": {
+                    "type": "string"
+                  },
+                  "FirstName": {
+                    "type": "string"
+                  },
+                  "LeadSource": {
+                    "type": "string"
+                  },
+                  "PostalCode": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  }
+                },
+                "description": "Lead fields to update: {FirstName, LastName, Company, Email, Phone, Title, Status, LeadSource, Industry, Rating, Description, Street, City, State, PostalCode, Country, OwnerId}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Attachment": {
+      "post": {
+        "summary": "Attach a file to an existing Salesforce record.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Attach a file to an existing Salesforce record. Request body: Attachment fields: {ParentId (required), Name (required), Body (required - file content), Description, IsPrivate}.",
+        "operationId": "salesforce.sobjects.attachment.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "ParentId",
+                  "Name",
+                  "Body"
+                ],
+                "properties": {
+                  "Body": {
+                    "type": "string"
+                  },
+                  "Name": {
+                    "type": "string"
+                  },
+                  "ParentId": {
+                    "type": "string"
+                  },
+                  "IsPrivate": {
+                    "type": "boolean"
+                  },
+                  "Description": {
+                    "type": "string"
+                  }
+                },
+                "description": "Attachment fields: {ParentId (required), Name (required), Body (required - file content), Description, IsPrivate}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/CaseComment": {
+      "post": {
+        "summary": "Append a comment to a Case by creating a CaseComment record with ParentId pointing to the target Case.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Append a comment to a Case by creating a CaseComment record with ParentId pointing to the target Case. Request body: {ParentId (required), CommentBody (required)}.",
+        "operationId": "salesforce.sobjects.caseComment.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "ParentId",
+                  "CommentBody"
+                ],
+                "properties": {
+                  "ParentId": {
+                    "type": "string"
+                  },
+                  "CommentBody": {
+                    "type": "string"
+                  }
+                },
+                "description": "{ParentId (required), CommentBody (required)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/ContentNote": {
+      "post": {
+        "summary": "Create a rich-text enhanced content note in Salesforce.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Create a rich-text enhanced content note in Salesforce. Request body: {Title (required), Content (required - base64 encoded), object, record_id}.",
+        "operationId": "salesforce.contentNote.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "Title",
+                  "Content"
+                ],
+                "properties": {
+                  "Title": {
+                    "type": "string"
+                  },
+                  "object": {
+                    "type": "string"
+                  },
+                  "Content": {
+                    "type": "string"
+                  },
+                  "record_id": {
+                    "type": "string"
+                  }
+                },
+                "description": "{Title (required), Content (required - base64 encoded), object, record_id}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Opportunity": {
+      "post": {
+        "summary": "Add a new Opportunity (deal) record to Salesforce.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Add a new Opportunity (deal) record to Salesforce. Request body: Opportunity fields: {Name (required), StageName (required), CloseDate (required, ISO format), AccountId, Amount, Probability, Description, LeadSource}.",
+        "operationId": "salesforce.sobjects.opportunity.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "Name",
+                  "StageName",
+                  "CloseDate"
+                ],
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "Amount": {
+                    "type": "number"
+                  },
+                  "AccountId": {
+                    "type": "string"
+                  },
+                  "CloseDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "StageName": {
+                    "type": "string"
+                  },
+                  "LeadSource": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "Probability": {
+                    "type": "number"
+                  }
+                },
+                "description": "Opportunity fields: {Name (required), StageName (required), CloseDate (required, ISO format), AccountId, Amount, Probability, Description, LeadSource}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Account/{id}": {
+      "patch": {
+        "summary": "Modify the fields of an existing Salesforce Account.",
+        "responses": {
+          "204": {
+            "description": "204 No Content on success"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The ID of the Account record to update."
+          }
+        ],
+        "description": "Modify the fields of an existing Salesforce Account. Request body: Account fields to update: {Name, Type, Industry, Phone, Website, Description, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry, NumberOfEmployees, AnnualRevenue}.",
+        "operationId": "salesforce.sobjects.account.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "Type": {
+                    "type": "string"
+                  },
+                  "Phone": {
+                    "type": "string"
+                  },
+                  "Website": {
+                    "type": "string"
+                  },
+                  "Industry": {
+                    "type": "string"
+                  },
+                  "BillingCity": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "BillingState": {
+                    "type": "string"
+                  },
+                  "AnnualRevenue": {
+                    "type": "number"
+                  },
+                  "BillingStreet": {
+                    "type": "string"
+                  },
+                  "BillingCountry": {
+                    "type": "string"
+                  },
+                  "BillingPostalCode": {
+                    "type": "string"
+                  },
+                  "NumberOfEmployees": {
+                    "type": "integer"
+                  }
+                },
+                "description": "Account fields to update: {Name, Type, Industry, Phone, Website, Description, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry, NumberOfEmployees, AnnualRevenue}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Contact/{id}": {
+      "patch": {
+        "summary": "Modify the fields of an existing Salesforce Contact.",
+        "responses": {
+          "204": {
+            "description": "204 No Content on success"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The ID of the Contact record to update."
+          }
+        ],
+        "description": "Modify the fields of an existing Salesforce Contact. Request body: Contact fields to update: {FirstName, LastName, Email, Phone, Title, AccountId, LeadSource, MailingStreet, MailingCity, MailingState, MailingPostalCode, MailingCountry, Description}.",
+        "operationId": "salesforce.sobjects.contact.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "Phone": {
+                    "type": "string"
+                  },
+                  "Title": {
+                    "type": "string"
+                  },
+                  "LastName": {
+                    "type": "string"
+                  },
+                  "AccountId": {
+                    "type": "string"
+                  },
+                  "FirstName": {
+                    "type": "string"
+                  },
+                  "LeadSource": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "MailingCity": {
+                    "type": "string"
+                  },
+                  "MailingState": {
+                    "type": "string"
+                  },
+                  "MailingStreet": {
+                    "type": "string"
+                  },
+                  "MailingCountry": {
+                    "type": "string"
+                  },
+                  "MailingPostalCode": {
+                    "type": "string"
+                  }
+                },
+                "description": "Contact fields to update: {FirstName, LastName, Email, Phone, Title, AccountId, LeadSource, MailingStreet, MailingCity, MailingState, MailingPostalCode, MailingCountry, Description}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/CampaignMember": {
+      "post": {
+        "summary": "Associate a Contact or Lead with a Campaign by creating a CampaignMember record that links the person to the campaign.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Associate a Contact or Lead with a Campaign by creating a CampaignMember record that links the person to the campaign. Request body: {CampaignId (required), ContactId or LeadId (one required), Status}.",
+        "operationId": "salesforce.sobjects.campaignMember.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "CampaignId",
+                  "ContactId or LeadId"
+                ],
+                "properties": {
+                  "Status": {
+                    "type": "string"
+                  },
+                  "CampaignId": {
+                    "type": "string"
+                  },
+                  "ContactId or LeadId": {
+                    "type": "string"
+                  }
+                },
+                "description": "{CampaignId (required), ContactId or LeadId (one required), Status}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/ContentVersion": {
+      "post": {
+        "summary": "Upload a file to Salesforce as a ContentVersion record.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Upload a file to Salesforce as a ContentVersion record. Request body: {VersionData (required - file URL or content), Title, PathOnClient (required - file path e.g. '/document.pdf'), Description, FirstPublishLocationId (folder or record ID)}.",
+        "operationId": "salesforce.file.create",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "VersionData",
+                  "PathOnClient"
+                ],
+                "properties": {
+                  "Title": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "VersionData": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "PathOnClient": {
+                    "type": "string"
+                  },
+                  "FirstPublishLocationId": {
+                    "type": "string"
+                  }
+                },
+                "description": "{VersionData (required - file URL or content), Title, PathOnClient (required - file path e.g. '/document.pdf'), Description, FirstPublishLocationId (folder or record ID)}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/Opportunity/{id}": {
+      "patch": {
+        "summary": "Modify the fields of an existing Salesforce Opportunity.",
+        "responses": {
+          "204": {
+            "description": "204 No Content on success"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The ID of the Opportunity record to update."
+          }
+        ],
+        "description": "Modify the fields of an existing Salesforce Opportunity. Request body: Opportunity fields to update: {Name, StageName, CloseDate, AccountId, Amount, Probability, Description, IsClosed, IsWon, Competitor, RiskLevel, NextStep}.",
+        "operationId": "salesforce.sobjects.opportunity.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "IsWon": {
+                    "type": "boolean"
+                  },
+                  "Amount": {
+                    "type": "number"
+                  },
+                  "IsClosed": {
+                    "type": "boolean"
+                  },
+                  "AccountId": {
+                    "type": "string"
+                  },
+                  "CloseDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "StageName": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "Probability": {
+                    "type": "number"
+                  }
+                },
+                "description": "Opportunity fields to update: {Name, StageName, CloseDate, AccountId, Amount, Probability, Description, IsClosed, IsWon, Competitor, RiskLevel, NextStep}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/sobjects/{sObjectType}/{id}": {
+      "get": {
+        "summary": "Fetch a single Salesforce record by its ID. Works for Contact, Lead, Account, Opportunity, Case, or any sObject type.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "sObject record with all fields"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sObjectType",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The Salesforce sObject type name (Contact, Account, Lead, Opportunity, Case, Task, Event, etc.)."
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The ID of the record to fetch."
+          }
+        ],
+        "description": "Fetch a single Salesforce record by its ID. Works for Contact, Lead, Account, Opportunity, Case, or any sObject type.",
+        "operationId": "salesforce.sobjects.record.get"
+      },
+      "patch": {
+        "summary": "Modify any Salesforce record using its sObject type and ID. General-purpose update endpoint.",
+        "responses": {
+          "204": {
+            "description": "204 No Content on success"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sObjectType",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The Salesforce sObject type name."
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The ID of the record to modify."
+          }
+        ],
+        "description": "Modify any Salesforce record using its sObject type and ID. General-purpose update endpoint. Request body: JSON object of field updates.",
+        "operationId": "salesforce.sobjects.record.update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "JSON object of field updates",
+                "additionalProperties": true
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "summary": "Remove a record from Salesforce using its sObject type and record ID.",
+        "responses": {
+          "204": {
+            "description": "204 No Content on success"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sObjectType",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The Salesforce sObject type name (Contact, Account, Lead, Opportunity, etc.)."
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The ID of the record to remove."
+          }
+        ],
+        "description": "Remove a record from Salesforce using its sObject type and record ID.",
+        "operationId": "salesforce.sobjects.record.delete"
+      }
+    },
+    "/services/data/v61.0/actions/standard/convertLead": {
+      "post": {
+        "summary": "Convert a Salesforce Lead into a Contact, optionally creating an associated opportunity in the process.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lead": {
+                      "type": "string"
+                    },
+                    "contact": {
+                      "type": "string"
+                    },
+                    "opportunity": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{contact, lead, opportunity}"
+          }
+        },
+        "description": "Convert a Salesforce Lead into a Contact, optionally creating an associated opportunity in the process. Request body: {inputs: [{leadId (required), accountId (required), convertedStatus (required), opportunityId, createOpportunity (default true)}]}.",
+        "operationId": "salesforce.actions.convertLead",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "inputs"
+                ],
+                "properties": {
+                  "inputs": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "leadId",
+                        "accountId",
+                        "convertedStatus"
+                      ],
+                      "properties": {
+                        "leadId": {
+                          "type": "string"
+                        },
+                        "accountId": {
+                          "type": "string"
+                        },
+                        "opportunityId": {
+                          "type": "string"
+                        },
+                        "convertedStatus": {
+                          "type": "string"
+                        },
+                        "createOpportunity": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "description": "{inputs: [{leadId (required), accountId (required), convertedStatus (required), opportunityId, createOpportunity (default true)}]}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/actions/standard/emailSimple": {
+      "post": {
+        "summary": "Dispatch an email via Salesforce using the Simple Email standard action.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isSuccess": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{isSuccess: true}"
+          }
+        },
+        "description": "Dispatch an email via Salesforce using the Simple Email standard action. Request body: {inputs: [{emailAddresses (required - comma-separated), emailSubject (required), emailBody (required), bodyFormat, ccAddresses, bccAddresses, senderType, relatedToId}]}.",
+        "operationId": "salesforce.actions.emailSimple",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "inputs"
+                ],
+                "properties": {
+                  "inputs": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "emailAddresses",
+                        "emailSubject",
+                        "emailBody"
+                      ],
+                      "properties": {
+                        "emailBody": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "bodyFormat": {
+                          "type": "string"
+                        },
+                        "senderType": {
+                          "type": "string"
+                        },
+                        "ccAddresses": {
+                          "type": "string"
+                        },
+                        "relatedToId": {
+                          "type": "string"
+                        },
+                        "bccAddresses": {
+                          "type": "string"
+                        },
+                        "emailSubject": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "emailAddresses": {
+                          "type": "string",
+                          "format": "email"
+                        }
+                      }
+                    }
+                  }
+                },
+                "description": "{inputs: [{emailAddresses (required - comma-separated), emailSubject (required), emailBody (required), bodyFormat, ccAddresses, bccAddresses, senderType, relatedToId}]}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/analytics/reports/{reportId}": {
+      "get": {
+        "summary": "Execute a Salesforce report and return the results.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Report result with fact_map, groupings, and aggregates"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "reportId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The identifier of the report to run."
+          },
+          {
+            "in": "query",
+            "name": "includeDetails",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": false,
+            "description": "When true, includes row-level detail records in the result."
+          }
+        ],
+        "description": "Execute a Salesforce report and return the results.",
+        "operationId": "salesforce.report.run"
+      }
+    },
+    "/services/data/v61.0/sobjects/ContentDocumentLink": {
+      "post": {
+        "summary": "Associate an existing file (ContentDocument) with a specific Salesforce record.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "{id: string, success: true}"
+          }
+        },
+        "description": "Associate an existing file (ContentDocument) with a specific Salesforce record. Request body: {LinkedEntityId (required - record ID), ContentDocumentId (required), Visibility, ShareType}.",
+        "operationId": "salesforce.file.addToRecord",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "LinkedEntityId",
+                  "ContentDocumentId"
+                ],
+                "properties": {
+                  "ShareType": {
+                    "type": "string"
+                  },
+                  "Visibility": {
+                    "type": "string"
+                  },
+                  "LinkedEntityId": {
+                    "type": "string"
+                  },
+                  "ContentDocumentId": {
+                    "type": "string"
+                  }
+                },
+                "description": "{LinkedEntityId (required - record ID), ContentDocumentId (required), Visibility, ShareType}"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/services/data/v61.0/actions/custom/flow/{flowName}": {
+      "post": {
+        "summary": "Trigger a Salesforce Flow by its name.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Flow execution result with status"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "flowName",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The name or ID of the flow to trigger."
+          }
+        ],
+        "description": "Trigger a Salesforce Flow by its name. Request body: JSON object of flow input parameters (optional).",
+        "operationId": "salesforce.flow.launch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "JSON object of flow input parameters (optional)",
+                "additionalProperties": true
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://your-domain.my.salesforce.com"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Case": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Type": {
+            "type": "string"
+          },
+          "Origin": {
+            "type": "string"
+          },
+          "Reason": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "string"
+          },
+          "Subject": {
+            "type": "string"
+          },
+          "Priority": {
+            "type": "string"
+          },
+          "AccountId": {
+            "type": "string"
+          },
+          "ContactId": {
+            "type": "string"
+          },
+          "Description": {
+            "type": "string"
+          }
+        }
+      },
+      "Lead": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "City": {
+            "type": "string"
+          },
+          "Email": {
+            "type": "string",
+            "format": "email"
+          },
+          "Phone": {
+            "type": "string"
+          },
+          "State": {
+            "type": "string"
+          },
+          "Title": {
+            "type": "string"
+          },
+          "Rating": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "string"
+          },
+          "Street": {
+            "type": "string"
+          },
+          "Company": {
+            "type": "string"
+          },
+          "Country": {
+            "type": "string"
+          },
+          "Industry": {
+            "type": "string"
+          },
+          "LastName": {
+            "type": "string"
+          },
+          "FirstName": {
+            "type": "string"
+          },
+          "LeadSource": {
+            "type": "string"
+          },
+          "PostalCode": {
+            "type": "string"
+          },
+          "Description": {
+            "type": "string"
+          }
+        }
+      },
+      "Note": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Body": {
+            "type": "string"
+          },
+          "Title": {
+            "type": "string"
+          },
+          "ParentId": {
+            "type": "string"
+          },
+          "IsPrivate": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Task": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "WhoId": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "string"
+          },
+          "WhatId": {
+            "type": "string"
+          },
+          "OwnerId": {
+            "type": "string"
+          },
+          "Subject": {
+            "type": "string"
+          },
+          "Priority": {
+            "type": "string"
+          },
+          "Description": {
+            "type": "string"
+          },
+          "ActivityDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "WhoId": {
+            "type": "string"
+          },
+          "WhatId": {
+            "type": "string"
+          },
+          "Subject": {
+            "type": "string"
+          },
+          "Location": {
+            "type": "string"
+          },
+          "Description": {
+            "type": "string"
+          },
+          "EndDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "IsAllDayEvent": {
+            "type": "boolean"
+          },
+          "StartDateTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Folder": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Type": {
+            "type": "string"
+          },
+          "AccessType": {
+            "type": "string"
+          }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Type": {
+            "type": "string"
+          },
+          "Phone": {
+            "type": "string"
+          },
+          "Website": {
+            "type": "string"
+          },
+          "Industry": {
+            "type": "string"
+          },
+          "BillingCity": {
+            "type": "string"
+          },
+          "Description": {
+            "type": "string"
+          },
+          "BillingState": {
+            "type": "string"
+          },
+          "AnnualRevenue": {
+            "type": "number"
+          },
+          "BillingStreet": {
+            "type": "string"
+          },
+          "BillingCountry": {
+            "type": "string"
+          },
+          "BillingPostalCode": {
+            "type": "string"
+          },
+          "NumberOfEmployees": {
+            "type": "integer"
+          }
+        }
+      },
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "description": "The globally unique Salesforce record identifier."
+          },
+          "Email": {
+            "type": "string",
+            "format": "email"
+          },
+          "Phone": {
+            "type": "string"
+          },
+          "Title": {
+            "type": "string"
+          },
+          "LastName": {
+            "type": "string"
+          },
+          "AccountId": {
+            "type": "string"
+          },
+          "FirstName": {
+            "type": "string"
+          },
+          "LeadSource": {
+            "type": "string"
+          },
+          "Description": {
+            "type": "string"
+          },
+          "MailingCity": {
+            "type": "string"
+          },
+          "MailingState": {
+            "type": "string"
+          },
+          "MailingStreet": {
+            "type": "string"
+          },
+          "MailingCountry": {
+            "type": "string"
+          },
+          "MailingPostalCode": {
+            "type": "string"
+          }
+        }
+      },
+      "Campaign": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Type": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "string"
+          },
+          "EndDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "IsActive": {
+            "type": "boolean"
+          },
+          "StartDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "Description": {
+            "type": "string"
+          },
+          "BudgetedCost": {
+            "type": "number"
+          },
+          "ExpectedRevenue": {
+            "type": "number"
+          }
+        }
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "FolderId": {
+            "type": "string"
+          },
+          "Keywords": {
+            "type": "string"
+          },
+          "Description": {
+            "type": "string"
+          }
+        }
+      },
+      "Attachment": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Body": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "ParentId": {
+            "type": "string"
+          },
+          "IsPrivate": {
+            "type": "boolean"
+          },
+          "Description": {
+            "type": "string"
+          }
+        }
+      },
+      "CaseComment": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "ParentId": {
+            "type": "string"
+          },
+          "CommentBody": {
+            "type": "string"
+          }
+        }
+      },
+      "Opportunity": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "IsWon": {
+            "type": "boolean"
+          },
+          "Amount": {
+            "type": "number"
+          },
+          "IsClosed": {
+            "type": "boolean"
+          },
+          "AccountId": {
+            "type": "string"
+          },
+          "CloseDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "StageName": {
+            "type": "string"
+          },
+          "LeadSource": {
+            "type": "string"
+          },
+          "Description": {
+            "type": "string"
+          },
+          "Probability": {
+            "type": "number"
+          }
+        }
+      },
+      "EmailMessage": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Subject": {
+            "type": "string"
+          },
+          "HtmlBody": {
+            "type": "string"
+          },
+          "TextBody": {
+            "type": "string"
+          },
+          "CcAddress": {
+            "type": "string"
+          },
+          "ToAddress": {
+            "type": "string"
+          },
+          "BccAddress": {
+            "type": "string"
+          }
+        }
+      },
+      "CampaignMember": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "LeadId": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "string"
+          },
+          "ContactId": {
+            "type": "string"
+          },
+          "CampaignId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "salesforceOAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://login.salesforce.com/services/oauth2/authorize",
+            "tokenUrl": "https://login.salesforce.com/services/oauth2/token",
+            "scopes": {
+              "api": "Access Salesforce REST API"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "salesforceOAuth2": []
+    }
+  ]
+}

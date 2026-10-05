@@ -78,7 +78,7 @@ pub fn Upload(team_id: String) -> Element {
                         Alert {
                             class: "w-full min-w-0 max-w-full break-words",
                             alert_color: AlertColor::Default,
-                            "Maximum upload: 50 MiB. Existing specs are never overwritten."
+                            "Maximum upload: 50 MiB. Each spec may be up to 20 MiB. Existing specs are never overwritten."
                         }
                     }
                     ModalAction {

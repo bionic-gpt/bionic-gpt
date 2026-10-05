@@ -1,0 +1,1579 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Personio",
+    "version": "2.0.0",
+    "description": "Read, create, update, and delete Personio person records using the current v2 public API.",
+    "x-bionic-slug": "personio",
+    "x-bionic-source-url": "https://developer.personio.de/openapi/persons-service-api-v2.yaml",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+UGVyc29uaW88L3RpdGxlPjxwYXRoIGZpbGw9IiMwMDAwMDAiIGQ9Ik0yMS42MDMgMjRIMi40N3YtMS41NjNoMTkuMTMzWm0tNi4xNjctNC4wNDRjLjU1Ny4xNDUgMS4xMzctLjI0NCAxLjMwMy0uODY3LjE2Ni0uNjI0LS4xNTctMS4yNS0uNzEzLTEuMzktLjU1Ni0uMTQyLTEuMTM3LjI0LTEuMzA0Ljg2NS0uMTY3LjYyNC4xNTYgMS4yNS43MTQgMS4zOXpNMjIuMzcuNjc2Yy0xLjczNy0xLjM0Ny01LjM4Ny0uNDMtOC4xNDUuNTc2QTQxLjcwNyA0MS43MDUgMCAwIDAgNS42NCA1LjYyNUMzLjYyNCA2Ljk4NSAxLjEzNSA4Ljk4Ny43NDggMTAuODE0YTEuNDMgMS40MyAwIDAgMCAuMjggMS4yNjNjLjUwNS41OSAxLjM1NC41NzYgMS41MTYuNTY4YS43ODEuNzgxIDAgMCAwIC41MS0xLjM2OC43ODMuNzgzIDAgMCAwLS41OC0uMTkzLjg3Ny44NzcgMCAwIDEtLjE4MS0uMDE2Yy41OC0yLjEzNiA2LjY5LTYuMjMyIDEyLjQ3LTguMzQyIDMuODU4LTEuNDA4IDUuOTY0LTEuMzQyIDYuNjQ5LS44MS4yODQuMjIuNDMzLjQ4Ny4yMyAxLjA2Mi0uNTQ1IDEuNTM1LTMuMiAzLjk2LTcuMTA4IDYuNDgtLjcyNS40NjctMS40MzQuODk4LTIuMTEgMS4yOS41NDQtMS45MiAxLjEtMy44OCAxLjU4Mi01LjU2MWEuNzgyLjc4MiAwIDAgMC0xLjUwNC0uNDMgMjA3MC43MiAyMDcwLjYzNCAwIDAgMC0yLjAwMiA3LjA1Yy0xLjU2NC44MTEtMi43NTQgMS4zLTMuMjIgMS4zNjZhLjc4My43ODMgMCAwIDAtMS4wMjUgMS4wOTVjLjEzNC4yMjYuNC40NzYuOTI5LjQ3Ni4wODggMCAuMTc3LS4wMDcuMjY0LS4wMi41NC0uMDczIDEuNDE3LS4zOTUgMi40ODUtLjg4NC0uNzU4IDIuNzAyLTEuMzczIDQuOTc1LTEuNDA3IDUuMjgyYS43ODEuNzgxIDAgMCAwIC42OS44NTguNjY4LjY2OCAwIDAgMCAuMDg3IDAgLjc4My43ODMgMCAwIDAgLjc3NS0uNjg1Yy4wNjItLjM4LjgyMi0zLjEzMyAxLjc0Ni02LjQyYTU4LjI0MSA1OC4yMzkgMCAwIDAgNC4wMS0yLjQwMWM1LjQzNS0zLjU4NyA3LjAwNy01LjkxNyA3LjM2Mi03LjI0MS4yNzctMS4wMi0uMDE3LTEuOTMtLjgyNS0yLjU1N3oiLz48L3N2Zz4="
+    },
+    "x-bionic-source-files": [
+      "https://developer.personio.de/openapi/persons-service-api-v2.yaml",
+      "https://developer.personio.de/openapi/person-write-api-v2.yaml"
+    ]
+  },
+  "servers": [
+    {
+      "url": "https://api.personio.de"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "paths": {
+    "/v2/persons": {
+      "get": {
+        "summary": "List persons.",
+        "description": "- This endpoint returns a list of persons.\n- The endpoint supports pagination and filtering based on various parameters such as id, first_name, last_name, created_at, and updated_at.\n  - Filters are combined using the logical \"AND\" operator, which requires that all conditions be true for the output to be included.\n- The endpoint requires the personio:persons:read scope.\n",
+        "tags": [
+          "Persons"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "example": 50,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10
+            },
+            "description": "The amount of resources to be returned per one request. It can range between 1 and 50, and the default is 10."
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "example": "cur_82sQwR2eZvKilo2duNh219Kw",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The pagination cursor to navigate over to the next list of resources. If you pass a specific limit to your  request, or you rely on the default value of the number of resources to be returned, then your subsequent call has to include the cursor in order to retrieve the next list of resources. If cursor is missing,  the first page is returned."
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter results matching one or more provided person ids.\n",
+            "example": "person-id-1,person-id-2"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter persons matching one or more provided email addresses\n",
+            "example": "person1@example.com,person2@example.com"
+          },
+          {
+            "name": "first_name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter persons matching the provided `first_name`.\n",
+            "example": "John"
+          },
+          {
+            "name": "last_name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter persons matching the provided `last_name`.\n",
+            "example": "Doe"
+          },
+          {
+            "name": "preferred_name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter persons matching provided `preferred_name`.\n",
+            "example": "JohnDoe"
+          },
+          {
+            "name": "created_at",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter persons by creation date.",
+            "example": "2023-01-01T12:00:00Z"
+          },
+          {
+            "name": "created_at.gt",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter persons created after the provided date.",
+            "example": "2023-01-01T12:00:00Z"
+          },
+          {
+            "name": "created_at.lt",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter persons created before the provided date.",
+            "example": "2023-01-01T12:00:00Z"
+          },
+          {
+            "name": "updated_at",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter persons by updated date.",
+            "example": "2023-01-01T12:00:00Z"
+          },
+          {
+            "name": "updated_at.gt",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter persons updated after the provided date.",
+            "example": "2023-01-01T12:00:00Z"
+          },
+          {
+            "name": "updated_at.lt",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Filter persons updated before the provided date.",
+            "example": "2023-01-01T12:00:00Z"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "INACTIVE"
+              ]
+            },
+            "description": "Filter persons by status. ACTIVE includes persons whose latest employment status is active, leave, or onboarding. INACTIVE includes persons whose latest employment status is inactive.\n",
+            "example": "ACTIVE"
+          }
+        ],
+        "x-path-examples": {
+          "200 List all persons in single page": {
+            "value": ""
+          },
+          "200 List all persons with multiple pages": {
+            "value": ""
+          },
+          "200 List persons using a filter": {
+            "value": "email=jen.doe@personio.de"
+          },
+          "200 List persons using pagination": {
+            "value": "limit=1"
+          },
+          "200 List persons using filters and pagination": {
+            "value": "limit=1&created_at.lt=2017-07-21T17:32:28Z"
+          },
+          "200 List persons by id": {
+            "value": "id=person-id-1,person-id-2"
+          },
+          "200 List persons by name": {
+            "value": "first_name=John&last_name=Doe&preferred_name=JohnDoe"
+          },
+          "200 List persons by dates": {
+            "value": "created_at=2023-01-01T12:00:00Z&created_at.gt=2023-01-01T12:00:00Z&updated_at=2023-01-01T12:00:00Z&updated_at.gt=2023-01-01T12:00:00Z&updated_at.lt=2023-01-01T12:00:00Z"
+          },
+          "200 List persons by status": {
+            "value": "status=ACTIVE"
+          },
+          "400 List persons using wrong filter value": {
+            "value": "created_at.lt=wrong-date-format"
+          },
+          "400 List persons using wrong filter format": {
+            "value": "id.nooperator=0825e977-b879-4106-a73e-3d9aedad733d"
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "_data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Person"
+                      }
+                    },
+                    "_meta": {
+                      "description": "This object represents the metadata information for an object. It's a set of arbitrary key/value attributes such as `links`.",
+                      "type": "object",
+                      "readOnly": true,
+                      "properties": {
+                        "links": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "description": "This objects represents a hyperlink.",
+                            "type": "object",
+                            "readOnly": true,
+                            "properties": {
+                              "href": {
+                                "type": "string",
+                                "format": "uri"
+                              }
+                            },
+                            "additionalProperties": true
+                          },
+                          "example": {
+                            "links": {
+                              "self": {
+                                "href": "https://api.personio.de/v2/person?cursor=<current-cursor>"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "200 List all persons in single page": {
+                    "$ref": "#/components/examples/PersonsListInSinglePageResponse"
+                  },
+                  "200 List all persons with multiple pages": {
+                    "$ref": "#/components/examples/PersonsListInMultiplePagesResponse"
+                  },
+                  "200 List persons using a filter": {
+                    "$ref": "#/components/examples/PersonsWithParametersAndSinglePageResponse"
+                  },
+                  "200 List persons using pagination": {
+                    "$ref": "#/components/examples/PersonsWithParametersAndMultiplePagesResponse"
+                  },
+                  "200 List persons using filters and pagination": {
+                    "$ref": "#/components/examples/PersonsWithParametersAndMultiplePagesResponse"
+                  },
+                  "200 List persons by id": {
+                    "$ref": "#/components/examples/PersonsWithParametersAndSinglePageResponse"
+                  },
+                  "200 List persons by name": {
+                    "$ref": "#/components/examples/PersonsWithParametersAndSinglePageResponse"
+                  },
+                  "200 List persons by dates": {
+                    "$ref": "#/components/examples/PersonsWithParametersAndSinglePageResponse"
+                  },
+                  "200 List persons by status": {
+                    "$ref": "#/components/examples/PersonsWithParametersAndSinglePageResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "type": "object",
+                  "description": "This object represents an error response.",
+                  "properties": {
+                    "personio_trace_id": {
+                      "type": "string",
+                      "example": "aswo3f-a202lfso-312123sld-1230ddd",
+                      "description": "A unique ID that was created for this error."
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2021-05-28T11:17:30.000Z",
+                      "description": "The timestamp of when the error occurred."
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "example": "Not found",
+                            "description": "The title of the error."
+                          },
+                          "detail": {
+                            "type": "string",
+                            "example": "The requested resource was not found.",
+                            "description": "A short description about the error."
+                          },
+                          "type": {
+                            "type": "string",
+                            "format": "uri",
+                            "example": "https://developer.personio.de/reference/errors#common.requested_resource_not_found",
+                            "description": "A link to the developer hub where more information can be found for the encountered error."
+                          },
+                          "_meta": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "400 List persons using wrong filter value": {
+                    "$ref": "#/components/examples/InvalidFilterValue"
+                  },
+                  "400 List persons using wrong filter format": {
+                    "$ref": "#/components/examples/InvalidFilterFormat"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get_v2_persons"
+      },
+      "post": {
+        "summary": "Create a new Person and Employment.",
+        "description": "- This endpoint enables the creation of a Person resource and an associated Employment resource.\n- The endpoint requires the personio:persons:write scope.\n",
+        "tags": [
+          "Persons"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePerson"
+              },
+              "examples": {
+                "Create new Person": {
+                  "$ref": "#/components/examples/ValidCreatePerson"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Person and Employment created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePersonResponse"
+                },
+                "examples": {
+                  "Create new Person": {
+                    "$ref": "#/components/examples/ValidCreatePersonResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          }
+        },
+        "x-path-examples": {
+          "Create new Person": {
+            "value": "/v2/persons"
+          },
+          "Invalid parameter": {
+            "value": "/v2/persons"
+          }
+        },
+        "operationId": "post_v2_persons"
+      }
+    },
+    "/v2/persons/{id}": {
+      "get": {
+        "summary": "Retrieve a person.",
+        "description": "This endpoint returns a specific person identified by the ID parameter. The endpoint requires the personio:persons:read scope.",
+        "tags": [
+          "Persons"
+        ],
+        "x-path-examples": {
+          "200 Person response": {
+            "value": "/v2/persons/some-normal-id"
+          },
+          "404 Person not found": {
+            "value": "/v2/persons/id-that-does-not-exist"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "The identifier of the person.",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                },
+                "examples": {
+                  "200 Person response": {
+                    "$ref": "#/components/examples/PersonsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Person not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/paths/~1v2~1persons/get/responses/400/content/application~1problem+json/schema"
+                },
+                "examples": {
+                  "404 Person not found": {
+                    "$ref": "#/components/examples/ResourceNotFound"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get_v2_persons_id"
+      }
+    },
+    "/v2/persons/{person_id}": {
+      "patch": {
+        "summary": "Update a Person.",
+        "description": "- This endpoint enables the update of a Person resource.\n- The endpoint requires the personio:persons:write scope.\n",
+        "tags": [
+          "Persons"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PersonId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonWrite"
+              },
+              "examples": {
+                "Update Person": {
+                  "$ref": "#/components/examples/ValidUpdatePerson"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Person updated successfully.",
+            "x-response-example": "Update Person"
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          }
+        },
+        "x-path-examples": {
+          "Update Person": {
+            "value": "/v2/persons/12345"
+          },
+          "Invalid parameter": {
+            "value": "/v2/persons/12345"
+          }
+        },
+        "operationId": "patch_v2_persons_person_id"
+      },
+      "delete": {
+        "summary": "Delete a Person.",
+        "description": "- This endpoint enables the deletion of a Person resource.\n- The endpoint requires the personio:persons:write scope.\n",
+        "tags": [
+          "Persons"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PersonId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Resource deleted successfully.",
+            "x-response-example": "Delete a Person"
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          }
+        },
+        "x-path-examples": {
+          "Delete a Person": {
+            "value": "/v2/persons/12345"
+          },
+          "Invalid parameter": {
+            "value": "/v2/persons/12345"
+          }
+        },
+        "operationId": "delete_v2_persons_person_id"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "Person": {
+        "description": "Person schema example",
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true,
+            "description": "The unique identifier for the `Person`"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The email address this Person is connected with. The email is unique per Person, and the same Person can hold different Employments sharing the same email."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp of when the person was created in UTC",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp of when the person was updated in UTC",
+            "readOnly": true
+          },
+          "first_name": {
+            "type": "string",
+            "description": "The first name of the person"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "The last name of the person"
+          },
+          "preferred_name": {
+            "type": "string",
+            "description": "The preferred name of the person"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "UNSPECIFIED",
+              "MALE",
+              "FEMALE",
+              "DIVERSE"
+            ],
+            "description": "The gender of the person"
+          },
+          "profile_picture": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "url",
+                "description": "The URL of the person's profile picture"
+              }
+            },
+            "description": "The person's profile picture"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "UNSPECIFIED",
+              "ACTIVE",
+              "INACTIVE"
+            ],
+            "description": "The status of the person that is derived from the status of the latest person's employment. The person status will be set to ACTIVE if the current employment has ACTIVE, LEAVE or ONBOARDING status, otherwise the person status will be set to INACTIVE. Please use employment status to get more fine grained value for status."
+          },
+          "custom_attributes": {
+            "type": "array",
+            "items": {
+              "description": "Custom Attribute schema",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The unique identifier for this `custom_attribute`.",
+                  "readOnly": true
+                },
+                "type": {
+                  "type": "string",
+                  "description": "The type of the custom attribute. Only listed values are valid.",
+                  "enum": [
+                    "UNSPECIFIED",
+                    "STRING",
+                    "INT",
+                    "DOUBLE",
+                    "DATE",
+                    "BOOLEAN",
+                    "STRING_LIST"
+                  ]
+                },
+                "global_id": {
+                  "type": "string",
+                  "description": "The global identifier for this attribute. This value is unique and can be set to a selected value at the creation of the custom attribute.",
+                  "readOnly": true
+                },
+                "label": {
+                  "type": "string",
+                  "description": "The label defined for this attribute.",
+                  "readOnly": true
+                },
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "description": "An arbitrary value that can be represented as a string."
+                    },
+                    {
+                      "type": "array",
+                      "description": "A list of values.",
+                      "items": {
+                        "type": "string",
+                        "description": "An arbitrary value that can be represented as a string."
+                      }
+                    },
+                    {
+                      "type": "array",
+                      "description": "A list of objects.",
+                      "items": {
+                        "type": "object",
+                        "description": "An arbitrary object."
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "employments": {
+            "readOnly": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonEmploymentResponse"
+            }
+          },
+          "_meta": {
+            "$ref": "#/paths/~1v2~1persons/get/responses/200/content/application~1json/schema/properties/_meta"
+          }
+        }
+      },
+      "PersonEmploymentResponse": {
+        "description": "Reference object to the Persons Employments",
+        "properties": {
+          "id": {
+            "type": "string",
+            "readOnly": true
+          }
+        }
+      },
+      "CreatePerson": {
+        "description": "The payload for creating Person and Employment resources.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PersonWrite"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "employments": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Employment"
+                }
+              }
+            }
+          },
+          {
+            "required": [
+              "first_name",
+              "last_name"
+            ]
+          }
+        ]
+      },
+      "CreatePersonResponse": {
+        "type": "object",
+        "description": "The response object when creating a Person and Employment.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "some-random-id",
+            "description": "The id of the created Person."
+          },
+          "employments": {
+            "type": "array",
+            "description": "A list of ids of created Employments.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "some-random-id",
+                  "description": "The id of the created Employment."
+                }
+              }
+            }
+          },
+          "_meta": {
+            "type": "object",
+            "properties": {
+              "links": {
+                "type": "object",
+                "properties": {
+                  "self": {
+                    "type": "string",
+                    "format": "uri",
+                    "example": "https://api.personio.de/v2/persons/some-person-id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Employment": {
+        "type": "object",
+        "description": "An Employment resource.",
+        "properties": {
+          "supervisor": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The unique identifier for the `supervisor`.",
+                "nullable": false
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "description": "The `supervisor` object.",
+            "nullable": true
+          },
+          "office": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The unique identifier for the `office`.",
+                "nullable": false
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "description": "The `office` object.",
+            "nullable": true
+          },
+          "org_units": {
+            "description": "All Org Units, i.e. department and team, that are to be associated with the Employment.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrgUnit"
+            },
+            "nullable": true
+          },
+          "subcompany": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The unique identifier for the `subcompany`. Note: this field is present only to support the mapping between subcompanies and legal entities. It is not advised to rely on this field. The legal entities should be used instead.\n",
+                "nullable": false
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "nullable": true,
+            "deprecated": true
+          },
+          "legal_entity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The unique identifier for the legal entity.",
+                "nullable": false
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "nullable": true
+          },
+          "job": {
+            "type": "object",
+            "description": "The `job` to be associated with the Employment.",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The unique identifier of the `job`.",
+                "nullable": false
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "nullable": true
+          },
+          "position": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "The title of the `position`.",
+                "nullable": false
+              }
+            },
+            "description": "The `position` object.",
+            "required": [
+              "title"
+            ],
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE",
+              "ONBOARDING",
+              "LEAVE"
+            ],
+            "description": "Status of employment.",
+            "nullable": false
+          },
+          "employment_start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "When the employment contract starts.",
+            "nullable": false
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "INTERNAL",
+              "EXTERNAL"
+            ],
+            "description": "The type of employment.",
+            "nullable": false
+          },
+          "contract_end_date": {
+            "type": "string",
+            "format": "date",
+            "description": "When the employment contract ends, if the contract is for temporary employment.",
+            "nullable": true
+          },
+          "probation_end_date": {
+            "type": "string",
+            "format": "date",
+            "description": "When the probation period ends. Only one of probation_period_length or probation_end_date should be set.",
+            "nullable": true
+          },
+          "probation_period_length": {
+            "type": "integer",
+            "description": "Only one of probation_period_length or probation_end_date should be set.",
+            "nullable": true
+          },
+          "weekly_working_hours": {
+            "type": "number",
+            "format": "float",
+            "multipleOf": 0.01,
+            "description": "The number of hours worked weekly.",
+            "nullable": true
+          },
+          "full_time_weekly_working_hours": {
+            "type": "number",
+            "description": "The number of hours per week that is considered full time for the employment.",
+            "format": "float",
+            "multipleOf": 0.01,
+            "nullable": true
+          },
+          "cost_centers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CostCenter"
+            },
+            "description": "The weight distribution of this employment between different cost centers, using percentages.",
+            "nullable": false
+          }
+        }
+      },
+      "OrgUnit": {
+        "description": "The Org Unit schema",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type of the Org Unit, e.g. team or department, to be associated with the Employment.",
+            "nullable": false
+          },
+          "id": {
+            "type": "string",
+            "description": "The Internal ID of the Org Unit to be associated with the Employment.",
+            "nullable": false
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ]
+      },
+      "CostCenter": {
+        "type": "object",
+        "description": "A weight assigned to a Cost Center resource.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier of the Cost Center.",
+            "nullable": false
+          },
+          "weight": {
+            "type": "integer",
+            "description": "The weight in percentage assigned to this Cost Center. The total of all Cost Center weights must be 100.",
+            "nullable": false
+          }
+        },
+        "required": [
+          "id",
+          "weight"
+        ]
+      },
+      "PersonWrite": {
+        "type": "object",
+        "description": "The Person model.",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email of the employee. The email must be unique : 2+ employees cannot have the same email.",
+            "nullable": false
+          },
+          "first_name": {
+            "type": "string",
+            "description": "First name of the employee.",
+            "nullable": false
+          },
+          "preferred_name": {
+            "type": "string",
+            "description": "The preferred name of the employee, if relevant.",
+            "nullable": false
+          },
+          "last_name": {
+            "type": "string",
+            "description": "Last name of the employee.",
+            "nullable": false
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "MALE",
+              "FEMALE",
+              "DIVERSE",
+              "UNKNOWN",
+              "UNDEFINED"
+            ],
+            "description": "Gender of the employee.",
+            "nullable": true
+          },
+          "language_code": {
+            "type": "string",
+            "enum": [
+              "en",
+              "de",
+              "es",
+              "fr",
+              "nl",
+              "it",
+              "sv",
+              "fi"
+            ],
+            "description": "Main language of the employee.",
+            "nullable": false
+          },
+          "custom_attributes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The ID for the attribute.",
+                  "nullable": false
+                },
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "description": "An arbitrary value that can be represented as a string.",
+                      "example": "Munich Center"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "An array of arbitrary values that can be represented as a string.",
+                      "example": [
+                        "Munich center",
+                        "Munich train station"
+                      ]
+                    }
+                  ],
+                  "nullable": false
+                }
+              }
+            },
+            "description": "List of custom attributes for the employee."
+          }
+        }
+      }
+    },
+    "examples": {
+      "PersonsListInSinglePageResponse": {
+        "value": {
+          "_data": [
+            {
+              "id": "3003",
+              "email": "jen.doe@personio.de",
+              "created_at": "2017-07-21T17:32:28Z",
+              "updated_at": "2017-07-21T17:32:28Z",
+              "first_name": "John",
+              "last_name": "Smith",
+              "preferred_name": "John Smith",
+              "gender": "MALE",
+              "profile_picture": {
+                "url": "https://api.personio.de/v1/company/employees/3003/profile-picture"
+              },
+              "status": "ACTIVE",
+              "custom_attributes": [
+                {
+                  "id": "dynamic_305",
+                  "type": "string",
+                  "value": "Red",
+                  "global_id": "color"
+                },
+                {
+                  "id": "dynamic_306",
+                  "type": "string",
+                  "value": "DExx-xxff-ss-os02",
+                  "global_id": "IBAN"
+                }
+              ],
+              "employments": [
+                {
+                  "id": "c85d978e-1104-4762-be94-c868525eef45"
+                }
+              ],
+              "_meta": {
+                "links": {
+                  "employments": {
+                    "href": "https://api.personio.de/v2/persons/3003/employments"
+                  }
+                }
+              }
+            }
+          ],
+          "_meta": {
+            "links": {
+              "self": {
+                "href": "https://api.personio.de/v2/persons"
+              }
+            }
+          }
+        }
+      },
+      "PersonsListInMultiplePagesResponse": {
+        "value": {
+          "_data": [
+            {
+              "id": "3003",
+              "email": "jen.doe@personio.de",
+              "created_at": "2017-07-21T17:32:28Z",
+              "updated_at": "2017-07-21T17:32:28Z",
+              "first_name": "John",
+              "last_name": "Smith",
+              "preferred_name": "John Smith",
+              "gender": "MALE",
+              "profile_picture": {
+                "url": "https://api.personio.de/v1/company/employees/3003/profile-picture"
+              },
+              "status": "ACTIVE",
+              "custom_attributes": [
+                {
+                  "id": "dynamic_305",
+                  "type": "string",
+                  "value": "Red",
+                  "global_id": "color"
+                },
+                {
+                  "id": "dynamic_306",
+                  "type": "string",
+                  "value": "DExx-xxff-ss-os02",
+                  "global_id": "IBAN"
+                }
+              ],
+              "employments": [
+                {
+                  "id": "c85d978e-1104-4762-be94-c868525eef45"
+                }
+              ],
+              "_meta": {
+                "links": {
+                  "employments": {
+                    "href": "https://api.personio.de/v2/persons/3003/employments"
+                  }
+                }
+              }
+            }
+          ],
+          "_meta": {
+            "links": {
+              "self": {
+                "href": "https://api.personio.de/v2/persons"
+              },
+              "next": {
+                "href": "https://api.personio.de/v2/persons?cursor=cur_234ls0f02lalfdd"
+              }
+            }
+          }
+        }
+      },
+      "PersonsWithParametersAndSinglePageResponse": {
+        "value": {
+          "_data": [
+            {
+              "id": "3003",
+              "email": "jen.doe@personio.de",
+              "created_at": "2017-07-21T17:32:28Z",
+              "updated_at": "2017-07-21T17:32:28Z",
+              "first_name": "John",
+              "last_name": "Smith",
+              "preferred_name": "John Smith",
+              "gender": "MALE",
+              "profile_picture": {
+                "url": "https://api.personio.de/v1/company/employees/3003/profile-picture"
+              },
+              "status": "ACTIVE",
+              "custom_attributes": [
+                {
+                  "id": "dynamic_305",
+                  "type": "string",
+                  "value": "Red",
+                  "global_id": "color"
+                },
+                {
+                  "id": "dynamic_306",
+                  "type": "string",
+                  "value": "DExx-xxff-ss-os02",
+                  "global_id": "IBAN"
+                }
+              ],
+              "employments": [
+                {
+                  "id": "c85d978e-1104-4762-be94-c868525eef45"
+                }
+              ],
+              "_meta": {
+                "links": {
+                  "employments": {
+                    "href": "https://api.personio.de/v2/persons/3003/employments"
+                  }
+                }
+              }
+            }
+          ],
+          "_meta": {
+            "links": {
+              "self": {
+                "href": "https://api.personio.de/v2/persons?cursor=cur_234ls0f02lalfdd"
+              }
+            }
+          }
+        }
+      },
+      "PersonsWithParametersAndMultiplePagesResponse": {
+        "value": {
+          "_data": [
+            {
+              "id": "3003",
+              "email": "jen.doe@personio.de",
+              "created_at": "2017-07-21T17:32:28Z",
+              "updated_at": "2017-07-21T17:32:28Z",
+              "first_name": "John",
+              "last_name": "Smith",
+              "preferred_name": "John Smith",
+              "gender": "MALE",
+              "profile_picture": {
+                "url": "https://api.personio.de/v1/company/employees/3003/profile-picture"
+              },
+              "status": "ACTIVE",
+              "custom_attributes": [
+                {
+                  "id": "dynamic_305",
+                  "type": "string",
+                  "value": "Red",
+                  "global_id": "color"
+                },
+                {
+                  "id": "dynamic_306",
+                  "type": "string",
+                  "value": "DExx-xxff-ss-os02",
+                  "global_id": "IBAN"
+                }
+              ],
+              "employments": [
+                {
+                  "id": "c85d978e-1104-4762-be94-c868525eef45"
+                }
+              ],
+              "_meta": {
+                "links": {
+                  "employments": {
+                    "href": "https://api.personio.de/v2/persons/3003/employments"
+                  }
+                }
+              }
+            }
+          ],
+          "_meta": {
+            "links": {
+              "self": {
+                "href": "https://api.personio.de/v2/persons?cursor=cur_234ls0f02lalfdd"
+              },
+              "next": {
+                "href": "https://api.personio.de/v2/persons?cursor=cur_82sQwR2eZvKilo2"
+              }
+            }
+          }
+        }
+      },
+      "PersonsResponse": {
+        "value": {
+          "id": "3003",
+          "email": "jen.doe@personio.de",
+          "created_at": "2017-07-21T17:32:28Z",
+          "updated_at": "2017-07-21T17:32:28Z",
+          "first_name": "John",
+          "last_name": "Smith",
+          "preferred_name": "John Smith",
+          "gender": "MALE",
+          "profile_picture": {
+            "url": "https://api.personio.de/v1/company/employees/3003/profile-picture"
+          },
+          "status": "ACTIVE",
+          "custom_attributes": [
+            {
+              "id": "dynamic_305",
+              "type": "string",
+              "value": "Red",
+              "global_id": "color"
+            },
+            {
+              "id": "dynamic_306",
+              "type": "string",
+              "value": "DExx-xxff-ss-os02",
+              "global_id": "IBAN"
+            }
+          ],
+          "employments": [
+            {
+              "id": "c85d978e-1104-4762-be94-c868525eef45"
+            }
+          ],
+          "_meta": {
+            "links": {
+              "employments": {
+                "href": "https://api.personio.de/v2/persons/3003/employments"
+              }
+            }
+          }
+        }
+      },
+      "InvalidFilterValue": {
+        "value": {
+          "personio_trace_id": "aswo3f-a202lfso-312123sld-1230ddd",
+          "timestamp": "2021-05-28T11:17:30+00:00",
+          "errors": [
+            {
+              "title": "Bad request",
+              "detail": "Provided request parameters are invalid.",
+              "type": "https://developer.personio.de/reference/errors#common.bad_request"
+            }
+          ]
+        }
+      },
+      "InvalidFilterFormat": {
+        "value": {
+          "personio_trace_id": "aswo3f-a202lfso-312123sld-1230ddd",
+          "timestamp": "2021-05-28T11:17:30+00:00",
+          "errors": [
+            {
+              "title": "Bad request",
+              "detail": "Provided filter encoding is invalid.",
+              "type": "https://developer.personio.de/reference/errors#common.bad_request"
+            }
+          ]
+        }
+      },
+      "ResourceNotFound": {
+        "value": {
+          "personio_trace_id": "aswo3f-a202lfso-312123sld-1230ddd",
+          "timestamp": "2021-05-28T11:17:30+00:00",
+          "errors": [
+            {
+              "title": "Resource not found",
+              "detail": "No resource was found for the specified id.",
+              "type": "https://developer.personio.de/reference/errors#common.resource_not_found"
+            }
+          ]
+        }
+      },
+      "ValidCreatePerson": {
+        "value": {
+          "email": "john.smith@company.com",
+          "first_name": "John",
+          "preferred_name": "Dr. Smith",
+          "last_name": "Smith",
+          "gender": "MALE",
+          "language_code": "de",
+          "custom_attributes": [
+            {
+              "id": "laptop_serial_number",
+              "value": "123-456"
+            },
+            {
+              "id": "customer_offices",
+              "value": [
+                "Munich center",
+                "Munich train station"
+              ]
+            }
+          ],
+          "employments": [
+            {
+              "supervisor": {
+                "id": "4223"
+              },
+              "office": {
+                "id": "231"
+              },
+              "org_units": [
+                {
+                  "type": "team",
+                  "id": "523"
+                },
+                {
+                  "type": "department",
+                  "id": "943"
+                }
+              ],
+              "legal_entity": {
+                "id": "465"
+              },
+              "job": {
+                "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+              },
+              "position": {
+                "title": "Senior Account Manager"
+              },
+              "status": "ACTIVE",
+              "employment_start_date": "2024-01-01",
+              "type": "INTERNAL",
+              "contract_end_date": "2024-12-31",
+              "probation_end_date": "2024-03-31",
+              "weekly_working_hours": 37.5,
+              "cost_centers": [
+                {
+                  "id": "653",
+                  "weight": 100
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "ValidCreatePersonResponse": {
+        "value": {
+          "id": "3003",
+          "employments": [
+            {
+              "id": "c85d978e-1104-4762-be94-c868525eef45"
+            }
+          ],
+          "_meta": {
+            "links": {
+              "self": {
+                "href": "https://api.personio.de/v2/persons/3003"
+              }
+            }
+          }
+        }
+      },
+      "ValidUpdatePerson": {
+        "value": {
+          "email": "john.smith@company.com",
+          "first_name": "John",
+          "preferred_name": "Dr. Smith",
+          "last_name": "Smith",
+          "gender": "MALE",
+          "language_code": "de",
+          "custom_attributes": [
+            {
+              "id": "laptop_serial_number",
+              "value": "123-456"
+            },
+            {
+              "id": "customer_offices",
+              "value": [
+                "Munich center",
+                "Munich train station"
+              ]
+            }
+          ]
+        }
+      },
+      "InvalidParameter": {
+        "value": {
+          "personio_trace_id": "aswo3f-a202lfso-312123sld-1230ddd",
+          "timestamp": "2021-05-28T11:17:30+00:00",
+          "errors": [
+            {
+              "title": "Bad request",
+              "detail": "Provided request parameters are invalid.",
+              "type": "https://developer.personio.de/reference/errors#common.bad_request"
+            }
+          ]
+        }
+      }
+    },
+    "responses": {
+      "InvalidRequest": {
+        "description": "Invalid input data.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "type": "object",
+              "description": "This object represents an error response.",
+              "properties": {
+                "personio_trace_id": {
+                  "type": "string",
+                  "example": "aswo3f-a202lfso-312123sld-1230ddd",
+                  "description": "A unique ID that was created for this error."
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2021-05-28T11:17:30.000Z",
+                  "description": "The timestamp of when the error occurred."
+                },
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "example": "Not found",
+                        "description": "The title of the error."
+                      },
+                      "detail": {
+                        "type": "string",
+                        "example": "The requested resource was not found.",
+                        "description": "A short description about the error."
+                      },
+                      "type": {
+                        "type": "string",
+                        "format": "uri",
+                        "example": "https://developer.personio.de/reference/errors#common.requested_resource_not_found",
+                        "description": "A link to the developer hub where more information can be found for the encountered error."
+                      },
+                      "_meta": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "Invalid parameter": {
+                "$ref": "#/components/examples/InvalidParameter"
+              }
+            }
+          }
+        }
+      },
+      "ResourceNotFound": {
+        "description": "Resource not found.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/responses/InvalidRequest/content/application~1problem+json/schema"
+            },
+            "examples": {
+              "Invalid parameter": {
+                "$ref": "#/components/examples/ResourceNotFound"
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "PersonId": {
+        "name": "person_id",
+        "in": "path",
+        "description": "The ID of the target Person.",
+        "example": "5678",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -15,7 +15,7 @@ use zip::ZipArchive;
 use super::super::integrations::helpers::parse_openapi_spec_json_value;
 
 pub(super) const MAX_UPLOAD_BYTES: usize = 50 * 1024 * 1024;
-const MAX_SPEC_BYTES: usize = 5 * 1024 * 1024;
+const MAX_SPEC_BYTES: usize = 20 * 1024 * 1024;
 const MAX_TOTAL_SPEC_BYTES: usize = 100 * 1024 * 1024;
 const MAX_SPEC_COUNT: usize = 500;
 
@@ -214,7 +214,7 @@ fn extract_zip_specs(bytes: &[u8]) -> Result<Vec<SpecFile>, String> {
         }
         if entry.size() > MAX_SPEC_BYTES as u64 {
             return Err(format!(
-                "'{source_name}' exceeds the 5 MiB uncompressed file limit"
+                "'{source_name}' exceeds the 20 MiB uncompressed file limit"
             ));
         }
 
@@ -226,7 +226,7 @@ fn extract_zip_specs(bytes: &[u8]) -> Result<Vec<SpecFile>, String> {
             .map_err(|_| format!("'{source_name}' could not be read"))?;
         if contents.len() > MAX_SPEC_BYTES {
             return Err(format!(
-                "'{source_name}' exceeds the 5 MiB uncompressed file limit"
+                "'{source_name}' exceeds the 20 MiB uncompressed file limit"
             ));
         }
         total_bytes = total_bytes
@@ -264,7 +264,7 @@ fn extract_spec_files(upload: UploadedFile) -> Result<Vec<SpecFile>, String> {
         return Err("Upload a .json, .yaml, .yml, or .zip file".to_string());
     }
     if upload.bytes.len() > MAX_SPEC_BYTES {
-        return Err("The uploaded spec exceeds the 5 MiB file limit".to_string());
+        return Err("The uploaded spec exceeds the 20 MiB file limit".to_string());
     }
 
     Ok(vec![SpecFile {
@@ -676,6 +676,7 @@ pub async fn action_delete(
 mod tests {
     use super::*;
     use serde_json::json;
+    use std::fs;
     use std::io::Write;
     use zip::write::SimpleFileOptions;
 
@@ -756,6 +757,26 @@ mod tests {
 
         assert_eq!(files.len(), 1);
         assert_eq!(files[0].source_name, "calendar.YAML");
+    }
+
+    #[test]
+    fn curated_integration_specs_are_valid_uploads() {
+        let directory = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../bionic-gpt/content/docs/integrations/specs");
+        let mut files = fs::read_dir(&directory)
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .filter(|path| supported_spec_extension(path))
+            .map(|path| SpecFile {
+                source_name: path.file_name().unwrap().to_string_lossy().to_string(),
+                bytes: fs::read(path).unwrap(),
+            })
+            .collect::<Vec<_>>();
+        files.sort_by(|left, right| left.source_name.cmp(&right.source_name));
+
+        assert!(files.len() >= 5);
+        assert!(files.iter().all(|file| file.bytes.len() <= MAX_SPEC_BYTES));
+        assert!(prepare_specs(files).is_ok());
     }
 
     #[test]

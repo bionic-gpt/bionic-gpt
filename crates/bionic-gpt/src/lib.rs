@@ -2,6 +2,7 @@ pub mod architect_course_summary;
 pub mod blog_summary;
 pub mod docs_summary;
 pub mod generator;
+pub mod integrations;
 pub mod marketing;
 pub mod pages;
 pub mod pages_summary;
