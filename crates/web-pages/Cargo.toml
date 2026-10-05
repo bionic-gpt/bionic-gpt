@@ -24,4 +24,4 @@ chrono.workspace = true
 time.workspace = true
 validator = { workspace = true, features = ["derive"] }
 oas3.workspace = true
-toml = "0.8"
+toml = "1.1"
