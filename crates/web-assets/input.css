@@ -3,6 +3,7 @@
 @plugin "daisyui";
 
 @source '../web-pages/**/*.rs';
+@source '../bionic-gpt/src/**/*.rs';
 @source 'typescript/**/*.ts';
 @source inline("modal modal-box modal-action");
 @source inline("breadcrumbs");

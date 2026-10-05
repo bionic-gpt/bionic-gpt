@@ -43,6 +43,13 @@ const ARCHITECTURE_IMAGE_SOURCE: &str = concat!(
     "/content/architect-course/architecture.svg"
 );
 const ARCHITECTURE_IMAGE_OUTPUT: &str = "dist/architect-course/architecture.svg";
+const INTEGRATIONS_SOURCE_DIR: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/content/docs/integrations/specs"
+);
+const INTEGRATIONS_OUTPUT_DIR: &str = "dist/docs/integrations/specs";
+const INTEGRATIONS_ZIP: &str = "dist/docs/integrations/curated-integrations.zip";
+const INTEGRATION_LOGOS_OUTPUT_DIR: &str = "dist/integrations/logos";
 
 fn output_page(path: &str, html: String) -> SitePage {
     SitePage {
@@ -82,12 +89,79 @@ pub async fn generate_static_pages() -> Vec<SitePage> {
     copy_document_validation_assets();
     copy_dashboard_skill_package();
     copy_course_assets();
+    copy_curated_integrations();
 
     let mut pages = Vec::new();
     pages.extend(generate_marketing().await);
     pages.extend(generate_product().await);
     pages.extend(generate_solutions().await);
     pages
+}
+
+fn copy_curated_integrations() {
+    let integrations = crate::integrations::catalogue();
+    let specs_dir = Path::new(INTEGRATIONS_SOURCE_DIR);
+    let output_dir = Path::new(INTEGRATIONS_OUTPUT_DIR);
+    fs::create_dir_all(output_dir).expect("failed to create integration spec output directory");
+    let mut archive = ZipWriter::new(Cursor::new(Vec::new()));
+    let options = SimpleFileOptions::default();
+
+    for integration in integrations {
+        let source = specs_dir.join(&integration.filename);
+        let destination = output_dir.join(&integration.filename);
+        let contents = fs::read(&source).unwrap_or_else(|error| {
+            panic!(
+                "failed to read integration spec {}: {error}",
+                source.display()
+            )
+        });
+        fs::write(&destination, &contents).unwrap_or_else(|error| {
+            panic!(
+                "failed to copy integration spec {}: {error}",
+                source.display()
+            )
+        });
+        archive
+            .start_file(integration.filename.to_string(), options)
+            .expect("failed to add integration spec to ZIP");
+        archive
+            .write_all(&contents)
+            .expect("failed to write integration spec to ZIP");
+    }
+
+    let logo_output_dir = Path::new(INTEGRATION_LOGOS_OUTPUT_DIR);
+    if logo_output_dir.exists() {
+        fs::remove_dir_all(logo_output_dir).expect("failed to clear generated integration logos");
+    }
+    fs::create_dir_all(logo_output_dir)
+        .expect("failed to create integration logo output directory");
+    for integration in crate::integrations::catalogue() {
+        if integration.logo_data_uri.is_empty() {
+            continue;
+        }
+        let encoded = integration
+            .logo_data_uri
+            .strip_prefix("data:image/svg+xml;base64,")
+            .unwrap_or_else(|| panic!("unsupported embedded logo for {}", integration.slug));
+        let contents = base64::Engine::decode(&base64::engine::general_purpose::STANDARD, encoded)
+            .unwrap_or_else(|error| {
+                panic!("invalid embedded logo for {}: {error}", integration.slug)
+            });
+        fs::write(
+            logo_output_dir.join(format!("{}.svg", integration.slug)),
+            contents,
+        )
+        .unwrap_or_else(|error| panic!("failed to extract logo for {}: {error}", integration.slug));
+    }
+
+    let archive = archive
+        .finish()
+        .expect("failed to finish curated integration ZIP")
+        .into_inner();
+    if let Some(parent) = Path::new(INTEGRATIONS_ZIP).parent() {
+        fs::create_dir_all(parent).expect("failed to create integration ZIP directory");
+    }
+    fs::write(INTEGRATIONS_ZIP, archive).expect("failed to write curated integration ZIP");
 }
 
 fn copy_course_assets() {

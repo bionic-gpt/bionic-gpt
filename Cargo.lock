@@ -731,8 +731,11 @@ version = "0.1.0"
 dependencies = [
  "axum 0.8.8",
  "axum-extra",
+ "base64 0.22.1",
  "dioxus",
+ "oas3",
  "serde",
+ "serde_json",
  "ssg_whiz",
  "tokio",
  "tower-http 0.6.8",
