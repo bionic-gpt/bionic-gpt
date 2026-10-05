@@ -5,11 +5,11 @@ use dioxus::prelude::*;
 use ssg_whiz::layouts::layout::Layout;
 use ssg_whiz::Section;
 
-fn integration_logo(integration: &Integration) -> Element {
+fn integration_logo(integration: &Integration, compact: bool) -> Element {
     if integration.logo_url.is_empty() {
         rsx! {
             div {
-                class: "grid size-11 shrink-0 place-items-center rounded-field border border-base-300 bg-base-100 text-primary",
+                class: if compact { "grid size-9 shrink-0 place-items-center rounded-field border border-base-300 bg-base-100 text-primary" } else { "grid size-11 shrink-0 place-items-center rounded-field border border-base-300 bg-base-100 text-primary" },
                 svg {
                     class: "size-6",
                     view_box: "0 0 24 24",
@@ -19,6 +19,15 @@ fn integration_logo(integration: &Integration) -> Element {
                     path { d: "M12 3v3m0 12v3M3 12h3m12 0h3M5.64 5.64l2.12 2.12m8.48 8.48 2.12 2.12m0-12.72-2.12 2.12m-8.48 8.48-2.12 2.12" }
                     circle { cx: "12", cy: "12", r: "4" }
                 }
+            }
+        }
+    } else if compact {
+        rsx! {
+            img {
+                class: "size-8 shrink-0 object-contain svg-icon",
+                src: "{integration.logo_url}",
+                alt: "",
+                loading: "lazy",
             }
         }
     } else {
@@ -76,8 +85,19 @@ pub fn page() -> String {
                             class: "card-body gap-5",
                             div {
                                 class: "flex flex-wrap gap-2",
-                                for integration in integrations.iter().take(5) {
-                                    {integration_logo(integration)}
+                                for slug in [
+                                    "salesforce",
+                                    "google-gmail",
+                                    "google-calendar",
+                                    "google-drive",
+                                    "microsoft-teams",
+                                ] {
+                                    if let Some(integration) = integrations
+                                        .iter()
+                                        .find(|integration| integration.slug == slug)
+                                    {
+                                        {integration_logo(integration, false)}
+                                    }
                                 }
                             }
                             div {
@@ -127,44 +147,43 @@ pub fn page() -> String {
                 }
 
                 section {
-                    id: "integration-catalogue",
-                    class: "grid gap-6 scroll-mt-8",
+                    class: "grid gap-5",
                     div {
-                        class: "grid gap-2",
-                        div {
-                            h2 { class: "text-2xl font-bold tracking-tight", "Integration catalogue" }
-                            p { class: "mt-2 text-sm opacity-70", "Every integration is backed by an OpenAPI specification." }
+                        h2 { class: "text-2xl font-bold tracking-tight", "Integrations" }
+                        p {
+                            class: "mt-2 text-sm opacity-70",
+                            "Browse the curated OpenAPI collection."
                         }
                     }
                     div {
-                        id: "integration-cards",
                         class: "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3",
                         for integration in integrations.iter() {
-                            a {
-                                class: "integration-card card card-border h-full transition-colors hover:border-primary/50 hover:bg-base-200/40",
-                                href: "/docs/integrations/specs/{integration.filename}",
-                                aria_label: "{integration.title}: {integration.description}",
+                            article {
+                                class: "integration-card card border border-base-300 h-full",
                                 div {
                                     class: "card-body gap-3 p-4",
                                     div {
                                         class: "flex min-w-0 items-center gap-3",
-                                        {integration_logo(integration)}
-                                        h3 { class: "min-w-0 truncate font-semibold", "{integration.title}" }
+                                        {integration_logo(integration, true)}
+                                        h3 {
+                                            class: "min-w-0 truncate font-semibold",
+                                            "{integration.title}"
+                                        }
                                     }
                                     p {
                                         class: "line-clamp-2 min-h-10 text-sm leading-5 opacity-75",
                                         "{integration.description}"
                                     }
                                     div {
-                                        class: "flex items-center justify-between pt-1",
+                                        class: "pt-1",
                                         span { class: "badge badge-outline badge-sm", "OpenAPI" }
-                                        span { class: "text-primary", "→" }
                                     }
                                 }
                             }
                         }
                     }
                 }
+
             }
 
             Footer {

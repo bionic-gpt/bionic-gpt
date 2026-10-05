@@ -34,9 +34,10 @@ fn generate_integrations(manifest_dir: &Path) {
     paths.sort();
 
     let mut integrations = Vec::new();
-    let docs = String::from(
+    let mut docs = String::from(
         "# Curated OpenAPI integrations\n\nBionic provides a curated collection of OpenAPI specifications for common business systems. Upload a specification to make its API operations available as tools; the description in each specification helps the model choose and use those tools.\n\n[Download all integrations (.zip)](/docs/integrations/curated-integrations.zip)\n",
     );
+    docs.push_str("\n## Available integrations\n\n");
 
     for path in paths {
         println!("cargo:rerun-if-changed={}", path.display());
@@ -73,6 +74,11 @@ fn generate_integrations(manifest_dir: &Path) {
             .filter(|value| !value.trim().is_empty())
             .unwrap_or_else(|| panic!("{}: info.description is required", path.display()))
             .to_string();
+        docs.push_str(&format!(
+            "- **{}** — {}\n",
+            title,
+            description.replace('\n', " ")
+        ));
         let slug = info
             .get("x-bionic-slug")
             .and_then(serde_json::Value::as_str)
