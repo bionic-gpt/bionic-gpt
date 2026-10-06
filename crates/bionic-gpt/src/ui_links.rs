@@ -42,14 +42,14 @@ impl NavigationLinks {
                     "Product",
                     vec![
                         NavigationLink::new("Chat", product_chat.clone(), Section::None),
-                        NavigationLink::new("Projects", product_projects.clone(), Section::None),
-                        NavigationLink::new("Datasets", product_datasets.clone(), Section::None),
-                        NavigationLink::new("Skills", product_skills.clone(), Section::None),
                         NavigationLink::new(
                             "Integrations",
                             product_integrations.clone(),
                             Section::None,
                         ),
+                        NavigationLink::new("Skills", product_skills.clone(), Section::None),
+                        NavigationLink::new("Projects", product_projects.clone(), Section::None),
+                        NavigationLink::new("Datasets", product_datasets.clone(), Section::None),
                         NavigationLink::new(
                             "Developers",
                             product_developers.clone(),
@@ -80,10 +80,10 @@ impl NavigationLinks {
             ],
             mobile: vec![
                 NavigationLink::new("Chat", product_chat.clone(), Section::None),
+                NavigationLink::new("Integrations", product_integrations.clone(), Section::None),
+                NavigationLink::new("Skills", product_skills.clone(), Section::None),
                 NavigationLink::new("Projects", product_projects.clone(), Section::None),
                 NavigationLink::new("Datasets", product_datasets.clone(), Section::None),
-                NavigationLink::new("Skills", product_skills.clone(), Section::None),
-                NavigationLink::new("Integrations", product_integrations.clone(), Section::None),
                 NavigationLink::new("Developers", product_developers.clone(), Section::None),
                 NavigationLink::new("Blog", blog, Section::Blog),
                 NavigationLink::new("Documentation", docs, Section::Docs),
