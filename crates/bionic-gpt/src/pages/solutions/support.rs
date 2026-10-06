@@ -4,6 +4,7 @@ use crate::marketing::{
     features::BionicFeatures,
     footer::Footer,
     image_hero::ImageHero,
+    layout::{PageContainer, PageGutters, PageRhythm, PageWidth},
     small_image_feature::SmallImageFeature,
     testamonials::Testamonial2,
 };
@@ -20,8 +21,7 @@ pub fn page() -> String {
             mobile_menu: None,
             section: Section::Home,
 
-            div {
-                class: "lg:max-w-5xl p-5 mt-24 mx-auto grid gap-y-24",
+            PageContainer { width: PageWidth::Content, gutters: Some(PageGutters::Roomy), rhythm: Some(PageRhythm::Solution), class: Some("mt-24".to_string()),
 
                 ImageHero {
                     title: "The fastest way to add AI support to your technical content.".to_string(),

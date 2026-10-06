@@ -3,6 +3,7 @@ use crate::marketing::{
     features::BionicFeatures,
     footer::Footer,
     image_feature::ImageFeature,
+    layout::{PageContainer, PageGutters, PageRhythm, PageWidth},
 };
 use crate::ui_links::footer_links;
 use dioxus::prelude::*;
@@ -17,8 +18,7 @@ pub fn page() -> String {
             mobile_menu: None,
             section: Section::Home,
 
-            div {
-                class: "lg:max-w-5xl p-5 mt-24 mx-auto grid gap-y-48",
+            PageContainer { width: PageWidth::Content, gutters: Some(PageGutters::Roomy), rhythm: Some(PageRhythm::Legacy), class: Some("mt-24".to_string()),
 
                 ImageFeature {
                     title: "Connect private knowledge to sovereign AI".to_string(),

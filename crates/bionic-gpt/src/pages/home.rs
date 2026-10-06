@@ -2,6 +2,7 @@ use crate::marketing::{
     customer_logos::Customers,
     faq_accordian::{Faq, FaqText},
     footer::Footer,
+    layout::{MarketingSection, PageContainer, PageGutters, PageRhythm, PageWidth, SectionHeader},
     security::Security,
     use_case_river::UseCaseRiver,
     video_hero::VideoHero,
@@ -21,8 +22,7 @@ pub fn home_page() -> String {
             mobile_menu: None,
             section: Section::Home,
 
-            div {
-                class: "px-4 md:px-0 w-full lg:max-w-5xl mt-16 md:mt-36 mx-auto grid gap-y-28",
+            PageContainer { width: PageWidth::Content, gutters: Some(PageGutters::Home), rhythm: Some(PageRhythm::Home), class: Some("mt-16 md:mt-36".to_string()),
                 VideoHero {
                     video_id: "slRiOOM17tM",
                     title: "Your sovereign AI agent for enterprise tasks, fluent in your knowledge and tools.",
@@ -36,19 +36,11 @@ pub fn home_page() -> String {
 
                 UseCaseRiver {}
 
-                section {
-                    class: "grid gap-8",
-                    div {
-                        class: "max-w-3xl",
-                        p { class: "badge badge-outline", "Production foundation" }
-                        h2 {
-                            class: "mt-5 text-3xl font-bold tracking-tight sm:text-4xl",
-                            "Start from a production foundation"
-                        }
-                        p {
-                            class: "mt-4 text-lg leading-8 opacity-80",
-                            "Internal AI teams should not spend months assembling generic infrastructure before they can deliver the first useful workflow."
-                        }
+                MarketingSection {
+                    SectionHeader {
+                        eyebrow: Some("Production foundation".to_string()),
+                        title: "Start from a production foundation".to_string(),
+                        body: Some("Internal AI teams should not spend months assembling generic infrastructure before they can deliver the first useful workflow.".to_string()),
                     }
                     div {
                         class: "grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4",
@@ -73,18 +65,10 @@ pub fn home_page() -> String {
                     }
                 }
 
-                section {
-                    class: "grid gap-8",
-                    div {
-                        class: "max-w-3xl",
-                        h2 {
-                            class: "text-3xl font-bold tracking-tight sm:text-4xl",
-                            "Your team should build AI capabilities, not another AI platform"
-                        }
-                        p {
-                            class: "mt-4 text-lg leading-8 opacity-80",
-                            "Bionic does not replace your AI team. It gives them a production-ready starting point."
-                        }
+                MarketingSection {
+                    SectionHeader {
+                        title: "Your team should build AI capabilities, not another AI platform".to_string(),
+                        body: Some("Bionic does not replace your AI team. It gives them a production-ready starting point.".to_string()),
                     }
                     div {
                         class: "grid gap-6 md:grid-cols-2",

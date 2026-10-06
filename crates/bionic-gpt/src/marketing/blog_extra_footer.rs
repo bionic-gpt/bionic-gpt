@@ -5,7 +5,7 @@ pub fn blog_extra_footer() -> Element {
         section {
             class: "blog-sub-footer mt-16 border-y border-base-300 bg-base-200 px-6 py-12 md:py-16",
             div {
-                class: "mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-2",
+                class: "site-container site-container-content site-gutters-cta grid items-center gap-8 md:grid-cols-2",
                 div {
                     h2 {
                         class: "text-3xl font-bold leading-tight md:text-4xl",

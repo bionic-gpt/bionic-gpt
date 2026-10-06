@@ -1,5 +1,8 @@
 use crate::marketing::{
-    footer::Footer, product_hero::ProductHero, product_showcase::ProductShowcase,
+    footer::Footer,
+    layout::{MarketingSection, PageContainer, PageRhythm, PageWidth, SectionHeader},
+    product_hero::ProductHero,
+    product_showcase::ProductShowcase,
 };
 use crate::ui_links::footer_links;
 use dioxus::prelude::*;
@@ -38,13 +41,14 @@ pub fn page() -> String {
             mobile_menu: None,
             section: Section::Home,
 
-            main { class: "mx-auto mt-16 grid w-full max-w-6xl gap-14 px-4 pb-16 md:mt-24 md:gap-16 md:px-6",
+            PageContainer { width: PageWidth::Wide, rhythm: Some(PageRhythm::Product), class: Some("mt-16 pb-16 md:mt-24".to_string()),
                 section { class: "grid gap-8",
                     ProductHero {
                         eyebrow: "The Agent".to_string(),
                         title: "One AI that can work across your organisation".to_string(),
                         subtitle: "Bionic brings together your organisation's skills, knowledge and systems in one place. Ask it to research, analyse, create or take action — it finds the context and tools it needs to get the work done.".to_string(),
-                        claim: "Open source. Self-hosted. Under your control.".to_string(),
+                        claim: Some("Open source. Self-hosted. Under your control.".to_string()),
+                        supporting: None,
                     }
 
                     ProductShowcase {
@@ -53,10 +57,10 @@ pub fn page() -> String {
                     }
                 }
 
-                section { class: "grid gap-8",
-                    header { class: "max-w-3xl",
-                        h2 { class: "text-3xl font-bold tracking-tight sm:text-4xl", "Give your AI a computer." }
-                        p { class: "mt-5 text-lg leading-8 opacity-80", "The Agent does more than call APIs. Each task can be given a workspace where it can read and create files, run code, use skills and integrations, and keep the context it needs while it works." }
+                MarketingSection {
+                    SectionHeader {
+                        title: "Give your AI a computer.".to_string(),
+                        body: Some("The Agent does more than call APIs. Each task can be given a workspace where it can read and create files, run code, use skills and integrations, and keep the context it needs while it works.".to_string()),
                     }
                     div { class: "grid items-start gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-10",
                         div { class: "grid gap-8 sm:grid-cols-2 lg:grid-cols-1",
@@ -75,7 +79,7 @@ pub fn page() -> String {
                     }
                 }
 
-                section { class: "grid gap-8 border-y border-base-300 py-10 md:py-12",
+                MarketingSection { class: Some("border-y border-base-300 py-10 md:py-12".to_string()),
                     h2 { class: "text-3xl font-bold tracking-tight sm:text-4xl", "Everything it needs to get the work done." }
                     div { class: "grid gap-8 sm:grid-cols-3 sm:gap-10",
                         article {

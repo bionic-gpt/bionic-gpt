@@ -27,7 +27,7 @@ pub fn Features(
                         "{title}"
                     }
                     p {
-                        class: "text-gray-500 sm:text-xl dark:text-gray-400",
+                        class: "text-lg opacity-70 sm:text-xl",
                         "{description}"
                     }
                 }
@@ -36,14 +36,14 @@ pub fn Features(
                     for feature in features {
                         div {
                             div {
-                                class: "mb-4 w-10 h-10 lg:h-12 lg:w-12",
+                            class: "mb-4 size-10 lg:size-12",
                                 img {
                                     alt: "testimonial",
                                     src: "{feature.icon}"
                                 }
                             }
                             h3 {
-                                class: "mb-2 font-display text-xl font-bold",
+                            class: "mb-2 font-display text-xl font-bold",
                                 "{feature.title}"
                             }
                             p {

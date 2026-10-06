@@ -1,5 +1,9 @@
 use crate::integrations::{catalogue, Integration};
-use crate::marketing::footer::Footer;
+use crate::marketing::{
+    footer::Footer,
+    layout::{MarketingSection, PageContainer, PageRhythm, PageWidth},
+    product_hero::ProductHero,
+};
 use crate::ui_links::footer_links;
 use dioxus::prelude::*;
 use ssg_whiz::layouts::layout::Layout;
@@ -162,15 +166,16 @@ pub fn page() -> String {
             mobile_menu: None,
             section: Section::Home,
 
-            main { class: "mx-auto mt-16 grid w-full max-w-6xl gap-16 px-4 pb-16 md:mt-24 md:px-6 md:gap-20",
-                header { class: "max-w-3xl",
-                    p { class: "badge badge-outline", "Skills" }
-                    h1 { class: "mt-5 text-4xl font-bold tracking-tight sm:text-5xl", "What can Bionic do?" }
-                    p { class: "mt-5 text-lg leading-8 opacity-80", "Skills give a model a clear method for recurring work: how to analyse information, create useful documents and follow the workflows your organisation relies on." }
-                    p { class: "mt-4 max-w-2xl text-sm leading-6 opacity-70", "For well-scoped tasks, that guidance can help a smaller model follow a reliable process—so you can match the model to the work." }
+            PageContainer { width: PageWidth::Wide, rhythm: Some(PageRhythm::Skills), class: Some("mt-16 pb-16 md:mt-24".to_string()),
+                ProductHero {
+                    eyebrow: "Skills".to_string(),
+                    title: "What can Bionic do?".to_string(),
+                    subtitle: "Skills give a model a clear method for recurring work: how to analyse information, create useful documents and follow the workflows your organisation relies on.".to_string(),
+                    claim: None,
+                    supporting: Some("For well-scoped tasks, that guidance can help a smaller model follow a reliable process—so you can match the model to the work.".to_string()),
                 }
 
-                section { class: "grid gap-8",
+                MarketingSection {
                     div {
                         p { class: "badge badge-outline", "Capabilities" }
                         h2 { class: "mt-4 text-3xl font-bold tracking-tight", "Methods for the work your team does" }
@@ -193,7 +198,7 @@ pub fn page() -> String {
                     }
                 }
 
-                section { class: "grid gap-8",
+                MarketingSection {
                     div {
                         p { class: "badge badge-outline", "Skills + integrations" }
                         h2 { class: "mt-4 text-3xl font-bold tracking-tight", "Combine know-how with the systems where work happens" }

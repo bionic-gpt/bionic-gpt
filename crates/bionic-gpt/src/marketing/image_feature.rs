@@ -1,3 +1,4 @@
+use crate::marketing::product_showcase::ProductImage;
 use dioxus::prelude::*;
 
 #[component]
@@ -13,10 +14,14 @@ pub fn ImageFeature(title: String, sub_title: String, image: String) -> Element 
                 class: "text-center mt-8",
                 "{sub_title}"
             }
-            img {
-                src: "{image}",
-                alt: "Product screenshot",
-                class: "mt-8"
+            ProductImage {
+                image,
+                alt: "Product screenshot".to_string(),
+                framed: false,
+                class: Some("mt-8".to_string()),
+                width: None,
+                height: None,
+                eager: false,
             }
         }
     }

@@ -39,10 +39,7 @@ async fn main() {
             ..SiteFeatures::default()
         },
         site_assets: SiteAssets {
-            stylesheets: vec![
-                tailwind_stylesheet,
-                "https://cdn.jsdelivr.net/npm/daisyui@5".into(),
-            ],
+            stylesheets: vec![tailwind_stylesheet],
             head_scripts: vec![ScriptAsset {
                 src:
                     "https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"

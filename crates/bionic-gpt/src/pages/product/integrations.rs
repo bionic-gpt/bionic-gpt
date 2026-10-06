@@ -1,5 +1,9 @@
 use crate::integrations::{catalogue, Integration};
-use crate::marketing::footer::Footer;
+use crate::marketing::{
+    footer::Footer,
+    layout::{MarketingSection, PageContainer, PageRhythm, PageWidth},
+    product_hero::ProductHero,
+};
 use crate::ui_links::footer_links;
 use dioxus::prelude::*;
 use ssg_whiz::layouts::layout::Layout;
@@ -58,27 +62,16 @@ pub fn page() -> String {
             mobile_menu: None,
             section: Section::Home,
 
-            main {
-                class: "mx-auto mt-16 grid w-full max-w-6xl gap-12 px-4 pb-16 md:mt-24 md:px-6",
-                header {
-                    class: "max-w-3xl",
-                    p { class: "badge badge-outline", "Integrations" }
-                    h1 {
-                        class: "mt-5 text-4xl font-bold tracking-tight sm:text-5xl",
-                        "Connect Bionic to the tools your business already uses"
-                    }
-                    p {
-                        class: "mt-5 text-lg leading-8 opacity-80",
-                        "Use an OpenAPI specification to give Bionic governed access to business systems and APIs."
-                    }
-                    p {
-                        class: "mt-4 text-sm font-semibold opacity-70",
-                        "{count} curated OpenAPI integrations"
-                    }
+            PageContainer { width: PageWidth::Wide, rhythm: Some(PageRhythm::Integrations), class: Some("mt-16 pb-16 md:mt-24".to_string()),
+                ProductHero {
+                    eyebrow: "Integrations".to_string(),
+                    title: "Connect Bionic to the tools your business already uses".to_string(),
+                    subtitle: "Use an OpenAPI specification to give Bionic governed access to business systems and APIs.".to_string(),
+                    claim: Some(format!("{count} curated OpenAPI integrations")),
+                    supporting: None,
                 }
 
-                section {
-                    class: "grid gap-5 md:grid-cols-2",
+                MarketingSection { class: Some("site-marketing-section--compact md:grid-cols-2".to_string()),
                     article {
                         class: "card card-border",
                         div {
@@ -146,8 +139,7 @@ pub fn page() -> String {
                     }
                 }
 
-                section {
-                    class: "grid gap-5",
+                MarketingSection { class: Some("site-marketing-section--compact".to_string()),
                     div {
                         h2 { class: "text-2xl font-bold tracking-tight", "Integrations" }
                         p {

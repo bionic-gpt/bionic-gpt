@@ -1,4 +1,7 @@
-use crate::marketing::footer::Footer;
+use crate::marketing::{
+    footer::Footer,
+    layout::{PageContainer, PageWidth},
+};
 use crate::ui_links::footer_links;
 use dioxus::prelude::*;
 use ssg_whiz::layouts::layout::Layout;
@@ -11,8 +14,7 @@ pub fn go_bionic_page() -> String {
             description: "Deploy Bionic yourself or get help deploying it on your own infrastructure.",
             mobile_menu: None,
             section: Section::None,
-            div {
-                class: "mx-auto mt-16 w-full max-w-5xl px-4 md:mt-24 md:px-6",
+            PageContainer { width: PageWidth::Content, class: Some("mt-16 md:mt-24".to_string()),
                 section {
                     class: "mx-auto max-w-3xl text-center",
                     h1 {

@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
+@plugin "daisyui" {
+  themes: light --default;
+}
 @source "./src/**/*.{rs,html}";
 @source "./content/**/*.{md,html}";
 @source inline("navbar menu menu-sm dropdown dropdown-hover dropdown-content rounded-box link link-hover active card card-body card-title card-actions btn btn-primary btn-ghost btn-outline btn-sm bg-base-100 bg-base-200 bg-base-300 text-base-content text-balance prose prose-slate prose-xl cursor-pointer");
@@ -18,11 +21,83 @@
 ::view-transition-old(root),
 ::view-transition-new(root) { animation: none; }
 
-/* Stronger outline for marketing cards */
+/* Branded card treatment layered over DaisyUI's card primitive. */
 .card-border {
   border-width: 2px;
-  border-color: oklch(var(--bc) / 0.4);
-  box-shadow: 0 10px 30px -15px oklch(var(--bc) / 0.35);
+  border-color: color-mix(in oklab, var(--color-base-content) 40%, transparent);
+  box-shadow: 0 10px 30px -15px color-mix(in oklab, var(--color-base-content) 35%, transparent);
+}
+
+/* Shared marketing page width, gutters, and vertical rhythm. */
+.site-container {
+  width: 100%;
+  margin-inline: auto;
+}
+
+.site-container-wide {
+  max-width: 72rem;
+}
+
+.site-container-content {
+  max-width: 64rem;
+}
+
+.site-gutters-standard { padding-inline: 1rem; }
+.site-gutters-roomy { padding-inline: 1.25rem; }
+.site-gutters-home { padding-inline: 1rem; }
+.site-gutters-flush { padding-inline: 0; }
+.site-gutters-cta { padding-inline: 1.5rem; }
+
+.site-marketing-section {
+  display: grid;
+  gap: 2rem;
+}
+
+.site-marketing-section--compact { gap: 1.25rem; }
+
+.site-page-rhythm-home { row-gap: 7rem; }
+.site-page-rhythm-product { row-gap: 3.5rem; }
+.site-page-rhythm-skills { row-gap: 4rem; }
+.site-page-rhythm-integrations { row-gap: 3rem; }
+.site-page-rhythm-legacy { row-gap: 12rem; }
+.site-page-rhythm-solution { row-gap: 6rem; }
+
+.site-page-title {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.site-lead {
+  font-size: 1.125rem;
+  line-height: 2rem;
+  opacity: 0.8;
+}
+
+.site-section-title {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.site-section-lead {
+  font-size: 1.125rem;
+  line-height: 2rem;
+  opacity: 0.8;
+}
+
+@media (min-width: 768px) {
+  .site-gutters-standard { padding-inline: 1.5rem; }
+  .site-gutters-home { padding-inline: 0; }
+  .site-page-rhythm-product { row-gap: 4rem; }
+  .site-page-rhythm-skills { row-gap: 5rem; }
+}
+
+@media (min-width: 640px) {
+  .site-page-title { font-size: 3rem; line-height: 1; }
+  .site-section-title { font-size: 2.25rem; line-height: 2.5rem; }
 }
 
 /* Homepage use-case river: only behavior not covered by DaisyUI/Tailwind utilities. */

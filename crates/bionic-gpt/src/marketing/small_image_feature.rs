@@ -1,3 +1,4 @@
+use crate::marketing::product_showcase::ProductImage;
 use dioxus::prelude::*;
 
 #[component]
@@ -30,12 +31,14 @@ pub fn SmallImageFeature(
             }
             div {
                 class: "flex-1",
-                img {
-                    loading: "lazy",
-                    width: "728",
-                    height: "610",
-                    alt: "Product screenshot",
-                    src: "{image}",
+                ProductImage {
+                    image,
+                    alt: "Product screenshot".to_string(),
+                    framed: false,
+                    class: Some("w-full".to_string()),
+                    width: Some("728".to_string()),
+                    height: Some("610".to_string()),
+                    eager: false,
                 }
             }
         }

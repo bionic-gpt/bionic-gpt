@@ -8,6 +8,7 @@ pub mod footer;
 pub mod hero;
 pub mod image_feature;
 pub mod image_hero;
+pub mod layout;
 pub mod product_hero;
 pub mod product_showcase;
 pub mod security;

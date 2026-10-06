@@ -13,7 +13,7 @@ pub fn Footer(margin_top: Option<String>, links: FooterLinks) -> Element {
         footer {
             class: "{extra_class} bg-neutral text-neutral-content p-10",
             div {
-                class: "mx-auto lg:max-w-5xl flex flex-col md:flex-row justify-between",
+                class: "site-container site-container-content site-gutters-flush flex flex-col justify-between md:flex-row",
                 nav {
                     h6 {
                         class: "footer-title",
