@@ -211,7 +211,6 @@ pub fn page() -> String {
                         p { class: "badge badge-outline", "Build your own" }
                         h2 { class: "mt-4 text-3xl font-bold tracking-tight", "Package the way your organisation works" }
                         p { class: "mt-4 leading-7 opacity-80", "Package a repeatable category of work in SKILL.md. Explain when the method applies and how the model should carry it out, then add supporting references, templates, examples or executable helpers. The model can load the guidance when it matches the task." }
-                        a { class: "btn btn-outline btn-sm mt-5 w-fit", href: "/architect-course/ai-computer/skills/", "Learn how skills work →" }
                     }
                     div { class: "overflow-x-auto rounded-box border border-base-300 bg-base-100 p-5 font-mono text-sm leading-7",
                         pre { "my-skill/\n├── SKILL.md\n├── references/\n│   └── guidance.md\n├── templates/\n│   └── report.typ\n├── examples/\n│   └── sample.md\n└── bin/\n    └── helper.sh" }

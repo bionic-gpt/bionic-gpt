@@ -7,7 +7,6 @@ pub struct NavigationLinks {
     pub home: String,
     pub blog: String,
     pub docs: String,
-    pub architect_course: String,
     pub go_bionic: String,
     pub product_agent: String,
     pub product_projects: String,
@@ -23,7 +22,6 @@ impl NavigationLinks {
             home,
             blog,
             docs,
-            architect_course,
             go_bionic,
             product_agent,
             product_projects,
@@ -62,11 +60,6 @@ impl NavigationLinks {
                     vec![
                         NavigationLink::new("Blog", blog.clone(), Section::Blog),
                         NavigationLink::new("Documentation", docs.clone(), Section::Docs),
-                        NavigationLink::new(
-                            "Zero to Agentic AI Hero",
-                            architect_course.clone(),
-                            Section::ArchitectCourse,
-                        ),
                     ],
                 )),
             ],
@@ -87,11 +80,6 @@ impl NavigationLinks {
                 NavigationLink::new("Developers", product_developers.clone(), Section::None),
                 NavigationLink::new("Blog", blog, Section::Blog),
                 NavigationLink::new("Documentation", docs, Section::Docs),
-                NavigationLink::new(
-                    "Zero to Agentic AI Hero",
-                    architect_course,
-                    Section::ArchitectCourse,
-                ),
                 NavigationLink::external("GitHub", github_href, Section::None)
                     .with_class("shrink-0 flex gap-1 items-center underline pl-4"),
                 NavigationLink::new("Go Bionic", go_bionic, Section::None)
@@ -106,7 +94,6 @@ pub fn navigation_links() -> NavigationModel {
         home: crate::routes::marketing::Index {}.to_string(),
         blog: crate::routes::blog::Index {}.to_string(),
         docs: crate::routes::docs::Index {}.to_string(),
-        architect_course: crate::routes::architect_course::Index {}.to_string(),
         go_bionic: crate::routes::marketing::GoBionic {}.to_string(),
         product_agent: crate::routes::product::Agent {}.to_string(),
         product_projects: crate::routes::product::Projects {}.to_string(),

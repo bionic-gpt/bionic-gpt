@@ -150,8 +150,7 @@ fn escape_html(source: &str) -> String {
 
 fn main() {
     let manifest_dir = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
-    let content_dir =
-        manifest_dir.join("content/architect-course/enterprise-evals/dashboard-builder");
+    let content_dir = manifest_dir.join("content/docs/integrations/evaluations/dashboard-builder");
     let package_dir = content_dir.join("package");
     let page =
         fs::read_to_string(content_dir.join("index.md")).expect("failed to read dashboard page");

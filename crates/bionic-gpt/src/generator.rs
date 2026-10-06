@@ -12,7 +12,7 @@ const EVAL_SPEC_SOURCE_DIR: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/../../infra-as-code/eval-mocks/openapi/specs"
 );
-const EVAL_SPEC_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals";
+const EVAL_SPEC_OUTPUT_DIR: &str = "dist/docs/integrations/evaluations";
 const EVAL_SPEC_FILES: [&str; 3] = [
     "email-integration.openapi.yaml",
     "web-search.openapi.yaml",
@@ -20,29 +20,24 @@ const EVAL_SPEC_FILES: [&str; 3] = [
 ];
 const DOCUMENT_VALIDATION_DIR: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/content/architect-course/enterprise-evals/document-validation"
+    "/content/docs/integrations/evaluations/document-validation"
 );
 const DOCUMENT_VALIDATION_OUTPUT_DIR: &str =
-    "dist/architect-course/enterprise-evals/document-validation";
+    "dist/docs/integrations/evaluations/document-validation";
 const POSTGRES_MCP_SPEC_SOURCE: &str =
     concat!(env!("CARGO_MANIFEST_DIR"), "/../postgres-mcp/postgres.json");
 const POSTGRES_MCP_SPEC_OUTPUT: &str = "postgres.openapi.json";
 const DASHBOARD_SKILL_SOURCE_DIR: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/content/architect-course/enterprise-evals/dashboard-builder/package"
+    "/content/docs/integrations/evaluations/dashboard-builder/package"
 );
 const DASHBOARD_SALES_CSV_SOURCE: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/content/architect-course/enterprise-evals/dashboard-builder/quarterly-sales.csv"
+    "/content/docs/integrations/evaluations/dashboard-builder/quarterly-sales.csv"
 );
-const DASHBOARD_SKILL_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals/dashboard-builder";
+const DASHBOARD_SKILL_OUTPUT_DIR: &str = "dist/docs/integrations/evaluations/dashboard-builder";
 const DASHBOARD_SKILL_ZIP: &str =
-    "dist/architect-course/enterprise-evals/dashboard-builder/dashboard-builder.zip";
-const ARCHITECTURE_IMAGE_SOURCE: &str = concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/content/architect-course/architecture.svg"
-);
-const ARCHITECTURE_IMAGE_OUTPUT: &str = "dist/architect-course/architecture.svg";
+    "dist/docs/integrations/evaluations/dashboard-builder/dashboard-builder.zip";
 const INTEGRATIONS_SOURCE_DIR: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/content/docs/integrations/specs"
@@ -88,7 +83,6 @@ pub async fn generate_static_pages() -> Vec<SitePage> {
     copy_enterprise_eval_specs();
     copy_document_validation_assets();
     copy_dashboard_skill_package();
-    copy_course_assets();
     copy_curated_integrations();
 
     let mut pages = Vec::new();
@@ -173,18 +167,6 @@ fn copy_curated_integrations() {
         fs::create_dir_all(parent).expect("failed to create integration ZIP directory");
     }
     fs::write(INTEGRATIONS_ZIP, archive).expect("failed to write curated integration ZIP");
-}
-
-fn copy_course_assets() {
-    if let Some(parent) = Path::new(ARCHITECTURE_IMAGE_OUTPUT).parent() {
-        fs::create_dir_all(parent).expect("failed to create course asset directory");
-    }
-    fs::copy(ARCHITECTURE_IMAGE_SOURCE, ARCHITECTURE_IMAGE_OUTPUT).unwrap_or_else(|error| {
-        panic!(
-            "failed to copy course image from {} to {}: {error}",
-            ARCHITECTURE_IMAGE_SOURCE, ARCHITECTURE_IMAGE_OUTPUT
-        )
-    });
 }
 
 fn copy_document_validation_assets() {

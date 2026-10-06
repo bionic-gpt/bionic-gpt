@@ -49,12 +49,6 @@ wts:
 spell:
     docker run --rm -ti -v $HOST_PROJECT_PATH/crates/bionic-gpt/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"
 
-playbook-pdf:
-    typst compile crates/bionic-gpt/content/playbook-pdf/playbook.typ crates/bionic-gpt/assets/playbook.pdf
-
-playbook-pdf-watch:
-    typst watch crates/bionic-gpt/content/playbook-pdf/playbook.typ crates/bionic-gpt/assets/playbook.pdf
-
 md:
     mirrord exec target/debug/web-server --steal -n bionic-gpt --target deployment/bionic-gpt
 
@@ -85,16 +79,6 @@ integration-testing test="":
 md-selenium:
     cargo build
     mirrord exec target/debug/web-server --steal -n bionic-selenium --target deployment/bionic-gpt
-
-# Install dependencies and optimize architect course screenshots
-opt-images:
-    sudo apt-get update -qq && sudo apt-get install -y -qq pngquant imagemagick
-    # Resize down to max 1200px width (never upscale), strip metadata, then compress with pngquant
-    cd crates/static-website/content/architect-course && \
-        find . -type f -name '*.png' \
-            -print -exec mogrify -resize '1200x>' -strip {} + && \
-        find . -type f -name '*.png' \
-            -print -exec sh -c 'for f; do pngquant --force --quality 70-85 --ext .png "$f"; done' _ {} +
 
 dev:
     @if [ ! -f .env ]; then just dot-env; fi

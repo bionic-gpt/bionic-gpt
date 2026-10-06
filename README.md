@@ -106,7 +106,7 @@ For **memory** specifically, [*Filesystem-Based Memory for LLM Agents*](https://
 
 ## Architecture
 
-![Bionic architecture](crates/bionic-gpt/content/architect-course/architecture.svg "Bionic architecture")
+![Bionic architecture](crates/bionic-gpt/content/docs/architecture.svg "Bionic architecture")
 
 ## Run Bionic
 

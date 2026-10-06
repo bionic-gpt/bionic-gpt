@@ -12,7 +12,6 @@ use ssg_whiz::layouts::layout::Layout;
 use ssg_whiz::Section;
 
 pub fn home_page() -> String {
-    let course_url = crate::routes::architect_course::Index {}.to_string();
     let go_bionic_url = crate::routes::marketing::GoBionic {}.to_string();
 
     let page = rsx! {
@@ -122,28 +121,6 @@ pub fn home_page() -> String {
                                     li { "differentiated capabilities" }
                                 }
                             }
-                        }
-                    }
-                }
-
-                section {
-                    class: "rounded-2xl bg-base-200 p-6 md:p-10",
-                    div {
-                        class: "grid gap-6 md:grid-cols-[1fr_auto] md:items-center",
-                        div {
-                            h2 {
-                                class: "text-3xl font-bold tracking-tight",
-                                "Learn how to build sovereign agentic AI"
-                            }
-                            p {
-                                class: "mt-4 text-lg leading-8 opacity-80",
-                                "A practical course for AI leads, architects and engineers building internal AI platforms."
-                            }
-                        }
-                        a {
-                            class: "btn btn-primary",
-                            href: course_url,
-                            "Start the course"
                         }
                     }
                 }

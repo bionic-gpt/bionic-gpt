@@ -8,7 +8,7 @@ external vision model or depend on changing model output.
 ## Test inputs
 
 - [Download the control-panel image](control-panel.png)
-- [Download the image-analysis OpenAPI spec](/architect-course/enterprise-evals/vision-analysis.openapi.yaml)
+- [Download the image-analysis OpenAPI spec](/docs/integrations/evaluations/vision-analysis.openapi.yaml)
 
 The spec defines the simulated analysis endpoint. Its response contains
 components, visible state, confidence, uncertain observations, and suggested

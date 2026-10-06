@@ -706,7 +706,9 @@ fn combined_info() -> Value {
     info.insert(string_value("version"), string_value("1.0"));
     info.insert(
         string_value("description"),
-        string_value("Combined deterministic mock APIs for the Bionic architect course."),
+        string_value(
+            "Combined deterministic mock APIs for Bionic integration workflow evaluations.",
+        ),
     );
     Value::Mapping(info)
 }

@@ -36,7 +36,7 @@ A good result should:
 
 ## Download the Spec
 
-- [Download the Postgres OpenAPI spec](/architect-course/enterprise-evals/postgres.openapi.json)
+- [Download the Postgres OpenAPI spec](/docs/integrations/evaluations/postgres.openapi.json)
 
 The OpenAPI spec describes the Postgres MCP service. Bionic uses this spec to
 turn the service into callable database functions.

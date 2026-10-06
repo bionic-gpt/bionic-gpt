@@ -12,7 +12,7 @@ supervisors, and policy makers are approaching sovereign generative AI.
 
 ## Download the Spec
 
-- [Download the OpenAPI spec](/architect-course/enterprise-evals/web-search.openapi.yaml)
+- [Download the OpenAPI spec](/docs/integrations/evaluations/web-search.openapi.yaml)
 
 The OpenAPI spec defines one deterministic search endpoint. Bionic uses this
 spec to expose the search API as a callable integration, while the mock API

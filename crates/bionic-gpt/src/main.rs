@@ -5,7 +5,7 @@ use ssg_whiz::{
 };
 
 use bionic_gpt::{
-    architect_course_summary, blog_summary, docs_summary, generator,
+    blog_summary, docs_summary, generator,
     marketing::blog_extra_footer::blog_extra_footer,
     pages_summary,
     ui_links::{footer_links, navigation_links},
@@ -19,7 +19,6 @@ async fn main() {
         .init();
 
     let docs_summary = docs_summary::summary();
-    let architect_summary = architect_course_summary::summary();
     let blog_summary = blog_summary::summary();
     let pages_summary = pages_summary::summary();
     let tailwind_stylesheet =
@@ -72,16 +71,10 @@ async fn main() {
     SiteBuilder::new(config)
         .blog(blog_summary)
         .pages(pages_summary)
-        .documents(vec![
-            DocumentSite {
-                summary: docs_summary,
-                section: Section::Docs,
-            },
-            DocumentSite {
-                summary: architect_summary,
-                section: Section::ArchitectCourse,
-            },
-        ])
+        .documents(vec![DocumentSite {
+            summary: docs_summary,
+            section: Section::Docs,
+        }])
         .static_pages(generator::generate_static_pages)
         .build()
         .await
