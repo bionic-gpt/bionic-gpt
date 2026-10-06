@@ -25,6 +25,10 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/agent/")]
+        pub struct Agent {}
+
+        #[derive(TypedPath, Deserialize)]
         #[typed_path("/product/chat/")]
         pub struct Chat {}
 

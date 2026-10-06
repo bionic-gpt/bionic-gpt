@@ -60,7 +60,7 @@ fn output_page(path: &str, html: String) -> SitePage {
 
 pub async fn generate_product() -> Vec<SitePage> {
     vec![
-        output_page("product/chat", pages::product::chat::page()),
+        output_page("product/agent", pages::product::agent::page()),
         output_page("product/datasets", pages::product::datasets::page()),
         output_page("product/developers", pages::product::developers::page()),
         output_page("product/integrations", pages::product::integrations::page()),
@@ -95,7 +95,18 @@ pub async fn generate_static_pages() -> Vec<SitePage> {
     pages.extend(generate_marketing().await);
     pages.extend(generate_product().await);
     pages.extend(generate_solutions().await);
+    write_legacy_product_redirects();
     pages
+}
+
+fn write_legacy_product_redirects() {
+    let output_dir = Path::new("dist");
+    fs::create_dir_all(output_dir).expect("failed to create static site output directory");
+    fs::write(
+        output_dir.join("_redirects"),
+        "/product/chat/ /product/agent/ 301\n",
+    )
+    .expect("failed to write static site redirects");
 }
 
 fn copy_curated_integrations() {

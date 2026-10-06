@@ -1,4 +1,4 @@
-pub mod chat;
+pub mod agent;
 pub mod datasets;
 pub mod developers;
 pub mod integrations;

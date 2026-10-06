@@ -9,7 +9,7 @@ pub struct NavigationLinks {
     pub docs: String,
     pub architect_course: String,
     pub go_bionic: String,
-    pub product_chat: String,
+    pub product_agent: String,
     pub product_projects: String,
     pub product_datasets: String,
     pub product_skills: String,
@@ -25,7 +25,7 @@ impl NavigationLinks {
             docs,
             architect_course,
             go_bionic,
-            product_chat,
+            product_agent,
             product_projects,
             product_datasets,
             product_skills,
@@ -41,7 +41,7 @@ impl NavigationLinks {
                 NavigationEntry::Menu(NavigationMenu::new(
                     "Product",
                     vec![
-                        NavigationLink::new("Chat", product_chat.clone(), Section::None),
+                        NavigationLink::new("The Agent", product_agent.clone(), Section::None),
                         NavigationLink::new(
                             "Integrations",
                             product_integrations.clone(),
@@ -79,7 +79,7 @@ impl NavigationLinks {
                     .with_class("btn btn-primary btn-sm"),
             ],
             mobile: vec![
-                NavigationLink::new("Chat", product_chat.clone(), Section::None),
+                NavigationLink::new("The Agent", product_agent.clone(), Section::None),
                 NavigationLink::new("Integrations", product_integrations.clone(), Section::None),
                 NavigationLink::new("Skills", product_skills.clone(), Section::None),
                 NavigationLink::new("Projects", product_projects.clone(), Section::None),
@@ -108,7 +108,7 @@ pub fn navigation_links() -> NavigationModel {
         docs: crate::routes::docs::Index {}.to_string(),
         architect_course: crate::routes::architect_course::Index {}.to_string(),
         go_bionic: crate::routes::marketing::GoBionic {}.to_string(),
-        product_chat: crate::routes::product::Chat {}.to_string(),
+        product_agent: crate::routes::product::Agent {}.to_string(),
         product_projects: crate::routes::product::Projects {}.to_string(),
         product_datasets: crate::routes::product::Datasets {}.to_string(),
         product_skills: crate::routes::product::Skills {}.to_string(),
