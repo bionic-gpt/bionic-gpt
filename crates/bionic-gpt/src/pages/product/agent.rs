@@ -2,7 +2,6 @@ use crate::marketing::{
     footer::Footer,
     layout::{MarketingSection, PageContainer, PageRhythm, PageWidth, SectionHeader},
     product_hero::ProductHero,
-    product_showcase::ProductShowcase,
 };
 use crate::ui_links::footer_links;
 use dioxus::prelude::*;
@@ -49,11 +48,12 @@ pub fn page() -> String {
                         subtitle: "Bionic brings together your organisation's skills, knowledge and systems in one place. Ask it to research, analyse, create or take action — it finds the context and tools it needs to get the work done.".to_string(),
                         claim: Some("Open source. Self-hosted. Under your control.".to_string()),
                         supporting: None,
-                    }
-
-                    ProductShowcase {
+                        primary_cta: "Get started".to_string(),
+                        primary_href: crate::routes::SIGN_IN_UP.to_string(),
+                        secondary_cta: Some("Explore Skills".to_string()),
+                        secondary_href: Some(skills_url.clone()),
                         image: "/blog/enterprise-integrations/screenshots/03-the-chat.png".to_string(),
-                        alt: "Bionic finding Jordan Lee’s email in Gmail and updating her phone number in Salesforce".to_string(),
+                        image_alt: "Bionic finding Jordan Lee’s email in Gmail and updating her phone number in Salesforce".to_string(),
                     }
                 }
 

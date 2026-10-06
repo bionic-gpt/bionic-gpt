@@ -173,6 +173,12 @@ pub fn page() -> String {
                     subtitle: "Skills give a model a clear method for recurring work: how to analyse information, create useful documents and follow the workflows your organisation relies on.".to_string(),
                     claim: None,
                     supporting: Some("For well-scoped tasks, that guidance can help a smaller model follow a reliable process—so you can match the model to the work.".to_string()),
+                    primary_cta: "Get started".to_string(),
+                    primary_href: crate::routes::SIGN_IN_UP.to_string(),
+                    secondary_cta: Some("Explore the Agent".to_string()),
+                    secondary_href: Some(crate::routes::product::Agent {}.to_string()),
+                    image: "/product/skills.png".to_string(),
+                    image_alt: "Bionic skills catalog".to_string(),
                 }
 
                 MarketingSection {

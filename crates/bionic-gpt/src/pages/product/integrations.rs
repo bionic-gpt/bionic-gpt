@@ -69,6 +69,12 @@ pub fn page() -> String {
                     subtitle: "Use an OpenAPI specification to give Bionic governed access to business systems and APIs.".to_string(),
                     claim: Some(format!("{count} curated OpenAPI integrations")),
                     supporting: None,
+                    primary_cta: "Browse integrations".to_string(),
+                    primary_href: docs_url.to_string(),
+                    secondary_cta: Some("Create an integration".to_string()),
+                    secondary_href: Some(create_url.to_string()),
+                    image: "/product/integrations.png".to_string(),
+                    image_alt: "Bionic integrations catalog".to_string(),
                 }
 
                 MarketingSection { class: Some("site-marketing-section--compact md:grid-cols-2".to_string()),
