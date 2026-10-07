@@ -17,8 +17,8 @@ pub fn ProductHero(
     rsx! {
         header { class: "mx-auto w-full max-w-6xl px-6 py-12 sm:py-16 lg:py-20",
             div { class: "mx-auto max-w-3xl text-center",
-                p { class: "text-sm font-semibold tracking-wide text-primary sm:text-base", "{eyebrow}" }
-                h1 { class: "mt-4 text-4xl font-medium tracking-tight sm:text-5xl lg:text-6xl", "{title}" }
+                p { class: "site-eyebrow text-primary", "{eyebrow}" }
+                h1 { class: "mt-4", "{title}" }
                 p { class: "mx-auto mt-6 max-w-2xl text-base-content/70 sm:text-lg sm:leading-8", "{subtitle}" }
             if let Some(supporting) = supporting {
                 p { class: "mx-auto mt-4 max-w-2xl text-sm leading-6 text-base-content/70", "{supporting}" }

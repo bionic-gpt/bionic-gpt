@@ -28,8 +28,7 @@ pub fn Testamonial(text: String, job: String, person: String, img: String) -> El
                 span {
                     class: "grow flex flex-col pl-4",
                     span {
-                    class: "title-font font-medium",
-                        "{person}"
+                    "{person}"
                     }
                     span {
                     class: "text-sm opacity-70",
@@ -59,8 +58,8 @@ pub fn Testamonials(
             class: class,
             div {
                 class: "w-full",
-                h1 {
-                    class: "text-3xl font-medium font-display title-font mb-12 text-center",
+                h2 {
+                    class: "mb-12 text-center",
                     "Testimonials"
                 }
                 div {

@@ -8,7 +8,6 @@ pub fn blog_extra_footer() -> Element {
                 class: "site-container site-container-content site-gutters-cta grid items-center gap-8 md:grid-cols-2",
                 div {
                     h2 {
-                        class: "text-3xl font-bold leading-tight md:text-4xl",
                         "Your sovereign AI agent for enterprise tasks"
                     }
                     p {

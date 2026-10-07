@@ -7,7 +7,7 @@ pub fn ImageFeature(title: String, sub_title: String, image: String) -> Element 
         section {
             class: "",
             h1 {
-                class: "text-5xl font-bold text-center",
+                class: "text-center",
                 "{title}"
             }
             h2 {

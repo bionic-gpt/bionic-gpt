@@ -9,10 +9,11 @@ pub fn UseCaseRiver() -> Element {
             section {
                 class: "use-case-river__intro mb-16 max-w-3xl md:mb-20",
                 div {
-                    class: "text-primary text-sm font-bold uppercase tracking-[0.1em]",
+                    class: "site-eyebrow text-primary",
                     "Bionic at work"
                 }
                 h2 {
+                    class: "use-case-river__heading--intro",
                     id: "use-case-river-title",
                     "Give Bionic work."
                     br {
@@ -34,6 +35,7 @@ pub fn UseCaseRiver() -> Element {
                             "01"
                         }
                         h3 {
+                            class: "use-case-river__heading--copy",
                             "Start every day one step ahead"
                         }
                         p {
@@ -134,6 +136,7 @@ pub fn UseCaseRiver() -> Element {
                             "02"
                         }
                         h3 {
+                            class: "use-case-river__heading--copy",
                             "Turn your inbox into actions"
                         }
                         p {
@@ -233,6 +236,7 @@ pub fn UseCaseRiver() -> Element {
                             "03"
                         }
                         h3 {
+                            class: "use-case-river__heading--copy",
                             "Find your next customers"
                         }
                         p {
@@ -332,6 +336,7 @@ pub fn UseCaseRiver() -> Element {
                             "04"
                         }
                         h3 {
+                            class: "use-case-river__heading--copy",
                             "Keep working when you aren't"
                         }
                         p {

@@ -19,12 +19,11 @@ pub fn Benefits(
                 class: "w-full",
                 div {
                     class: "flex flex-col text-center w-full mb-20",
-                    h2 {
-                        class: "font-display tracking-widest font-medium title-font mb-1",
+                    p {
+                        class: "site-eyebrow mb-1",
                         "{title}"
                     }
-                    h1 {
-                        class: "sm:text-3xl text-2xl font-medium title-font font-display",
+                    h2 {
                         "{subtitle}"
                     }
                 }
@@ -49,8 +48,7 @@ pub fn Benefits(
                                         path { d: "M22 12h-4l-3 9L9 3l-3 9H2" }
                                     }
                                 }
-                                h2 {
-                                    class: "text-lg title-font font-medium",
+                                h3 {
                                     "{benefit1}"
                                 }
                             }
@@ -84,8 +82,7 @@ pub fn Benefits(
                                         circle { cx: "12", cy: "7", r: "4" }
                                     }
                                 }
-                                h2 {
-                                    class: "text-lg title-font font-medium",
+                                h3 {
                                     "{benefit2}"
                                 }
                             }
@@ -119,8 +116,7 @@ pub fn Benefits(
                                         path { d: "M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12" }
                                     }
                                 }
-                                h2 {
-                                    class: "text-lg title-font font-medium",
+                                h3 {
                                     "{benefit3}"
                                 }
                             }

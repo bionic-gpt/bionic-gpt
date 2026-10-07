@@ -22,11 +22,11 @@ pub fn contact_page() -> String {
                 section {
                     class: "p-5 text-center mb-12",
                     h1 {
-                        class: "text-4xl font-extrabold mt-4",
+                        class: "mt-4",
                         "Our Team is Waiting to Hear From You"
                     }
                     h2 {
-                        class: "text-2xl font-bold mt-4",
+                        class: "mt-4",
                         "Contact the Experts in Gen AI Deployments"
                     }
                     p {

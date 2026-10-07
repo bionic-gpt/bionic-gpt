@@ -14,8 +14,7 @@ pub fn ContactCard(img: String, name: String, role: String) -> Element {
                 }
                 div {
                     class: "grow",
-                    h2 {
-                        class: "font-medium",
+                    h3 {
                         "{name}"
                     }
                     p {
@@ -37,7 +36,7 @@ pub fn Team() -> Element {
                 div {
                     class: "flex flex-col text-center w-full mb-20",
                     h1 {
-                        class: "sm:text-3xl text-2xl font-medium mb-4",
+                        class: "mb-4",
                         "Our Team"
                     }
                     p {

@@ -19,7 +19,6 @@ pub fn Hero(
                 div {
                     class: "max-w-lg",
                     h1 {
-                        class: "text-5xl font-bold",
                         "{title}"
                     }
                     p {
