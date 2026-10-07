@@ -11,7 +11,7 @@ pub fn ExtraFooter(title: String, image: String, cta: String, cta_url: String) -
             div {
                 class: "site-container site-container-wide site-gutters-cta flex flex-col items-center gap-6 text-center",
                 h2 {
-                    class: "text-3xl font-bold max-w-3xl mx-auto leading-tight",
+                    class: "max-w-3xl mx-auto",
                     "{title}"
                 }
                 img {

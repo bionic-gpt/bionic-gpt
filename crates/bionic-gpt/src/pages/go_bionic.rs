@@ -18,7 +18,6 @@ pub fn go_bionic_page() -> String {
                 section {
                     class: "mx-auto max-w-3xl text-center",
                     h1 {
-                        class: "text-4xl font-bold tracking-tight sm:text-5xl",
                         "Go Bionic"
                     }
                     p {
@@ -34,7 +33,7 @@ pub fn go_bionic_page() -> String {
                         class: "card card-border bg-base-100",
                         div {
                             class: "card-body",
-                            h2 { class: "card-title", "Deploy it yourself" }
+                            h3 { class: "card-title", "Deploy it yourself" }
                             p {
                                 class: "mb-3",
                                 "Deploy and extend Bionic yourself. The open-source platform includes:"
@@ -65,7 +64,7 @@ pub fn go_bionic_page() -> String {
                         class: "card card-border bg-base-100",
                         div {
                             class: "card-body",
-                            h2 { class: "card-title", "Get help with deployment" }
+                            h3 { class: "card-title", "Get help with deployment" }
                             p {
                                 class: "grow",
                                 "We can help deploy Bionic in your environment, configure SSO and models, connect an initial integration, and help your team get a first workflow running."
@@ -87,7 +86,7 @@ pub fn go_bionic_page() -> String {
                         class: "card card-border bg-base-100",
                         div {
                             class: "card-body",
-                            h2 { class: "card-title", "Try the demo" }
+                            h3 { class: "card-title", "Try the demo" }
                             p {
                                 class: "grow",
                                 "This is a trial of Bionic using a relatively small model, so you can explore the experience before deciding how to deploy."

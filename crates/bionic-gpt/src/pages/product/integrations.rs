@@ -69,6 +69,12 @@ pub fn page() -> String {
                     subtitle: "Use an OpenAPI specification to give Bionic governed access to business systems and APIs.".to_string(),
                     claim: Some(format!("{count} curated OpenAPI integrations")),
                     supporting: None,
+                    primary_cta: "Browse integrations".to_string(),
+                    primary_href: docs_url.to_string(),
+                    secondary_cta: Some("Create an integration".to_string()),
+                    secondary_href: Some(create_url.to_string()),
+                    image: "/product/integrations.png".to_string(),
+                    image_alt: "Bionic integrations catalog".to_string(),
                 }
 
                 MarketingSection { class: Some("site-marketing-section--compact md:grid-cols-2".to_string()),
@@ -94,7 +100,7 @@ pub fn page() -> String {
                                 }
                             }
                             div {
-                                h2 { class: "card-title", "Ready-to-use integrations" }
+                                h3 { class: "card-title", "Ready-to-use integrations" }
                                 p {
                                     class: "mt-2 leading-7 opacity-80",
                                     "Start with a curated collection of vendor OpenAPI specifications for common enterprise systems. Upload a spec to Bionic to make its API operations available as tools."
@@ -124,7 +130,7 @@ pub fn page() -> String {
                                 }
                             }
                             div {
-                                h2 { class: "card-title", "Bring your own API" }
+                                h3 { class: "card-title", "Bring your own API" }
                                 p {
                                     class: "mt-2 leading-7 opacity-80",
                                     "If your system has an OpenAPI API, you can connect it to Bionic. Add your specification and make the operations available to your team."
@@ -141,7 +147,7 @@ pub fn page() -> String {
 
                 MarketingSection { class: Some("site-marketing-section--compact".to_string()),
                     div {
-                        h2 { class: "text-2xl font-bold tracking-tight", "Integrations" }
+                        h2 { "Integrations" }
                         p {
                             class: "mt-2 text-sm opacity-70",
                             "Browse the curated OpenAPI collection."
@@ -158,7 +164,7 @@ pub fn page() -> String {
                                         class: "flex min-w-0 items-center gap-3",
                                         {integration_logo(integration, true)}
                                         h3 {
-                                            class: "min-w-0 truncate font-semibold",
+                                            class: "min-w-0 truncate",
                                             "{integration.title}"
                                         }
                                     }

@@ -130,7 +130,7 @@ fn workflow_card(
     rsx! {
         article { class: "card card-border h-full",
             div { class: "card-body gap-4 p-5",
-                h3 { class: "card-title text-lg", "{title}" }
+                h3 { class: "card-title", "{title}" }
                 div { class: "grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center",
                     div { class: "rounded-box bg-base-200/60 p-3",
                         p { class: "mb-1 text-xs font-semibold uppercase tracking-wide opacity-60", "Skills" }
@@ -173,17 +173,23 @@ pub fn page() -> String {
                     subtitle: "Skills give a model a clear method for recurring work: how to analyse information, create useful documents and follow the workflows your organisation relies on.".to_string(),
                     claim: None,
                     supporting: Some("For well-scoped tasks, that guidance can help a smaller model follow a reliable process—so you can match the model to the work.".to_string()),
+                    primary_cta: "Get started".to_string(),
+                    primary_href: crate::routes::marketing::GoBionic {}.to_string(),
+                    secondary_cta: Some("Explore the Agent".to_string()),
+                    secondary_href: Some(crate::routes::product::Agent {}.to_string()),
+                    image: "/product/skills.png".to_string(),
+                    image_alt: "Bionic skills catalog".to_string(),
                 }
 
                 MarketingSection {
                     div {
                         p { class: "badge badge-outline", "Capabilities" }
-                        h2 { class: "mt-4 text-3xl font-bold tracking-tight", "Methods for the work your team does" }
+                        h2 { class: "mt-4", "Methods for the work your team does" }
                         p { class: "mt-3 max-w-2xl leading-7 opacity-75", "Browse the kinds of work a model can take on with reusable guidance. A skill explains when it applies and gives the model a workflow to follow with the tools and information available to your team." }
                     }
                     for group in SKILL_GROUPS {
                         div { class: "grid gap-4",
-                            h3 { class: "text-xl font-bold tracking-tight", "{group.title}" }
+                            h3 { "{group.title}" }
                             div { class: "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3",
                                 for skill in group.skills {
                                     article { class: "card card-border h-full",
@@ -201,7 +207,7 @@ pub fn page() -> String {
                 MarketingSection {
                     div {
                         p { class: "badge badge-outline", "Skills + integrations" }
-                        h2 { class: "mt-4 text-3xl font-bold tracking-tight", "Combine know-how with the systems where work happens" }
+                        h2 { class: "mt-4", "Combine know-how with the systems where work happens" }
                         p { class: "mt-3 max-w-2xl leading-7 opacity-75", "Describe the work. The model follows the relevant skill, uses your connected systems and produces a useful result." }
                     }
                     div { class: "grid gap-4 lg:grid-cols-3",
@@ -214,7 +220,7 @@ pub fn page() -> String {
                 section { class: "grid gap-6 rounded-box border border-base-300 bg-base-200/30 p-6 md:grid-cols-2 md:items-center md:p-8",
                     div {
                         p { class: "badge badge-outline", "Build your own" }
-                        h2 { class: "mt-4 text-3xl font-bold tracking-tight", "Package the way your organisation works" }
+                        h2 { class: "mt-4", "Package the way your organisation works" }
                         p { class: "mt-4 leading-7 opacity-80", "Package a repeatable category of work in SKILL.md. Explain when the method applies and how the model should carry it out, then add supporting references, templates, examples or executable helpers. The model can load the guidance when it matches the task." }
                     }
                     div { class: "overflow-x-auto rounded-box border border-base-300 bg-base-100 p-5 font-mono text-sm leading-7",

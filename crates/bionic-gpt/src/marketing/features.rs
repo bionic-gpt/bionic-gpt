@@ -23,7 +23,7 @@ pub fn Features(
                 div {
                     class: "mb-8 lg:mb-16",
                     h2 {
-                        class: "mb-4 text-4xl tracking-tight font-display",
+                        class: "mb-4",
                         "{title}"
                     }
                     p {
@@ -43,7 +43,7 @@ pub fn Features(
                                 }
                             }
                             h3 {
-                            class: "mb-2 font-display text-xl font-bold",
+                            class: "mb-2",
                                 "{feature.title}"
                             }
                             p {

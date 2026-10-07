@@ -12,8 +12,8 @@ pub fn Faq(questions: Vec<FaqText>, class: Option<String>) -> Element {
     rsx! {
         section {
             class: class,
-            h1 {
-                class: "text-3xl font-medium font-display title-font mb-12 text-center",
+            h2 {
+                class: "mb-12 text-center",
                 "Frequently asked questions"
             }
             for question in questions {

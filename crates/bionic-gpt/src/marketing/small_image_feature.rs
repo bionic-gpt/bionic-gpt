@@ -17,11 +17,11 @@ pub fn SmallImageFeature(
             class: "{class} md:flex {flip} gap-8",
             div {
                 class: "flex-1",
-                h2 {
+                p {
                     class: "badge badge-outline",
                     "{title}" }
-                p {
-                    class: "mt-8 text-3xl tracking-tight sm:text-4xl font-display",
+                h2 {
+                    class: "mt-8",
                     "{sub_title}"
                 }
                 p {

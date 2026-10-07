@@ -82,7 +82,7 @@ pub fn Security(class: Option<String>) -> Element {
             div {
                 class: "flex-1",
                 h2 {
-                    class: "text-3xl tracking-tight font-display mb-4",
+                    class: "mb-4",
                     "Built with Enterprise Security, Privacy, and Compliance at Its Core"
                 }
                 p {

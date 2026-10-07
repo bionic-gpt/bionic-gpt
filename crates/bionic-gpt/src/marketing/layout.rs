@@ -85,7 +85,7 @@ pub fn SectionHeader(
             if let Some(eyebrow) = eyebrow {
                 p { class: "badge badge-outline", "{eyebrow}" }
             }
-            h2 { class: "site-section-title {title_margin}", "{title}" }
+            h2 { class: "{title_margin}", "{title}" }
             if let Some(body) = body {
                 p { class: "site-section-lead mt-4", "{body}" }
             }

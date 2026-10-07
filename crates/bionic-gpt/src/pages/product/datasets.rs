@@ -2,8 +2,8 @@ use crate::marketing::{
     extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE},
     features::BionicFeatures,
     footer::Footer,
-    image_feature::ImageFeature,
-    layout::{PageContainer, PageGutters, PageRhythm, PageWidth},
+    layout::{PageContainer, PageRhythm, PageWidth},
+    product_hero::ProductHero,
 };
 use crate::ui_links::footer_links;
 use dioxus::prelude::*;
@@ -18,12 +18,20 @@ pub fn page() -> String {
             mobile_menu: None,
             section: Section::Home,
 
-            PageContainer { width: PageWidth::Content, gutters: Some(PageGutters::Roomy), rhythm: Some(PageRhythm::Legacy), class: Some("mt-24".to_string()),
+            PageContainer { width: PageWidth::Wide, rhythm: Some(PageRhythm::Product), class: Some("mt-16 pb-16 md:mt-24".to_string()),
 
-                ImageFeature {
+                ProductHero {
+                    eyebrow: "Datasets".to_string(),
                     title: "Connect private knowledge to sovereign AI".to_string(),
-                    sub_title: "Organise documents, policies, runbooks, and knowledge sources for grounded AI workflows".to_string(),
-                    image: "/product/datasets.png"
+                    subtitle: "Organise documents, policies, runbooks, and knowledge sources for grounded AI workflows".to_string(),
+                    claim: None,
+                    supporting: None,
+                    primary_cta: "Explore datasets".to_string(),
+                    primary_href: "/docs/guides/datasets/".to_string(),
+                    secondary_cta: Some("Get started".to_string()),
+                    secondary_href: Some(crate::routes::marketing::GoBionic {}.to_string()),
+                    image: "/product/datasets.png".to_string(),
+                    image_alt: "Bionic datasets workspace".to_string(),
                 }
 
                 BionicFeatures {}

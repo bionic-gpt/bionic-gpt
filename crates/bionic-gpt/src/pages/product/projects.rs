@@ -2,8 +2,8 @@ use crate::marketing::{
     extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE},
     features::BionicFeatures,
     footer::Footer,
-    image_feature::ImageFeature,
-    layout::{PageContainer, PageGutters, PageRhythm, PageWidth},
+    layout::{PageContainer, PageRhythm, PageWidth},
+    product_hero::ProductHero,
 };
 use crate::ui_links::footer_links;
 use dioxus::prelude::*;
@@ -18,12 +18,20 @@ pub fn page() -> String {
             mobile_menu: None,
             section: Section::Home,
 
-            PageContainer { width: PageWidth::Content, gutters: Some(PageGutters::Roomy), rhythm: Some(PageRhythm::Legacy), class: Some("mt-24".to_string()),
+            PageContainer { width: PageWidth::Wide, rhythm: Some(PageRhythm::Product), class: Some("mt-16 pb-16 md:mt-24".to_string()),
 
-                ImageFeature {
-                    title: "Keep related chats, instructions, and attachments together in Projects".to_string(),
-                    sub_title: "Give ongoing work a durable, organized home".to_string(),
-                    image: "/product/chat.png"
+                ProductHero {
+                    eyebrow: "Projects".to_string(),
+                    title: "Keep related chats, instructions, and attachments together".to_string(),
+                    subtitle: "Give ongoing work a durable, organized home with Bionic Projects.".to_string(),
+                    claim: None,
+                    supporting: None,
+                    primary_cta: "Get started".to_string(),
+                    primary_href: crate::routes::marketing::GoBionic {}.to_string(),
+                    secondary_cta: Some("Contact us".to_string()),
+                    secondary_href: Some(crate::routes::marketing::Contact {}.to_string()),
+                    image: "/product/chat.png".to_string(),
+                    image_alt: "Bionic project chat".to_string(),
                 }
 
                 BionicFeatures {}
