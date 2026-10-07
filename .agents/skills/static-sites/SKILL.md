@@ -20,6 +20,24 @@ Preserve the existing `ssg_whiz` summary and layout conventions. Keep visible
 images, Open Graph images, metadata, canonical links, navigation, and footer
 behavior distinct where the code supports those concepts.
 
+## Marketing Visual System
+
+Marketing typography is defined in `crates/bionic-gpt/input.css`. HTML heading
+levels provide the standard type hierarchy: `h1` is the page or hero heading,
+`h2` is a section heading, and `h3` is a feature, card, or subsection heading.
+The site inherits Tailwind's `--default-font-family`, currently its system sans
+stack. Eyebrow text uses the semantic `.site-eyebrow` class.
+
+The homepage use-case river has named art-direction treatments for its intro
+and feature headings: `.use-case-river__heading--intro` and
+`.use-case-river__heading--copy`. These styles live alongside the global
+heading rules in the marketing stylesheet.
+
+Shared CSS owns recurring typography. DaisyUI provides themed controls such as
+buttons and semantic colors such as `base-content` and `primary`. Component
+Tailwind classes describe composition and geometry, including grids, flex
+layouts, spacing, alignment, and image sizing.
+
 ## Blog Articles
 
 For a new blog article, read [references/new-blog-article.md](references/new-blog-article.md) before editing. It defines the content, summary metadata, hero-image, and Open Graph workflow.
