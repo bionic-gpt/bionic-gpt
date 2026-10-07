@@ -49,7 +49,7 @@ pub fn page() -> String {
                         claim: Some("Open source. Self-hosted. Under your control.".to_string()),
                         supporting: None,
                         primary_cta: "Get started".to_string(),
-                        primary_href: crate::routes::SIGN_IN_UP.to_string(),
+                        primary_href: crate::routes::marketing::GoBionic {}.to_string(),
                         secondary_cta: Some("Explore Skills".to_string()),
                         secondary_href: Some(skills_url.clone()),
                         image: "/blog/enterprise-integrations/screenshots/03-the-chat.png".to_string(),

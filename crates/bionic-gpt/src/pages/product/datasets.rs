@@ -29,7 +29,7 @@ pub fn page() -> String {
                     primary_cta: "Explore datasets".to_string(),
                     primary_href: "/docs/guides/datasets/".to_string(),
                     secondary_cta: Some("Get started".to_string()),
-                    secondary_href: Some(crate::routes::SIGN_IN_UP.to_string()),
+                    secondary_href: Some(crate::routes::marketing::GoBionic {}.to_string()),
                     image: "/product/datasets.png".to_string(),
                     image_alt: "Bionic datasets workspace".to_string(),
                 }

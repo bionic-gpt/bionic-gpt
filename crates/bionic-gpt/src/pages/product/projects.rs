@@ -27,7 +27,7 @@ pub fn page() -> String {
                     claim: None,
                     supporting: None,
                     primary_cta: "Get started".to_string(),
-                    primary_href: crate::routes::SIGN_IN_UP.to_string(),
+                    primary_href: crate::routes::marketing::GoBionic {}.to_string(),
                     secondary_cta: Some("Contact us".to_string()),
                     secondary_href: Some(crate::routes::marketing::Contact {}.to_string()),
                     image: "/product/chat.png".to_string(),
