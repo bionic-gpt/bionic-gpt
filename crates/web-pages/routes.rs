@@ -377,6 +377,55 @@ pub mod integrations {
     }
 }
 
+pub mod mcp_apps {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/mcp-apps")]
+    pub struct Index {
+        pub team_id: String,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/mcp-apps/new")]
+    pub struct Create {
+        pub team_id: String,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/mcp-apps/{id}/delete")]
+    pub struct Delete {
+        pub team_id: String,
+        pub id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/mcp-apps/{id}/resource")]
+    pub struct Resource {
+        pub team_id: String,
+        pub id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/mcp-apps/{id}/call")]
+    pub struct Call {
+        pub team_id: String,
+        pub id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/mcp-apps/{id}/authorize")]
+    pub struct Authorize {
+        pub team_id: String,
+        pub id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/mcp-apps/oauth2/callback")]
+    pub struct OAuth2Callback {}
+}
+
 pub mod projects {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;

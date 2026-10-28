@@ -26,6 +26,7 @@ import { speechToText } from './typescript/console/speach-to-text';
 import { fileUpload } from './typescript/console/file-upload';
 import { examplePrompts } from './typescript/console/example-prompts';
 import { initInstantPage } from './typescript/instant-page';
+import { mcpApps } from './typescript/console/mcp-apps';
 
 // Set everything up
 function loadEverything() {
@@ -49,6 +50,7 @@ function loadEverything() {
     disableSubmitButton()
     fileUpload()
     initInstantPage()
+    mcpApps()
 
     // Apply dark or light mode
     setTheme()

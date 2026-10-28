@@ -5529,6 +5529,7 @@ dependencies = [
  "rustls-platform-verifier",
  "serde",
  "serde_json",
+ "serde_urlencoded",
  "sync_wrapper 1.0.0",
  "tokio",
  "tokio-rustls 0.26.4",

@@ -13,6 +13,7 @@ pub mod history;
 pub mod i18n;
 pub mod integrations;
 pub mod mcp_api_keys;
+pub mod mcp_apps;
 pub mod menu;
 pub mod model_requests;
 pub mod models;
