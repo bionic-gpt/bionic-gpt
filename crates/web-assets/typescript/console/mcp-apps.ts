@@ -27,7 +27,10 @@ export function mcpApps() {
                     result: {
                         protocolVersion: '2025-11-25',
                         hostInfo: { name: 'Bionic', version: '1.0.0' },
-                        hostCapabilities: { tools: { listChanged: false } },
+                        hostCapabilities: {
+                            tools: { listChanged: false },
+                            message: { text: {} },
+                        },
                         hostContext: { theme: document.documentElement.dataset.theme || 'light' },
                     },
                 })
@@ -58,16 +61,51 @@ export function mcpApps() {
             }
 
             if (message.method === 'ui/message') {
-                const payload = message.params?.content || message.params?.message || ''
-                const content = Array.isArray(payload)
-                    ? payload.map((part) => typeof part === 'object' && part !== null && 'text' in part ? String(part.text) : '').filter(Boolean).join('\n')
-                    : payload
-                const input = document.querySelector<HTMLTextAreaElement>('textarea[name="message"]')
-                if (input && typeof content === 'string') {
-                    input.value = input.value ? `${input.value}\n${content}` : content
-                    input.dispatchEvent(new Event('input', { bubbles: true }))
-                    input.focus()
+                if (message.id === undefined) return
+
+                const params = message.params
+                const blocks = params?.content
+                if (params?.role !== 'user' || !Array.isArray(blocks)) {
+                    send({
+                        jsonrpc: '2.0',
+                        id: message.id,
+                        error: { code: -32602, message: 'Expected a user message with text content' },
+                    })
+                    return
                 }
+
+                const texts: string[] = []
+                for (const block of blocks) {
+                    if (
+                        typeof block !== 'object' ||
+                        block === null ||
+                        !('type' in block) ||
+                        block.type !== 'text' ||
+                        !('text' in block) ||
+                        typeof block.text !== 'string'
+                    ) {
+                        send({
+                            jsonrpc: '2.0',
+                            id: message.id,
+                            error: { code: -32602, message: 'Only text message content is supported' },
+                        })
+                        return
+                    }
+                    texts.push(block.text)
+                }
+
+                const content = texts.join('\n')
+                const input = document.querySelector<HTMLTextAreaElement>('textarea[name="message"]')
+                const form = input?.form
+                if (!content.trim() || !input || !form || input.disabled) {
+                    send({ jsonrpc: '2.0', id: message.id, result: { isError: true } })
+                    return
+                }
+
+                input.value = input.value ? `${input.value}\n${content}` : content
+                input.dispatchEvent(new Event('input', { bubbles: true }))
+                send({ jsonrpc: '2.0', id: message.id, result: {} })
+                window.setTimeout(() => form.requestSubmit(), 0)
             }
         }
 
