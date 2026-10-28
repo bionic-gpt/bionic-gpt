@@ -46,8 +46,17 @@ jobs:
           rc_tag="${{ steps.rc.outputs.latest_rc }}"
           stable="v${{ steps.rc.outputs.base }}"
           commit=$(git rev-list -n 1 "${rc_tag}")
-          git tag -a "${stable}" -m "Promote ${rc_tag} to ${stable}" "${commit}"
-          git push origin "${stable}"
+          if git show-ref --verify --quiet "refs/tags/${stable}"; then
+            stable_commit=$(git rev-parse "refs/tags/${stable}^{commit}")
+            if [ "${stable_commit}" != "${commit}" ]; then
+              echo "Stable tag ${stable} already points to ${stable_commit}, not RC commit ${commit}"
+              exit 1
+            fi
+            echo "Stable tag ${stable} already points to ${rc_tag}; continuing promotion"
+          else
+            git tag -a "${stable}" -m "Promote ${rc_tag} to ${stable}" "${commit}"
+            git push origin "${stable}"
+          fi
 
       - name: Update versioned assets
         env:
