@@ -60,6 +60,16 @@ pub async fn get_tools(
         Arc::new(file_tool.clone().write()),
         Arc::new(file_tool.clone().edit()),
         Arc::new(file_tool.python()),
+        Arc::new(builtin_tools::mcp_apps::McpAppsTool::new(
+            pool.clone(),
+            sub.clone(),
+            conversation_id,
+        )),
+        Arc::new(builtin_tools::mcp_apps::CallMcpAppTool::new(
+            pool.clone(),
+            sub.clone(),
+            conversation_id,
+        )),
     ];
 
     info!("Returning {} tool instances", tools.len());

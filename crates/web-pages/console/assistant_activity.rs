@@ -87,6 +87,31 @@ fn command_preview(action: &ActivityAction) -> Option<String> {
         .map(str::to_string)
 }
 
+fn mcp_app(action: &ActivityAction) -> Option<Value> {
+    action
+        .response
+        .as_ref()
+        .and_then(|response| serde_json::from_str::<Value>(response).ok())
+        .and_then(|response| response.get("_bionic_mcp_app").cloned())
+        .filter(|app| {
+            app.get("server_id").and_then(Value::as_i64).is_some()
+                && app.get("resource_uri").and_then(Value::as_str).is_some()
+        })
+}
+
+fn encode_query(value: &str) -> String {
+    value
+        .bytes()
+        .map(|byte| {
+            if byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b'~') {
+                (byte as char).to_string()
+            } else {
+                format!("%{byte:02X}")
+            }
+        })
+        .collect()
+}
+
 #[component]
 pub fn AssistantActivity(
     team_id: String,
@@ -215,6 +240,11 @@ pub fn AssistantActivity(
                     }
                 }
             }
+            for action in actions.iter() {
+                if let Some(app) = mcp_app(action) {
+                    McpAppFrame { team_id: team_id.clone(), app }
+                }
+            }
             for output in canvas_outputs {
                 CanvasOutput {
                     team_id: team_id.clone(),
@@ -225,6 +255,49 @@ pub fn AssistantActivity(
                 team_id: team_id.clone(),
                 outputs: generated_outputs
             }
+        }
+    }
+}
+
+#[component]
+fn McpAppFrame(team_id: String, app: Value) -> Element {
+    let server_id = app
+        .get("server_id")
+        .and_then(Value::as_i64)
+        .unwrap_or_default();
+    let resource_uri = app
+        .get("resource_uri")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    let tool_input = app
+        .get("tool_input")
+        .cloned()
+        .unwrap_or(Value::Null)
+        .to_string();
+    let tool_result = app
+        .get("tool_result")
+        .cloned()
+        .unwrap_or(Value::Null)
+        .to_string();
+    let app_src = format!(
+        "{}?uri={}",
+        crate::routes::mcp_apps::Resource {
+            team_id: team_id.clone(),
+            id: server_id as i32
+        },
+        encode_query(resource_uri)
+    );
+    rsx! {
+        iframe {
+            class: "mcp-app-frame mt-3 h-[28rem] w-full rounded-xl border border-base-300 bg-base-100",
+            title: app.get("server_name").and_then(Value::as_str).unwrap_or("MCP App"),
+            "data-src": "{app_src}",
+            "data-mcp-app": "true",
+            "data-server-id": "{server_id}",
+            "data-team-id": "{team_id}",
+            "data-resource-uri": "{resource_uri}",
+            "data-tool-input": "{tool_input}",
+            "data-tool-result": "{tool_result}"
         }
     }
 }

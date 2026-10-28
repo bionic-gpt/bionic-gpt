@@ -23,7 +23,7 @@ tokio-postgres = { workspace = true, features = ["with-chrono-0_4"] }
 async-trait.workspace = true
 oas3.workspace = true
 oauth2.workspace = true
-reqwest = { workspace = true, default-features = false, features = ["json", "rustls", "stream"] }
+reqwest = { workspace = true, default-features = false, features = ["json", "rustls", "stream", "form"] }
 time = { workspace = true, features = ["parsing", "formatting"] }
 # Used by tests
 futures.workspace = true

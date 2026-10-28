@@ -33,13 +33,21 @@ pub fn page(
                         href: Some(crate::routes::integrations::Index { team_id: team_id.clone() }.to_string())
                     }]
                 }
-                if rbac.can_manage_integrations() {
+                div { class: "ml-auto flex flex-wrap items-center justify-end gap-3",
+                    if rbac.can_manage_integrations() {
+                        Button {
+                            button_type: ButtonType::Link,
+                            prefix_image_src: "{button_plus_svg.name}",
+                            href: routes::integrations::Select { team_id: team_id.clone() }.to_string(),
+                            button_scheme: ButtonScheme::Primary,
+                            "{button_name}"
+                        }
+                    }
                     Button {
                         button_type: ButtonType::Link,
-                        prefix_image_src: "{button_plus_svg.name}",
-                        href: routes::integrations::Select { team_id: team_id.clone() }.to_string(),
-                        button_scheme: ButtonScheme::Primary,
-                        "{button_name}"
+                        href: crate::routes::mcp_apps::Index { team_id: team_id.clone() }.to_string(),
+                        button_scheme: ButtonScheme::Secondary,
+                        "Manage MCP Apps"
                     }
                 }
             ),

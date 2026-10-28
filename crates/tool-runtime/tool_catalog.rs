@@ -9,6 +9,8 @@ pub fn get_chat_tool_definitions() -> Vec<ToolDefinition> {
         builtin_tools::files::get_write_file_definition(),
         builtin_tools::files::get_edit_file_definition(),
         builtin_tools::files::get_run_python_definition(),
+        builtin_tools::mcp_apps::discover_definition(),
+        builtin_tools::mcp_apps::call_definition(),
     ]
 }
 
@@ -24,6 +26,8 @@ mod tests {
         assert!(names.contains(&"write_file"));
         assert!(names.contains(&"edit_file"));
         assert!(names.contains(&"run_python"));
+        assert!(names.contains(&"discover_mcp_apps"));
+        assert!(names.contains(&"call_mcp_app"));
         assert!(!names.contains(&"open_url"));
         assert!(!names.contains(&"get_current_time_and_date"));
         assert!(!names.contains(&"search_tool_functions"));

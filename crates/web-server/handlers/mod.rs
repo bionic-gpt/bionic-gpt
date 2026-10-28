@@ -9,6 +9,7 @@ pub mod history;
 pub mod integrations;
 pub mod mcp;
 pub mod mcp_api_keys;
+pub mod mcp_apps;
 pub mod metrics;
 pub mod model_requests;
 pub mod models;

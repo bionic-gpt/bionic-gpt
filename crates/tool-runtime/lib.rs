@@ -7,6 +7,7 @@ pub mod builtin_tools;
 mod connector_functions;
 mod connector_network;
 mod lazy_fs;
+pub mod mcp_client;
 pub mod openapi_tool_factory;
 mod sandbox_io;
 pub mod scheduled_tasks;

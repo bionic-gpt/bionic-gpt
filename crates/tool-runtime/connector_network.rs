@@ -887,7 +887,9 @@ fn rewrite_connector_redirect(
     Ok(())
 }
 
-async fn validate_public_destination(url: &Url) -> Result<Vec<SocketAddr>, NetworkError> {
+pub(crate) async fn validate_public_destination(
+    url: &Url,
+) -> Result<Vec<SocketAddr>, NetworkError> {
     let host = url
         .host_str()
         .ok_or_else(|| NetworkError::Denied("URL has no host".into()))?;
@@ -923,20 +925,42 @@ async fn validate_public_destination(url: &Url) -> Result<Vec<SocketAddr>, Netwo
 fn is_public_ip(ip: IpAddr) -> bool {
     match ip {
         IpAddr::V4(ip) => {
+            let octets = ip.octets();
+            let shared_address_space = octets[0] == 100 && (64..=127).contains(&octets[1]);
+            let documentation_range = (octets[0] == 192 && octets[1] == 0 && octets[2] == 2)
+                || (octets[0] == 198 && octets[1] == 51 && octets[2] == 100)
+                || (octets[0] == 203 && octets[1] == 0 && octets[2] == 113);
+            let benchmarking_range = octets[0] == 198 && (18..=19).contains(&octets[1]);
+            let reserved_range =
+                octets[0] >= 240 || (octets[0] == 192 && octets[1] == 0 && octets[2] == 0);
             !(ip.is_private()
                 || ip.is_loopback()
                 || ip.is_link_local()
                 || ip.is_broadcast()
                 || ip.is_unspecified()
                 || ip.is_multicast()
-                || ip.octets()[0] == 0)
+                || octets[0] == 0
+                || shared_address_space
+                || documentation_range
+                || benchmarking_range
+                || reserved_range)
         }
         IpAddr::V6(ip) => {
+            if let Some(mapped) = ip.to_ipv4_mapped() {
+                return is_public_ip(IpAddr::V4(mapped));
+            }
+            let segments = ip.segments();
+            let documentation_range = segments[0] == 0x2001 && segments[1] == 0x0db8;
+            let transition_range = segments[0] == 0x2002;
+            let nat64_well_known = segments[0] == 0x0064 && segments[1] == 0xff9b;
             !(ip.is_loopback()
                 || ip.is_unspecified()
                 || ip.is_multicast()
-                || (ip.segments()[0] & 0xfe00) == 0xfc00
-                || (ip.segments()[0] & 0xffc0) == 0xfe80)
+                || (segments[0] & 0xfe00) == 0xfc00
+                || (segments[0] & 0xffc0) == 0xfe80
+                || documentation_range
+                || transition_range
+                || nat64_well_known)
         }
     }
 }
