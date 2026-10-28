@@ -22,7 +22,7 @@ CREATE TABLE integrations.mcp_servers (
         OR (auth_type = 'bearer' AND access_token IS NOT NULL)
         OR (auth_type = 'oauth2' AND authorization_url IS NOT NULL AND token_url IS NOT NULL AND client_id IS NOT NULL)
     ),
-    CHECK (server_url ~ '^https://')
+    CHECK (server_url ~ '^https?://')
 );
 
 CREATE INDEX mcp_servers_team_idx ON integrations.mcp_servers(team_id, visibility);
