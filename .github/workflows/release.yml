@@ -131,8 +131,7 @@ jobs:
           git add infra-as-code/docker-compose.yml \
                   infra-as-code/stack.yaml \
                   infra-as-code/stack-selenium.yaml \
-                  crates/bionic-gpt/content/docs/running-locally/docker-compose/index.md \
-                  crates/bionic-gpt/content/architect-course/lab/docker-compose/index.md
+                  crates/bionic-gpt/content/docs/running-locally/docker-compose/index.md
 
           if git diff --cached --quiet; then
             echo "No changes to commit"

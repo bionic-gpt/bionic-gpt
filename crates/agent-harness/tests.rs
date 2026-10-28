@@ -430,19 +430,40 @@ fn test_strip_tool_data_changes_system_to_user() {
 #[tokio::test]
 async fn test_generate_prompt_keeps_tool_result_after_its_call() {
     let conversation = vec![
-        create_test_chat(1, ChatRole::User, Some("What time is it".to_string()), None, None),
+        create_test_chat(
+            1,
+            ChatRole::User,
+            Some("What time is it".to_string()),
+            None,
+            None,
+        ),
         create_test_chat(
             2,
             ChatRole::Assistant,
             None,
-            Some(create_tool_call_json("call_1", "read_file", r#"{"path":"/a"}"#)),
+            Some(create_tool_call_json(
+                "call_1",
+                "read_file",
+                r#"{"path":"/a"}"#,
+            )),
             None,
         ),
-        create_test_chat(3, ChatRole::Tool, Some("result".to_string()), None, Some("call_1".to_string())),
+        create_test_chat(
+            3,
+            ChatRole::Tool,
+            Some("result".to_string()),
+            None,
+            Some("call_1".to_string()),
+        ),
     ];
 
     let messages = generate_prompt(
-        32768, 0, 1.0, None, None, None,
+        32768,
+        0,
+        1.0,
+        None,
+        None,
+        None,
         convert_chat_to_messages(conversation),
     )
     .await;
@@ -450,6 +471,8 @@ async fn test_generate_prompt_keeps_tool_result_after_its_call() {
     assert_eq!(messages.len(), 3);
     assert_eq!(text_content(&messages[0]), Some("What time is it"));
     assert!(is_assistant(&messages[1]));
-    assert_eq!(tool_result_call_id(&messages[2]), Some("call_1".to_string()));
+    assert_eq!(
+        tool_result_call_id(&messages[2]),
+        Some("call_1".to_string())
+    );
 }
-
