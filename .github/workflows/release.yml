@@ -118,7 +118,6 @@ jobs:
           content_root = Path("crates/bionic-gpt/content")
           for page in (
               "docs/running-locally/docker-compose/index.md",
-              "architect-course/lab/docker-compose/index.md",
           ):
               path = content_root / page
               content = path.read_bytes().decode("utf-8")
