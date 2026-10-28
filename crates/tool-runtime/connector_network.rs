@@ -890,6 +890,18 @@ fn rewrite_connector_redirect(
 pub(crate) async fn validate_public_destination(
     url: &Url,
 ) -> Result<Vec<SocketAddr>, NetworkError> {
+    validate_destination(url, is_public_ip, "private or reserved").await
+}
+
+pub(crate) async fn validate_mcp_destination(url: &Url) -> Result<Vec<SocketAddr>, NetworkError> {
+    validate_destination(url, is_allowed_mcp_destination, "link-local or reserved").await
+}
+
+async fn validate_destination(
+    url: &Url,
+    is_allowed: fn(IpAddr) -> bool,
+    denied_kind: &str,
+) -> Result<Vec<SocketAddr>, NetworkError> {
     let host = url
         .host_str()
         .ok_or_else(|| NetworkError::Denied("URL has no host".into()))?;
@@ -897,8 +909,8 @@ pub(crate) async fn validate_public_destination(
         .port_or_known_default()
         .ok_or_else(|| NetworkError::Denied("URL has no port".into()))?;
     if let Ok(ip) = host.parse::<IpAddr>() {
-        if !is_public_ip(ip) {
-            return Err(NetworkError::Denied("private or reserved address".into()));
+        if !is_allowed(ip) {
+            return Err(NetworkError::Denied(format!("{denied_kind} destination")));
         }
         return Ok(vec![SocketAddr::new(ip, port)]);
     }
@@ -909,10 +921,10 @@ pub(crate) async fn validate_public_destination(
     let mut validated = Vec::new();
     for address in addresses {
         found = true;
-        if !is_public_ip(address.ip()) {
-            return Err(NetworkError::Denied(
-                "host resolves to a private or reserved address".into(),
-            ));
+        if !is_allowed(address.ip()) {
+            return Err(NetworkError::Denied(format!(
+                "host resolves to a {denied_kind} destination"
+            )));
         }
         validated.push(address);
     }
@@ -920,6 +932,22 @@ pub(crate) async fn validate_public_destination(
         return Err(NetworkError::Denied("host did not resolve".into()));
     }
     Ok(validated)
+}
+
+fn is_allowed_mcp_destination(ip: IpAddr) -> bool {
+    if is_public_ip(ip) {
+        return true;
+    }
+    match ip {
+        IpAddr::V4(ip) => ip.is_private() || ip.is_loopback(),
+        IpAddr::V6(ip) => {
+            if let Some(mapped) = ip.to_ipv4_mapped() {
+                return is_allowed_mcp_destination(IpAddr::V4(mapped));
+            }
+            let segments = ip.segments();
+            ip.is_loopback() || (segments[0] & 0xfe00) == 0xfc00
+        }
+    }
 }
 
 fn is_public_ip(ip: IpAddr) -> bool {

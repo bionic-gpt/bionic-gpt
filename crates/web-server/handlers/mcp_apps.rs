@@ -13,7 +13,7 @@ use db::{authz, Pool};
 use serde::Deserialize;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
-use tool_runtime::mcp_client::{secure_endpoint_client, McpClient, McpServerConfig};
+use tool_runtime::mcp_client::{validated_endpoint_client, McpClient, McpServerConfig};
 use uuid::Uuid;
 use web_pages::string_to_visibility;
 use web_pages::{
@@ -121,8 +121,8 @@ async fn create(
         ));
     }
     let (authorization_url, token_url, client_id) = if auth_type == "oauth2" {
-        let authorization_url = secure_https_url(form.authorization_url.as_deref()).await?;
-        let token_url = secure_https_url(form.token_url.as_deref()).await?;
+        let authorization_url = validated_http_url(form.authorization_url.as_deref()).await?;
+        let token_url = validated_http_url(form.token_url.as_deref()).await?;
         let client_id = form
             .client_id
             .as_deref()
@@ -214,12 +214,12 @@ async fn delete(
     ))
 }
 
-async fn secure_https_url(value: Option<&str>) -> Result<String, CustomError> {
+async fn validated_http_url(value: Option<&str>) -> Result<String, CustomError> {
     let value = value
         .map(str::trim)
         .filter(|value| !value.is_empty())
-        .ok_or_else(|| CustomError::FaultySetup("Enter an HTTPS URL".into()))?;
-    McpClient::new(value, None)
+        .ok_or_else(|| CustomError::FaultySetup("Enter an HTTP or HTTPS URL".into()))?;
+    validated_endpoint_client(value)
         .await
         .map_err(CustomError::FaultySetup)?;
     Ok(value.to_owned())
@@ -342,7 +342,7 @@ async fn oauth2_callback(
         config.base_url.trim_end_matches('/'),
         OAuth2Callback {}
     );
-    let (http, token_endpoint) = secure_endpoint_client(&token_url)
+    let (http, token_endpoint) = validated_endpoint_client(&token_url)
         .await
         .map_err(CustomError::ExternalApi)?;
     let mut params = vec![

@@ -37,6 +37,7 @@ pub fn page(
                             div { class: "alert alert-error mb-4", "{message}" }
                         }
                         p { class: "mb-4 text-sm text-base-content/70", "Connect a remote Streamable HTTP MCP server. Connected tools can be used by the assistant, and tools that provide an MCP App can show an interactive view in chat." }
+                        p { class: "mb-4 text-xs text-base-content/60", "HTTPS is recommended. HTTP endpoints are supported, but their traffic is unencrypted." }
                         form {
                         method: "post",
                         action: crate::routes::mcp_apps::Create { team_id: team_id.clone() }.to_string(),

@@ -140,7 +140,7 @@ pub async fn refresh_expiring_token(
         .client_id
         .as_deref()
         .ok_or("OAuth client ID is missing")?;
-    let (http, endpoint) = secure_endpoint_client(token_url).await?;
+    let (http, endpoint) = validated_endpoint_client(token_url).await?;
     let mut params = vec![
         ("grant_type", "refresh_token"),
         ("refresh_token", refresh_token.as_str()),
@@ -197,7 +197,7 @@ pub async fn refresh_expiring_token(
 
 impl McpClient {
     pub async fn new(endpoint: &str, bearer_token: Option<String>) -> Result<Self, String> {
-        let (client, endpoint) = secure_endpoint_client(endpoint).await?;
+        let (client, endpoint) = validated_endpoint_client(endpoint).await?;
         Ok(Self {
             client,
             endpoint,
@@ -392,15 +392,15 @@ impl McpClient {
     }
 }
 
-pub async fn secure_endpoint_client(endpoint: &str) -> Result<(Client, Url), String> {
+pub async fn validated_endpoint_client(endpoint: &str) -> Result<(Client, Url), String> {
     let endpoint = Url::parse(endpoint).map_err(|error| error.to_string())?;
-    if endpoint.scheme() != "https" || endpoint.host_str().is_none() {
-        return Err("MCP server URL must use HTTPS".into());
+    if !matches!(endpoint.scheme(), "http" | "https") || endpoint.host_str().is_none() {
+        return Err("MCP endpoint URL must use HTTP or HTTPS".into());
     }
     if !endpoint.username().is_empty() || endpoint.password().is_some() {
         return Err("Credentials must be configured separately from the MCP server URL".into());
     }
-    let addresses = crate::connector_network::validate_public_destination(&endpoint)
+    let addresses = crate::connector_network::validate_mcp_destination(&endpoint)
         .await
         .map_err(|error| error.to_string())?;
     let host = endpoint
