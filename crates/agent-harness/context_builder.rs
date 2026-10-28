@@ -195,7 +195,7 @@ pub async fn generate_prompt(
             let unit_size: usize = unit.iter().map(estimate_message_tokens).sum();
             if size_so_far + unit_size < size_allowed {
                 size_so_far += unit_size;
-                history_messages.extend(unit);
+                history_messages.extend(unit.into_iter().rev());
             }
         }
 
