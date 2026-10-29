@@ -96,16 +96,15 @@ export function mcpApps() {
 
                 const content = texts.join('\n')
                 const input = document.querySelector<HTMLTextAreaElement>('textarea[name="message"]')
-                const form = input?.form
-                if (!content.trim() || !input || !form || input.disabled) {
+                if (!content.trim() || !input || !input.form || input.disabled) {
                     send({ jsonrpc: '2.0', id: message.id, result: { isError: true } })
                     return
                 }
 
                 input.value = input.value ? `${input.value}\n${content}` : content
                 input.dispatchEvent(new Event('input', { bubbles: true }))
+                input.focus()
                 send({ jsonrpc: '2.0', id: message.id, result: {} })
-                window.setTimeout(() => form.requestSubmit(), 0)
             }
         }
 
