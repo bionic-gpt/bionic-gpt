@@ -63,3 +63,7 @@ spec:
     office-tools:
       image: ghcr.io/bionic-gpt/office-tools:latest
       port: 8080
+
+    cad-craft:
+      image: ghcr.io/bionic-gpt/bionicgpt-cad-craft-mcp-app:latest
+      port: 8080

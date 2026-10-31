@@ -6,6 +6,9 @@ dev-init:
 dev-setup:
     .agents/skills/k3d-environment/dev-setup.sh
 
+get-config:
+    .agents/skills/k3d-environment/get-config.sh
+
 dev-secrets:
     stack secrets --manifest infra-as-code/stack.yaml --db-host host.docker.internal --db-port 30001 >> .env
 

@@ -18,7 +18,7 @@ use uuid::Uuid;
 use web_pages::string_to_visibility;
 use web_pages::{
     mcp_apps::McpServerSummary,
-    routes::mcp_apps::{Authorize, Call, Create, Delete, Index, OAuth2Callback, Resource},
+    routes::mcp_apps::{Asset, Authorize, Call, Create, Delete, Index, OAuth2Callback, Resource},
 };
 
 pub fn routes() -> Router {
@@ -29,6 +29,7 @@ pub fn routes() -> Router {
         .typed_get(authorize)
         .typed_get(oauth2_callback)
         .typed_get(resource)
+        .typed_get(asset)
         .typed_post(call)
 }
 
@@ -443,7 +444,90 @@ async fn resource(
         header::X_CONTENT_TYPE_OPTIONS,
         HeaderValue::from_static("nosniff"),
     );
+    if content
+        .pointer("/_meta/bionic~1assets/files")
+        .and_then(Value::as_array)
+        .is_some()
+    {
+        response.headers_mut().insert(header::CONTENT_SECURITY_POLICY, HeaderValue::from_static("sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline' blob: 'wasm-unsafe-eval'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; frame-src 'none'; form-action 'none'"));
+    }
     Ok(response)
+}
+
+async fn asset(
+    Asset { team_id, id, path }: Asset,
+    Query(query): Query<ResourceQuery>,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<Response, CustomError> {
+    if !valid_asset_path(&path) {
+        return Err(CustomError::Authorization);
+    }
+    let (server, _) = authorized_server(&pool, current_user, &team_id, id).await?;
+    let mut mcp = McpClient::new(&server.server_url, server.bearer_token.clone())
+        .await
+        .map_err(CustomError::ExternalApi)?;
+    let resource = mcp
+        .read_resource(&query.uri)
+        .await
+        .map_err(CustomError::ExternalApi)?;
+    let files = resource
+        .pointer("/contents/0/_meta/bionic~1assets/files")
+        .and_then(Value::as_array)
+        .ok_or(CustomError::Authorization)?;
+    if !files.iter().any(|file| file.as_str() == Some(&path)) {
+        return Err(CustomError::Authorization);
+    }
+    let endpoint = url::Url::parse(&server.server_url)
+        .map_err(|e| CustomError::ExternalApi(e.to_string()))?
+        .join(&format!("/assets/{path}"))
+        .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
+    let (http, endpoint) = validated_endpoint_client(endpoint.as_str())
+        .await
+        .map_err(CustomError::ExternalApi)?;
+    let mut request = http
+        .get(endpoint)
+        .timeout(std::time::Duration::from_secs(120));
+    if let Some(token) = server.bearer_token {
+        request = request.bearer_auth(token);
+    }
+    let mut upstream = request
+        .send()
+        .await
+        .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
+    if !upstream.status().is_success() {
+        return Err(CustomError::ExternalApi(format!(
+            "Asset HTTP {}",
+            upstream.status()
+        )));
+    }
+    let mut bytes = Vec::new();
+    while let Some(chunk) = upstream
+        .chunk()
+        .await
+        .map_err(|e| CustomError::ExternalApi(e.to_string()))?
+    {
+        if bytes.len().saturating_add(chunk.len()) > 128 * 1024 * 1024 {
+            return Err(CustomError::ExternalApi("Asset too large".into()));
+        }
+        bytes.extend_from_slice(&chunk);
+    }
+    let mime = if path.ends_with(".wasm") {
+        "application/wasm"
+    } else if path.ends_with(".js") {
+        "text/javascript"
+    } else {
+        return Err(CustomError::Authorization);
+    };
+    Ok((
+        [
+            (header::CONTENT_TYPE, mime),
+            (header::CACHE_CONTROL, "private, no-store"),
+            (header::X_CONTENT_TYPE_OPTIONS, "nosniff"),
+        ],
+        bytes,
+    )
+        .into_response())
 }
 
 #[derive(Deserialize)]
@@ -519,4 +603,32 @@ async fn authorized_server(
         .await
         .map_err(CustomError::ExternalApi)?;
     Ok((server, rbac))
+}
+
+fn valid_asset_path(path: &str) -> bool {
+    !path.is_empty()
+        && !path.contains("..")
+        && path
+            .bytes()
+            .all(|c| c.is_ascii_alphanumeric() || b"-_.".contains(&c))
+}
+#[cfg(test)]
+mod asset_tests {
+    use super::valid_asset_path;
+    #[test]
+    fn rejects_paths_that_can_escape_the_asset_directory() {
+        for path in [
+            "",
+            "../secret",
+            "%2e%2e",
+            "/secret",
+            "https://example.org/a",
+            "a/b",
+            "a?b",
+            "a\\b",
+        ] {
+            assert!(!valid_asset_path(path), "{path}");
+        }
+        assert!(valid_asset_path("cadcraft-web-a123_bg.wasm"));
+    }
 }

@@ -52,22 +52,10 @@ pub(super) async fn run(
         )
         .with_workdir("/launcher")
         .with_exec(vec!["cargo", "build", "--release", "--locked"]);
-    let wasm = wasm.with_new_file("/dist/mcp-bridge.js", r#"
-if (window.parent !== window) {
-let ready = false;
-window.addEventListener('message', event => {
- if (event.source !== window.parent) return;
- const m = event.data;
- if (m?.id === 'cadcraft-init' && m.result) {
-  ready = true;
-  window.parent.postMessage({jsonrpc:'2.0',method:'ui/notifications/initialized'}, '*');
-  window.parent.postMessage({jsonrpc:'2.0',method:'ui/notifications/size-changed',params:{height:700}}, '*');
- }
- if (m?.method === 'ui/resource-teardown') window.parent.postMessage({jsonrpc:'2.0',id:m.id,result:{}}, '*');
-});
-window.parent.postMessage({jsonrpc:'2.0',id:'cadcraft-init',method:'ui/initialize',params:{protocolVersion:'2026-01-26',appInfo:{name:'CADCraft',version:'0.1.0'},appCapabilities:{}}}, '*');
-}
-"#).with_exec(vec!["sh", "-c", r#"sed -i 's@</body>@<script src="./mcp-bridge.js"></script></body>@' /dist/index.html"#]);
+    let wasm = client.container().from("node:22-bookworm-slim")
+        .with_directory("/dist", wasm.directory("/dist"))
+        .with_exec(vec!["npm", "install", "--prefix", "/tools", "esbuild@0.25.12"])
+        .with_exec(vec!["sh", "-c", r#"for file in /dist/*.js; do /tools/node_modules/.bin/esbuild "$file" --bundle --format=esm --outfile=/tmp/bundle.js && cp /tmp/bundle.js "$file" || exit 1; done"#]);
     let image = client
         .container()
         .from("debian:bookworm-slim")

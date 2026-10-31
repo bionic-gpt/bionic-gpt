@@ -20,6 +20,25 @@ export function mcpApps() {
             const message = event.data as JsonRpc
             if (!message || message.jsonrpc !== '2.0' || typeof message.method !== 'string') return
 
+            if (message.method === 'bionic/assets/read' && message.id !== undefined) {
+                try {
+                    const path = message.params?.path
+                    if (typeof path !== 'string' || !/^[a-zA-Z0-9_.-]+$/.test(path) || path.includes('..')) throw new Error('Invalid asset path')
+                    const url = `/o/${encodeURIComponent(frame.dataset.teamId || '')}/mcp-apps/${encodeURIComponent(frame.dataset.serverId || '')}/assets/${encodeURIComponent(path)}?uri=${encodeURIComponent(frame.dataset.resourceUri || '')}`
+                    const response = await fetch(url, { credentials: 'same-origin' })
+                    if (!response.ok) throw new Error(`Asset HTTP ${response.status}`)
+                    const bytes = await response.arrayBuffer()
+                    frame.contentWindow?.postMessage({jsonrpc:'2.0',id:message.id,result:{bytes}}, '*', [bytes])
+                } catch(error) {
+                    send({jsonrpc:'2.0',id:message.id,error:{code:-32000,message:String(error)}})
+                }
+                return
+            }
+            if (message.method === 'ui/notifications/size-changed') {
+                const height = message.params?.height
+                if (typeof height === 'number' && Number.isFinite(height)) frame.style.height = `${Math.max(200,Math.min(1200,height))}px`
+                return
+            }
             if (message.method === 'ui/initialize') {
                 send({
                     jsonrpc: '2.0',

@@ -378,6 +378,14 @@ pub mod integrations {
 }
 
 pub mod mcp_apps {
+    #[derive(axum_extra::routing::TypedPath, serde::Deserialize)]
+    #[typed_path("/o/{team_id}/mcp-apps/{id}/assets/{path}")]
+    pub struct Asset {
+        pub team_id: String,
+        pub id: i32,
+        pub path: String,
+    }
+
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;
 
