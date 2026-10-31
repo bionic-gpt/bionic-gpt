@@ -1,0 +1,20 @@
+name: Build CADCraft MCP App
+on:
+  workflow_dispatch:
+    inputs:
+      cadcraft_ref:
+        description: CADCraft branch, tag, or SHA
+        default: main
+        required: true
+permissions:
+  contents: read
+  packages: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CADCRAFT_REF: ${{ inputs.cadcraft_ref }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: cargo run -p dagger-pipeline --release -- cad-craft-mcp-app --cadcraft-ref "$CADCRAFT_REF" --publish

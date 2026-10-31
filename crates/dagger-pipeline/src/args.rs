@@ -25,6 +25,14 @@ pub enum Command {
         output: String,
     },
     /// Build the Office tools image locally, optionally publishing it to GHCR.
+    CadCraftMcpApp {
+        #[arg(long, default_value = "main")]
+        cadcraft_ref: String,
+        #[arg(long)]
+        tag: Option<String>,
+        #[arg(long)]
+        publish: bool,
+    },
     OfficeTools {
         /// Archipelago branch, tag, or commit to package.
         #[arg(long, default_value = "main")]

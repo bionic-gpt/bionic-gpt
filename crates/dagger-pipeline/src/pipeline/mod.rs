@@ -1,3 +1,4 @@
+mod build_cad_craft_mcp_app;
 mod ci;
 mod file_tools;
 use crate::args::{Args, Command};
@@ -63,6 +64,14 @@ async fn dispatch(client: Query, command: Command) -> Result<()> {
             archipelago_ref,
             output,
         } => file_tools::generate_specs(&client, &repo, &archipelago_ref, &output).await?,
+        Command::CadCraftMcpApp {
+            cadcraft_ref,
+            tag,
+            publish,
+        } => {
+            build_cad_craft_mcp_app::run(&client, &repo, &cadcraft_ref, tag.as_deref(), publish)
+                .await?
+        }
         Command::OfficeTools {
             archipelago_ref,
             tag,

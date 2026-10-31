@@ -514,7 +514,7 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     Ok(())
 }
 
-fn ghcr_credentials(require_publish: bool) -> Result<Option<PublishCredentials>> {
+pub(super) fn ghcr_credentials(require_publish: bool) -> Result<Option<PublishCredentials>> {
     let username = env::var("GHCR_USERNAME").or_else(|_| env::var("GITHUB_ACTOR"));
     let token = env::var("GHCR_TOKEN").or_else(|_| env::var("GITHUB_TOKEN"));
 
