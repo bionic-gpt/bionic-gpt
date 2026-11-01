@@ -38,6 +38,8 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
             }
             ChatRole::Tool => {
                 let tool_call_id = chat.tool_call_id.unwrap_or_else(|| "tool_call".to_string());
+                // MCP App metadata belongs to the stored UI result, not model context.
+                let content = model_tool_content(content);
                 Message::tool_result(
                     CallId::from_wire(tool_call_id),
                     ToolName::new("run_bash").expect("static tool name is non-empty"),
@@ -52,6 +54,20 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
     }
 
     messages
+}
+
+fn model_tool_content(content: String) -> String {
+    let Ok(mut value) = serde_json::from_str::<serde_json::Value>(&content) else {
+        return content;
+    };
+    let Some(object) = value.as_object_mut() else {
+        return content;
+    };
+    if object.remove("_bionic_mcp_app").is_none() {
+        return content;
+    }
+    object.remove("_meta");
+    value.to_string()
 }
 
 pub async fn execute_prompt(
@@ -281,4 +297,32 @@ fn add_message(
 pub(crate) fn estimate_message_tokens(message: &Message) -> usize {
     let bytes = serde_json::to_vec(message).unwrap_or_default().len();
     (bytes / 4).max(1)
+}
+
+#[cfg(test)]
+mod mcp_app_context_tests {
+    use super::model_tool_content;
+    use serde_json::{json, Value};
+
+    #[test]
+    fn app_snapshots_are_stored_but_excluded_from_model_context() {
+        let stored = json!({
+            "_bionic_mcp_app": {"tool_result":{"_meta":{"cadcraft/snapshot":{"data":"large-dxf"}}}},
+            "content":[{"type":"text","text":"Command completed"}],
+            "structuredContent":{"drawing_id":"drawing-1","revision":2},
+            "isError":false
+        });
+        let visible: Value = serde_json::from_str(&model_tool_content(stored.to_string())).unwrap();
+        assert!(visible.get("_bionic_mcp_app").is_none());
+        assert_eq!(visible["structuredContent"]["drawing_id"], "drawing-1");
+        assert_eq!(visible["content"], stored["content"]);
+        assert_eq!(visible["isError"], false);
+    }
+
+    #[test]
+    fn ordinary_tool_output_is_unchanged() {
+        for content in ["plain output", "[1,2]", "{\"_meta\":{\"meaningful\":true}}"] {
+            assert_eq!(model_tool_content(content.into()), content);
+        }
+    }
 }

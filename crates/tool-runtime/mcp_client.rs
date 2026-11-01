@@ -266,12 +266,22 @@ impl McpClient {
     }
 
     pub async fn call_tool(&mut self, name: &str, arguments: Value) -> Result<Value, String> {
+        self.call_tool_with_meta(name, arguments, Value::Null).await
+    }
+
+    /// Metadata is supplied by the authenticated backend, never copied from model arguments.
+    pub async fn call_tool_with_meta(
+        &mut self,
+        name: &str,
+        arguments: Value,
+        meta: Value,
+    ) -> Result<Value, String> {
         self.ensure_initialized().await?;
-        self.request(
-            "tools/call",
-            json!({ "name": name, "arguments": arguments }),
-        )
-        .await
+        let mut params = json!({ "name": name, "arguments": arguments });
+        if !meta.is_null() {
+            params["_meta"] = meta;
+        }
+        self.request("tools/call", params).await
     }
 
     pub async fn read_resource(&mut self, uri: &str) -> Result<Value, String> {

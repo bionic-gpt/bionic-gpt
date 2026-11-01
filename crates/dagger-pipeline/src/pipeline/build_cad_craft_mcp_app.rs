@@ -13,6 +13,23 @@ pub(super) async fn run(
         .git("https://github.com/storytold/cadcraft")
         .r#ref(upstream);
     let sha = source.commit().await.wrap_err("resolve CADCraft ref")?;
+    let tree = client
+        .git("https://github.com/storytold/cadcraft")
+        .r#ref(&sha)
+        .tree();
+    let native = client
+        .container()
+        .from("rust:1.95-bookworm")
+        .with_directory("/src", tree.clone())
+        .with_workdir("/src")
+        .with_exec(vec![
+            "cargo",
+            "build",
+            "--release",
+            "--locked",
+            "-p",
+            "cadcraft-cli",
+        ]);
     let wasm = client
         .container()
         .from("rust:1.95-bookworm")
@@ -25,13 +42,12 @@ pub(super) async fn run(
             "0.21.14",
             "--locked",
         ])
-        .with_directory(
-            "/src",
-            client
-                .git("https://github.com/storytold/cadcraft")
-                .r#ref(&sha)
-                .tree(),
+        .with_directory("/src", tree)
+        .with_file(
+            "/patch-web.py",
+            repo.file("crates/dagger-pipeline/cad-craft-mcp-app/patch-web.py"),
         )
+        .with_exec(vec!["python3", "/patch-web.py", "/src"])
         .with_workdir("/src/apps/cadcraft-web")
         .with_exec(vec![
             "trunk",
@@ -63,6 +79,10 @@ pub(super) async fn run(
         .with_file(
             "/app/server",
             builder.file("/launcher/target/release/cad-craft-mcp-app"),
+        )
+        .with_file(
+            "/app/cadcraft-cli",
+            native.file("/src/target/release/cadcraft-cli"),
         )
         .with_directory("/app/assets", wasm.directory("/dist"))
         .with_user("1001")

@@ -118,8 +118,18 @@ impl ToolDyn for CallMcpAppTool {
                 .into_iter()
                 .find(|tool| tool.name == args.tool_name)
                 .ok_or_else(|| tool_error("MCP tool was not found on the selected server"))?;
+            let meta = if tool
+                .meta
+                .get("bionic/conversationScope")
+                .and_then(Value::as_bool)
+                == Some(true)
+            {
+                json!({"bionic/conversation": format!("{}:{}", self.sub, self.conversation_id)})
+            } else {
+                Value::Null
+            };
             let result = client
-                .call_tool(&args.tool_name, args.arguments.clone())
+                .call_tool_with_meta(&args.tool_name, args.arguments.clone(), meta)
                 .await
                 .map_err(tool_error)?;
             let result_content = result.get("content").cloned().unwrap_or_else(|| json!([]));
@@ -143,6 +153,7 @@ impl ToolDyn for CallMcpAppTool {
                         "tool_result": result
                     },
                     "content": result_content,
+                    "isError": result.get("isError").and_then(Value::as_bool).unwrap_or(false),
                     "structuredContent": structured_content
                 })
             } else {
