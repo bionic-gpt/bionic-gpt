@@ -1,52 +1,91 @@
 ---
 name: ron-database
-description: Manage PostgreSQL migrations, typed SQL queries, generated Rust bindings, and database authorization in Rust on Nails applications.
+description: Work with this repository's PostgreSQL database. Use for general database queries, schema inspection, migrations, SQL CRUD, Cornucopia bindings, or database authorization.
 ---
 
-# Rust on Nails Database
+# Database workflow
 
-Discover the destination project's migration directories, SQL generator, build pipeline,
-connection roles, and test commands. Do not assume a crate name, environment variable,
-Cornucopia/Clorinde version, timestamp mapping, or generated-output location.
+This skill is for the repository at `/workspace`. Use its configured PostgreSQL database and the tools below; do not spend time rediscovering the database crate, migration directory, or generator.
 
-## Persistence conventions
+## Connect to PostgreSQL
 
-- Keep schema changes in migrations and application queries in SQL source files.
-  Reuse the project's generator; do not switch generators as part of ordinary work.
-- Never edit generated bindings. Regenerate through the existing build/codegen path.
-- Verify generated parameter, nullable-result, and timestamp types instead of guessing.
-  Query annotations differ by generator/version; follow adjacent SQL files.
-- Queries that can return no row require optional-result handling. Mutations must
-  distinguish a successful write from zero affected rows.
-- Use explicit parameter casts when PostgreSQL cannot infer nullable types. Keep
-  enum additions separate from a later migration that uses the new value when required
-  by PostgreSQL transaction semantics.
-- Discover actual migration commands and roles; avoid interactive aliases. Do not
-  run migrations against an arbitrary connection just because an environment variable exists.
+The devcontainer configures these URLs in `.devcontainer/devcontainer.json`. If they are not set in the current shell, load them without printing their values:
 
-## Authorization
+```sh
+export DATABASE_URL="$(sed -n 's/^[[:space:]]*\"DATABASE_URL\":[[:space:]]*\"\([^\"]*\)\".*/\1/p' .devcontainer/devcontainer.json)"
+export APP_DATABASE_URL="$(sed -n 's/^[[:space:]]*\"APP_DATABASE_URL\":[[:space:]]*\"\([^\"]*\)\".*/\1/p' .devcontainer/devcontainer.json)"
+```
 
-Derive the owner from verified identity; treat team and record IDs as selectors to
-validate. Scope reads and writes to membership and operation permissions. Set any
-RLS identity context transaction-locally before protected queries on that connection.
-Inspect policies and application roles; RLS alone does not prove a record matches the
-team selected in a route. Keep privileged background access separate.
+Database connections may require network access; a restricted shell can fail to reach the configured host even when the database is running. Do not print database URLs or credentials into logs or commit them.
 
-## Local SQL example
+- `DATABASE_URL` connects as `db-owner`. Use it for schema inspection, migrations, and Cornucopia code generation.
+- `APP_DATABASE_URL` connects as `application_user`. Use it to check application-role access and row-level security behavior.
 
-[Schema](examples/schema.sql) and [queries](examples/queries.sql) demonstrate an
-items table, memberships, owner-only writes, and parameterized team-scoped queries.
-They use plain PostgreSQL positional parameters, not generator-specific annotations.
-Each labeled query is a separate statement to adapt into the chosen SQL generator.
-The example uses explicit predicates rather than assuming installed RLS helpers.
-It is a reference schema, not a migration to apply automatically to an existing project.
+The shell aliases in `.devcontainer/bash_aliases` are:
 
-## Verification
+- `db` — `psql "$DATABASE_URL"`
+- `dbapp` — `psql "$APP_DATABASE_URL"`
+- `dbmate` — `dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations`
 
-Use the project's migration test database and narrow compile/codegen check. Verify
-constraints, optional results, affected-row handling, denied ownership, nonmember and
-cross-team access, and rollback on failure. If adding RLS, also test transaction-context
-isolation using the real application role. Report unavailable database-backed checks;
-do not claim SQL execution or generated type validation from text review alone.
+Use `db` for an interactive owner session, `dbapp` for an application-role session, or run `psql "$DATABASE_URL" -c '<query>'` for a one-off read. For example, count ordinary tables across non-system schemas with:
 
-Optional companions: `ron-auth` and `ron-web-server`, if installed.
+```sh
+psql "$DATABASE_URL" -c "SELECT count(*) FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema');"
+```
+
+Use these configured URLs for this workspace rather than inventing a connection string.
+
+## Change the schema with dbmate
+
+1. Create a timestamped migration:
+
+   ```sh
+   dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations new descriptive_migration_name
+   ```
+
+   In an interactive devcontainer shell, the `dbmate` alias supplies those two options, so `dbmate new descriptive_migration_name` is equivalent. Use the full command above when aliases are not loaded. Do not create schema changes in application startup code or edit old migrations that may already have been applied.
+
+2. Edit the newly created SQL file under `crates/db/migrations/`. Use explicit schema names (for example, `iam.users` or `projects.projects`) and include a reversible `-- migrate:up` / `-- migrate:down` pair following neighboring migrations. For enum changes, check PostgreSQL's transaction rules before using a new enum value in the same migration.
+
+3. Inspect pending migrations and apply them to the configured development database:
+
+   ```sh
+   dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations status
+   dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations up
+   ```
+
+   `dbmate up` changes the database. Run it only when applying the migration is part of the requested task. To deliberately roll back the latest migration, inspect its down section, then run `dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations down`; do not use the `dbdown` alias, which repeatedly rolls migrations back until none remain.
+
+4. If queries reference the changed schema, update their SQL as described below, then run the DB crate compile check so Cornucopia validates the SQL against the migrated database.
+
+## Add typed CRUD queries with Cornucopia
+
+1. Put application SQL in a suitable file under `crates/db/queries/` (create a new module file there if needed). Keep each statement named with Cornucopia's `--! query_name` annotation. Use `--: TypeName(...)` annotations for shared/generated record types and `:parameter_name` placeholders for parameters. Follow the nearest query file's conventions; examples include `crates/db/queries/projects.sql` and `crates/db/queries/integrations.sql`.
+
+2. Write the SQL with the access boundary in the query itself: scope reads and mutations by the verified user's permitted team/record, use the repository's `current_app_user()` helper where appropriate, and do not trust a caller-supplied user ID as identity. Check related authorization code and policies when unsure.
+
+3. Compile the database crate from the workspace root:
+
+   ```sh
+   cargo check -p db
+   ```
+
+   `crates/db/build.rs` runs `cornucopia live -q crates/db/queries -d "$OUT_DIR/cornucopia" "$DATABASE_URL"` as part of the build. It generates Rust bindings in Cargo's `OUT_DIR`; do not edit or commit generated bindings. The live database schema must already include any migration used by the SQL. Fix SQL, annotations, or type mismatches in the query source and rerun the check.
+
+4. Call generated functions through `db::queries::<module>::<query_name>()`; methods take generated parameter structs where applicable and execute against the app's PostgreSQL client/transaction. Add the call at the existing persistence boundary, following nearby Rust code for client use and error handling.
+
+5. For mutations, use `RETURNING` when the caller needs the new row or identifier. For `UPDATE`/`DELETE` without `RETURNING`, inspect the affected-row count when zero rows means not found or not authorized. Model a query that can return no row as optional in Rust; do not assume it returns a record.
+
+## Verify database changes
+
+- After a migration, inspect `dbmate status` using the configured alias or the full command above; run the relevant DB crate compile check after adding or changing Cornucopia SQL.
+- For authorization-sensitive queries, verify both allowed and denied cases using the application role (`dbapp` / `APP_DATABASE_URL`) and test team boundaries. Confirm any RLS identity setting is transaction-local and set on the same connection as the protected query.
+- Do not claim a migration or query was executed unless the command completed successfully. Report when the configured database is unavailable and distinguish static review from database-backed verification.
+
+## Where to look in this repository
+
+- Migrations: `crates/db/migrations/`
+- Cornucopia SQL: `crates/db/queries/`
+- Generator invocation: `crates/db/build.rs`
+- Database module and generated include: `crates/db/lib.rs`
+- Connection variables and aliases: `.devcontainer/devcontainer.json`, `.devcontainer/bash_aliases`
