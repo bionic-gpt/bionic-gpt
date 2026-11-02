@@ -57,6 +57,49 @@
     display: none;
 }
 
+#mcp-app-panel-resizer[hidden] {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    #mcp-app-panel {
+        flex: 0 0 var(--mcp-app-panel-width, 66.6667%);
+        width: var(--mcp-app-panel-width, 66.6667%);
+        min-width: 0;
+    }
+
+    #mcp-app-panel-resizer {
+        position: relative;
+        z-index: 1;
+        flex: 0 0 0.75rem;
+        align-items: center;
+        justify-content: center;
+        cursor: col-resize;
+        touch-action: none;
+        outline: none;
+    }
+
+    #mcp-app-panel-resizer::before {
+        width: 2px;
+        height: 2rem;
+        border-radius: 9999px;
+        background: var(--color-base-300);
+        content: "";
+    }
+
+    #mcp-app-panel-resizer:hover::before,
+    #mcp-app-panel-resizer:focus-visible::before {
+        background: var(--color-primary);
+    }
+}
+
+@media (max-width: 1023px) {
+    #mcp-app-panel {
+        flex: initial;
+        width: 100%;
+    }
+}
+
 #mcp-app-panel.mcp-app-fullscreen {
     position: fixed;
     inset: 1rem;

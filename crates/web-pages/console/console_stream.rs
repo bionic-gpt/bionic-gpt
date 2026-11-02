@@ -225,9 +225,22 @@ pub fn PersistentMcpAppPanel(team_id: String, conversation_id: i64, app: Value) 
         .and_then(Value::as_str)
         .unwrap_or("MCP App");
     rsx! {
+        div {
+            id: "mcp-app-panel-resizer",
+            class: "mcp-app-panel-resizer hidden lg:flex",
+            role: "separator",
+            "aria-orientation": "vertical",
+            "aria-label": "Resize app panel",
+            "aria-valuemin": "35",
+            "aria-valuemax": "80",
+            "aria-valuenow": "67",
+            tabindex: 0,
+            "data-mcp-app-resizer": "true",
+            "data-resize-key": "{team_id}:{conversation_id}"
+        }
         aside {
             id: "mcp-app-panel",
-            class: "mcp-app-panel relative flex h-[42vh] min-h-72 w-full flex-col border-t border-base-300 bg-base-100 lg:h-full lg:w-[42%] lg:min-w-[24rem] lg:border-l lg:border-t-0",
+            class: "mcp-app-panel relative flex h-[42vh] min-h-72 w-full flex-col border-t border-base-300 bg-base-100 lg:h-full lg:border-l lg:border-t-0",
             "data-conversation-id": "{conversation_id}",
             "data-app-title": "{title}",
             div {

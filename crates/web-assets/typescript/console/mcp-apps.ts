@@ -17,6 +17,7 @@ type AppState = {
 const states = new WeakMap<HTMLIFrameElement, AppState>()
 
 export function mcpApps() {
+    initializePanelResizer()
     const initializeFrames = () => {
         document.querySelectorAll<HTMLIFrameElement>('iframe[data-mcp-app="true"]').forEach((frame) => {
             if (states.has(frame)) synchronizeFrame(frame)
@@ -27,7 +28,10 @@ export function mcpApps() {
 
     const mutationObserver = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
-            if (mutation.type === 'childList') initializeFrames()
+            if (mutation.type === 'childList') {
+                initializeFrames()
+                initializePanelResizer()
+            }
             if (mutation.type === 'attributes' && mutation.target instanceof HTMLIFrameElement) {
                 synchronizeFrame(mutation.target)
             }
@@ -83,6 +87,7 @@ export function mcpApps() {
         const close = target.closest<HTMLElement>('[data-mcp-app-close="true"]')
         if (close) {
             document.querySelector<HTMLElement>('#mcp-app-panel')?.setAttribute('hidden', 'true')
+            document.querySelector<HTMLElement>('#mcp-app-panel-resizer')?.setAttribute('hidden', 'true')
             return
         }
 
@@ -94,6 +99,84 @@ export function mcpApps() {
             if (panel && frame && state) setDisplayMode(frame, state.displayMode === 'fullscreen' ? 'pip' : 'fullscreen')
         }
     })
+}
+
+function initializePanelResizer() {
+    const resizer = document.querySelector<HTMLElement>('[data-mcp-app-resizer="true"]')
+    const panel = document.querySelector<HTMLElement>('#mcp-app-panel')
+    const workspace = document.querySelector<HTMLElement>('#console-panel')
+    if (!resizer || !panel || !workspace || resizer.dataset.resizeAttached === 'true') return
+
+    const minWidth = 35
+    const maxWidth = 80
+    const defaultWidth = 2 / 3 * 100
+    const storageKey = `bionic:mcp-app-panel-width:${resizer.dataset.resizeKey || ''}`
+    const desktop = window.matchMedia('(min-width: 1024px)')
+    let width = defaultWidth
+    try {
+        const savedWidth = Number(localStorage.getItem(storageKey))
+        if (Number.isFinite(savedWidth) && savedWidth > 0) width = Math.max(minWidth, Math.min(maxWidth, savedWidth))
+    } catch {
+        // Keep the default width when browser storage is unavailable.
+    }
+
+    const update = (nextWidth: number, persist: boolean) => {
+        width = Math.max(minWidth, Math.min(maxWidth, nextWidth))
+        resizer.setAttribute('aria-valuenow', String(Math.round(width)))
+        workspace.style.setProperty('--mcp-app-panel-width', `${width}%`)
+        if (persist) {
+            try {
+                localStorage.setItem(storageKey, String(width))
+            } catch {
+                // Resizing still works for this page when browser storage is unavailable.
+            }
+        }
+    }
+
+    const applyBreakpoint = () => {
+        if (desktop.matches) update(width, false)
+        else workspace.style.removeProperty('--mcp-app-panel-width')
+    }
+    applyBreakpoint()
+    desktop.addEventListener('change', applyBreakpoint)
+
+    let dragging = false
+    resizer.addEventListener('pointerdown', (event) => {
+        if (!desktop.matches || event.button !== 0) return
+        dragging = true
+        resizer.setPointerCapture(event.pointerId)
+        event.preventDefault()
+    })
+    resizer.addEventListener('pointermove', (event) => {
+        if (!dragging) return
+        const bounds = workspace.getBoundingClientRect()
+        if (bounds.width <= 0) return
+        update(((bounds.right - event.clientX) / bounds.width) * 100, false)
+    })
+    const finishDrag = (event: PointerEvent) => {
+        if (!dragging) return
+        dragging = false
+        if (resizer.hasPointerCapture(event.pointerId)) resizer.releasePointerCapture(event.pointerId)
+        try {
+            localStorage.setItem(storageKey, String(width))
+        } catch {
+            // Resizing still works for this page when browser storage is unavailable.
+        }
+    }
+    resizer.addEventListener('pointerup', finishDrag)
+    resizer.addEventListener('pointercancel', finishDrag)
+    resizer.addEventListener('keydown', (event) => {
+        if (!desktop.matches) return
+        let nextWidth: number | undefined
+        if (event.key === 'ArrowLeft') nextWidth = width + (event.shiftKey ? 5 : 2)
+        if (event.key === 'ArrowRight') nextWidth = width - (event.shiftKey ? 5 : 2)
+        if (event.key === 'Home') nextWidth = minWidth
+        if (event.key === 'End') nextWidth = maxWidth
+        if (nextWidth === undefined) return
+        event.preventDefault()
+        update(nextWidth, true)
+    })
+    resizer.dataset.resizeAttached = 'true'
 }
 
 function connectFrame(frame: HTMLIFrameElement) {
@@ -303,10 +386,12 @@ function setDisplayMode(frame: HTMLIFrameElement, mode: 'inline' | 'fullscreen' 
     if (mode === 'inline') {
         if (!mountInline(frame)) return state.displayMode
         panel.setAttribute('hidden', 'true')
+        document.querySelector<HTMLElement>('#mcp-app-panel-resizer')?.setAttribute('hidden', 'true')
     } else {
         const mount = document.querySelector<HTMLElement>('#mcp-app-panel-frame-mount')
         if (mount && frame.parentElement !== mount) mount.append(frame)
         panel.removeAttribute('hidden')
+        document.querySelector<HTMLElement>('#mcp-app-panel-resizer')?.removeAttribute('hidden')
     }
     state.displayMode = mode
     if (mode !== 'inline') frame.style.removeProperty('height')
