@@ -4,7 +4,6 @@ use super::{ChatWithChunks, PendingChatState};
 use crate::app_layout::SideBar;
 use crate::components::confirm_modal::ConfirmModal;
 use crate::console::model_popup::{model_label, ModelPopup};
-use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::capabilities::Capability;
@@ -80,9 +79,8 @@ fn Head(
                     class: "btn-circle mr-2 p-1",
                     popover_target: "delete-conv-{conversation_id}",
                     button_scheme: ButtonScheme::Neutral,
-                    img {
-                        class: "svg-icon",
-                        src: delete_svg.name
+                    span {
+                        dangerous_inner_html: include_str!("../../web-assets/images/delete.svg")
                     }
                 }
                 ConfirmModal {
