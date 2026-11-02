@@ -18,9 +18,11 @@ and latest tags; otherwise the image is loaded into Docker locally.
 
 ## Runtime and registration
 
-Set `CADCRAFT_AUTH_TOKEN` to a randomly generated secret of at least 32 characters
-in the CadCraft container. Register `http://cad-craft:8080/mcp` in Bionic with that
-same secret as its bearer token. Requests to `/mcp` require authentication.
+Register `http://cad-craft:8080/mcp` in Bionic with **No authentication**.
+The service is intended for private, in-cluster access and should not be exposed
+through public ingress. Conversation scoping still prevents drawing access across
+conversations when requests come through Bionic; any other pod allowed to reach
+the service can call it directly and supply conversation metadata.
 **Both Bionic and the CadCraft image must be rebuilt** for conversation scoping and
 the viewer integration. No public ingress or PUBLIC_BASE_URL is needed.
 
@@ -53,8 +55,9 @@ Tools advertise `_meta["bionic/conversationScope"] = true`. Bionic injects
 `params._meta["bionic/conversation"]` from authenticated identity and conversation
 ID; model arguments cannot supply or override it. The adapter checks this owner
 on every drawing access. Browser-initiated tool calls without authenticated
-conversation context cannot manipulate drawings. The bearer secret authenticates
-Bionic as the trusted source of this context; do not distribute it to viewers.
+conversation context cannot manipulate drawings. The adapter trusts Bionic to
+provide this context; it does not authenticate direct callers, so restrict network
+access to the service to trusted in-cluster workloads.
 
 Sessions expire after 24 hours idle or a container restart, with a maximum of 16
 active drawings per container. Calls on one drawing serialize. Worker replies are
@@ -96,6 +99,6 @@ python3 crates/dagger-pipeline/cad-craft-mcp-app/tests/smoke.py /absolute/path/t
 
 This starts a local HTTP adapter and checks real geometry, DXF snapshots, PNG
 rendering, concurrent calls, state continuity, conversation ownership,
-authentication, validation and filesystem isolation. The smoke test uses dummy
+validation and filesystem isolation. The smoke test uses dummy
 web assets; viewer bridge ordering is checked separately by the Node test, and
 the patched upstream web app must also compile for `wasm32-unknown-unknown`.

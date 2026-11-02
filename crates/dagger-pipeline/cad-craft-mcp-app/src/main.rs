@@ -3,7 +3,7 @@ mod backend;
 use axum::{
     Json, Router,
     extract::State,
-    http::{HeaderMap, StatusCode},
+    http::StatusCode,
     response::{Html, IntoResponse, Response},
     routing::{get, post},
 };
@@ -17,7 +17,6 @@ struct App {
     manifest: Value,
     tools: Value,
     drawings: backend::Drawings,
-    token: String,
 }
 
 fn tool_error(error: impl ToString) -> Value {
@@ -120,12 +119,8 @@ async fn call(app: &App, params: &Value) -> Result<Value, String> {
 
 async fn rpc(
     State(app): State<Arc<App>>,
-    headers: HeaderMap,
     Json(request): Json<Value>,
 ) -> Response {
-    if headers.get("authorization").and_then(|h| h.to_str().ok()) != Some(app.token.as_str()) {
-        return StatusCode::UNAUTHORIZED.into_response();
-    }
     let Some(id) = request.get("id") else {
         return StatusCode::ACCEPTED.into_response();
     };
@@ -154,7 +149,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .into(),
         );
     }
-    let token = std::env::var("CADCRAFT_AUTH_TOKEN").ok().filter(|s| s.len() >= 32).ok_or("Set CADCRAFT_AUTH_TOKEN to a random secret of at least 32 characters and configure it as the MCP integration bearer token")?;
     let mut catalog = backend::Backend::start().await?;
     let tools = tool_definitions(catalog.request("tools/list", json!({})).await?);
     drop(catalog);
@@ -201,7 +195,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         manifest: json!({"files":files}),
         tools,
         drawings: backend::Drawings::default(),
-        token: format!("Bearer {token}"),
     });
     let cleanup = state.clone();
     tokio::spawn(async move {
@@ -241,7 +234,6 @@ mod tests {
             manifest: json!({}),
             tools: json!({}),
             drawings: backend::Drawings::default(),
-            token: "Bearer test".into(),
         }
     }
 

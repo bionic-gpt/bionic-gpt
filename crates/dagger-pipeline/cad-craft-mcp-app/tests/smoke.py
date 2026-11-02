@@ -8,7 +8,6 @@ import concurrent.futures
 import json
 import os
 from pathlib import Path
-import secrets
 import socket
 import subprocess
 import sys
@@ -18,7 +17,6 @@ import urllib.error
 import urllib.request
 
 server, cli = map(lambda p: str(Path(p).resolve()), sys.argv[1:])
-token = secrets.token_hex(32)
 with tempfile.TemporaryDirectory() as directory:
     root = Path(directory)
     (root / 'index.html').write_text('<html><body><div id="cadcraft_loading"></div></body></html>')
@@ -30,13 +28,11 @@ with tempfile.TemporaryDirectory() as directory:
         sock.bind(('127.0.0.1', 0))
         port = sock.getsockname()[1]
     endpoint = f'http://127.0.0.1:{port}/mcp'
-    env = {**os.environ, 'CADCRAFT_AUTH_TOKEN': token, 'CADCRAFT_CLI': cli,
+    env = {**os.environ, 'CADCRAFT_CLI': cli,
            'CADCRAFT_ASSETS': directory, 'CADCRAFT_LISTEN': f'127.0.0.1:{port}'}
     process = subprocess.Popen([server], env=env, stdout=subprocess.DEVNULL)
-    def rpc(method, params=None, authorized=True):
+    def rpc(method, params=None):
         headers = {'Content-Type': 'application/json'}
-        if authorized:
-            headers['Authorization'] = 'Bearer ' + token
         request = urllib.request.Request(endpoint, json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params or {}}).encode(), headers)
         with urllib.request.urlopen(request, timeout=130) as response:
             body = json.load(response)
@@ -58,11 +54,6 @@ with tempfile.TemporaryDirectory() as directory:
                 time.sleep(.1)
         else:
             raise RuntimeError('Server failed to start')
-        try:
-            rpc('ping', authorized=False)
-            raise AssertionError('Missing authentication was accepted')
-        except urllib.error.HTTPError as error:
-            assert error.code == 401
         tools = rpc('tools/list')['tools']
         assert all(t['_meta']['bionic/conversationScope'] for t in tools)
         assert {'command_line','script','execute','render','open_cadcraft'} <= {t['name'] for t in tools}
@@ -99,7 +90,7 @@ with tempfile.TemporaryDirectory() as directory:
         assert not rendered.get('isError'), rendered
         assert base64.b64decode(rendered['content'][0]['data']).startswith(b'\x89PNG')
         assert b'CIRCLE' in dxf, 'Saved snapshots must remain independent of later calls'
-        print('PASS: real commands, DXF snapshots, PNG render, continuity, concurrent calls, conversation isolation, authentication, validation and filesystem isolation')
+        print('PASS: real commands, DXF snapshots, PNG render, continuity, concurrent calls, conversation isolation, validation and filesystem isolation')
     finally:
         process.terminate()
         process.wait(timeout=10)
