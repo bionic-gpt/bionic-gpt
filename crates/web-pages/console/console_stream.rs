@@ -3,6 +3,7 @@
 use crate::routes;
 use db::{authz::Rbac, ChatRole};
 use dioxus::prelude::*;
+use serde_json::Value;
 use std::collections::HashMap;
 use tool_runtime::{parse_reasoning, parse_tool_calls, ToolCall};
 
@@ -179,6 +180,99 @@ pub fn ConsoleStream(
 }
 
 #[component]
+pub fn PersistentMcpAppPanel(team_id: String, conversation_id: i64, app: Value) -> Element {
+    let server_id = app
+        .get("server_id")
+        .and_then(Value::as_i64)
+        .unwrap_or_default();
+    let resource_uri = app
+        .get("resource_uri")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    let tool_input = app
+        .get("tool_input")
+        .cloned()
+        .unwrap_or(Value::Null)
+        .to_string();
+    let tool_result = app
+        .get("tool_result")
+        .cloned()
+        .unwrap_or(Value::Null)
+        .to_string();
+    let chat_id = app
+        .get("chat_id")
+        .and_then(Value::as_i64)
+        .unwrap_or_default();
+    let app_src = format!(
+        "{}?uri={}",
+        routes::mcp_apps::Resource {
+            team_id: team_id.clone(),
+            id: server_id as i32
+        },
+        resource_uri
+            .bytes()
+            .map(|byte| {
+                if byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b'~') {
+                    (byte as char).to_string()
+                } else {
+                    format!("%{byte:02X}")
+                }
+            })
+            .collect::<String>()
+    );
+    let title = app
+        .get("server_name")
+        .and_then(Value::as_str)
+        .unwrap_or("MCP App");
+    rsx! {
+        aside {
+            id: "mcp-app-panel",
+            class: "mcp-app-panel relative flex h-[42vh] min-h-72 w-full flex-col border-t border-base-300 bg-base-100 lg:h-full lg:w-[42%] lg:min-w-[24rem] lg:border-l lg:border-t-0",
+            "data-conversation-id": "{conversation_id}",
+            "data-app-title": "{title}",
+            div {
+                class: "flex h-11 shrink-0 items-center justify-between gap-2 border-b border-base-300 px-3",
+                span { id: "mcp-app-panel-title", class: "truncate text-sm font-medium", "{title}" }
+                div {
+                    class: "flex items-center gap-1",
+                    button {
+                        r#type: "button",
+                        class: "btn btn-ghost btn-xs",
+                        "data-mcp-app-fullscreen": "true",
+                        "aria-label": "Toggle full screen",
+                        "Expand"
+                    }
+                    button {
+                        r#type: "button",
+                        class: "btn btn-ghost btn-xs",
+                        "data-mcp-app-close": "true",
+                        "aria-label": "Close app panel",
+                        "Close"
+                    }
+                }
+            }
+            div {
+                id: "mcp-app-panel-frame-mount",
+                class: "flex min-h-0 flex-1 flex-col",
+                iframe {
+                id: "mcp-app-panel-frame",
+                class: "mcp-app-frame min-h-0 w-full flex-1 bg-base-100",
+                title: "{title}",
+                "data-src": "{app_src}",
+                "data-mcp-app": "true",
+                "data-server-id": "{server_id}",
+                "data-team-id": "{team_id}",
+                "data-resource-uri": "{resource_uri}",
+                "data-tool-input": "{tool_input}",
+                "data-tool-result": "{tool_result}",
+                "data-chat-id": "{chat_id}"
+                }
+            }
+        }
+    }
+}
+
+#[component]
 fn UserMessage(user_message: String) -> Element {
     rsx! {
         div {
@@ -283,6 +377,28 @@ fn build_tool_call_index(chat_history: &[ChatWithChunks]) -> HashMap<String, Too
     index
 }
 
+pub fn latest_mcp_app(chat_history: &[ChatWithChunks]) -> Option<Value> {
+    chat_history.iter().find_map(|chat_with_chunks| {
+        let chat = &chat_with_chunks.chat;
+        if chat.role != ChatRole::Tool {
+            return None;
+        }
+        let mut app = chat
+            .content
+            .as_deref()
+            .and_then(|content| serde_json::from_str::<Value>(content).ok())?
+            .get("_bionic_mcp_app")?
+            .clone();
+        if app.get("server_id").and_then(Value::as_i64).is_none()
+            || app.get("resource_uri").and_then(Value::as_str).is_none()
+        {
+            return None;
+        }
+        app["chat_id"] = Value::from(chat.id as i64);
+        Some(app)
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -343,6 +459,30 @@ mod tests {
             index["provider_call_id"].function.arguments,
             json!({"query": "bitcoin price"})
         );
+    }
+
+    #[test]
+    fn latest_mcp_app_selects_the_newest_valid_app_result() {
+        let older = chat(
+            2,
+            ChatRole::Tool,
+            Some(
+                r#"{"_bionic_mcp_app":{"server_id":6,"resource_uri":"ui://cadcraft/editor.html","tool_input":{"old":true},"tool_result":{"revision":1}}}"#,
+            ),
+        );
+        let newest = chat(
+            3,
+            ChatRole::Tool,
+            Some(
+                r#"{"_bionic_mcp_app":{"server_id":6,"resource_uri":"ui://cadcraft/editor.html","tool_input":{"new":true},"tool_result":{"revision":2}}}"#,
+            ),
+        );
+
+        let app = latest_mcp_app(&[newest, older]).expect("latest MCP App result");
+
+        assert_eq!(app["tool_input"], json!({"new": true}));
+        assert_eq!(app["tool_result"]["revision"], 2);
+        assert_eq!(app["chat_id"], 3);
     }
 
     #[test]

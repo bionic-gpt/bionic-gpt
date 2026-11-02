@@ -53,6 +53,31 @@
     }
 }
 
+#mcp-app-panel[hidden] {
+    display: none;
+}
+
+#mcp-app-panel.mcp-app-fullscreen {
+    position: fixed;
+    inset: 1rem;
+    z-index: 80;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    border: 1px solid var(--color-base-300);
+    border-radius: 0.75rem;
+    box-shadow: 0 20px 60px rgb(0 0 0 / 35%);
+}
+
+.mcp-app-inline-slot > .mcp-app-frame {
+    display: block;
+    width: 100%;
+    min-height: 18rem;
+    height: 28rem;
+    border: 1px solid var(--color-base-300);
+    border-radius: 0.75rem;
+}
+
 [data-theme="dark"] {
     .menu {
         > li > a > img {

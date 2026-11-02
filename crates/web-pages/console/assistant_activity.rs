@@ -88,7 +88,7 @@ fn command_preview(action: &ActivityAction) -> Option<String> {
 }
 
 fn mcp_app(action: &ActivityAction) -> Option<Value> {
-    action
+    let mut app = action
         .response
         .as_ref()
         .and_then(|response| serde_json::from_str::<Value>(response).ok())
@@ -96,11 +96,21 @@ fn mcp_app(action: &ActivityAction) -> Option<Value> {
         .filter(|app| {
             app.get("server_id").and_then(Value::as_i64).is_some()
                 && app.get("resource_uri").and_then(Value::as_str).is_some()
-        })
+        })?;
+    app["chat_id"] = Value::from(action.chat_id);
+    Some(app)
 }
 
-fn encode_query(value: &str) -> String {
-    value
+fn app_resource_url(team_id: &str, app: &Value) -> String {
+    let server_id = app
+        .get("server_id")
+        .and_then(Value::as_i64)
+        .unwrap_or_default();
+    let uri = app
+        .get("resource_uri")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    let encoded_uri = uri
         .bytes()
         .map(|byte| {
             if byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b'~') {
@@ -109,7 +119,14 @@ fn encode_query(value: &str) -> String {
                 format!("%{byte:02X}")
             }
         })
-        .collect()
+        .collect::<String>();
+    format!(
+        "{}?uri={encoded_uri}",
+        crate::routes::mcp_apps::Resource {
+            team_id: team_id.to_string(),
+            id: server_id as i32
+        }
+    )
 }
 
 #[component]
@@ -174,6 +191,7 @@ pub fn AssistantActivity(
                     for action in actions.iter() {
                         div {
                             class: "min-w-0 space-y-2",
+                            "data-mcp-app-action": "{action.chat_id}",
                             div {
                                 class: "flex items-start gap-2",
                                 span {
@@ -183,6 +201,9 @@ pub fn AssistantActivity(
                                 div {
                                     class: "min-w-0",
                                     div { class: "font-medium text-base-content/80", "{action_label(action)}" }
+                                    if mcp_app(action).is_some() {
+                                        McpAppSelectButton { team_id: team_id.clone(), action: action.clone() }
+                                    }
                                     if let Some(command) = command_preview(action) {
                                         pre {
                                             class: "mt-1 max-h-32 overflow-auto whitespace-pre-wrap break-words rounded-md bg-base-200 p-2 font-mono text-xs",
@@ -226,6 +247,7 @@ pub fn AssistantActivity(
                                         if let Some(response) = action.response.as_ref().filter(|response| !response.trim().is_empty()) {
                                             pre {
                                                 class: "json mt-1 max-h-80 overflow-auto rounded-md bg-base-200 p-3 whitespace-pre-wrap break-words",
+                                                "data-mcp-app-result": "true",
                                                 "{format_json_string(response)}"
                                             }
                                         } else if action.pending {
@@ -241,8 +263,11 @@ pub fn AssistantActivity(
                 }
             }
             for action in actions.iter() {
-                if let Some(app) = mcp_app(action) {
-                    McpAppFrame { team_id: team_id.clone(), app }
+                if mcp_app(action).is_some() {
+                    div {
+                        class: "mcp-app-inline-slot w-full",
+                        "data-mcp-app-inline-slot": "{action.chat_id}"
+                    }
                 }
             }
             for output in canvas_outputs {
@@ -260,44 +285,24 @@ pub fn AssistantActivity(
 }
 
 #[component]
-fn McpAppFrame(team_id: String, app: Value) -> Element {
-    let server_id = app
-        .get("server_id")
-        .and_then(Value::as_i64)
-        .unwrap_or_default();
-    let resource_uri = app
-        .get("resource_uri")
+fn McpAppSelectButton(team_id: String, action: ActivityAction) -> Element {
+    let Some(app) = mcp_app(&action) else {
+        return rsx! {};
+    };
+    let app_src = app_resource_url(&team_id, &app);
+    let app_title = app
+        .get("server_name")
         .and_then(Value::as_str)
-        .unwrap_or_default();
-    let tool_input = app
-        .get("tool_input")
-        .cloned()
-        .unwrap_or(Value::Null)
-        .to_string();
-    let tool_result = app
-        .get("tool_result")
-        .cloned()
-        .unwrap_or(Value::Null)
-        .to_string();
-    let app_src = format!(
-        "{}?uri={}",
-        crate::routes::mcp_apps::Resource {
-            team_id: team_id.clone(),
-            id: server_id as i32
-        },
-        encode_query(resource_uri)
-    );
+        .unwrap_or("MCP App");
     rsx! {
-        iframe {
-            class: "mcp-app-frame mt-3 h-[28rem] w-full rounded-xl border border-base-300 bg-base-100",
-            title: app.get("server_name").and_then(Value::as_str).unwrap_or("MCP App"),
-            "data-src": "{app_src}",
-            "data-mcp-app": "true",
-            "data-server-id": "{server_id}",
+        button {
+            r#type: "button",
+            class: "btn btn-ghost btn-xs mt-1",
+            "data-mcp-app-select": "true",
             "data-team-id": "{team_id}",
-            "data-resource-uri": "{resource_uri}",
-            "data-tool-input": "{tool_input}",
-            "data-tool-result": "{tool_result}"
+            "data-app-src": "{app_src}",
+            "data-app-title": "{app_title}",
+            "Show in app"
         }
     }
 }

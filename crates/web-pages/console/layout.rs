@@ -5,6 +5,7 @@ use db::queries::capabilities::Capability;
 use db::queries::models::ModelConfig;
 use dioxus::prelude::*;
 
+use super::console_stream::latest_mcp_app;
 use super::{ChatWithChunks, PendingChatState};
 
 #[component]
@@ -23,6 +24,7 @@ pub fn ConsoleLayout(
     #[props(default)] selected_project_id: Option<i32>,
 ) -> Element {
     let has_pending_chat = pending_chat_state.shall_we_call_the_model();
+    let latest_app = conversation_id.and_then(|_| latest_mcp_app(&chat_history));
 
     rsx! {
         Layout {
@@ -35,31 +37,16 @@ pub fn ConsoleLayout(
             selected_project_id,
             div {
                 id: "console-panel",
-                class: "h-full flex flex-col",
-                if ! chat_history.is_empty() || has_pending_chat {
-                    super::console_stream::ConsoleStream {
-                        team_id: team_id.clone(),
-                        chat_history,
-                        pending_chat_state: pending_chat_state.clone(),
-                        is_tts_disabled,
-                        rbac: rbac.clone()
-                    }
-                    div {
-                        super::prompt_form::Form {
+                class: "h-full min-h-0 flex flex-col lg:flex-row",
+                div {
+                    class: "flex min-h-0 min-w-0 flex-1 flex-col",
+                    if !chat_history.is_empty() || has_pending_chat {
+                        super::console_stream::ConsoleStream {
                             team_id: team_id.clone(),
-                            model_id: prompt.id,
-                            lock_console: has_pending_chat,
-                            conversation_id,
-                            disclaimer: prompt.disclaimer,
-                            capabilities: capabilities.clone(),
-                        },
-                    }
-                } else {
-                    div {
-                        class: "flex-1 flex flex-col justify-center h-full",
-                        h1 {
-                            class: "mx-auto mb-8 text-2xl font-semibold relative",
-                            "What can I help with?"
+                            chat_history,
+                            pending_chat_state: pending_chat_state.clone(),
+                            is_tts_disabled,
+                            rbac: rbac.clone()
                         }
                         div {
                             super::prompt_form::Form {
@@ -68,9 +55,35 @@ pub fn ConsoleLayout(
                                 lock_console: has_pending_chat,
                                 conversation_id,
                                 disclaimer: prompt.disclaimer,
-                                capabilities,
-                            },
+                                capabilities: capabilities.clone(),
+                            }
                         }
+                    } else {
+                        div {
+                            class: "flex-1 flex flex-col justify-center h-full",
+                            h1 {
+                                class: "mx-auto mb-8 text-2xl font-semibold relative",
+                                "What can I help with?"
+                            }
+                            div {
+                                super::prompt_form::Form {
+                                    team_id: team_id.clone(),
+                                    model_id: prompt.id,
+                                    lock_console: has_pending_chat,
+                                    conversation_id,
+                                    disclaimer: prompt.disclaimer,
+                                    capabilities,
+                                }
+                            }
+                        }
+                    }
+                }
+                if let Some(app) = latest_app {
+                    super::console_stream::PersistentMcpAppPanel {
+                        key: "{team_id}-{conversation_id:?}",
+                        team_id: team_id.clone(),
+                        conversation_id: conversation_id.unwrap_or_default(),
+                        app
                     }
                 }
             }

@@ -44,7 +44,7 @@ window.addEventListener('message', event => {
 async function asset(path) { if(embedded) return (await request('bionic/assets/read',{path})).bytes; const r=await fetch('/assets/'+path); if(!r.ok) throw new Error('Asset HTTP '+r.status); return r.arrayBuffer(); }
 try {
  status('Model-generated drawing · view only');
- if(embedded) { await request('ui/initialize',{protocolVersion:'2026-01-26',appInfo:{name:'CADCraft',version:'0.1.0'},appCapabilities:{}}); parent.postMessage({jsonrpc:'2.0',method:'ui/notifications/initialized'},'*'); parent.postMessage({jsonrpc:'2.0',method:'ui/notifications/size-changed',params:{height:700}},'*'); }
+ if(embedded) { await request('ui/initialize',{protocolVersion:'2026-01-26',appInfo:{name:'CADCraft',version:'0.1.0'},appCapabilities:{availableDisplayModes:['inline','fullscreen','pip']}}); parent.postMessage({jsonrpc:'2.0',method:'ui/notifications/initialized'},'*'); await request('ui/request-display-mode',{mode:'pip'}); parent.postMessage({jsonrpc:'2.0',method:'ui/notifications/size-changed',params:{height:700}},'*'); }
  const [js,wasm]=await Promise.all([asset('__JS__'),asset('__WASM__')]);
  const moduleUrl=URL.createObjectURL(new Blob([js],{type:'text/javascript'}));
  const bindings=await import(moduleUrl); await bindings.default({module_or_path:wasm}); URL.revokeObjectURL(moduleUrl);

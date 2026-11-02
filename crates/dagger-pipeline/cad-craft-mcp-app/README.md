@@ -76,6 +76,10 @@ show a preview error. Earlier conversation results retain their own snapshots,
 including after the active drawing session expires. Manual edit synchronization,
 durable editable projects and additional 3D capabilities are deferred.
 
+In Bionic, the viewer requests the persistent `pip` display mode. Bionic reuses one
+app frame per conversation and sends later tool results to that frame. Reopening a
+conversation restores the viewer from its latest stored tool result.
+
 The resource retains the `bionic/assets` manifest and `bionic/assets/read` proxy.
 The parent transfers JS/WASM bytes into the opaque-origin iframe, whose loader
 accepts tool-result snapshots only from its parent. A patched upstream bridge

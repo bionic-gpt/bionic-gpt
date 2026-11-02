@@ -11,7 +11,7 @@ use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 use chrono::{Duration, Utc};
 use db::{authz, Pool};
 use serde::Deserialize;
-use serde_json::Value;
+use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use tool_runtime::mcp_client::{validated_endpoint_client, McpClient, McpServerConfig};
 use uuid::Uuid;
@@ -405,6 +405,98 @@ struct ResourceQuery {
     uri: String,
 }
 
+const MCP_APP_OPENAI_BRIDGE: &str = r#"<script>
+(() => {
+  const parentWindow = window.parent;
+  const pending = new Map();
+  let sequence = 0;
+  const globals = {
+    toolInput: null,
+    toolOutput: null,
+    widgetState: null,
+    displayMode: 'pip',
+    availableDisplayModes: ['inline', 'fullscreen', 'pip'],
+  };
+  const request = (method, params = {}) => new Promise((resolve, reject) => {
+    const id = `bionic-openai-${++sequence}`;
+    pending.set(id, { resolve, reject });
+    parentWindow.postMessage({ jsonrpc: '2.0', id, method, params }, '*');
+  });
+  const openai = {
+    get toolInput() { return globals.toolInput; },
+    get toolOutput() { return globals.toolOutput; },
+    get widgetState() { return globals.widgetState; },
+    get displayMode() { return globals.displayMode; },
+    get availableDisplayModes() { return globals.availableDisplayModes; },
+    setWidgetState(state) {
+      globals.widgetState = state;
+      request('bionic/openai/set-widget-state', { state }).catch(() => {});
+      window.dispatchEvent(new CustomEvent('openai:set_globals', { detail: { globals: { widgetState: state } } }));
+    },
+    requestDisplayMode({ mode }) { return request('ui/request-display-mode', { mode }); },
+    requestClose() { return request('ui/notifications/request-teardown', {}); },
+    callTool(name, args) { return request('tools/call', { name, arguments: args }); },
+    sendFollowUpMessage({ prompt }) {
+      return request('ui/message', { role: 'user', content: [{ type: 'text', text: prompt }] });
+    },
+    notifyIntrinsicHeight(height) {
+      parentWindow.postMessage({ jsonrpc: '2.0', method: 'ui/notifications/size-changed', params: { height } }, '*');
+    },
+  };
+  Object.defineProperty(window, 'openai', { value: openai, configurable: false });
+  window.addEventListener('message', (event) => {
+    if (event.source !== parentWindow || event.origin !== 'null') return;
+    const message = event.data;
+    if (!message || message.jsonrpc !== '2.0') return;
+    if (message.method === 'bionic/openai/set-globals') {
+      Object.assign(globals, message.params || {});
+      window.dispatchEvent(new CustomEvent('openai:set_globals', { detail: { globals: message.params || {} } }));
+      return;
+    }
+    if (message.method === 'ui/notifications/host-context-changed') {
+      Object.assign(globals, message.params || {});
+      window.dispatchEvent(new CustomEvent('openai:set_globals', { detail: { globals: message.params || {} } }));
+      return;
+    }
+    const item = pending.get(message.id);
+    if (!item) return;
+    pending.delete(message.id);
+    if (message.error) item.reject(new Error(message.error.message || 'Bionic host request failed'));
+    else item.resolve(message.result);
+  });
+  const availableDisplayModes = window.__BIONIC_MCP_APP_META__?.['openai/ui']?.availableDisplayModes;
+  request('bionic/openai/initialize', {
+    availableDisplayModes: Array.isArray(availableDisplayModes) ? availableDisplayModes : [],
+    preferredDisplayMode: window.__BIONIC_MCP_APP_META__?.['openai/ui']?.preferredDisplayMode,
+  }).then((initial) => {
+    Object.assign(globals, initial || {});
+    window.dispatchEvent(new CustomEvent('openai:set_globals', { detail: { globals: initial || {} } }));
+  }).catch(() => {});
+})();
+</script>"#;
+
+fn app_resource_html(html: &str, metadata: &Value) -> String {
+    let metadata = serde_json::to_string(&json!({
+        "openai/ui": metadata.get("openai/ui").cloned().unwrap_or(Value::Null)
+    }))
+    .unwrap_or_else(|_| "{}".to_string())
+    .replace('<', "\\u003c")
+    .replace('>', "\\u003e")
+    .replace('&', "\\u0026")
+    .replace('\u{2028}', "\\u2028")
+    .replace('\u{2029}', "\\u2029");
+    let bootstrap = format!(
+        "<script>window.__BIONIC_MCP_APP_META__={metadata};</script>{MCP_APP_OPENAI_BRIDGE}"
+    );
+    if let Some(index) = html.find("</head>") {
+        format!("{}{}{}", &html[..index], bootstrap, &html[index..])
+    } else if let Some(index) = html.find("<body") {
+        format!("{}{}{}", &html[..index], bootstrap, &html[index..])
+    } else {
+        format!("{bootstrap}{html}")
+    }
+}
+
 async fn resource(
     Resource { team_id, id }: Resource,
     Query(query): Query<ResourceQuery>,
@@ -436,7 +528,8 @@ async fn resource(
     let html = content.get("text").and_then(Value::as_str).ok_or_else(|| {
         CustomError::ExternalApi("MCP App resource must contain HTML text".into())
     })?;
-    let mut response = Html(html.to_owned()).into_response();
+    let resource_meta = content.get("_meta").cloned().unwrap_or(Value::Null);
+    let mut response = Html(app_resource_html(html, &resource_meta)).into_response();
     response.headers_mut().insert(header::CONTENT_SECURITY_POLICY, HeaderValue::from_static(
         "sandbox allow-scripts allow-forms; default-src https: data: blob:; script-src https: 'unsafe-inline'; style-src https: 'unsafe-inline'; connect-src 'none'; frame-src 'none'; form-action 'none'"
     ));
@@ -630,5 +723,38 @@ mod asset_tests {
             assert!(!valid_asset_path(path), "{path}");
         }
         assert!(valid_asset_path("cadcraft-web-a123_bg.wasm"));
+    }
+}
+
+#[cfg(test)]
+mod app_resource_tests {
+    use super::app_resource_html;
+    use serde_json::json;
+
+    #[test]
+    fn injects_only_display_metadata_and_the_chatgpt_bridge() {
+        let html = app_resource_html(
+            "<html><head></head><body></body></html>",
+            &json!({
+                "openai/ui": {"availableDisplayModes": ["pip"], "preferredDisplayMode": "pip"},
+                "private": "not forwarded"
+            }),
+        );
+
+        assert!(html.contains("window.__BIONIC_MCP_APP_META__"));
+        assert!(html.contains("availableDisplayModes"));
+        assert!(html.contains("requestDisplayMode({ mode })"));
+        assert!(!html.contains("not forwarded"));
+    }
+
+    #[test]
+    fn escapes_script_terminators_in_resource_metadata() {
+        let html = app_resource_html(
+            "<html><body></body></html>",
+            &json!({"openai/ui": {"preferredDisplayMode": "</script><script>bad()</script>"}}),
+        );
+
+        assert!(!html.contains("</script><script>bad()"));
+        assert!(html.contains("\\u003c/script\\u003e"));
     }
 }
