@@ -232,7 +232,12 @@ impl BionicOpenAPI {
         let content = request_body
             .content
             .get("application/json")
-            .or_else(|| request_body.content.get("multipart/form-data"))?;
+            .or_else(|| request_body.content.get("multipart/form-data"))
+            .or_else(|| {
+                request_body
+                    .content
+                    .get("application/x-www-form-urlencoded")
+            })?;
         let schema_ref = content.schema.as_ref()?;
         let schema = schema_ref.resolve(&self.spec).ok()?;
         serde_json::to_value(schema).ok()

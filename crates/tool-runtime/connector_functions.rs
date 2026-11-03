@@ -68,6 +68,15 @@ pub(crate) struct ConnectorInfo {
 
 pub(crate) fn catalogue(documents: &[ConnectorDocument]) -> Vec<ConnectorInfo> {
     let mut documents = documents.to_vec();
+    for document in &mut documents {
+        normalize_parameters(&mut document.document);
+    }
+    catalogue_normalized(&documents)
+}
+
+/// `catalogue` for documents that have already been through `normalize_parameters`.
+fn catalogue_normalized(documents: &[ConnectorDocument]) -> Vec<ConnectorInfo> {
+    let mut documents = documents.iter().collect::<Vec<_>>();
     documents.sort_by(|left, right| left.slug.cmp(&right.slug));
     // Reserve every connector's discovery names before any operation is named,
     // so an operation of an earlier connector cannot take a later one's.
@@ -125,8 +134,8 @@ pub(crate) fn catalogue(documents: &[ConnectorDocument]) -> Vec<ConnectorInfo> {
                 })
                 .collect();
             Some(ConnectorInfo {
-                name: document.name,
-                slug: document.slug,
+                name: document.name.clone(),
+                slug: document.slug.clone(),
                 is_builtin: document.is_builtin,
                 description: openapi
                     .get_description()
@@ -138,26 +147,91 @@ pub(crate) fn catalogue(documents: &[ConnectorDocument]) -> Vec<ConnectorInfo> {
         .collect()
 }
 
+const OPERATION_METHODS: [&str; 6] = ["get", "post", "put", "delete", "head", "patch"];
+
+fn resolve_parameter_ref(components: &Value, parameter: &Value) -> Value {
+    parameter
+        .get("$ref")
+        .and_then(Value::as_str)
+        .and_then(|reference| reference.strip_prefix("#/components/parameters/"))
+        .and_then(|name| components.get(name))
+        .cloned()
+        .unwrap_or_else(|| parameter.clone())
+}
+
+/// Copies path-level parameters into every operation of the path (operation
+/// parameters win on name and location) and inlines `$ref` parameters, so the
+/// rest of the pipeline only ever sees plain per-operation parameters.
+/// Idempotent. References that cannot be resolved are left in place.
+fn normalize_parameters(document: &mut Value) {
+    // Only the parameter components are needed while `paths` is borrowed mutably;
+    // cloning the whole document doubled peak memory on multi-MB specs.
+    let components = document
+        .pointer("/components/parameters")
+        .cloned()
+        .unwrap_or(Value::Null);
+    let Some(paths) = document.get_mut("paths").and_then(Value::as_object_mut) else {
+        return;
+    };
+    for path_item in paths.values_mut().filter_map(Value::as_object_mut) {
+        let inherited = path_item
+            .remove("parameters")
+            .and_then(|value| value.as_array().cloned())
+            .unwrap_or_default()
+            .iter()
+            .map(|parameter| resolve_parameter_ref(&components, parameter))
+            .collect::<Vec<_>>();
+        for method in OPERATION_METHODS {
+            let Some(operation) = path_item.get_mut(method).and_then(Value::as_object_mut) else {
+                continue;
+            };
+            let own = operation
+                .get("parameters")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .map(|parameter| resolve_parameter_ref(&components, parameter))
+                .collect::<Vec<_>>();
+            if inherited.is_empty() && own.is_empty() {
+                continue;
+            }
+            let key = |parameter: &Value| {
+                (
+                    parameter
+                        .get("name")
+                        .and_then(Value::as_str)
+                        .map(str::to_string),
+                    parameter
+                        .get("in")
+                        .and_then(Value::as_str)
+                        .map(str::to_string),
+                )
+            };
+            let mut merged = inherited
+                .iter()
+                .filter(|parameter| !own.iter().any(|own| key(own) == key(parameter)))
+                .cloned()
+                .collect::<Vec<_>>();
+            merged.extend(own);
+            operation.insert("parameters".into(), Value::Array(merged));
+        }
+    }
+}
+
 fn supported_operations(document: &Value) -> HashMap<String, Option<String>> {
     let mut operations = HashMap::new();
     let Some(paths) = document.get("paths").and_then(Value::as_object) else {
         return operations;
     };
     for path_item in paths.values().filter_map(Value::as_object) {
-        let path_parameters = path_item
-            .get("parameters")
-            .and_then(Value::as_array)
-            .filter(|parameters| !parameters.is_empty());
-        for method in ["get", "post", "put", "delete", "head", "patch"] {
+        for method in OPERATION_METHODS {
             let Some(operation) = path_item.get(method).and_then(Value::as_object) else {
                 continue;
             };
             let Some(operation_id) = operation.get("operationId").and_then(Value::as_str) else {
                 continue;
             };
-            let reason = if path_parameters.is_some() {
-                Some("path-level parameters are not supported".to_string())
-            } else if operation
+            let reason = if operation
                 .get("parameters")
                 .and_then(Value::as_array)
                 .is_some_and(|parameters| {
@@ -168,9 +242,8 @@ fn supported_operations(document: &Value) -> HashMap<String, Option<String>> {
                                 Some("header" | "cookie")
                             )
                     })
-                })
-            {
-                Some("referenced, header, and cookie parameters are not supported".to_string())
+                }) {
+                Some("unresolved, header, and cookie parameters are not supported".to_string())
             } else {
                 operation
                     .get("requestBody")
@@ -179,6 +252,7 @@ fn supported_operations(document: &Value) -> HashMap<String, Option<String>> {
                     .filter(|content| {
                         !content.contains_key("application/json")
                             && !content.contains_key("multipart/form-data")
+                            && !content.contains_key("application/x-www-form-urlencoded")
                     })
                     .map(|_| "request body content type is not supported".to_string())
             };
@@ -613,7 +687,12 @@ pub(crate) fn build_python_functions(
     network: Arc<dyn SandboxNetwork>,
     filesystem: Arc<dyn FileSystem>,
 ) -> Vec<Arc<dyn PythonFunction>> {
-    let catalogue = catalogue(documents);
+    let mut documents = documents.to_vec();
+    for document in &mut documents {
+        normalize_parameters(&mut document.document);
+    }
+    let documents = documents.as_slice();
+    let catalogue = catalogue_normalized(documents);
     let client: Arc<dyn HttpClient> = Arc::new(MediatedHttpClient { network });
     let mut functions = Vec::new();
     for (document, connector) in documents_for_catalogue(documents, &catalogue) {
@@ -1105,6 +1184,13 @@ impl HttpClient for MediatedHttpClient {
                 });
                 Some(serde_json::to_vec(&value).map_err(|error| error.to_string())?)
             }
+            Some(HttpRequestBody::Form(fields)) => {
+                headers.push(HttpHeader {
+                    name: "Content-Type".into(),
+                    value: "application/x-www-form-urlencoded".into(),
+                });
+                Some(encode_form(&fields).into_bytes())
+            }
             Some(HttpRequestBody::Multipart { fields, files }) => {
                 let boundary = multipart_boundary(&fields, &files);
                 headers.push(HttpHeader {
@@ -1151,6 +1237,12 @@ fn method_to_sandbox(method: Method) -> Result<HttpMethod, String> {
         Method::PATCH => Ok(HttpMethod::Patch),
         _ => Err(format!("unsupported connector HTTP method: {method}")),
     }
+}
+
+fn encode_form(fields: &[(String, String)]) -> String {
+    let mut url = Url::parse("http://form.invalid/").expect("static URL");
+    url.query_pairs_mut().extend_pairs(fields);
+    url.query().unwrap_or_default().to_string()
 }
 
 fn encode_multipart(
@@ -1653,6 +1745,212 @@ mod tests {
             largest.0, largest.1
         );
         assert!(largest.0 < 16 * 1024, "{} bytes: {}", largest.0, largest.1);
+    }
+
+    fn parameter_document() -> ConnectorDocument {
+        ConnectorDocument {
+            name: "Items".into(),
+            slug: "items".into(),
+            is_builtin: false,
+            document: json!({
+                "openapi":"3.0.0",
+                "info":{"title":"Items","version":"1"},
+                "servers":[{"url":"https://upstream.example"}],
+                "paths":{
+                    "/items/{id}":{
+                        "parameters":[
+                            {"name":"id","in":"path","required":true,"schema":{"type":"integer"}},
+                            {"$ref":"#/components/parameters/Verbose"}
+                        ],
+                        "get":{"operationId":"getItem","responses":{"200":{"description":"ok"}}},
+                        "delete":{
+                            "operationId":"deleteItem",
+                            "parameters":[{"name":"verbose","in":"query","schema":{"type":"string"}}],
+                            "responses":{"200":{"description":"ok"}}
+                        }
+                    },
+                    "/charges":{"post":{
+                        "operationId":"createCharge",
+                        "requestBody":{"content":{"application/x-www-form-urlencoded":{"schema":{
+                            "type":"object",
+                            "required":["customer"],
+                            "properties":{
+                                "customer":{"type":"string"},
+                                "metadata":{"type":"object"},
+                                "items":{"type":"array","items":{"type":"object"}}
+                            }
+                        }}}},
+                        "responses":{"200":{"description":"ok"}}
+                    }}
+                },
+                "components":{"parameters":{
+                    "Verbose":{"name":"verbose","in":"query","schema":{"type":"boolean"}}
+                }}
+            }),
+        }
+    }
+
+    #[test]
+    fn path_level_and_referenced_parameters_are_inherited_by_operations() {
+        let connectors = catalogue(&[parameter_document()]);
+        let names = connectors[0]
+            .operations
+            .iter()
+            .map(|operation| operation.operation_id.as_str())
+            .collect::<Vec<_>>();
+        assert_eq!(names, ["createCharge", "deleteItem", "getItem"]);
+        let get = connectors[0]
+            .operations
+            .iter()
+            .find(|operation| operation.operation_id == "getItem")
+            .unwrap();
+        assert_eq!(get.parameters["required"], json!(["id"]));
+        assert_eq!(get.parameters["properties"]["verbose"]["type"], "boolean");
+        // The operation's own parameter overrides the path-level reference.
+        let delete = connectors[0]
+            .operations
+            .iter()
+            .find(|operation| operation.operation_id == "deleteItem")
+            .unwrap();
+        assert_eq!(delete.parameters["properties"]["verbose"]["type"], "string");
+    }
+
+    #[test]
+    fn operation_names_never_take_another_connectors_discovery_names() {
+        let document = |slug: &str, operation_id: &str| ConnectorDocument {
+            name: slug.into(),
+            slug: slug.into(),
+            is_builtin: false,
+            document: json!({
+                "openapi":"3.0.0",
+                "info":{"title":slug,"version":"1"},
+                "paths":{"/x":{"get":{
+                    "operationId":operation_id,
+                    "responses":{"200":{"description":"ok"}}
+                }}}
+            }),
+        };
+        // "a" sorts first, and its operation would become "a_b_find".
+        let connectors = catalogue(&[document("a_b", "list"), document("a", "b_find")]);
+        let names = connectors
+            .iter()
+            .flat_map(|connector| &connector.operations)
+            .map(|operation| operation.function_name.as_str())
+            .collect::<Vec<_>>();
+        assert!(!names.contains(&"a_b_find"), "{names:?}");
+        assert!(!names.contains(&"a_b_describe"), "{names:?}");
+    }
+
+    #[test]
+    fn normalizing_parameters_twice_changes_nothing() {
+        let mut once = parameter_document().document;
+        normalize_parameters(&mut once);
+        let mut twice = once.clone();
+        normalize_parameters(&mut twice);
+        assert_eq!(once, twice);
+        assert!(once["paths"]["/items/{id}"].get("parameters").is_none());
+    }
+
+    #[tokio::test]
+    async fn path_level_and_referenced_parameters_are_sent() {
+        let network = Arc::new(RecordingNetwork::default());
+        let functions = build_python_functions(
+            &[parameter_document()],
+            network.clone(),
+            Arc::new(InMemoryFs::new()),
+        );
+        functions
+            .iter()
+            .find(|function| function.name() == "items_get_item")
+            .unwrap()
+            .call(PythonCallArguments {
+                positional: Vec::new(),
+                keyword: Map::from_iter([("id".into(), json!(5)), ("verbose".into(), json!(true))]),
+            })
+            .await
+            .unwrap();
+        assert_eq!(
+            network.0.lock().unwrap()[0].url,
+            "https://items.connectors.invalid/items/5?verbose=true"
+        );
+    }
+
+    #[tokio::test]
+    async fn form_urlencoded_bodies_are_flattened_and_sent() {
+        let network = Arc::new(RecordingNetwork::default());
+        let functions = build_python_functions(
+            &[parameter_document()],
+            network.clone(),
+            Arc::new(InMemoryFs::new()),
+        );
+        functions
+            .iter()
+            .find(|function| function.name() == "items_create_charge")
+            .unwrap()
+            .call(PythonCallArguments {
+                positional: Vec::new(),
+                keyword: Map::from_iter([
+                    ("customer".into(), json!("cus 1")),
+                    ("metadata".into(), json!({"k": "v&w"})),
+                    ("items".into(), json!([{"price": "p"}])),
+                ]),
+            })
+            .await
+            .unwrap();
+        let requests = network.0.lock().unwrap();
+        assert!(requests[0].headers.iter().any(|header| {
+            header.name == "Content-Type" && header.value == "application/x-www-form-urlencoded"
+        }));
+        let body = String::from_utf8(requests[0].body.clone().unwrap()).unwrap();
+        let mut pairs = Url::parse(&format!("http://x/?{body}"))
+            .unwrap()
+            .query_pairs()
+            .map(|(name, value)| (name.to_string(), value.to_string()))
+            .collect::<Vec<_>>();
+        pairs.sort();
+        assert_eq!(
+            pairs,
+            [
+                ("customer".to_string(), "cus 1".to_string()),
+                ("items[0][price]".to_string(), "p".to_string()),
+                ("metadata[k]".to_string(), "v&w".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn curated_specs_expose_operations_with_path_level_parameters_and_forms() {
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../bionic-gpt/content/docs/integrations/specs");
+        let (mut total, mut exposed) = (0, 0);
+        let mut by_spec = std::collections::BTreeMap::new();
+        for entry in std::fs::read_dir(&dir).unwrap() {
+            let path = entry.unwrap().path();
+            if path.extension().and_then(|value| value.to_str()) != Some("json") {
+                continue;
+            }
+            let mut document: Value =
+                serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+            normalize_parameters(&mut document);
+            let support = supported_operations(&document);
+            let supported = support.values().filter(|reason| reason.is_none()).count();
+            total += support.len();
+            exposed += supported;
+            by_spec.insert(
+                path.file_stem().unwrap().to_string_lossy().to_string(),
+                (supported, support.len()),
+            );
+        }
+        eprintln!("exposed {exposed} of {total}: {by_spec:?}");
+        // Google and Stripe were almost entirely dropped before; header parameters (Notion, ElevenLabs, ConnectWise) are still unsupported.
+        for (spec, minimum) in [
+            ("google-gmail", 73),
+            ("google-drive", 63),
+            ("stripe", 600),
+            ("zendesk", 600),
+        ] {
+            assert!(by_spec[spec].0 >= minimum, "{spec}: {:?}", by_spec[spec]);
+        }
     }
 
     fn large_document(operations: usize) -> ConnectorDocument {

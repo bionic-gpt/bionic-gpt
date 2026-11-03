@@ -22,6 +22,9 @@ use std::sync::{Arc, Mutex, OnceLock};
 #[derive(Clone, Debug)]
 pub enum HttpRequestBody {
     Json(Value),
+    /// `application/x-www-form-urlencoded`, with nested values already flattened
+    /// to bracketed names such as `metadata[key]`.
+    Form(Vec<(String, String)>),
     Multipart {
         fields: Vec<(String, String)>,
         files: Vec<(String, String, Vec<u8>)>,
@@ -78,6 +81,7 @@ impl HttpClient for ReqwestHttpClient {
         if let Some(body) = body {
             match body {
                 HttpRequestBody::Json(body) => request = request.json(&body),
+                HttpRequestBody::Form(fields) => request = request.form(&fields),
                 HttpRequestBody::Multipart { fields, files } => {
                     let mut form = reqwest::multipart::Form::new();
                     for (name, value) in fields {
@@ -307,7 +311,23 @@ async fn execute_openapi_tool(
         .and_then(|request_body| request_body.resolve(&tool.spec).ok())
         .is_some_and(|request_body| request_body.content.contains_key("multipart/form-data"));
 
-    let body = if has_request_body && is_multipart {
+    let is_form = operation
+        .request_body
+        .as_ref()
+        .and_then(|request_body| request_body.resolve(&tool.spec).ok())
+        .is_some_and(|request_body| {
+            !request_body.content.contains_key("application/json")
+                && !request_body.content.contains_key("multipart/form-data")
+                && request_body
+                    .content
+                    .contains_key("application/x-www-form-urlencoded")
+        });
+
+    let body = if has_request_body && is_form {
+        Some(HttpRequestBody::Form(flatten_form_fields(
+            &request_body_params,
+        )))
+    } else if has_request_body && is_multipart {
         let mut fields = Vec::new();
         let mut files = Vec::new();
         if let Some(values) = request_body_params.as_object() {
@@ -385,6 +405,36 @@ async fn execute_openapi_tool(
     }
 
     parse_http_response(response)
+}
+
+/// Flattens nested JSON into form fields: `{"a":{"b":1},"c":[2]}` becomes
+/// `a[b]=1` and `c[0]=2`. Nulls are skipped.
+pub(crate) fn flatten_form_fields(value: &Value) -> Vec<(String, String)> {
+    fn walk(prefix: &str, value: &Value, out: &mut Vec<(String, String)>) {
+        match value {
+            Value::Object(map) => {
+                for (key, value) in map {
+                    let name = if prefix.is_empty() {
+                        key.clone()
+                    } else {
+                        format!("{prefix}[{key}]")
+                    };
+                    walk(&name, value, out);
+                }
+            }
+            Value::Array(items) => {
+                for (index, item) in items.iter().enumerate() {
+                    walk(&format!("{prefix}[{index}]"), item, out);
+                }
+            }
+            Value::Null => {}
+            Value::String(text) => out.push((prefix.to_string(), text.clone())),
+            other => out.push((prefix.to_string(), other.to_string())),
+        }
+    }
+    let mut fields = Vec::new();
+    walk("", value, &mut fields);
+    fields
 }
 
 fn append_query_parameters(url: &mut Url, query_params: &Value) {
@@ -642,6 +692,25 @@ mod tests {
         assert_eq!(value["__bionic_binary"], true);
         assert_eq!(value["content_type"], "application/pdf");
         assert_eq!(value["content_base64"], "cGRmIGJ5dGVz");
+    }
+
+    #[test]
+    fn flattens_nested_values_into_bracketed_form_fields() {
+        let mut fields = flatten_form_fields(&json!({
+            "a": {"b": 1, "c": [true, "x"]},
+            "skip": null,
+            "name": "n"
+        }));
+        fields.sort();
+        assert_eq!(
+            fields,
+            vec![
+                ("a[b]".to_string(), "1".to_string()),
+                ("a[c][0]".to_string(), "true".to_string()),
+                ("a[c][1]".to_string(), "x".to_string()),
+                ("name".to_string(), "n".to_string()),
+            ]
+        );
     }
 
     #[test]
