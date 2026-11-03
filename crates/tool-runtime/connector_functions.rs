@@ -162,6 +162,9 @@ fn resolve_parameter_ref(components: &Value, parameter: &Value) -> Value {
 /// Copies path-level parameters into every operation of the path (operation
 /// parameters win on name and location) and inlines `$ref` parameters, so the
 /// rest of the pipeline only ever sees plain per-operation parameters.
+/// Header parameters that OpenAPI says to ignore (`Accept`, `Content-Type`,
+/// `Authorization`) or that carry the API key, which the runtime injects, are
+/// removed so the model is never asked for them.
 /// Idempotent. References that cannot be resolved are left in place.
 fn normalize_parameters(document: &mut Value) {
     // Only the parameter components are needed while `paths` is borrowed mutably;
@@ -170,6 +173,26 @@ fn normalize_parameters(document: &mut Value) {
         .pointer("/components/parameters")
         .cloned()
         .unwrap_or(Value::Null);
+    let runtime_headers = document
+        .pointer("/components/securitySchemes")
+        .and_then(Value::as_object)
+        .into_iter()
+        .flatten()
+        .filter(|(_, scheme)| {
+            scheme.get("type").and_then(Value::as_str) == Some("apiKey")
+                && scheme.get("in").and_then(Value::as_str) == Some("header")
+        })
+        .filter_map(|(_, scheme)| scheme.get("name").and_then(Value::as_str))
+        .map(str::to_ascii_lowercase)
+        .chain(["accept", "content-type", "authorization"].map(String::from))
+        .collect::<HashSet<_>>();
+    let runtime_owned = |parameter: &Value| {
+        parameter.get("in").and_then(Value::as_str) == Some("header")
+            && parameter
+                .get("name")
+                .and_then(Value::as_str)
+                .is_some_and(|name| runtime_headers.contains(&name.to_ascii_lowercase()))
+    };
     let Some(paths) = document.get_mut("paths").and_then(Value::as_object_mut) else {
         return;
     };
@@ -213,6 +236,7 @@ fn normalize_parameters(document: &mut Value) {
                 .cloned()
                 .collect::<Vec<_>>();
             merged.extend(own);
+            merged.retain(|parameter| !runtime_owned(parameter));
             operation.insert("parameters".into(), Value::Array(merged));
         }
     }
@@ -237,13 +261,10 @@ fn supported_operations(document: &Value) -> HashMap<String, Option<String>> {
                 .is_some_and(|parameters| {
                     parameters.iter().any(|parameter| {
                         parameter.get("$ref").is_some()
-                            || matches!(
-                                parameter.get("in").and_then(Value::as_str),
-                                Some("header" | "cookie")
-                            )
+                            || parameter.get("in").and_then(Value::as_str) == Some("cookie")
                     })
                 }) {
-                Some("unresolved, header, and cookie parameters are not supported".to_string())
+                Some("unresolved and cookie parameters are not supported".to_string())
             } else {
                 operation
                     .get("requestBody")
@@ -1529,14 +1550,95 @@ mod tests {
     }
 
     #[test]
-    fn unsupported_header_parameter_operations_are_not_exposed() {
+    fn header_parameters_are_exposed_as_arguments() {
         let mut document = salesforce_document();
         document.document["paths"]["/query"]["get"]["parameters"] = json!([{
             "name":"X-Custom",
             "in":"header",
             "schema":{"type":"string"}
         }]);
+        let connectors = catalogue(&[document]);
+        assert_eq!(connectors[0].operations.len(), 1);
+        assert!(connectors[0].operations[0].parameters["properties"]
+            .get("X-Custom")
+            .is_some());
+    }
+
+    #[test]
+    fn unsupported_cookie_parameter_operations_are_not_exposed() {
+        let mut document = salesforce_document();
+        document.document["paths"]["/query"]["get"]["parameters"] = json!([{
+            "name":"session",
+            "in":"cookie",
+            "schema":{"type":"string"}
+        }]);
         assert!(catalogue(&[document])[0].operations.is_empty());
+    }
+
+    fn header_document() -> ConnectorDocument {
+        let mut document = salesforce_document();
+        document.document["components"] = json!({"securitySchemes":{
+            "key":{"type":"apiKey","in":"header","name":"X-API-Key"}
+        }});
+        document.document["paths"]["/query"]["get"]["parameters"] = json!([
+            {"name":"q","in":"query","schema":{"type":"string"}},
+            {"name":"clientId","in":"header","required":true,"schema":{"type":"string"}},
+            {"name":"Api-Version","in":"header","schema":{"type":"string","default":"2022-06-28"}},
+            {"name":"X-API-Key","in":"header","required":true,"schema":{"type":"string"}},
+            {"name":"Accept","in":"header","schema":{"type":"string"}},
+            {"name":"Authorization","in":"header","schema":{"type":"string"}}
+        ]);
+        document
+    }
+
+    #[test]
+    fn runtime_owned_headers_are_not_exposed() {
+        let connectors = catalogue(&[header_document()]);
+        let properties = connectors[0].operations[0].parameters["properties"]
+            .as_object()
+            .unwrap();
+        let mut names = properties.keys().map(String::as_str).collect::<Vec<_>>();
+        names.sort();
+        assert_eq!(names, ["Api-Version", "clientId", "q"]);
+    }
+
+    #[tokio::test]
+    async fn header_arguments_are_sent_as_headers_not_query_or_body() {
+        let network = Arc::new(RecordingNetwork::default());
+        let functions = build_python_functions(
+            &[header_document()],
+            network.clone(),
+            Arc::new(InMemoryFs::new()),
+        );
+        functions
+            .iter()
+            .find(|function| function.name() == "salesforce_query")
+            .unwrap()
+            .call(PythonCallArguments {
+                positional: Vec::new(),
+                keyword: Map::from_iter([
+                    ("q".into(), json!("a")),
+                    ("clientId".into(), json!("guid-1")),
+                ]),
+            })
+            .await
+            .unwrap();
+        let requests = network.0.lock().unwrap();
+        assert_eq!(
+            requests[0].url,
+            "https://salesforce.connectors.invalid/query?q=a"
+        );
+        assert!(requests[0].body.is_none());
+        let header = |name: &str| {
+            requests[0]
+                .headers
+                .iter()
+                .find(|header| header.name == name)
+                .map(|header| header.value.as_str())
+        };
+        assert_eq!(header("clientId"), Some("guid-1"));
+        // Not supplied, so the schema default is used.
+        assert_eq!(header("Api-Version"), Some("2022-06-28"));
     }
 
     #[test]
@@ -1942,7 +2044,7 @@ mod tests {
             );
         }
         eprintln!("exposed {exposed} of {total}: {by_spec:?}");
-        // Google and Stripe were almost entirely dropped before; header parameters (Notion, ElevenLabs, ConnectWise) are still unsupported.
+        // Google and Stripe were almost entirely dropped before; only cookie parameters and unusual body types are still unsupported.
         for (spec, minimum) in [
             ("google-gmail", 73),
             ("google-drive", 63),

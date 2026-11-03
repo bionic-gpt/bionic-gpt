@@ -270,9 +270,15 @@ async fn execute_openapi_tool(
     let args: Value = arguments.clone();
 
     // Separate path, query, and request body parameters
-    let (path_params, query_params, request_body_params) =
+    let (path_params, query_params, mut request_body_params) =
         separate_parameters(&args, operation, &tool.spec)
             .map_err(|e| crate::json_error("Failed to separate parameters", e))?;
+    let header_params = take_header_parameters(
+        &mut request_body_params,
+        operation,
+        &tool.spec,
+        &tool.auth_header_name,
+    );
 
     tracing::debug!(
         "Separated parameters - Path: {}, Query: {}, Request Body: {}",
@@ -371,12 +377,17 @@ async fn execute_openapi_tool(
         None
     };
 
+    let request_headers = || async {
+        let mut headers = tool.collect_headers().await;
+        headers.extend(header_params.iter().cloned());
+        headers
+    };
     let mut response = tool
         .client
         .send(
             http_method.clone(),
             url.clone(),
-            tool.collect_headers().await,
+            request_headers().await,
             body.clone(),
         )
         .await
@@ -388,7 +399,7 @@ async fn execute_openapi_tool(
             provider.force_refresh().await;
             response = tool
                 .client
-                .send(http_method, url, tool.collect_headers().await, body.clone())
+                .send(http_method, url, request_headers().await, body.clone())
                 .await
                 .map_err(|e| crate::json_error("Failed to make request", e))?;
         }
@@ -405,6 +416,47 @@ async fn execute_openapi_tool(
     }
 
     parse_http_response(response)
+}
+
+/// Moves header parameters out of the loose arguments and returns them as
+/// request headers, falling back to the schema default when not supplied.
+/// Headers the runtime sets itself (`Accept`, `Content-Type`, `Authorization`
+/// and the auth header) are never taken from the model, so it cannot add a
+/// second credential next to the injected one.
+fn take_header_parameters(
+    arguments: &mut Value,
+    operation: &Operation,
+    spec: &oas3::OpenApiV3Spec,
+    auth_header_name: &str,
+) -> Vec<(String, String)> {
+    let Some(arguments) = arguments.as_object_mut() else {
+        return Vec::new();
+    };
+    let mut headers = Vec::new();
+    for parameter in operation.parameters(spec).unwrap_or_default() {
+        if parameter.location != ParameterIn::Header {
+            continue;
+        }
+        if ["accept", "content-type", "authorization", auth_header_name]
+            .iter()
+            .any(|name| parameter.name.eq_ignore_ascii_case(name))
+        {
+            arguments.remove(&parameter.name);
+            continue;
+        }
+        let value = arguments.remove(&parameter.name).or_else(|| {
+            let schema = parameter.schema.as_ref()?.resolve(spec).ok()?;
+            serde_json::to_value(schema).ok()?.get("default").cloned()
+        });
+        let text = match value {
+            Some(Value::String(text)) => text,
+            Some(Value::Number(number)) => number.to_string(),
+            Some(Value::Bool(flag)) => flag.to_string(),
+            _ => continue,
+        };
+        headers.push((parameter.name.clone(), text));
+    }
+    headers
 }
 
 /// Flattens nested JSON into form fields: `{"a":{"b":1},"c":[2]}` becomes
@@ -711,6 +763,37 @@ mod tests {
                 ("name".to_string(), "n".to_string()),
             ]
         );
+    }
+
+    #[test]
+    fn runtime_owned_headers_are_not_taken_from_arguments() {
+        let header =
+            |name: &str| json!({"name": name, "in": "header", "schema": {"type": "string"}});
+        let spec: oas3::OpenApiV3Spec = serde_json::from_value(json!({
+            "openapi": "3.0.0",
+            "info": {"title": "t", "version": "1"},
+            "paths": {"/x": {"get": {
+                "operationId": "x",
+                "parameters": [
+                    header("X-Trace"),
+                    header("Authorization"),
+                    header("x-api-key"),
+                    header("Accept")
+                ],
+                "responses": {"200": {"description": "ok"}}
+            }}}
+        }))
+        .unwrap();
+        let operation = spec.paths.as_ref().unwrap()["/x"].get.as_ref().unwrap();
+        let mut arguments = json!({
+            "X-Trace": "t1",
+            "Authorization": "Bearer model",
+            "x-api-key": "model",
+            "Accept": "text/html"
+        });
+        let headers = take_header_parameters(&mut arguments, operation, &spec, "X-API-Key");
+        assert_eq!(headers, vec![("X-Trace".to_string(), "t1".to_string())]);
+        assert_eq!(arguments, json!({}));
     }
 
     #[test]
