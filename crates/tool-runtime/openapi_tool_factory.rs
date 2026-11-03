@@ -440,6 +440,9 @@ impl BionicOpenAPI {
             .or(integration_tools.base_url)
             .unwrap_or_else(|| "http://localhost".to_string());
         let auth_header_name = self.get_auth_header_name();
+        // One copy of the parsed spec shared by every tool; cloning it per
+        // operation exhausted memory on specs with thousands of operations.
+        let spec = Arc::new(self.spec.clone());
 
         // Create tools for each tool definition
         for tool_def in integration_tools.tool_definitions {
@@ -448,7 +451,7 @@ impl BionicOpenAPI {
             let tool = crate::OpenApiTool::new(
                 tool_def,
                 base_url.clone(),
-                self.spec.clone(),
+                spec.clone(),
                 operation_id,
                 auth_header_name.clone(),
                 token_provider.clone(),
@@ -464,6 +467,7 @@ impl BionicOpenAPI {
         base_url: &str,
         client: Arc<dyn crate::builtin_tools::openapi_tool_adapter::HttpClient>,
     ) -> Vec<Arc<dyn ToolDyn>> {
+        let spec = Arc::new(self.spec.clone());
         self.create_tool_definitions()
             .tool_definitions
             .into_iter()
@@ -472,7 +476,7 @@ impl BionicOpenAPI {
                 Arc::new(crate::OpenApiTool::with_http_client(
                     definition,
                     base_url.to_string(),
-                    self.spec.clone(),
+                    spec.clone(),
                     operation_id,
                     self.get_auth_header_name(),
                     None,
