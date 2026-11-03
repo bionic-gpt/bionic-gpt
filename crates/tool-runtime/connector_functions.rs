@@ -24,6 +24,15 @@ const MAX_RESPONSE_BYTES: u64 = 20 * 1024 * 1024;
 const SKILL_FULL_LIST_BYTES: usize = 6 * 1024;
 const SKILL_DESCRIPTION_CHARS: usize = 1500;
 const SKILL_MAX_GROUPS: usize = 80;
+/// Operation files are kept near this size; optional arguments beyond it are summarised.
+const OPERATION_DOC_BYTES: usize = 8 * 1024;
+const OPERATION_DESCRIPTION_CHARS: usize = 2000;
+const PROPERTY_DESCRIPTION_CHARS: usize = 120;
+const SCHEMA_MAX_DEPTH: usize = 2;
+const SCHEMA_MAX_NESTED_PROPERTIES: usize = 30;
+/// Nested expansion of one argument stops after this many bytes.
+const SCHEMA_BLOCK_BYTES: usize = 4 * 1024;
+const NAMED_SCHEMA_DOC_BYTES: usize = 16 * 1024;
 const FIND_DEFAULT_LIMIT: u64 = 20;
 const FIND_MAX_LIMIT: u64 = 100;
 
@@ -52,6 +61,8 @@ pub(crate) struct ConnectorInfo {
     pub slug: String,
     pub is_builtin: bool,
     pub description: Option<String>,
+    /// `components.schemas`, used to render `$ref`s by name.
+    pub schemas: Arc<Value>,
     pub operations: Vec<ConnectorOperation>,
 }
 
@@ -74,6 +85,13 @@ pub(crate) fn catalogue(documents: &[ConnectorDocument]) -> Vec<ConnectorInfo> {
             definitions.sort_by(|left, right| left.name.cmp(&right.name));
             let support = supported_operations(&document.document);
             let index = operation_index(&document.document);
+            let schemas = Arc::new(
+                document
+                    .document
+                    .pointer("/components/schemas")
+                    .cloned()
+                    .unwrap_or(Value::Null),
+            );
             let operations = definitions
                 .into_iter()
                 .filter(|definition| match support.get(&definition.name) {
@@ -113,6 +131,7 @@ pub(crate) fn catalogue(documents: &[ConnectorDocument]) -> Vec<ConnectorInfo> {
                 description: openapi
                     .get_description()
                     .filter(|value| !value.trim().is_empty()),
+                schemas,
                 operations,
             })
         })
@@ -308,25 +327,285 @@ pub(crate) fn operation_markdown(
     connector: &ConnectorInfo,
     operation: &ConnectorOperation,
 ) -> String {
-    let hints = parameter_hints(&operation.parameters);
+    let describe = discovery_function_name(&connector.slug, "describe");
     let mut markdown = format!(
-        "# {} — `{}`\n\n{}\n\nOpenAPI operation: `{}`\n\n## Arguments\n\n",
-        connector.name, operation.function_name, operation.description, operation.operation_id
+        "# {} — `{}`\n\n{}\n\nOpenAPI operation: `{}` ({} {})\n\n## Arguments\n\n",
+        connector.name,
+        operation.function_name,
+        truncate_text(&operation.description, OPERATION_DESCRIPTION_CHARS),
+        operation.operation_id,
+        operation.method,
+        operation.path
     );
-    if hints.is_empty() {
+    let (arguments, omitted) = render_capped(
+        &connector.schemas,
+        &operation.parameters,
+        OPERATION_DOC_BYTES,
+    );
+    if arguments.is_empty() {
         markdown.push_str("This function takes no arguments.\n");
     } else {
-        for hint in hints {
-            markdown.push_str(&format!("- `{hint}`\n"));
+        markdown.push_str(&arguments);
+        if omitted > 0 {
+            markdown.push_str(&format!(
+                "\n[{omitted} more optional arguments not shown to keep this file short]\n"
+            ));
+        }
+        if connector
+            .schemas
+            .as_object()
+            .is_some_and(|map| !map.is_empty())
+        {
+            markdown.push_str(&format!(
+                "\nA type shown by name (for example `Ticket`) can be expanded with `{describe}(\"Ticket\")`.\n"
+            ));
         }
     }
     markdown.push_str(&format!(
-        "\n## Example\n\n```python\nresult = {}({})\nprint(result)\n```\n\n## Parameter schema\n\n```json\n{}\n```\n",
+        "\n## Example\n\n```python\nresult = {}({})\nprint(result)\n```\n",
         operation.function_name,
         example_arguments(&operation.parameters),
-        serde_json::to_string_pretty(&operation.parameters).unwrap_or_else(|_| "{}".into())
     ));
     markdown
+}
+
+fn component_name(schema: &Value) -> Option<&str> {
+    schema
+        .get("$ref")?
+        .as_str()?
+        .strip_prefix("#/components/schemas/")
+}
+
+fn resolve_schema<'a>(schemas: &'a Value, schema: &'a Value) -> &'a Value {
+    let mut current = schema;
+    for _ in 0..8 {
+        match component_name(current).and_then(|name| schemas.get(name)) {
+            Some(next) => current = next,
+            None => break,
+        }
+    }
+    current
+}
+
+/// Properties and required names of an object schema, following `$ref` and `allOf`.
+fn object_properties<'a>(
+    schemas: &'a Value,
+    schema: &'a Value,
+    allof_depth: usize,
+) -> (Vec<(&'a str, &'a Value)>, HashSet<&'a str>) {
+    let schema = resolve_schema(schemas, schema);
+    let mut properties = Vec::new();
+    let mut required = HashSet::new();
+    if let Some(map) = schema.get("properties").and_then(Value::as_object) {
+        properties.extend(map.iter().map(|(name, value)| (name.as_str(), value)));
+    }
+    if let Some(names) = schema.get("required").and_then(Value::as_array) {
+        required.extend(names.iter().filter_map(Value::as_str));
+    }
+    if allof_depth > 0 {
+        for part in schema
+            .get("allOf")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+        {
+            let (inner, inner_required) = object_properties(schemas, part, allof_depth - 1);
+            properties.extend(inner);
+            required.extend(inner_required);
+        }
+    }
+    (properties, required)
+}
+
+fn schema_label(schema: &Value, depth: usize) -> String {
+    if let Some(name) = component_name(schema) {
+        return name.to_string();
+    }
+    if depth > 3 {
+        return "value".into();
+    }
+    for key in ["oneOf", "anyOf"] {
+        if let Some(variants) = schema.get(key).and_then(Value::as_array) {
+            let mut labels = variants
+                .iter()
+                .take(4)
+                .map(|variant| schema_label(variant, depth + 1))
+                .collect::<Vec<_>>()
+                .join(" | ");
+            if variants.len() > 4 {
+                labels.push_str(" | …");
+            }
+            return labels;
+        }
+    }
+    if let Some(values) = schema.get("enum").and_then(Value::as_array) {
+        let mut shown = values
+            .iter()
+            .take(8)
+            .map(|value| match value.as_str() {
+                Some(text) => text.to_string(),
+                None => value.to_string(),
+            })
+            .collect::<Vec<_>>()
+            .join("|");
+        if values.len() > 8 {
+            shown.push_str("|…");
+        }
+        return format!("enum({shown})");
+    }
+    match schema.get("type").and_then(Value::as_str) {
+        Some("array") => format!(
+            "list[{}]",
+            schema
+                .get("items")
+                .map(|items| schema_label(items, depth + 1))
+                .unwrap_or_else(|| "value".into())
+        ),
+        Some("string") => match schema.get("format").and_then(Value::as_str) {
+            Some(format) => format!("string({format})"),
+            None => "string".into(),
+        },
+        Some(other) => other.to_string(),
+        None if schema.get("properties").is_some() || schema.get("allOf").is_some() => {
+            "object".into()
+        }
+        None => "value".into(),
+    }
+}
+
+fn render_property(
+    schemas: &Value,
+    name: &str,
+    schema: &Value,
+    required: bool,
+    depth: usize,
+    path: &mut Vec<String>,
+    out: &mut Vec<String>,
+) {
+    let description = schema
+        .get("description")
+        .and_then(Value::as_str)
+        .or_else(|| {
+            resolve_schema(schemas, schema)
+                .get("description")
+                .and_then(Value::as_str)
+        })
+        .map(|text| compact_summary(text, PROPERTY_DESCRIPTION_CHARS))
+        .filter(|text| !text.is_empty());
+    out.push(format!(
+        "{}- `{name}` ({}{}){}",
+        "  ".repeat(depth),
+        schema_label(schema, 0),
+        if required { ", required" } else { "" },
+        description
+            .map(|text| format!(": {text}"))
+            .unwrap_or_default()
+    ));
+    if depth >= SCHEMA_MAX_DEPTH {
+        return;
+    }
+    let target = if schema.get("type").and_then(Value::as_str) == Some("array") {
+        schema.get("items").unwrap_or(schema)
+    } else {
+        schema
+    };
+    let named = component_name(target).map(str::to_string);
+    if named.as_ref().is_some_and(|name| path.contains(name)) {
+        return;
+    }
+    let (mut properties, nested_required) = object_properties(schemas, target, 3);
+    if properties.is_empty() {
+        return;
+    }
+    if let Some(name) = &named {
+        path.push(name.clone());
+    }
+    let total = properties.len();
+    properties.sort_by_key(|(name, _)| !nested_required.contains(name));
+    let mut truncated = total > SCHEMA_MAX_NESTED_PROPERTIES;
+    for (name, property) in properties.into_iter().take(SCHEMA_MAX_NESTED_PROPERTIES) {
+        if out.iter().map(String::len).sum::<usize>() > SCHEMA_BLOCK_BYTES {
+            truncated = true;
+            break;
+        }
+        render_property(
+            schemas,
+            name,
+            property,
+            nested_required.contains(name),
+            depth + 1,
+            path,
+            out,
+        );
+    }
+    if truncated {
+        out.push(format!("{}- … more", "  ".repeat(depth + 1)));
+    }
+    if named.is_some() {
+        path.pop();
+    }
+}
+
+/// Renders the properties of `schema` as an indented list, required ones first.
+/// Required properties are always shown; optional ones stop once the text
+/// reaches `cap` bytes. Returns the text and the number of properties left out.
+fn render_capped(schemas: &Value, schema: &Value, cap: usize) -> (String, usize) {
+    let (mut properties, required) = object_properties(schemas, schema, 3);
+    properties.sort_by_key(|(name, _)| !required.contains(name));
+    let mut text = String::new();
+    let mut omitted = 0;
+    for (name, property) in properties {
+        let is_required = required.contains(name);
+        if !is_required && text.len() >= cap {
+            omitted += 1;
+            continue;
+        }
+        let mut lines = Vec::new();
+        render_property(
+            schemas,
+            name,
+            property,
+            is_required,
+            0,
+            &mut Vec::new(),
+            &mut lines,
+        );
+        for line in lines {
+            text.push_str(&line);
+            text.push('\n');
+        }
+    }
+    (text, omitted)
+}
+
+/// Markdown for one named component schema, for `<slug>_describe("Name")`.
+fn named_schema_markdown(connector: &ConnectorInfo, requested: &str) -> Option<String> {
+    let map = connector.schemas.as_object()?;
+    let (name, schema) = map.get_key_value(requested).or_else(|| {
+        map.iter()
+            .find(|(name, _)| name.eq_ignore_ascii_case(requested))
+    })?;
+    let mut markdown = format!("# {} — type `{name}`\n\n", connector.name);
+    if let Some(description) = resolve_schema(&connector.schemas, schema)
+        .get("description")
+        .and_then(Value::as_str)
+    {
+        markdown.push_str(&format!(
+            "{}\n\n",
+            truncate_text(description, OPERATION_DESCRIPTION_CHARS)
+        ));
+    }
+    let (fields, omitted) = render_capped(&connector.schemas, schema, NAMED_SCHEMA_DOC_BYTES);
+    if fields.is_empty() {
+        markdown.push_str(&format!("`{name}` is {}.\n", schema_label(schema, 0)));
+    } else {
+        markdown.push_str("## Fields\n\n");
+        markdown.push_str(&fields);
+        if omitted > 0 {
+            markdown.push_str(&format!("\n[{omitted} more optional fields not shown]\n"));
+        }
+    }
+    Some(markdown)
 }
 
 pub(crate) fn build_python_functions(
@@ -461,23 +740,22 @@ impl PythonFunction for ConnectorDiscoveryFunction {
                 )))
             }
             DiscoveryKind::Describe => {
-                let operation = self
-                    .connector
-                    .operations
-                    .iter()
-                    .find(|operation| {
-                        operation.function_name == value || operation.operation_id == value
-                    })
+                if let Some(operation) = self.connector.operations.iter().find(|operation| {
+                    operation.function_name == value || operation.operation_id == value
+                }) {
+                    return Ok(Value::String(operation_markdown(
+                        &self.connector,
+                        operation,
+                    )));
+                }
+                named_schema_markdown(&self.connector, value)
+                    .map(Value::String)
                     .ok_or_else(|| {
                         PythonFunctionError(format!(
-                            "unknown function {value:?}; search with {}",
+                            "unknown function or type {value:?}; search with {}",
                             discovery_function_name(&self.connector.slug, "find")
                         ))
-                    })?;
-                Ok(Value::String(operation_markdown(
-                    &self.connector,
-                    operation,
-                )))
+                    })
             }
         }
     }
@@ -1011,50 +1289,6 @@ fn is_python_keyword(value: &str) -> bool {
     )
 }
 
-fn parameter_hints(parameters: &Value) -> Vec<String> {
-    let required = parameters
-        .get("required")
-        .and_then(Value::as_array)
-        .into_iter()
-        .flatten()
-        .filter_map(Value::as_str)
-        .collect::<HashSet<_>>();
-    parameters
-        .get("properties")
-        .and_then(Value::as_object)
-        .map(|properties| {
-            properties
-                .iter()
-                .map(|(name, schema)| {
-                    let presence = if required.contains(name.as_str()) {
-                        "required"
-                    } else {
-                        "optional"
-                    };
-                    format!("{name}: {} ({presence})", schema_type_hint(schema))
-                })
-                .collect()
-        })
-        .unwrap_or_default()
-}
-
-fn schema_type_hint(schema: &Value) -> String {
-    match schema.get("type").and_then(Value::as_str) {
-        Some("array") => format!(
-            "list[{}]",
-            schema
-                .get("items")
-                .map(schema_type_hint)
-                .unwrap_or_else(|| "value".into())
-        ),
-        Some(value) => value.to_string(),
-        None if schema.get("properties").is_some() || schema.get("$ref").is_some() => {
-            "object".into()
-        }
-        None => "value".into(),
-    }
-}
-
 fn example_arguments(parameters: &Value) -> String {
     let required = parameters
         .get("required")
@@ -1251,6 +1485,174 @@ mod tests {
             "specs that did not parse: {unparsed:?}"
         );
         assert!(checked > 0, "no JSON specs found in {}", dir.display());
+    }
+
+    fn ticket_document() -> ConnectorDocument {
+        ConnectorDocument {
+            name: "Tickets".into(),
+            slug: "tickets".into(),
+            is_builtin: false,
+            document: json!({
+                "openapi":"3.0.0",
+                "info":{"title":"Tickets","version":"1"},
+                "servers":[{"url":"https://upstream.example"}],
+                "paths":{"/tickets":{"post":{
+                    "operationId":"createTicket",
+                    "requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Ticket"}}}},
+                    "responses":{"200":{"description":"ok"}}
+                }}},
+                "components":{"schemas":{
+                    "Ticket":{
+                        "type":"object",
+                        "required":["summary","company"],
+                        "properties":{
+                            "note":{"type":"string","description":"Free text"},
+                            "status":{"type":"string","enum":["open","closed"]},
+                            "created":{"type":"string","format":"date-time"},
+                            "summary":{"type":"string","description":"One line summary"},
+                            "company":{"$ref":"#/components/schemas/Company"},
+                            "children":{"type":"array","items":{"$ref":"#/components/schemas/Ticket"}}
+                        }
+                    },
+                    "Company":{
+                        "allOf":[
+                            {"$ref":"#/components/schemas/Base"},
+                            {"type":"object","required":["name"],"properties":{"name":{"type":"string"}}}
+                        ]
+                    },
+                    "Base":{"type":"object","properties":{"id":{"type":"integer"}}}
+                }}
+            }),
+        }
+    }
+
+    fn ticket_markdown() -> String {
+        let connectors = catalogue(&[ticket_document()]);
+        operation_markdown(&connectors[0], &connectors[0].operations[0])
+    }
+
+    #[test]
+    fn operation_files_render_nested_refs_by_name_and_expand_them() {
+        let markdown = ticket_markdown();
+        assert!(markdown.contains("(POST /tickets)"), "{markdown}");
+        assert!(markdown.contains("- `summary` (string, required): One line summary"));
+        assert!(markdown.contains("- `company` (Company, required)"));
+        // Company is expanded one level, with allOf merged and required first.
+        assert!(
+            markdown.contains("  - `name` (string, required)"),
+            "{markdown}"
+        );
+        assert!(markdown.contains("  - `id` (integer)"));
+        assert!(markdown.contains("(enum(open|closed))"));
+        assert!(markdown.contains("(string(date-time))"));
+        assert!(markdown.contains("(list[Ticket])"));
+        assert!(!markdown.contains("$ref"));
+        assert!(!markdown.contains("Parameter schema"));
+        assert!(markdown.contains("tickets_describe(\"Ticket\")"));
+    }
+
+    #[test]
+    fn required_arguments_are_listed_before_optional_ones() {
+        let markdown = ticket_markdown();
+        let summary = markdown.find("- `summary`").unwrap();
+        let company = markdown.find("- `company`").unwrap();
+        let note = markdown.find("- `note`").unwrap();
+        assert!(summary < note && company < note);
+    }
+
+    #[test]
+    fn self_referencing_types_do_not_recurse_forever() {
+        let markdown = ticket_markdown();
+        let children = markdown.find("- `children`").unwrap();
+        // children -> Ticket is expanded once, and its own children stop there.
+        assert!(markdown[children..].matches("`children`").count() <= 2);
+    }
+
+    #[test]
+    fn operation_files_stay_near_the_size_cap_but_keep_required_arguments() {
+        let mut properties = Map::new();
+        for index in 0..400 {
+            properties.insert(
+                format!("optional{index:03}"),
+                json!({"type":"string","description":"x".repeat(100)}),
+            );
+        }
+        properties.insert("must".into(), json!({"type":"string"}));
+        let mut document = ticket_document();
+        document.document["components"]["schemas"]["Ticket"] =
+            json!({"type":"object","required":["must"],"properties":properties});
+        let connectors = catalogue(&[document]);
+        let markdown = operation_markdown(&connectors[0], &connectors[0].operations[0]);
+        assert!(
+            markdown.len() < OPERATION_DOC_BYTES + 2048,
+            "{}",
+            markdown.len()
+        );
+        assert!(markdown.contains("- `must` (string, required)"));
+        assert!(markdown.contains("more optional arguments not shown"));
+    }
+
+    #[tokio::test]
+    async fn describe_expands_a_named_type() {
+        let functions = build_python_functions(
+            &[ticket_document()],
+            Arc::new(RecordingNetwork::default()),
+            Arc::new(InMemoryFs::new()),
+        );
+        let describe = functions
+            .iter()
+            .find(|function| function.name() == "tickets_describe")
+            .unwrap();
+        let result = describe
+            .call(PythonCallArguments {
+                positional: vec![json!("company")],
+                keyword: Map::new(),
+            })
+            .await
+            .unwrap();
+        let text = result.as_str().unwrap();
+        assert!(text.contains("type `Company`"), "{text}");
+        assert!(text.contains("- `name` (string, required)"));
+        let unknown = describe
+            .call(PythonCallArguments {
+                positional: vec![json!("Nothing")],
+                keyword: Map::new(),
+            })
+            .await;
+        assert!(unknown.unwrap_err().0.contains("tickets_find"));
+    }
+
+    #[test]
+    fn every_curated_json_spec_has_bounded_operation_files() {
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../bionic-gpt/content/docs/integrations/specs");
+        let mut largest = (0, String::new());
+        for entry in std::fs::read_dir(&dir).unwrap() {
+            let path = entry.unwrap().path();
+            if path.extension().and_then(|value| value.to_str()) != Some("json") {
+                continue;
+            }
+            let document = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+            let slug = path.file_stem().unwrap().to_string_lossy().to_string();
+            for connector in catalogue(&[ConnectorDocument {
+                name: slug.clone(),
+                slug: slug.clone(),
+                is_builtin: false,
+                document,
+            }]) {
+                for operation in &connector.operations {
+                    let size = operation_markdown(&connector, operation).len();
+                    if size > largest.0 {
+                        largest = (size, format!("{slug}/{}", operation.operation_id));
+                    }
+                }
+            }
+        }
+        eprintln!(
+            "largest operation file: {} bytes ({})",
+            largest.0, largest.1
+        );
+        assert!(largest.0 < 16 * 1024, "{} bytes: {}", largest.0, largest.1);
     }
 
     fn large_document(operations: usize) -> ConnectorDocument {
