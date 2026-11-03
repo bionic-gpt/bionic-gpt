@@ -1,5 +1,9 @@
-use axum::Router;
+use axum::{extract::DefaultBodyLimit, Router};
 use axum_extra::routing::RouterExt;
+
+/// Same limit as the system OpenAPI spec upload. Large vendor specs are several
+/// MB, and the 2MB axum default made the browser see a reset connection.
+const MAX_SPEC_BYTES: usize = 50 * 1024 * 1024;
 
 // Module declarations
 pub mod actions;
@@ -31,4 +35,5 @@ pub fn routes() -> Router {
         .typed_post(configure_api_key_action)
         .typed_post(delete_api_key_connection_action)
         .typed_post(delete_oauth2_connection_action)
+        .layer(DefaultBodyLimit::max(MAX_SPEC_BYTES))
 }
