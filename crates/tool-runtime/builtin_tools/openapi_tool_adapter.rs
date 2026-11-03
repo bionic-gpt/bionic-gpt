@@ -152,8 +152,8 @@ pub struct OpenApiTool {
     base_url: String,
     /// The HTTP client
     client: Arc<dyn HttpClient>,
-    /// The OpenAPI specification
-    spec: oas3::OpenApiV3Spec,
+    /// The OpenAPI specification, shared by every tool built from it
+    spec: Arc<oas3::OpenApiV3Spec>,
     /// The operation ID for this tool
     operation_id: String,
     /// The header name to pass the token in
@@ -167,7 +167,7 @@ impl OpenApiTool {
     pub fn new(
         definition: ToolDefinition,
         base_url: String,
-        spec: oas3::OpenApiV3Spec,
+        spec: impl Into<Arc<oas3::OpenApiV3Spec>>,
         operation_id: String,
         auth_header_name: String,
         token_provider: Option<Arc<dyn TokenProvider>>,
@@ -187,7 +187,7 @@ impl OpenApiTool {
     pub fn with_http_client(
         definition: ToolDefinition,
         base_url: String,
-        spec: oas3::OpenApiV3Spec,
+        spec: impl Into<Arc<oas3::OpenApiV3Spec>>,
         operation_id: String,
         auth_header_name: String,
         token_provider: Option<Arc<dyn TokenProvider>>,
@@ -197,7 +197,7 @@ impl OpenApiTool {
             definition,
             base_url,
             client,
-            spec,
+            spec: spec.into(),
             operation_id,
             auth_header_name,
             token_provider,
