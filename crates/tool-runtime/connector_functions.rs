@@ -19,6 +19,13 @@ use std::time::Duration;
 
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
 const MAX_RESPONSE_BYTES: u64 = 20 * 1024 * 1024;
+/// Largest function list written inline in `SKILL.md`; bigger connectors get a
+/// grouped overview and are searched with the discovery functions instead.
+const SKILL_FULL_LIST_BYTES: usize = 6 * 1024;
+const SKILL_DESCRIPTION_CHARS: usize = 1500;
+const SKILL_MAX_GROUPS: usize = 80;
+const FIND_DEFAULT_LIMIT: u64 = 20;
+const FIND_MAX_LIMIT: u64 = 100;
 
 #[derive(Clone)]
 pub(crate) struct ConnectorDocument {
@@ -34,6 +41,9 @@ pub(crate) struct ConnectorOperation {
     pub description: String,
     pub parameters: Value,
     pub operation_id: String,
+    pub method: String,
+    pub path: String,
+    pub tags: Vec<String>,
 }
 
 #[derive(Clone)]
@@ -41,13 +51,21 @@ pub(crate) struct ConnectorInfo {
     pub name: String,
     pub slug: String,
     pub is_builtin: bool,
+    pub description: Option<String>,
     pub operations: Vec<ConnectorOperation>,
 }
 
 pub(crate) fn catalogue(documents: &[ConnectorDocument]) -> Vec<ConnectorInfo> {
     let mut documents = documents.to_vec();
     documents.sort_by(|left, right| left.slug.cmp(&right.slug));
+    // Reserve every connector's discovery names before any operation is named,
+    // so an operation of an earlier connector cannot take a later one's.
     let mut used = HashSet::new();
+    for document in &documents {
+        for kind in ["find", "describe"] {
+            used.insert(discovery_function_name(&document.slug, kind));
+        }
+    }
     documents
         .into_iter()
         .filter_map(|document| {
@@ -55,6 +73,7 @@ pub(crate) fn catalogue(documents: &[ConnectorDocument]) -> Vec<ConnectorInfo> {
             let mut definitions = openapi.create_tool_definitions().tool_definitions;
             definitions.sort_by(|left, right| left.name.cmp(&right.name));
             let support = supported_operations(&document.document);
+            let index = operation_index(&document.document);
             let operations = definitions
                 .into_iter()
                 .filter(|definition| match support.get(&definition.name) {
@@ -74,11 +93,16 @@ pub(crate) fn catalogue(documents: &[ConnectorDocument]) -> Vec<ConnectorInfo> {
                     let function_name =
                         operation_function_name(&document.slug, &definition.name, &mut used);
                     let (parameters, _) = expose_file_parameters(definition.parameters);
+                    let (method, path, tags) =
+                        index.get(&definition.name).cloned().unwrap_or_default();
                     ConnectorOperation {
                         function_name,
                         description: definition.description,
                         parameters,
                         operation_id: definition.name,
+                        method,
+                        path,
+                        tags,
                     }
                 })
                 .collect();
@@ -86,6 +110,9 @@ pub(crate) fn catalogue(documents: &[ConnectorDocument]) -> Vec<ConnectorInfo> {
                 name: document.name,
                 slug: document.slug,
                 is_builtin: document.is_builtin,
+                description: openapi
+                    .get_description()
+                    .filter(|value| !value.trim().is_empty()),
                 operations,
             })
         })
@@ -142,16 +169,123 @@ fn supported_operations(document: &Value) -> HashMap<String, Option<String>> {
     operations
 }
 
+/// (method, path, tags) for every operation that has an operationId.
+fn operation_index(document: &Value) -> HashMap<String, (String, String, Vec<String>)> {
+    let mut index = HashMap::new();
+    let Some(paths) = document.get("paths").and_then(Value::as_object) else {
+        return index;
+    };
+    for (path, path_item) in paths {
+        for method in ["get", "post", "put", "delete", "head", "patch"] {
+            let Some(operation) = path_item.get(method).and_then(Value::as_object) else {
+                continue;
+            };
+            let Some(operation_id) = operation.get("operationId").and_then(Value::as_str) else {
+                continue;
+            };
+            let tags = operation
+                .get("tags")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .filter_map(Value::as_str)
+                .map(str::to_string)
+                .collect();
+            index.insert(
+                operation_id.to_string(),
+                (method.to_ascii_uppercase(), path.clone(), tags),
+            );
+        }
+    }
+    index
+}
+
+fn discovery_function_name(slug: &str, kind: &str) -> String {
+    format!("{}_{kind}", sanitize_identifier(slug))
+}
+
+fn operation_group(operation: &ConnectorOperation) -> String {
+    operation
+        .tags
+        .first()
+        .cloned()
+        .or_else(|| {
+            operation
+                .path
+                .split('/')
+                .find(|segment| !segment.is_empty() && !segment.starts_with('{'))
+                .map(str::to_string)
+        })
+        .unwrap_or_else(|| "other".into())
+}
+
+fn truncate_text(value: &str, max_characters: usize) -> String {
+    let value = value.trim();
+    if value.chars().count() <= max_characters {
+        return value.to_string();
+    }
+    let mut text = value.chars().take(max_characters).collect::<String>();
+    if let Some(last_space) = text.rfind(char::is_whitespace) {
+        text.truncate(last_space);
+    }
+    text.push('…');
+    text
+}
+
 pub(crate) fn skill_markdown(connector: &ConnectorInfo) -> String {
+    let find = discovery_function_name(&connector.slug, "find");
+    let describe = discovery_function_name(&connector.slug, "describe");
     let mut markdown = format!(
-        "# {}\n\nUse this connector from `run_python`. Its functions are supplied by Bionic at runtime; do not import a module or add credentials. Functions accept keyword arguments or one positional dictionary.\n\nRead an operation file under `/home/user/skills/{}/operations/` when you need its exact arguments.\n\n## Functions\n\n",
+        "# {}\n\nUse this connector from `run_python`. Its functions are supplied by Bionic at runtime; do not import a module or add credentials. Functions accept keyword arguments or one positional dictionary.\n\nRead an operation file under `/home/user/skills/{}/operations/` when you need its exact arguments.\n\n",
         connector.name, connector.slug
     );
-    for operation in &connector.operations {
-        let summary = compact_summary(&operation.description, 180);
+    if let Some(description) = &connector.description {
         markdown.push_str(&format!(
-            "- `{}` — {} ([details](operations/{}.md))\n",
-            operation.function_name, summary, operation.function_name
+            "## About\n\n{}\n\n",
+            truncate_text(description, SKILL_DESCRIPTION_CHARS)
+        ));
+    }
+    let list = connector
+        .operations
+        .iter()
+        .map(|operation| {
+            format!(
+                "- `{}` — {} ([details](operations/{}.md))\n",
+                operation.function_name,
+                compact_summary(&operation.description, 180),
+                operation.function_name
+            )
+        })
+        .collect::<String>();
+    if list.len() <= SKILL_FULL_LIST_BYTES {
+        markdown.push_str("## Functions\n\n");
+        markdown.push_str(&list);
+        markdown.push_str(&format!(
+            "\nSearch these with `{find}(\"keyword\")`; `{describe}(\"<function>\")` returns a function's arguments.\n"
+        ));
+        return markdown;
+    }
+    let example = connector
+        .operations
+        .first()
+        .map(|operation| operation.function_name.as_str())
+        .unwrap_or("<function>");
+    markdown.push_str(&format!(
+        "## Finding functions\n\nThis connector has {} functions, too many to list. Search them, then read the arguments of the one you need:\n\n```python\nprint({find}(\"keyword\"))\nprint({describe}(\"{example}\"))\n```\n\n`{find}` takes `query` (all words must match the function name, path, tag or description) and optional `limit` (default {FIND_DEFAULT_LIMIT}, max {FIND_MAX_LIMIT}). The same details are in `/home/user/skills/{}/operations/<function>.md`.\n\n## Groups\n\n",
+        connector.operations.len(),
+        connector.slug
+    ));
+    let mut groups = std::collections::BTreeMap::<String, usize>::new();
+    for operation in &connector.operations {
+        *groups.entry(operation_group(operation)).or_default() += 1;
+    }
+    for (group, count) in groups.iter().take(SKILL_MAX_GROUPS) {
+        markdown.push_str(&format!("- `{group}`: {count}\n"));
+    }
+    if groups.len() > SKILL_MAX_GROUPS {
+        markdown.push_str(&format!(
+            "- and {} more groups\n",
+            groups.len() - SKILL_MAX_GROUPS
         ));
     }
     markdown
@@ -216,6 +350,16 @@ pub(crate) fn build_python_functions(
             .map(|tool| (tool.name(), tool))
             .collect::<Vec<_>>();
         tools.sort_by(|left, right| left.0.cmp(&right.0));
+        if !connector.operations.is_empty() {
+            let shared = Arc::new(connector.clone());
+            for kind in [DiscoveryKind::Find, DiscoveryKind::Describe] {
+                functions.push(Arc::new(ConnectorDiscoveryFunction {
+                    name: discovery_function_name(&connector.slug, kind.suffix()),
+                    kind,
+                    connector: shared.clone(),
+                }) as Arc<dyn PythonFunction>);
+            }
+        }
         for operation in &connector.operations {
             let Some((_, tool)) = tools
                 .iter()
@@ -250,6 +394,143 @@ fn documents_for_catalogue<'a>(
                 .map(|document| (document, connector))
         })
         .collect()
+}
+
+#[derive(Clone, Copy)]
+enum DiscoveryKind {
+    Find,
+    Describe,
+}
+
+impl DiscoveryKind {
+    fn suffix(self) -> &'static str {
+        match self {
+            Self::Find => "find",
+            Self::Describe => "describe",
+        }
+    }
+}
+
+/// `<slug>_find` and `<slug>_describe`: let the model search a large connector
+/// instead of reading a function list that does not fit its context.
+struct ConnectorDiscoveryFunction {
+    name: String,
+    kind: DiscoveryKind,
+    connector: Arc<ConnectorInfo>,
+}
+
+#[async_trait]
+impl PythonFunction for ConnectorDiscoveryFunction {
+    fn name(&self) -> &str {
+        &self.name
+    }
+
+    async fn call(&self, arguments: PythonCallArguments) -> Result<Value, PythonFunctionError> {
+        let (key, usage) = match self.kind {
+            DiscoveryKind::Find => ("query", "a query string"),
+            DiscoveryKind::Describe => ("function", "a function name"),
+        };
+        let mut arguments = arguments;
+        // Allow the natural positional form: find("tickets").
+        let positional = match arguments.positional.as_slice() {
+            [Value::String(value)] => Some(value.clone()),
+            _ => None,
+        };
+        if let Some(value) = positional {
+            arguments.positional.clear();
+            arguments.keyword.insert(key.into(), Value::String(value));
+        }
+        let arguments = merge_arguments(arguments)?;
+        let Some(value) = arguments.get(key).and_then(Value::as_str) else {
+            return Err(PythonFunctionError(format!(
+                "{} requires {usage}",
+                self.name
+            )));
+        };
+        match self.kind {
+            DiscoveryKind::Find => {
+                let limit = arguments
+                    .get("limit")
+                    .and_then(Value::as_u64)
+                    .unwrap_or(FIND_DEFAULT_LIMIT)
+                    .clamp(1, FIND_MAX_LIMIT) as usize;
+                Ok(Value::String(find_operations(
+                    &self.connector,
+                    value,
+                    limit,
+                )))
+            }
+            DiscoveryKind::Describe => {
+                let operation = self
+                    .connector
+                    .operations
+                    .iter()
+                    .find(|operation| {
+                        operation.function_name == value || operation.operation_id == value
+                    })
+                    .ok_or_else(|| {
+                        PythonFunctionError(format!(
+                            "unknown function {value:?}; search with {}",
+                            discovery_function_name(&self.connector.slug, "find")
+                        ))
+                    })?;
+                Ok(Value::String(operation_markdown(
+                    &self.connector,
+                    operation,
+                )))
+            }
+        }
+    }
+}
+
+fn find_operations(connector: &ConnectorInfo, query: &str, limit: usize) -> String {
+    let terms = query
+        .split_whitespace()
+        .map(str::to_lowercase)
+        .collect::<Vec<_>>();
+    if terms.is_empty() {
+        return "Give at least one search word.".into();
+    }
+    let matches = connector
+        .operations
+        .iter()
+        .filter(|operation| {
+            let haystack = format!(
+                "{} {} {} {} {} {}",
+                operation.function_name,
+                operation.operation_id,
+                operation.method,
+                operation.path,
+                operation.tags.join(" "),
+                operation.description
+            )
+            .to_lowercase();
+            terms.iter().all(|term| haystack.contains(term))
+        })
+        .collect::<Vec<_>>();
+    if matches.is_empty() {
+        return format!("No functions match {query:?}. Try fewer or different words.");
+    }
+    let mut output = matches
+        .iter()
+        .take(limit)
+        .map(|operation| {
+            format!(
+                "{}  {} {}  {}\n",
+                operation.function_name,
+                operation.method,
+                operation.path,
+                compact_summary(&operation.description, 100)
+            )
+        })
+        .collect::<String>();
+    if matches.len() > limit {
+        output.push_str(&format!(
+            "[{} more matches; add words to narrow the query or raise limit]\n",
+            matches.len() - limit
+        ));
+    }
+    output
 }
 
 struct ConnectorPythonFunction {
@@ -930,6 +1211,224 @@ mod tests {
             "schema":{"type":"string"}
         }]);
         assert!(catalogue(&[document])[0].operations.is_empty());
+    }
+
+    #[test]
+    fn every_curated_json_spec_gets_a_skill_within_budget() {
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../bionic-gpt/content/docs/integrations/specs");
+        let mut checked = 0;
+        let mut unparsed = Vec::new();
+        for entry in std::fs::read_dir(&dir).unwrap() {
+            let path = entry.unwrap().path();
+            // Connectors are stored as JSON documents; nothing in the runtime
+            // loads the YAML specs in this folder, so they are out of scope.
+            if path.extension().and_then(|value| value.to_str()) != Some("json") {
+                continue;
+            }
+            let document = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+            let slug = path.file_stem().unwrap().to_string_lossy().to_string();
+            let connectors = catalogue(&[ConnectorDocument {
+                name: slug.clone(),
+                slug: slug.clone(),
+                is_builtin: false,
+                document,
+            }]);
+            let Some(connector) = connectors.first() else {
+                unparsed.push(slug);
+                continue;
+            };
+            let skill = skill_markdown(connector);
+            assert!(
+                skill.len() < SKILL_FULL_LIST_BYTES + SKILL_DESCRIPTION_CHARS * 4 + 2048,
+                "{slug}: SKILL.md is {} bytes",
+                skill.len()
+            );
+            checked += 1;
+        }
+        assert!(
+            unparsed.is_empty(),
+            "specs that did not parse: {unparsed:?}"
+        );
+        assert!(checked > 0, "no JSON specs found in {}", dir.display());
+    }
+
+    fn large_document(operations: usize) -> ConnectorDocument {
+        let mut paths = Map::new();
+        for index in 0..operations {
+            let tag = format!("group{}", index % 5);
+            paths.insert(
+                format!("/{tag}/items{index}"),
+                json!({"get":{
+                    "operationId": format!("listItems{index}"),
+                    "tags":[tag],
+                    "summary": format!("List the widgets of kind {index}, a reasonably long summary to take up space in the list"),
+                    "responses":{"200":{"description":"ok"}}
+                }}),
+            );
+        }
+        ConnectorDocument {
+            name: "Big".into(),
+            slug: "big".into(),
+            is_builtin: false,
+            document: json!({
+                "openapi":"3.0.0",
+                "info":{"title":"Big","version":"1","description":"Big API. Use group filters."},
+                "servers":[{"url":"https://upstream.example"}],
+                "paths": paths
+            }),
+        }
+    }
+
+    #[test]
+    fn small_connectors_keep_the_full_function_list() {
+        let connectors = catalogue(&[salesforce_document()]);
+        let skill = skill_markdown(&connectors[0]);
+        assert!(skill.contains("- `salesforce_query`"));
+        assert!(skill.contains("salesforce_find(\"keyword\")"));
+        assert!(!skill.contains("## Groups"));
+    }
+
+    #[test]
+    fn large_connectors_get_a_grouped_overview_under_budget() {
+        let connectors = catalogue(&[large_document(400)]);
+        let skill = skill_markdown(&connectors[0]);
+        assert!(skill.len() < SKILL_FULL_LIST_BYTES, "{} bytes", skill.len());
+        assert!(skill.contains("400 functions"));
+        assert!(skill.contains("big_find(\"keyword\")"));
+        assert!(skill.contains("- `group0`: 80"));
+        assert!(!skill.contains("big_list_items7`"));
+        assert!(skill.contains("Big API. Use group filters."));
+    }
+
+    #[test]
+    fn long_info_descriptions_are_truncated_in_the_skill() {
+        let mut document = salesforce_document();
+        document.document["info"]["description"] = json!("word ".repeat(1000));
+        let connectors = catalogue(&[document]);
+        let skill = skill_markdown(&connectors[0]);
+        assert!(skill.contains("## About"));
+        assert!(skill.len() < SKILL_DESCRIPTION_CHARS + 1500);
+        assert!(skill.contains('…'));
+    }
+
+    #[test]
+    fn groups_fall_back_to_the_first_path_segment_without_tags() {
+        let mut document = large_document(300);
+        for path_item in document.document["paths"]
+            .as_object_mut()
+            .unwrap()
+            .values_mut()
+        {
+            path_item["get"].as_object_mut().unwrap().remove("tags");
+        }
+        let connectors = catalogue(&[document]);
+        let skill = skill_markdown(&connectors[0]);
+        assert!(skill.contains("- `group0`: 60"));
+    }
+
+    #[test]
+    fn operations_cannot_take_the_discovery_function_names() {
+        let mut document = salesforce_document();
+        document.document["paths"]["/find"] = json!({"get":{
+            "operationId":"find",
+            "responses":{"200":{"description":"ok"}}
+        }});
+        let connectors = catalogue(&[document]);
+        let names = connectors[0]
+            .operations
+            .iter()
+            .map(|operation| operation.function_name.as_str())
+            .collect::<Vec<_>>();
+        assert!(!names.contains(&"salesforce_find"), "{names:?}");
+        assert!(names.contains(&"salesforce_find_2"), "{names:?}");
+    }
+
+    async fn call_discovery(
+        name: &str,
+        arguments: PythonCallArguments,
+    ) -> Result<Value, PythonFunctionError> {
+        let functions = build_python_functions(
+            &[large_document(30)],
+            Arc::new(RecordingNetwork::default()),
+            Arc::new(InMemoryFs::new()),
+        );
+        functions
+            .iter()
+            .find(|function| function.name() == name)
+            .unwrap()
+            .call(arguments)
+            .await
+    }
+
+    #[tokio::test]
+    async fn find_matches_all_words_and_caps_results() {
+        let result = call_discovery(
+            "big_find",
+            PythonCallArguments {
+                positional: vec![json!("group1 widgets")],
+                keyword: Map::from_iter([("limit".into(), json!(2))]),
+            },
+        )
+        .await
+        .unwrap();
+        let text = result.as_str().unwrap();
+        assert_eq!(
+            text.lines().filter(|line| line.starts_with("big_")).count(),
+            2
+        );
+        assert!(text.contains("GET /group1/items"));
+        assert!(text.contains("[4 more matches"));
+        assert!(!text.contains("group2"));
+    }
+
+    #[tokio::test]
+    async fn find_reports_no_matches_and_missing_query() {
+        let none = call_discovery(
+            "big_find",
+            PythonCallArguments {
+                positional: Vec::new(),
+                keyword: Map::from_iter([("query".into(), json!("zzz"))]),
+            },
+        )
+        .await
+        .unwrap();
+        assert!(none.as_str().unwrap().starts_with("No functions match"));
+        let missing = call_discovery(
+            "big_find",
+            PythonCallArguments {
+                positional: Vec::new(),
+                keyword: Map::new(),
+            },
+        )
+        .await;
+        assert!(missing.unwrap_err().0.contains("requires a query string"));
+    }
+
+    #[tokio::test]
+    async fn describe_returns_the_operation_markdown() {
+        let result = call_discovery(
+            "big_describe",
+            PythonCallArguments {
+                positional: Vec::new(),
+                keyword: Map::from_iter([("function".into(), json!("big_list_items3"))]),
+            },
+        )
+        .await
+        .unwrap();
+        assert!(result
+            .as_str()
+            .unwrap()
+            .contains("OpenAPI operation: `listItems3`"));
+        let unknown = call_discovery(
+            "big_describe",
+            PythonCallArguments {
+                positional: vec![json!("nope")],
+                keyword: Map::new(),
+            },
+        )
+        .await;
+        assert!(unknown.unwrap_err().0.contains("big_find"));
     }
 
     fn salesforce_document() -> ConnectorDocument {
