@@ -27,6 +27,10 @@ const WORK_DIR: &str = "/home/user/work";
 const MAX_OUTPUT_FILES: usize = 50;
 const MAX_OUTPUT_FILE_BYTES: u64 = 5 * 1024 * 1024;
 pub(crate) const MAX_FILE_TOOL_BYTES: usize = 2 * 1024 * 1024;
+/// Stdout larger than this is saved under WORK_DIR and replaced by a preview,
+/// so one print cannot overflow a small model's context.
+const STDOUT_INLINE_BYTES: usize = 24 * 1024;
+const STDOUT_PREVIEW_BYTES: usize = 4 * 1024;
 
 #[derive(Debug, Deserialize)]
 struct RunBashArgs {
@@ -324,11 +328,14 @@ async fn execute_run_bash(
         })
         .await
         .map_err(|err| json!({"error": "bash execution failed", "details": err.to_string()}))?;
+    let stdout = cap_stdout(result.execution.stdout, fs.as_ref())
+        .await
+        .map_err(|err| json!({"error": "Failed to save stdout", "details": err.to_string()}))?;
     let output_sync_result =
         persist_outputs(&tool.pool, &tool.sub, tool.conversation_id, fs.as_ref()).await;
 
     let mut response = json!({
-        "stdout": result.execution.stdout,
+        "stdout": stdout,
         "stderr": result.execution.stderr,
         "exit_code": result.execution.exit_code,
         "duration_ms": started.elapsed().as_millis(),
@@ -819,6 +826,31 @@ async fn load_output_content(pool: &Pool, sub: &str, output_id: i32) -> Result<V
         .await
         .map_err(|error| error.to_string())?;
     Ok(data.object_data)
+}
+
+/// Returns small stdout as it is. Larger stdout is written in full to a file in
+/// WORK_DIR, named by the time so a later run cannot overwrite it, and replaced
+/// by a preview and a note pointing at the file.
+pub(crate) async fn cap_stdout(stdout: String, fs: &dyn FileSystem) -> bashkit::Result<String> {
+    if stdout.len() <= STDOUT_INLINE_BYTES {
+        return Ok(stdout);
+    }
+    let millis = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis();
+    let path = format!("{WORK_DIR}/stdout-{millis}.txt");
+    fs.mkdir(Path::new(WORK_DIR), true).await?;
+    fs.write_file(Path::new(&path), stdout.as_bytes()).await?;
+    let mut end = STDOUT_PREVIEW_BYTES;
+    while !stdout.is_char_boundary(end) {
+        end -= 1;
+    }
+    Ok(format!(
+        "{}\n[stdout was {} bytes, too large to return; the first {end} are shown. The full output is in {path}. Print less (select fields, filter, smaller page) or read part of the file, for example `head -c 2000 {path}`.]\n",
+        &stdout[..end],
+        stdout.len()
+    ))
 }
 
 pub(crate) async fn persist_outputs(
@@ -1430,6 +1462,30 @@ async fn get_embeddings_via_rig(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn large_stdout_is_saved_and_replaced_by_a_preview() {
+        let fs = InMemoryFs::new();
+        assert_eq!(cap_stdout("small".into(), &fs).await.unwrap(), "small");
+
+        let stdout = "é".repeat(STDOUT_INLINE_BYTES);
+        let capped = cap_stdout(stdout.clone(), &fs).await.unwrap();
+        assert!(
+            capped.len() < STDOUT_PREVIEW_BYTES + 512,
+            "{}",
+            capped.len()
+        );
+        assert!(capped.starts_with('é'));
+        let path = capped
+            .split_whitespace()
+            .find(|word| word.starts_with("/home/user/work/stdout-") && word.ends_with(".txt."))
+            .unwrap()
+            .trim_end_matches('.');
+        assert_eq!(
+            fs.read_file(Path::new(path)).await.unwrap(),
+            stdout.as_bytes()
+        );
+    }
 
     #[test]
     fn test_get_tool_definition() {

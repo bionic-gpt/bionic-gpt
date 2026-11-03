@@ -1953,6 +1953,61 @@ mod tests {
         assert!(once["paths"]["/items/{id}"].get("parameters").is_none());
     }
 
+    struct FixedNetwork(Vec<u8>, &'static str);
+
+    #[async_trait]
+    impl SandboxNetwork for FixedNetwork {
+        async fn request(
+            &self,
+            _request: HttpRequest,
+        ) -> Result<sandbox::HttpResponse, sandbox::NetworkError> {
+            Ok(sandbox::HttpResponse {
+                status: 200,
+                headers: vec![HttpHeader {
+                    name: "Content-Type".into(),
+                    value: self.1.into(),
+                }],
+                body: self.0.clone(),
+            })
+        }
+    }
+
+    async fn call_with_body(body: Vec<u8>, content_type: &'static str) -> (Value, Arc<InMemoryFs>) {
+        let filesystem = Arc::new(InMemoryFs::new());
+        let functions = build_python_functions(
+            &[salesforce_document()],
+            Arc::new(FixedNetwork(body, content_type)),
+            filesystem.clone(),
+        );
+        let result = functions
+            .iter()
+            .find(|function| function.name() == "salesforce_query")
+            .unwrap()
+            .call(PythonCallArguments {
+                positional: Vec::new(),
+                keyword: Map::from_iter([("q".into(), json!("x"))]),
+            })
+            .await
+            .unwrap();
+        (result, filesystem)
+    }
+
+    #[tokio::test]
+    async fn large_responses_are_returned_whole_to_python() {
+        // Python code must get the real data; only printed output is capped,
+        // by the run_bash / run_python tools.
+        let records = (0..3000)
+            .map(|index| json!({"Id": format!("{index:05}"), "Name": "some account name"}))
+            .collect::<Vec<_>>();
+        let body = json!({"records": records}).to_string().into_bytes();
+        let (result, filesystem) = call_with_body(body, "application/json").await;
+        assert_eq!(result["records"].as_array().unwrap().len(), 3000);
+        assert!(!filesystem
+            .exists(Path::new("/home/user/work"))
+            .await
+            .unwrap());
+    }
+
     #[tokio::test]
     async fn path_level_and_referenced_parameters_are_sent() {
         let network = Arc::new(RecordingNetwork::default());
