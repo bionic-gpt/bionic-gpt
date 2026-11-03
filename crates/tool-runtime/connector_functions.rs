@@ -879,7 +879,7 @@ fn find_operations(connector: &ConnectorInfo, query: &str, limit: usize) -> Stri
     if terms.is_empty() {
         return "Give at least one search word.".into();
     }
-    let matches = connector
+    let mut matches = connector
         .operations
         .iter()
         .filter(|operation| {
@@ -899,6 +899,19 @@ fn find_operations(connector: &ConnectorInfo, query: &str, limit: usize) -> Stri
     if matches.is_empty() {
         return format!("No functions match {query:?}. Try fewer or different words.");
     }
+    // Reads first, then writes, then deletes; shorter paths (the collection
+    // itself) before nested ones. Alphabetical order put every DELETE ahead of
+    // every GET, so the limit cut off the functions people actually want.
+    matches.sort_by_key(|operation| {
+        let rank = match operation.method.as_str() {
+            "GET" => 0,
+            "POST" => 1,
+            "PUT" | "PATCH" => 2,
+            "DELETE" => 3,
+            _ => 4,
+        };
+        (rank, operation.path.len(), operation.function_name.as_str())
+    });
     let mut output = matches
         .iter()
         .take(limit)
@@ -2176,6 +2189,66 @@ mod tests {
             "{kept}"
         );
         assert!(kept.len() > SKILL_DESCRIPTION_CHARS / 2);
+    }
+
+    #[tokio::test]
+    async fn find_lists_reads_before_writes_and_deletes_and_short_paths_first() {
+        let operation =
+            |id: &str| json!({"operationId": id, "responses":{"200":{"description":"ok"}}});
+        let document = ConnectorDocument {
+            name: "Svc".into(),
+            slug: "svc".into(),
+            is_builtin: false,
+            document: json!({
+                "openapi":"3.0.0",
+                "info":{"title":"Svc","version":"1"},
+                "servers":[{"url":"https://upstream.example"}],
+                "paths":{
+                    "/tickets": {"get": operation("listTickets"), "post": operation("createTicket")},
+                    "/tickets/{id}": {"get": operation("getTicket"), "patch": operation("patchTicket"), "delete": operation("deleteTicket")},
+                    "/tickets/{id}/notes": {"get": operation("listNotes")},
+                    "/a/tickets": {"delete": operation("deleteATickets")}
+                }
+            }),
+        };
+        let functions = build_python_functions(
+            &[document],
+            Arc::new(RecordingNetwork::default()),
+            Arc::new(InMemoryFs::new()),
+        );
+        let find = |limit: u64| {
+            let find = functions
+                .iter()
+                .find(|function| function.name() == "svc_find")
+                .unwrap();
+            async move {
+                find.call(PythonCallArguments {
+                    positional: vec![json!("ticket")],
+                    keyword: Map::from_iter([("limit".into(), json!(limit))]),
+                })
+                .await
+                .unwrap()
+                .as_str()
+                .unwrap()
+                .to_string()
+            }
+        };
+        let all = find(20).await;
+        let methods = all
+            .lines()
+            .map(|line| line.split_whitespace().nth(1).unwrap().to_string())
+            .collect::<Vec<_>>();
+        assert_eq!(
+            methods,
+            ["GET", "GET", "GET", "POST", "PATCH", "DELETE", "DELETE"],
+            "{all}"
+        );
+        let first = all.lines().next().unwrap();
+        assert!(first.contains("GET /tickets "), "{first}");
+        // With a small limit the reads survive and the deletes are cut.
+        let limited = find(3).await;
+        assert!(!limited.contains("DELETE"), "{limited}");
+        assert!(limited.contains("[4 more matches"), "{limited}");
     }
 
     fn large_document(operations: usize) -> ConnectorDocument {
