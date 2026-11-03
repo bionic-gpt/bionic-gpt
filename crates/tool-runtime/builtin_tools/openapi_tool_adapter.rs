@@ -279,6 +279,7 @@ async fn execute_openapi_tool(
         &tool.spec,
         &tool.auth_header_name,
     );
+    let json_array_body = take_json_array_body(&mut request_body_params, operation, &tool.spec)?;
 
     tracing::debug!(
         "Separated parameters - Path: {}, Query: {}, Request Body: {}",
@@ -329,7 +330,9 @@ async fn execute_openapi_tool(
                     .contains_key("application/x-www-form-urlencoded")
         });
 
-    let body = if has_request_body && is_form {
+    let body = if let Some(array) = json_array_body {
+        Some(HttpRequestBody::Json(array))
+    } else if has_request_body && is_form {
         Some(HttpRequestBody::Form(flatten_form_fields(
             &request_body_params,
         )))
@@ -416,6 +419,41 @@ async fn execute_openapi_tool(
     }
 
     parse_http_response(response)
+}
+
+/// For an operation whose JSON request body is an array (such as a JSON Patch
+/// document), the array is passed as the `body` argument. Take it out of the
+/// loose arguments so it is sent as the whole body, not wrapped in an object.
+fn take_json_array_body(
+    arguments: &mut Value,
+    operation: &Operation,
+    spec: &oas3::OpenApiV3Spec,
+) -> Result<Option<Value>, Value> {
+    let Some(request_body) = operation
+        .request_body
+        .as_ref()
+        .and_then(|body| body.resolve(spec).ok())
+    else {
+        return Ok(None);
+    };
+    let is_array = request_body
+        .content
+        .get("application/json")
+        .and_then(|media| media.schema.as_ref())
+        .and_then(|schema| schema.resolve(spec).ok())
+        .and_then(|schema| serde_json::to_value(schema).ok())
+        .is_some_and(|schema| schema.get("type").and_then(Value::as_str) == Some("array"));
+    if !is_array {
+        return Ok(None);
+    }
+    match arguments.as_object_mut().and_then(|map| map.remove("body")) {
+        Some(Value::Array(items)) => Ok(Some(Value::Array(items))),
+        Some(_) => Err(serde_json::json!({"error": "body must be a JSON array"})),
+        None if request_body.required.unwrap_or(false) => Err(serde_json::json!({
+            "error": "body is required and must be a JSON array"
+        })),
+        None => Ok(None),
+    }
 }
 
 /// Moves header parameters out of the loose arguments and returns them as

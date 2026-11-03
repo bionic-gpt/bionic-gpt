@@ -2251,6 +2251,118 @@ mod tests {
         assert!(limited.contains("[4 more matches"), "{limited}");
     }
 
+    fn patch_document() -> ConnectorDocument {
+        ConnectorDocument {
+            name: "Tickets".into(),
+            slug: "tickets".into(),
+            is_builtin: false,
+            document: json!({
+                "openapi":"3.0.0",
+                "info":{"title":"Tickets","version":"1"},
+                "servers":[{"url":"https://upstream.example"}],
+                "paths":{"/tickets/{id}":{"patch":{
+                    "operationId":"patchTicket",
+                    "parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"integer"}}],
+                    "requestBody":{"required":true,"content":{"application/json":{"schema":{
+                        "type":"array",
+                        "items":{"$ref":"#/components/schemas/PatchOperation"}
+                    }}}},
+                    "responses":{"200":{"description":"ok"}}
+                }}},
+                "components":{"schemas":{"PatchOperation":{
+                    "type":"object",
+                    "properties":{
+                        "op":{"type":"string","enum":["add","replace","remove"]},
+                        "path":{"type":"string"},
+                        "value":{}
+                    }
+                }}}
+            }),
+        }
+    }
+
+    async fn call_patch(
+        keyword: Map<String, Value>,
+    ) -> (Result<Value, PythonFunctionError>, Arc<RecordingNetwork>) {
+        let network = Arc::new(RecordingNetwork::default());
+        let functions = build_python_functions(
+            &[patch_document()],
+            network.clone(),
+            Arc::new(InMemoryFs::new()),
+        );
+        let result = functions
+            .iter()
+            .find(|function| function.name() == "tickets_patch_ticket")
+            .unwrap()
+            .call(PythonCallArguments {
+                positional: Vec::new(),
+                keyword,
+            })
+            .await;
+        (result, network)
+    }
+
+    #[test]
+    fn array_request_bodies_are_exposed_as_a_body_argument() {
+        let connectors = catalogue(&[patch_document()]);
+        let operation = &connectors[0].operations[0];
+        assert_eq!(operation.parameters["properties"]["body"]["type"], "array");
+        let mut required = operation.parameters["required"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|name| name.as_str().unwrap())
+            .collect::<Vec<_>>();
+        required.sort();
+        assert_eq!(required, ["body", "id"]);
+        let markdown = operation_markdown(&connectors[0], operation);
+        assert!(
+            markdown.contains("- `body` (list[PatchOperation], required)"),
+            "{markdown}"
+        );
+        assert!(
+            markdown.contains("  - `op` (enum(add|replace|remove))"),
+            "{markdown}"
+        );
+    }
+
+    #[tokio::test]
+    async fn an_array_body_is_sent_as_the_whole_json_body() {
+        let patch = json!([{"op":"replace","path":"status","value":{"id":1718}}]);
+        let (result, network) = call_patch(Map::from_iter([
+            ("id".into(), json!(5417039)),
+            ("body".into(), patch.clone()),
+        ]))
+        .await;
+        result.unwrap();
+        let requests = network.0.lock().unwrap();
+        assert!(matches!(requests[0].method, HttpMethod::Patch));
+        assert_eq!(
+            requests[0].url,
+            "https://tickets.connectors.invalid/tickets/5417039"
+        );
+        let sent: Value = serde_json::from_slice(requests[0].body.as_ref().unwrap()).unwrap();
+        assert_eq!(sent, patch);
+        assert!(requests[0]
+            .headers
+            .iter()
+            .any(|header| header.name == "Content-Type" && header.value == "application/json"));
+    }
+
+    #[tokio::test]
+    async fn a_missing_or_non_array_body_is_rejected_before_any_request() {
+        let (missing, network) = call_patch(Map::from_iter([("id".into(), json!(1))])).await;
+        assert!(missing.unwrap_err().0.contains("body is required"));
+        let (wrong, network2) = call_patch(Map::from_iter([
+            ("id".into(), json!(1)),
+            ("body".into(), json!({"op": "replace"})),
+        ]))
+        .await;
+        assert!(wrong.unwrap_err().0.contains("body must be a JSON array"));
+        assert!(network.0.lock().unwrap().is_empty());
+        assert!(network2.0.lock().unwrap().is_empty());
+    }
+
     fn large_document(operations: usize) -> ConnectorDocument {
         let mut paths = Map::new();
         for index in 0..operations {
