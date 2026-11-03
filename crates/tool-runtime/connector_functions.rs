@@ -22,8 +22,8 @@ const MAX_RESPONSE_BYTES: u64 = 20 * 1024 * 1024;
 /// Largest function list written inline in `SKILL.md`; bigger connectors get a
 /// grouped overview and are searched with the discovery functions instead.
 const SKILL_FULL_LIST_BYTES: usize = 6 * 1024;
-const SKILL_DESCRIPTION_CHARS: usize = 1500;
-const SKILL_MAX_GROUPS: usize = 80;
+const SKILL_DESCRIPTION_CHARS: usize = 4000;
+const SKILL_MAX_GROUPS: usize = 40;
 /// Operation files are kept near this size; optional arguments beyond it are summarised.
 const OPERATION_DOC_BYTES: usize = 8 * 1024;
 const OPERATION_DESCRIPTION_CHARS: usize = 2000;
@@ -339,8 +339,13 @@ fn truncate_text(value: &str, max_characters: usize) -> String {
         return value.to_string();
     }
     let mut text = value.chars().take(max_characters).collect::<String>();
-    if let Some(last_space) = text.rfind(char::is_whitespace) {
-        text.truncate(last_space);
+    // Cut at a line end when one is close, so a list item is not split mid-sentence.
+    let cut = match text.rfind('\n') {
+        Some(newline) if newline > text.len() / 2 => Some(newline),
+        _ => text.rfind(char::is_whitespace),
+    };
+    if let Some(cut) = cut {
+        text.truncate(cut);
     }
     text.push('…');
     text
@@ -379,13 +384,16 @@ pub(crate) fn skill_markdown(connector: &ConnectorInfo) -> String {
         ));
         return markdown;
     }
+    // A read-only function makes the safest example.
     let example = connector
         .operations
-        .first()
+        .iter()
+        .find(|operation| operation.method == "GET")
+        .or(connector.operations.first())
         .map(|operation| operation.function_name.as_str())
         .unwrap_or("<function>");
     markdown.push_str(&format!(
-        "## Finding functions\n\nThis connector has {} functions, too many to list. Search them, then read the arguments of the one you need:\n\n```python\nprint({find}(\"keyword\"))\nprint({describe}(\"{example}\"))\n```\n\n`{find}` takes `query` (all words must match the function name, path, tag or description) and optional `limit` (default {FIND_DEFAULT_LIMIT}, max {FIND_MAX_LIMIT}). The same details are in `/home/user/skills/{}/operations/<function>.md`.\n\n## Groups\n\n",
+        "## Finding functions\n\nThis connector has {} functions, too many to list. Search them, then read the arguments of the one you need:\n\n```python\nprint({find}(\"keyword\"))\nprint({describe}(\"{example}\"))\n```\n\n`{find}` takes `query` (all words must match the function name, path, tag or description) and optional `limit` (default {FIND_DEFAULT_LIMIT}, max {FIND_MAX_LIMIT}). The same details are in `/home/user/skills/{}/operations/<function>.md`.\n\n## Largest groups\n\n",
         connector.operations.len(),
         connector.slug
     ));
@@ -393,12 +401,14 @@ pub(crate) fn skill_markdown(connector: &ConnectorInfo) -> String {
     for operation in &connector.operations {
         *groups.entry(operation_group(operation)).or_default() += 1;
     }
+    let mut groups = groups.into_iter().collect::<Vec<_>>();
+    groups.sort_by(|left, right| right.1.cmp(&left.1).then_with(|| left.0.cmp(&right.0)));
     for (group, count) in groups.iter().take(SKILL_MAX_GROUPS) {
         markdown.push_str(&format!("- `{group}`: {count}\n"));
     }
     if groups.len() > SKILL_MAX_GROUPS {
         markdown.push_str(&format!(
-            "- and {} more groups\n",
+            "- and {} more groups; use the search above\n",
             groups.len() - SKILL_MAX_GROUPS
         ));
     }
@@ -2110,6 +2120,64 @@ mod tests {
         }
     }
 
+    #[test]
+    fn largest_groups_come_first_and_the_example_is_a_read() {
+        let mut document = large_document(300);
+        // Make "zzz" the biggest group and give the alphabetically first
+        // operation a destructive method.
+        for (index, path_item) in document.document["paths"]
+            .as_object_mut()
+            .unwrap()
+            .values_mut()
+            .enumerate()
+        {
+            if index % 2 == 0 {
+                path_item["get"]["tags"] = json!(["zzz"]);
+            }
+        }
+        let first = document.document["paths"]["/group0/items0"].clone();
+        let mut delete = first.clone();
+        delete["delete"] = delete["get"].clone();
+        delete["delete"]["operationId"] = json!("aaaDelete");
+        delete.as_object_mut().unwrap().remove("get");
+        document.document["paths"]["/aaa"] = delete;
+        let connectors = catalogue(&[document]);
+        let skill = skill_markdown(&connectors[0]);
+        let groups = skill.split("## Largest groups").nth(1).unwrap();
+        assert!(groups.trim_start().starts_with("- `zzz`"), "{groups}");
+        assert!(
+            !skill.contains("big_describe(\"big_aaa_delete\")"),
+            "{skill}"
+        );
+        assert!(skill.contains("big_describe(\"big_list_items"));
+    }
+
+    #[test]
+    fn skill_descriptions_are_cut_at_a_line_end() {
+        let rules = (0..400)
+            .map(|index| format!("- rule number {index} says something useful"))
+            .collect::<Vec<_>>()
+            .join("\n");
+        let mut document = salesforce_document();
+        document.document["info"]["description"] = json!(rules.clone());
+        let connectors = catalogue(&[document]);
+        let skill = skill_markdown(&connectors[0]);
+        let about = skill
+            .split("## About\n\n")
+            .nth(1)
+            .unwrap()
+            .split("\n\n")
+            .next()
+            .unwrap();
+        let (kept, _) = about.rsplit_once('…').unwrap();
+        assert!(
+            kept.lines()
+                .all(|line| rules.lines().any(|rule| rule == line)),
+            "{kept}"
+        );
+        assert!(kept.len() > SKILL_DESCRIPTION_CHARS / 2);
+    }
+
     fn large_document(operations: usize) -> ConnectorDocument {
         let mut paths = Map::new();
         for index in 0..operations {
@@ -2143,7 +2211,7 @@ mod tests {
         let skill = skill_markdown(&connectors[0]);
         assert!(skill.contains("- `salesforce_query`"));
         assert!(skill.contains("salesforce_find(\"keyword\")"));
-        assert!(!skill.contains("## Groups"));
+        assert!(!skill.contains("## Largest groups"));
     }
 
     #[test]
