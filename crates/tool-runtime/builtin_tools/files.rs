@@ -1,5 +1,5 @@
 use crate::builtin_tools::bashkit::{
-    persist_outputs, seeded_runtime, OutputEntry, MAX_FILE_TOOL_BYTES,
+    cap_stdout, persist_outputs, seeded_runtime, OutputEntry, MAX_FILE_TOOL_BYTES,
 };
 use crate::{ToolDyn, ToolError};
 use bashkit::FileSystem;
@@ -270,9 +270,10 @@ async fn execute_operation(
                     python_functions,
                 })
                 .await?;
+            let stdout = cap_stdout(result.execution.stdout, fs.as_ref()).await?;
             let outputs = persist_output_if_needed(tool, &fs).await?;
             Ok(json!({
-                "stdout": result.execution.stdout,
+                "stdout": stdout,
                 "stderr": result.execution.stderr,
                 "exit_code": result.execution.exit_code,
                 "outputs": outputs

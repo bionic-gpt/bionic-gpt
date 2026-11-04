@@ -65,7 +65,10 @@ fn python_handler(functions: Arc<Vec<Arc<dyn PythonFunction>>>) -> PythonExterna
             let Some(function) = functions.iter().find(|function| function.name() == name) else {
                 return ExtFunctionResult::Error(MontyException::new(
                     ExcType::ValueError,
-                    Some(format!("unknown Python function: {name}")),
+                    Some(unknown_function_message(
+                        &name,
+                        functions.iter().map(|function| function.name()),
+                    )),
                 ));
             };
             let positional = match args.iter().map(monty_to_json).collect() {
@@ -151,5 +154,96 @@ fn json_to_monty(value: &Value) -> MontyObject {
                 .map(|(key, value)| (MontyObject::String(key.clone()), json_to_monty(value)))
                 .collect(),
         ),
+    }
+}
+
+/// Up to three function names sharing at least two `_` tokens with `name`,
+/// among those with the same first token (the connector slug), ignoring the
+/// leading tokens those candidates all have in common.
+fn closest_names<'a>(name: &str, names: impl Iterator<Item = &'a str>) -> Vec<&'a str> {
+    let slug = name.split('_').next().unwrap_or_default();
+    let names: Vec<&str> = names
+        .filter(|candidate| candidate.split('_').next() == Some(slug))
+        .collect();
+    let Some(first) = names.first() else {
+        return Vec::new();
+    };
+    let skip = first
+        .split('_')
+        .enumerate()
+        .take_while(|(i, token)| {
+            names
+                .iter()
+                .all(|other| other.split('_').nth(*i) == Some(*token))
+        })
+        .count();
+    let wanted: Vec<&str> = name.split('_').skip(skip).collect();
+    let mut scored: Vec<(usize, &str)> = names
+        .iter()
+        .map(|candidate| {
+            let score = candidate
+                .split('_')
+                .skip(skip)
+                .filter(|token| wanted.contains(token))
+                .count();
+            (score, *candidate)
+        })
+        .filter(|(score, _)| *score >= 2)
+        .collect();
+    scored.sort_by(|a, b| b.0.cmp(&a.0).then(a.1.len().cmp(&b.1.len())));
+    scored
+        .into_iter()
+        .take(3)
+        .map(|(_, candidate)| candidate)
+        .collect()
+}
+
+fn unknown_function_message<'a>(name: &str, names: impl Iterator<Item = &'a str>) -> String {
+    let close = closest_names(name, names);
+    if close.is_empty() {
+        format!("unknown Python function: {name}")
+    } else {
+        format!(
+            "unknown Python function: {name}. Did you mean: {}? Use the find function to search.",
+            close.join(", ")
+        )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn suggests_close_names() {
+        let names = [
+            "cw_get_time_work_roles",
+            "cw_get_time_work_roles_by_id",
+            "cw_get_service_tickets",
+            "cw_find",
+        ];
+        let msg = unknown_function_message("cw_get_service_work_roles", names.iter().copied());
+        assert!(msg.contains("cw_get_time_work_roles"), "{msg}");
+        assert!(!msg.contains("cw_find"), "{msg}");
+        assert_eq!(
+            unknown_function_message("cw_zzz", names.iter().copied()),
+            "unknown Python function: cw_zzz"
+        );
+    }
+
+    #[test]
+    fn other_connectors_do_not_dilute_suggestions() {
+        let names = [
+            "cw_get_time_work_roles",
+            "cw_get_company_sites",
+            "cw_find",
+            "github_get_repo",
+        ];
+        // Without per-slug filtering the shared prefix is empty, so "cw" + "get"
+        // would score 2 and suggest cw_get_company_sites for a typo'd work role.
+        let msg = unknown_function_message("cw_get_work_roles", names.iter().copied());
+        assert!(msg.contains("cw_get_time_work_roles"), "{msg}");
+        assert!(!msg.contains("cw_get_company_sites"), "{msg}");
+        assert!(!msg.contains("github"), "{msg}");
     }
 }

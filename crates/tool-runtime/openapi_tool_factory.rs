@@ -224,7 +224,17 @@ impl BionicOpenAPI {
         let request_body_ref = operation.request_body.as_ref()?;
         let request_body = request_body_ref.resolve(&self.spec).ok()?;
 
-        self.extract_schema_from_request_body_value(&request_body)
+        let schema = self.extract_schema_from_request_body_value(&request_body)?;
+        // A body that is a JSON array (for example a JSON Patch document) has no
+        // properties to merge, so it is exposed as one argument named `body`.
+        if schema.get("type").and_then(Value::as_str) == Some("array") {
+            let mut wrapper = json!({"type": "object", "properties": {"body": schema}});
+            if request_body.required.unwrap_or(false) {
+                wrapper["required"] = json!(["body"]);
+            }
+            return Some(wrapper);
+        }
+        Some(schema)
     }
 
     /// Extract schema from a request body JSON value
@@ -232,7 +242,12 @@ impl BionicOpenAPI {
         let content = request_body
             .content
             .get("application/json")
-            .or_else(|| request_body.content.get("multipart/form-data"))?;
+            .or_else(|| request_body.content.get("multipart/form-data"))
+            .or_else(|| {
+                request_body
+                    .content
+                    .get("application/x-www-form-urlencoded")
+            })?;
         let schema_ref = content.schema.as_ref()?;
         let schema = schema_ref.resolve(&self.spec).ok()?;
         serde_json::to_value(schema).ok()

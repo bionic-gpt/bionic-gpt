@@ -22,6 +22,9 @@ use std::sync::{Arc, Mutex, OnceLock};
 #[derive(Clone, Debug)]
 pub enum HttpRequestBody {
     Json(Value),
+    /// `application/x-www-form-urlencoded`, with nested values already flattened
+    /// to bracketed names such as `metadata[key]`.
+    Form(Vec<(String, String)>),
     Multipart {
         fields: Vec<(String, String)>,
         files: Vec<(String, String, Vec<u8>)>,
@@ -78,6 +81,7 @@ impl HttpClient for ReqwestHttpClient {
         if let Some(body) = body {
             match body {
                 HttpRequestBody::Json(body) => request = request.json(&body),
+                HttpRequestBody::Form(fields) => request = request.form(&fields),
                 HttpRequestBody::Multipart { fields, files } => {
                     let mut form = reqwest::multipart::Form::new();
                     for (name, value) in fields {
@@ -266,9 +270,16 @@ async fn execute_openapi_tool(
     let args: Value = arguments.clone();
 
     // Separate path, query, and request body parameters
-    let (path_params, query_params, request_body_params) =
+    let (path_params, query_params, mut request_body_params) =
         separate_parameters(&args, operation, &tool.spec)
             .map_err(|e| crate::json_error("Failed to separate parameters", e))?;
+    let header_params = take_header_parameters(
+        &mut request_body_params,
+        operation,
+        &tool.spec,
+        &tool.auth_header_name,
+    );
+    let json_array_body = take_json_array_body(&mut request_body_params, operation, &tool.spec)?;
 
     tracing::debug!(
         "Separated parameters - Path: {}, Query: {}, Request Body: {}",
@@ -307,7 +318,25 @@ async fn execute_openapi_tool(
         .and_then(|request_body| request_body.resolve(&tool.spec).ok())
         .is_some_and(|request_body| request_body.content.contains_key("multipart/form-data"));
 
-    let body = if has_request_body && is_multipart {
+    let is_form = operation
+        .request_body
+        .as_ref()
+        .and_then(|request_body| request_body.resolve(&tool.spec).ok())
+        .is_some_and(|request_body| {
+            !request_body.content.contains_key("application/json")
+                && !request_body.content.contains_key("multipart/form-data")
+                && request_body
+                    .content
+                    .contains_key("application/x-www-form-urlencoded")
+        });
+
+    let body = if let Some(array) = json_array_body {
+        Some(HttpRequestBody::Json(array))
+    } else if has_request_body && is_form {
+        Some(HttpRequestBody::Form(flatten_form_fields(
+            &request_body_params,
+        )))
+    } else if has_request_body && is_multipart {
         let mut fields = Vec::new();
         let mut files = Vec::new();
         if let Some(values) = request_body_params.as_object() {
@@ -351,12 +380,17 @@ async fn execute_openapi_tool(
         None
     };
 
+    let request_headers = || async {
+        let mut headers = tool.collect_headers().await;
+        headers.extend(header_params.iter().cloned());
+        headers
+    };
     let mut response = tool
         .client
         .send(
             http_method.clone(),
             url.clone(),
-            tool.collect_headers().await,
+            request_headers().await,
             body.clone(),
         )
         .await
@@ -368,7 +402,7 @@ async fn execute_openapi_tool(
             provider.force_refresh().await;
             response = tool
                 .client
-                .send(http_method, url, tool.collect_headers().await, body.clone())
+                .send(http_method, url, request_headers().await, body.clone())
                 .await
                 .map_err(|e| crate::json_error("Failed to make request", e))?;
         }
@@ -385,6 +419,112 @@ async fn execute_openapi_tool(
     }
 
     parse_http_response(response)
+}
+
+/// For an operation whose JSON request body is an array (such as a JSON Patch
+/// document), the array is passed as the `body` argument. Take it out of the
+/// loose arguments so it is sent as the whole body, not wrapped in an object.
+fn take_json_array_body(
+    arguments: &mut Value,
+    operation: &Operation,
+    spec: &oas3::OpenApiV3Spec,
+) -> Result<Option<Value>, Value> {
+    let Some(request_body) = operation
+        .request_body
+        .as_ref()
+        .and_then(|body| body.resolve(spec).ok())
+    else {
+        return Ok(None);
+    };
+    let is_array = request_body
+        .content
+        .get("application/json")
+        .and_then(|media| media.schema.as_ref())
+        .and_then(|schema| schema.resolve(spec).ok())
+        .and_then(|schema| serde_json::to_value(schema).ok())
+        .is_some_and(|schema| schema.get("type").and_then(Value::as_str) == Some("array"));
+    if !is_array {
+        return Ok(None);
+    }
+    match arguments.as_object_mut().and_then(|map| map.remove("body")) {
+        Some(Value::Array(items)) => Ok(Some(Value::Array(items))),
+        Some(_) => Err(serde_json::json!({"error": "body must be a JSON array"})),
+        None if request_body.required.unwrap_or(false) => Err(serde_json::json!({
+            "error": "body is required and must be a JSON array"
+        })),
+        None => Ok(None),
+    }
+}
+
+/// Moves header parameters out of the loose arguments and returns them as
+/// request headers, falling back to the schema default when not supplied.
+/// Headers the runtime sets itself (`Accept`, `Content-Type`, `Authorization`
+/// and the auth header) are never taken from the model, so it cannot add a
+/// second credential next to the injected one.
+fn take_header_parameters(
+    arguments: &mut Value,
+    operation: &Operation,
+    spec: &oas3::OpenApiV3Spec,
+    auth_header_name: &str,
+) -> Vec<(String, String)> {
+    let Some(arguments) = arguments.as_object_mut() else {
+        return Vec::new();
+    };
+    let mut headers = Vec::new();
+    for parameter in operation.parameters(spec).unwrap_or_default() {
+        if parameter.location != ParameterIn::Header {
+            continue;
+        }
+        if ["accept", "content-type", "authorization", auth_header_name]
+            .iter()
+            .any(|name| parameter.name.eq_ignore_ascii_case(name))
+        {
+            arguments.remove(&parameter.name);
+            continue;
+        }
+        let value = arguments.remove(&parameter.name).or_else(|| {
+            let schema = parameter.schema.as_ref()?.resolve(spec).ok()?;
+            serde_json::to_value(schema).ok()?.get("default").cloned()
+        });
+        let text = match value {
+            Some(Value::String(text)) => text,
+            Some(Value::Number(number)) => number.to_string(),
+            Some(Value::Bool(flag)) => flag.to_string(),
+            _ => continue,
+        };
+        headers.push((parameter.name.clone(), text));
+    }
+    headers
+}
+
+/// Flattens nested JSON into form fields: `{"a":{"b":1},"c":[2]}` becomes
+/// `a[b]=1` and `c[0]=2`. Nulls are skipped.
+pub(crate) fn flatten_form_fields(value: &Value) -> Vec<(String, String)> {
+    fn walk(prefix: &str, value: &Value, out: &mut Vec<(String, String)>) {
+        match value {
+            Value::Object(map) => {
+                for (key, value) in map {
+                    let name = if prefix.is_empty() {
+                        key.clone()
+                    } else {
+                        format!("{prefix}[{key}]")
+                    };
+                    walk(&name, value, out);
+                }
+            }
+            Value::Array(items) => {
+                for (index, item) in items.iter().enumerate() {
+                    walk(&format!("{prefix}[{index}]"), item, out);
+                }
+            }
+            Value::Null => {}
+            Value::String(text) => out.push((prefix.to_string(), text.clone())),
+            other => out.push((prefix.to_string(), other.to_string())),
+        }
+    }
+    let mut fields = Vec::new();
+    walk("", value, &mut fields);
+    fields
 }
 
 fn append_query_parameters(url: &mut Url, query_params: &Value) {
@@ -642,6 +782,56 @@ mod tests {
         assert_eq!(value["__bionic_binary"], true);
         assert_eq!(value["content_type"], "application/pdf");
         assert_eq!(value["content_base64"], "cGRmIGJ5dGVz");
+    }
+
+    #[test]
+    fn flattens_nested_values_into_bracketed_form_fields() {
+        let mut fields = flatten_form_fields(&json!({
+            "a": {"b": 1, "c": [true, "x"]},
+            "skip": null,
+            "name": "n"
+        }));
+        fields.sort();
+        assert_eq!(
+            fields,
+            vec![
+                ("a[b]".to_string(), "1".to_string()),
+                ("a[c][0]".to_string(), "true".to_string()),
+                ("a[c][1]".to_string(), "x".to_string()),
+                ("name".to_string(), "n".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn runtime_owned_headers_are_not_taken_from_arguments() {
+        let header =
+            |name: &str| json!({"name": name, "in": "header", "schema": {"type": "string"}});
+        let spec: oas3::OpenApiV3Spec = serde_json::from_value(json!({
+            "openapi": "3.0.0",
+            "info": {"title": "t", "version": "1"},
+            "paths": {"/x": {"get": {
+                "operationId": "x",
+                "parameters": [
+                    header("X-Trace"),
+                    header("Authorization"),
+                    header("x-api-key"),
+                    header("Accept")
+                ],
+                "responses": {"200": {"description": "ok"}}
+            }}}
+        }))
+        .unwrap();
+        let operation = spec.paths.as_ref().unwrap()["/x"].get.as_ref().unwrap();
+        let mut arguments = json!({
+            "X-Trace": "t1",
+            "Authorization": "Bearer model",
+            "x-api-key": "model",
+            "Accept": "text/html"
+        });
+        let headers = take_header_parameters(&mut arguments, operation, &spec, "X-API-Key");
+        assert_eq!(headers, vec![("X-Trace".to_string(), "t1".to_string())]);
+        assert_eq!(arguments, json!({}));
     }
 
     #[test]
