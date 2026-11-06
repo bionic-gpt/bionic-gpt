@@ -462,21 +462,19 @@ async fn consume_rig_stream(
                     );
                     tool_calls.push(tool_call);
                 }
-                AssistantContent::Text(text) => {
-                    if !text_parts_with_deltas.contains(&part.index()) {
-                        snapshot.push_str(&text.text);
-                        if sender
-                            .send(Ok(GenerationEvent::Text { delta: text.text }))
-                            .await
-                            .is_err()
-                        {
-                            return Ok(StreamOutcome::ClientDisconnected {
-                                snapshot,
-                                tool_calls: (!tool_calls.is_empty()).then_some(tool_calls),
-                                reasoning: seal_reasoning(&reasoning, &reasoning_issuer),
-                                usage,
-                            });
-                        }
+                AssistantContent::Text(text) if !text_parts_with_deltas.contains(&part.index()) => {
+                    snapshot.push_str(&text.text);
+                    if sender
+                        .send(Ok(GenerationEvent::Text { delta: text.text }))
+                        .await
+                        .is_err()
+                    {
+                        return Ok(StreamOutcome::ClientDisconnected {
+                            snapshot,
+                            tool_calls: (!tool_calls.is_empty()).then_some(tool_calls),
+                            reasoning: seal_reasoning(&reasoning, &reasoning_issuer),
+                            usage,
+                        });
                     }
                 }
                 AssistantContent::Reasoning(sealed) => {
