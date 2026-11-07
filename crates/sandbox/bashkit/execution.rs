@@ -42,8 +42,8 @@ pub(super) async fn execute(
 
 fn from_exec(result: bashkit::ExecResult, elapsed: Duration) -> ExecutionResult {
     ExecutionResult {
-        stdout: result.stdout,
-        stderr: result.stderr,
+        stdout: result.stdout.to_string(),
+        stderr: result.stderr.to_string(),
         exit_code: result.exit_code,
         duration_ms: elapsed.as_millis(),
         stdout_truncated: result.stdout_truncated,
