@@ -1215,7 +1215,7 @@ async fn document_chunks(
             WHERE c.document_id = $1
               AND d.dataset_id = $2
             ORDER BY c.page_number ASC, c.id ASC
-            LIMIT $4
+            LIMIT $3
             ",
             &[&document_id, &dataset_id, &CHUNKS_PER_DOCUMENT_LIMIT],
         )
@@ -1484,6 +1484,23 @@ mod tests {
         assert_eq!(
             fs.read_file(Path::new(path)).await.unwrap(),
             stdout.as_bytes()
+        );
+    }
+
+    #[test]
+    fn document_chunks_query_uses_limit_placeholder_three() {
+        let src = include_str!("bashkit.rs");
+        let query_start = src
+            .find("async fn document_chunks")
+            .expect("document_chunks should be defined");
+        let query_section = &src[query_start..query_start + 1200];
+        assert!(
+            query_section.contains("LIMIT $3"),
+            "document_chunks should bind the limit as the third query parameter"
+        );
+        assert!(
+            !query_section.contains("LIMIT $4"),
+            "document_chunks must not reference a fourth unused parameter"
         );
     }
 
