@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use std::path::Path;
 use std::{env, fs};
 
-use dagger_sdk::{Container, Directory, File, Query, Service};
+use dagger_sdk::{Container, ContainerWithNewFileOpts, Directory, File, Query, Service};
 use eyre::{Result, WrapErr, eyre};
 use serde_yaml::{Mapping, Value};
 
@@ -20,6 +20,29 @@ pub(crate) enum PublishMode {
     PullRequest,
     All,
 }
+
+/// Entrypoint for the `bionicgpt-db-migrations` image.
+///
+/// Runs dbmate, then optionally honours `APPLICATION_USER_PASSWORD`: when set,
+/// the `application_user` role created by the initial migration (which uses
+/// the hardcoded development password `testpassword`) is updated to use the
+/// operator-supplied password. This lets `app`, `cron` and `rag-engine` run
+/// with a non-default `APP_DATABASE_URL` password out of the box. Deployments
+/// that create the roles via infrastructure as code simply leave the variable
+/// unset and the migration default is kept.
+const MIGRATIONS_ENTRYPOINT_SCRIPT: &str = r#"#!/bin/sh
+set -e
+
+dbmate --migrations-dir ./migrations up
+
+if [ -n "$APPLICATION_USER_PASSWORD" ]; then
+    # psql variables are only interpolated in scripts read from stdin/`-f`,
+    # and `:'var'` safely quotes the value.
+    psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -v application_password="$APPLICATION_USER_PASSWORD" <<'SQL'
+ALTER ROLE application_user WITH PASSWORD :'application_password';
+SQL
+fi
+"#;
 
 fn collect_image_tags() -> Vec<String> {
     let mut tags = vec!["latest".to_string()];
@@ -497,7 +520,16 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         ])
         .with_directory("/db", db_dir)
         .with_workdir("/db")
-        .with_entrypoint(vec!["dbmate", "--migrations-dir", "./migrations", "up"]);
+        .with_new_file_opts(
+            "/entrypoint.sh",
+            MIGRATIONS_ENTRYPOINT_SCRIPT,
+            ContainerWithNewFileOpts {
+                owner: None,
+                expand: None,
+                permissions: Some(0o755),
+            },
+        )
+        .with_entrypoint(vec!["/entrypoint.sh"]);
 
     ensure_built(&migrations_container, "migration image").await?;
     maybe_publish(
