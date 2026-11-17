@@ -91,8 +91,12 @@ pub async fn create(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let (_permissions, team_id_num) =
+    let (permissions, team_id_num) =
         authz::get_permisisons(&transaction, &current_user.into(), team_slug).await?;
+
+    if !permissions.can_make_invitations() {
+        return Err(CustomError::Authorization);
+    }
 
     let invitation_selector = rand::rng().random::<[u8; 6]>();
     let invitation_selector_base64 = URL_SAFE_NO_PAD.encode(invitation_selector);

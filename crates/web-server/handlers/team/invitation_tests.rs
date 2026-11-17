@@ -5,7 +5,7 @@ use axum::Form;
 // Run against a migrated development database, with the acceptance handlers using
 // application_user rather than the fixture owner's privileges.
 #[tokio::test]
-async fn invitation_acceptance_security() {
+async fn invitation_creation_and_acceptance_security() {
     let owner_pool = db::create_pool(&std::env::var("DATABASE_URL").expect("DATABASE_URL"));
     let app_pool = db::create_pool(&std::env::var("APP_DATABASE_URL").expect("APP_DATABASE_URL"));
     let app = app_pool.get().await.unwrap();
@@ -57,6 +57,75 @@ async fn invitation_acceptance_security() {
         given_name: None,
         family_name: None,
     };
+    // Invitation creation checks permissions for the selected team. Being a
+    // manager elsewhere must not let a Collaborator grant manager roles here.
+    owner.execute(
+        "INSERT INTO iam.team_users (user_id,team_id,roles) VALUES ($1,$2,ARRAY['Collaborator']::public.role[]), ($3,$2,ARRAY['TeamManager','Collaborator']::public.role[]), ($1,$4,ARRAY['TeamManager']::public.role[])",
+        &[&users[0].0, &teams[0], &users[1].0, &teams[2]],
+    ).await.unwrap();
+    let team_slug = db::team_public_id::encode(teams[0]).unwrap();
+    for admin in [None, Some("on".to_string())] {
+        let new_invite = super::super::create_invite::NewInvite {
+            email: format!("{prefix}-new@example.test"),
+            first_name: "Test".to_string(),
+            last_name: "Invite".to_string(),
+            admin,
+        };
+        assert!(matches!(
+            super::super::create_invite::create(&app_pool, jwt(0), &new_invite, &team_slug).await,
+            Err(CustomError::Authorization)
+        ));
+        assert!(
+            super::super::create_invite::create(&app_pool, jwt(2), &new_invite, &team_slug)
+                .await
+                .is_err()
+        );
+        let count: i64 = owner
+            .query_one(
+                "SELECT count(*) FROM iam.invitations WHERE team_id=$1",
+                &[&teams[0]],
+            )
+            .await
+            .unwrap()
+            .get(0);
+        assert_eq!(count, 0, "Denied requests must not create invitations");
+
+        let (_, selector) =
+            super::super::create_invite::create(&app_pool, jwt(1), &new_invite, &team_slug)
+                .await
+                .unwrap();
+        let invitation = owner
+            .query_one(
+                "SELECT team_id,roles::text FROM iam.invitations WHERE invitation_selector=$1",
+                &[&selector],
+            )
+            .await
+            .unwrap();
+        assert_eq!(invitation.get::<_, i32>(0), teams[0]);
+        assert_eq!(
+            invitation.get::<_, String>(1),
+            if new_invite.admin.is_some() {
+                "{TeamManager,Collaborator}"
+            } else {
+                "{Collaborator}"
+            }
+        );
+        owner
+            .execute(
+                "DELETE FROM iam.invitations WHERE invitation_selector=$1",
+                &[&selector],
+            )
+            .await
+            .unwrap();
+    }
+    owner
+        .execute(
+            "DELETE FROM iam.team_users WHERE team_id = ANY($1)",
+            &[&teams],
+        )
+        .await
+        .unwrap();
+
     let verifier = URL_SAFE_NO_PAD.encode(b"test invitation secret");
     let hash = URL_SAFE_NO_PAD.encode(Sha256::digest(b"test invitation secret"));
     let mut invitations = Vec::new();
