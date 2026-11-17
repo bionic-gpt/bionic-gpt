@@ -20,45 +20,21 @@ INSERT INTO
         :invitation_verifier_hash, 
         :roles);
 
---! get_invitation : Invitation
-SELECT
-    id, 
-    team_id, 
-    email, 
-    first_name, 
-    last_name, 
-    invitation_selector, 
-    invitation_verifier_hash,
-    roles,
-    created_at
-FROM 
-    iam.invitations 
-WHERE
-    invitation_selector = :invitation_selector;
+-- Claim exactly one invitation atomically. Callers must validate and create
+-- membership in the same transaction so failures restore the invitation.
+--! consume_invitation : Invitation
+DELETE FROM iam.invitations
+WHERE invitation_selector = :invitation_selector
+AND email = (SELECT email FROM iam.users WHERE id = current_app_user())
+RETURNING id, team_id, email, first_name, last_name,
+    invitation_selector, invitation_verifier_hash, roles, created_at;
 
---! get_invitation_by_id : Invitation
-SELECT
-    id, 
-    team_id, 
-    email, 
-    first_name, 
-    last_name, 
-    invitation_selector, 
-    invitation_verifier_hash,
-    roles,
-    created_at
-FROM 
-    iam.invitations 
-WHERE
-    id = :invite_id;
-
---! delete_invitation
-DELETE FROM
-    iam.invitations
-WHERE
-    email = :email
-AND
-    team_id = :team_id;
+--! consume_invitation_by_id : Invitation
+DELETE FROM iam.invitations
+WHERE id = :invite_id
+AND email = (SELECT email FROM iam.users WHERE id = current_app_user())
+RETURNING id, team_id, email, first_name, last_name,
+    invitation_selector, invitation_verifier_hash, roles, created_at;
 
 --! delete
 DELETE FROM

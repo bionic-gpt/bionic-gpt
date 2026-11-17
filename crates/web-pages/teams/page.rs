@@ -83,8 +83,7 @@ pub fn page(
 
                     for invite in invites {
                         super::accept_invitation::AcceptInvite {
-                            invite,
-                            team_id: team_id.clone()
+                            invite
                         }
                 }
                 }

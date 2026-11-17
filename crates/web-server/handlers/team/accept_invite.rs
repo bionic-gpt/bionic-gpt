@@ -35,7 +35,7 @@ pub async fn accept_invitation(
 ) -> Result<String, CustomError> {
     let invitation_verifier = URL_SAFE_NO_PAD
         .decode(invitation_verifier)
-        .map_err(|e| CustomError::FaultySetup(e.to_string()))?;
+        .map_err(|_| CustomError::Authorization)?;
     let invitation_verifier_hash = Sha256::digest(&invitation_verifier);
     let invitation_verifier_hash_base64 = URL_SAFE_NO_PAD.encode(invitation_verifier_hash);
 
@@ -44,53 +44,50 @@ pub async fn accept_invitation(
     let transaction = client.transaction().await?;
     let user_id = authz::set_row_level_security_user_id(&transaction, current_user.sub).await?;
 
-    let invitation = queries::invitations::get_invitation()
+    let invitation = queries::invitations::consume_invitation()
         .bind(&transaction, &invitation_selector)
+        .opt()
+        .await?
+        .ok_or(CustomError::Authorization)?;
+
+    // The recipient-scoped deletion is rolled back on any validation or write failure.
+    if invitation.invitation_verifier_hash != invitation_verifier_hash_base64 {
+        return Err(CustomError::Authorization);
+    }
+
+    let user = queries::users::user()
+        .bind(&transaction, &user_id)
         .one()
         .await?;
 
-    if invitation.invitation_verifier_hash == invitation_verifier_hash_base64 {
-        let user = queries::users::user()
-            .bind(&transaction, &user_id)
-            .one()
+    queries::teams::add_user_to_team()
+        .bind(
+            &transaction,
+            &user_id,
+            &invitation.team_id,
+            &invitation.roles,
+        )
+        .await?;
+
+    if (None, None) == (user.first_name, user.last_name) {
+        queries::users::set_name()
+            .bind(
+                &transaction,
+                &invitation.first_name,
+                &invitation.last_name,
+                &user_id,
+            )
             .await?;
-
-        // Make sure the user accepting the invitation is the user that we emailed
-        if user.email == invitation.email {
-            let user = queries::users::get_by_email()
-                .bind(&transaction, &user.email)
-                .one()
-                .await?;
-
-            queries::teams::add_user_to_team()
-                .bind(
-                    &transaction,
-                    &user.id,
-                    &invitation.team_id,
-                    &invitation.roles,
-                )
-                .await?;
-
-            // I the user has not set their name yet, we do it for them based on the invitation.
-            if (None, None) == (user.first_name, user.last_name) {
-                queries::users::set_name()
-                    .bind(
-                        &transaction,
-                        &invitation.first_name,
-                        &invitation.last_name,
-                        &user_id,
-                    )
-                    .await?;
-            }
-
-            queries::invitations::delete_invitation()
-                .bind(&transaction, &invitation.email, &invitation.team_id)
-                .await?;
-        }
     }
+
+    let team_id = db::team_public_id::encode(invitation.team_id)
+        .ok_or_else(|| CustomError::FaultySetup("Could not encode team id".to_string()))?;
 
     transaction.commit().await?;
 
-    db::team_public_id::encode(invitation.team_id)
-        .ok_or_else(|| CustomError::FaultySetup("Could not encode team id".to_string()))
+    Ok(team_id)
 }
+
+#[cfg(test)]
+#[path = "invitation_tests.rs"]
+mod invitation_tests;
