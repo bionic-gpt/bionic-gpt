@@ -256,6 +256,12 @@ pub mod models {
         pub team_id: String,
         pub id: i32,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/models/import-litellm")]
+    pub struct ImportLiteLLM {
+        pub team_id: String,
+    }
 }
 
 pub mod providers {
