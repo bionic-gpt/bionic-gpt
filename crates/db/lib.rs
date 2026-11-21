@@ -65,6 +65,7 @@ impl std::fmt::Display for ModelProvider {
             ModelProvider::OpenRouter => "OpenRouter",
             ModelProvider::Ollama => "Ollama",
             ModelProvider::OpenAICompatible => "OpenAICompatible",
+            ModelProvider::LiteLLM => "LiteLLM",
         })
     }
 }
@@ -79,6 +80,7 @@ impl FromStr for ModelProvider {
             "OpenRouter" => Ok(Self::OpenRouter),
             "Ollama" => Ok(Self::Ollama),
             "OpenAICompatible" => Ok(Self::OpenAICompatible),
+            "LiteLLM" => Ok(Self::LiteLLM),
             _ => Err(format!("Unsupported model provider adapter: {value}")),
         }
     }
@@ -94,6 +96,10 @@ mod migration_tests {
         include_str!("migrations/20260826060507_add-model-provider-adapters.sql");
     const REMOVE_ASSISTANTS_MIGRATION: &str =
         include_str!("migrations/20260826063015_remove-assistants.sql");
+    const LITELLM_PROVIDER_TYPE_MIGRATION: &str =
+        include_str!("migrations/20261120120000_add-litellm-provider-type.sql");
+    const LITELLM_PROVIDER_SEED_MIGRATION: &str =
+        include_str!("migrations/20261120120100_seed-litellm-provider.sql");
 
     #[test]
     fn runtime_prompt_defines_the_persistent_output_contract() {
@@ -136,6 +142,21 @@ mod migration_tests {
             assert!(MODEL_PROVIDER_MIGRATION.contains(mapping));
         }
         assert!(MODEL_PROVIDER_MIGRATION.contains("SET provider_type = provider.provider_type"));
+    }
+
+    #[test]
+    fn litellm_provider_type_is_committed_before_the_seed_uses_it() {
+        // A new enum value cannot be used before it commits, so the value and
+        // the provider row that uses it are separate migrations.
+        assert!(LITELLM_PROVIDER_TYPE_MIGRATION.starts_with("-- migrate:up transaction:false"));
+        assert!(LITELLM_PROVIDER_TYPE_MIGRATION
+            .contains("ALTER TYPE model_provider ADD VALUE IF NOT EXISTS 'LiteLLM'"));
+        assert!(!LITELLM_PROVIDER_TYPE_MIGRATION.contains("INSERT"));
+        assert!(LITELLM_PROVIDER_SEED_MIGRATION.contains("WHERE provider_type = 'LiteLLM'"));
+        for value in ["OpenAI", "OpenAICompatible", "LiteLLM"] {
+            let provider: super::ModelProvider = value.parse().unwrap();
+            assert_eq!(provider.to_string(), value);
+        }
     }
 
     #[test]

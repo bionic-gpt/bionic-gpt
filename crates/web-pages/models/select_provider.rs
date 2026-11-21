@@ -89,12 +89,67 @@ pub fn page(team_id: String, rbac: Rbac, setup_required: bool, providers: Vec<Pr
             }
 
             for provider in &providers {
-                {provider_modal(team_id.clone(), &rbac, provider, default_visibility)}
+                if provider.provider_type == db::ModelProvider::LiteLLM {
+                    {litellm_import_modal(team_id.clone(), provider)}
+                } else {
+                    {provider_modal(team_id.clone(), &rbac, provider, default_visibility)}
+                }
             }
         }
     };
 
     crate::render(page)
+}
+
+/// A LiteLLM proxy serves many models, so its card imports all of them from
+/// the proxy's `/model/info` instead of creating one default model.
+fn litellm_import_modal(team_id: String, provider: &Provider) -> Element {
+    rsx! {
+        Modal {
+            trigger_id: format!("new-model-provider-{}", provider.id),
+            submit_action: crate::routes::models::ImportLiteLLM { team_id }.to_string(),
+            ModalBody {
+                class: "flex flex-col gap-4",
+                h3 { class: "font-bold text-lg", "Import Models: {provider.name}" }
+                p { class: "text-sm text-base-content/70", "{provider.default_model_description}" }
+                p { class: "text-sm text-base-content/70", "Bionic reads the proxy's /model/info and creates a model for every chat and embedding alias, with its context window and tool and vision support. Aliases already set up for this URL are skipped." }
+
+                Fieldset {
+                    legend: "Proxy URL",
+                    help_text: "The LiteLLM proxy's OpenAI-compatible base URL",
+                    Input {
+                        input_type: InputType::Text,
+                        class: "w-full",
+                        name: "base_url",
+                        value: "{provider.base_url}",
+                        required: true
+                    }
+                }
+                Fieldset {
+                    legend: "API Key",
+                    help_text: "A LiteLLM virtual key or master key. Leave empty for a proxy without keys.",
+                    Input {
+                        input_type: InputType::Text,
+                        class: "w-full",
+                        name: "api_key",
+                        required: false
+                    }
+                }
+                ModalAction {
+                    Button {
+                        class: "cancel-modal",
+                        button_scheme: ButtonScheme::Warning,
+                        "Cancel"
+                    }
+                    Button {
+                        button_type: ButtonType::Submit,
+                        button_scheme: ButtonScheme::Primary,
+                        "Import Models"
+                    }
+                }
+            }
+        }
+    }
 }
 
 fn provider_modal(

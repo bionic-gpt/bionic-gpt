@@ -360,6 +360,7 @@ pub(crate) async fn stream_chat_with_rig(
     let stream = match request.provider_type {
         db::ModelProvider::OpenAI
         | db::ModelProvider::OpenAICompatible
+        | db::ModelProvider::LiteLLM
         | db::ModelProvider::Groq
         | db::ModelProvider::OpenRouter => {
             let dialect = match request.provider_type {

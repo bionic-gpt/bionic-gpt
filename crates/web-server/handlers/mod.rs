@@ -7,6 +7,7 @@ pub mod datasets;
 pub mod documents;
 pub mod history;
 pub mod integrations;
+pub mod litellm_models;
 pub mod mcp;
 pub mod mcp_api_keys;
 pub mod mcp_apps;

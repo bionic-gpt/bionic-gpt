@@ -19,11 +19,12 @@ use db::queries::capabilities;
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::models::upsert as model_page;
-use web_pages::routes::models::{Delete, Edit, Index, New, SelectProvider, Upsert};
+use web_pages::routes::models::{Delete, Edit, ImportLiteLLM, Index, New, SelectProvider, Upsert};
 use web_pages::visibility_to_string;
 
 const DEFAULT_TPM_LIMIT: i32 = 1_000_000;
 const DEFAULT_RPM_LIMIT: i32 = 10_000;
+const DEFAULT_DISCLAIMER: &str = "AI can make mistakes. Check important information.";
 
 #[derive(Deserialize, Default)]
 pub struct ProviderQuery {
@@ -38,6 +39,7 @@ pub fn routes() -> Router {
         .typed_get(edit_loader)
         .typed_post(upsert_action)
         .typed_post(delete_action)
+        .typed_post(import_litellm_action)
 }
 
 pub async fn loader(
@@ -600,5 +602,187 @@ pub async fn upsert_action(
             "Problem with Model Validation",
         )
         .into_response()),
+    }
+}
+
+#[derive(Deserialize, Validate, Debug)]
+pub struct ImportLiteLlmForm {
+    #[validate(length(min = 1, message = "The base URL is mandatory"))]
+    pub base_url: String,
+    #[serde(default, deserialize_with = "empty_string_is_none")]
+    pub api_key: Option<String>,
+}
+
+/// Creates a model for every alias a LiteLLM proxy serves, with the context
+/// window and capabilities its `/model/info` reports. Aliases already set up
+/// against the same base URL are left as they are.
+pub async fn import_litellm_action(
+    ImportLiteLLM { team_id }: ImportLiteLLM,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+    Form(form): Form<ImportLiteLlmForm>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+    let (rbac, _team_id_num) =
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
+
+    if !rbac.can_setup_models() {
+        return Err(CustomError::Authorization);
+    }
+
+    let select_provider = SelectProvider {
+        team_id: team_id.clone(),
+    }
+    .to_string();
+    if form.validate().is_err() {
+        return Ok(crate::layout::redirect_and_snackbar(
+            &select_provider,
+            "The base URL is mandatory",
+        )
+        .into_response());
+    }
+
+    let base_url = form.base_url.trim().trim_end_matches('/').to_string();
+    let proxy_models = match super::litellm_models::fetch_models(
+        &reqwest::Client::new(),
+        &base_url,
+        form.api_key.as_deref(),
+    )
+    .await
+    {
+        Ok(proxy_models) => proxy_models,
+        Err(err) => {
+            return Ok(crate::layout::redirect_and_snackbar(
+                &select_provider,
+                snackbar_safe(&format!("LiteLLM import failed: {err}")),
+            )
+            .into_response())
+        }
+    };
+
+    let mut existing = models::models()
+        .bind(&transaction, &ModelType::LLM)
+        .all()
+        .await?;
+    existing.extend(
+        models::models()
+            .bind(&transaction, &ModelType::Embeddings)
+            .all()
+            .await?,
+    );
+
+    let provider_type = db::ModelProvider::LiteLLM;
+    let mut imported = 0;
+    let mut skipped = 0;
+    for proxy_model in &proxy_models {
+        let already_set_up = existing.iter().any(|model| {
+            model.name == proxy_model.name && model.base_url.trim_end_matches('/') == base_url
+        });
+        if already_set_up {
+            skipped += 1;
+            continue;
+        }
+
+        let model_type = match proxy_model.kind {
+            super::litellm_models::LiteLlmModelKind::Chat => ModelType::LLM,
+            super::litellm_models::LiteLlmModelKind::Embedding => ModelType::Embeddings,
+        };
+        let model_id = queries::models::insert()
+            .bind(
+                &transaction,
+                &proxy_model.name,
+                &model_type,
+                &provider_type,
+                &base_url,
+                &form.api_key,
+                &DEFAULT_TPM_LIMIT,
+                &DEFAULT_RPM_LIMIT,
+                &proxy_model.context_size,
+            )
+            .one()
+            .await?;
+
+        if model_type == ModelType::LLM {
+            let system_prompt: Option<String> = None;
+            let max_completion_tokens: Option<i32> = None;
+            let temperature: Option<f32> = None;
+            let reasoning_effort: Option<String> = None;
+            let empty_example = Some("");
+            queries::models::update_config()
+                .bind(
+                    &transaction,
+                    &proxy_model.name,
+                    &proxy_model.description(),
+                    &DEFAULT_DISCLAIMER,
+                    &empty_example,
+                    &empty_example,
+                    &empty_example,
+                    &empty_example,
+                    &system_prompt,
+                    &99,
+                    &max_completion_tokens,
+                    &80,
+                    &temperature,
+                    &reasoning_effort,
+                    &model_id,
+                )
+                .await?;
+
+            if proxy_model.function_calling {
+                for capability in [ModelCapability::function_calling, ModelCapability::tool_use] {
+                    capabilities::set_model_capability()
+                        .bind(&transaction, &model_id, &capability)
+                        .await?;
+                }
+            }
+            if proxy_model.vision {
+                capabilities::set_model_capability()
+                    .bind(&transaction, &model_id, &ModelCapability::vision)
+                    .await?;
+            }
+        }
+        imported += 1;
+    }
+
+    transaction.commit().await?;
+
+    let message = match (imported, skipped) {
+        (0, 0) => "The LiteLLM proxy has no chat or embedding models".to_string(),
+        (imported, 0) => format!("Imported {imported} models from LiteLLM"),
+        (imported, skipped) => {
+            format!("Imported {imported} models from LiteLLM ({skipped} already set up)")
+        }
+    };
+    Ok(crate::layout::redirect_and_snackbar(
+        &web_pages::routes::models::Index { team_id }.to_string(),
+        message,
+    )
+    .into_response())
+}
+
+/// The snackbar message travels in a cookie, which cannot hold `;`, `,` or
+/// control characters.
+fn snackbar_safe(message: &str) -> String {
+    message
+        .chars()
+        .map(|c| match c {
+            ';' | ',' => ' ',
+            c if c.is_control() => ' ',
+            c => c,
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::snackbar_safe;
+
+    #[test]
+    fn snackbar_messages_stay_cookie_safe() {
+        assert_eq!(
+            snackbar_safe("LiteLLM returned HTTP 401: {\"error\": \"a,b;c\"}\n"),
+            "LiteLLM returned HTTP 401: {\"error\": \"a b c\"} "
+        );
     }
 }

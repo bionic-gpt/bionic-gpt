@@ -114,6 +114,7 @@ pub fn page(team_id: String, rbac: Rbac, form: ProviderForm) -> String {
                                             SelectOption { value: "OpenRouter", selected_value: form.provider_type.clone(), "OpenRouter" }
                                             SelectOption { value: "Ollama", selected_value: form.provider_type.clone(), "Ollama" }
                                             SelectOption { value: "OpenAICompatible", selected_value: form.provider_type.clone(), "OpenAI Compatible" }
+                                            SelectOption { value: "LiteLLM", selected_value: form.provider_type.clone(), "LiteLLM" }
                                         }
                                     }
                                 }
